@@ -37,6 +37,20 @@ export async function createVaultDocumentAction(
     return { error: "Name and a file are required." };
   }
 
+  if (requestId) {
+    const request = await db.query.requests.findFirst({
+      where: (r, { eq }) => eq(r.id, requestId),
+      columns: { ownerId: true, propertyId: true },
+    });
+    if (
+      !request ||
+      request.ownerId !== session.user.id ||
+      request.propertyId !== propertyId
+    ) {
+      return { error: "Selected request does not belong to this property." };
+    }
+  }
+
   const [created] = await db
     .insert(vaultDocuments)
     .values({

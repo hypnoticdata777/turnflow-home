@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { reminders } from "@/lib/db/schema";
@@ -81,6 +81,15 @@ export async function deleteReminderAction(propertyId: string, reminderId: strin
   const session = await requireRole("owner");
   await requireOwnedProperty(propertyId, session.user.id);
 
-  await db.delete(reminders).where(eq(reminders.id, reminderId));
+  const reminder = await db.query.reminders.findFirst({
+    where: (r, { eq }) => eq(r.id, reminderId),
+  });
+  if (!reminder || reminder.propertyId !== propertyId) {
+    throw new Error("Reminder not found");
+  }
+
+  await db
+    .delete(reminders)
+    .where(and(eq(reminders.id, reminderId), eq(reminders.propertyId, propertyId)));
   revalidatePath("/owner/calendar");
 }

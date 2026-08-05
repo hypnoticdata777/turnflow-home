@@ -10,8 +10,11 @@ import { requireRole, requireAnyRole } from "@/lib/auth/dal";
 import { sendNotification } from "@/lib/email";
 import {
   REQUEST_CATEGORIES,
+  REQUEST_STATUSES,
   REQUEST_URGENCIES,
   CONTACT_METHODS,
+  meetsCompletionRequirements,
+  type RequestStatus,
 } from "@/lib/utils";
 
 export type CreateRequestResult = { requestId: string } | { error: string };
@@ -210,10 +213,9 @@ export async function updateCostAction(
  * firestore.rules' original two-way update rule. Every status change
  * writes an append-only decision-log entry (BRL2/BRL7); a transition to
  * Complete without the required proof on record (BRL2: final cost, an
- * "after" photo, an assigned vendor) is only permitted if the caller
- * already prompted for and passed a waiverReason — see
- * meetsCompletionRequirements() in lib/utils.ts, which the client checks
- * before calling this action.
+ * "after" photo, an assigned vendor) is only permitted with an explicit
+ * waiver reason. This action re-checks that server-side so callers cannot
+ * bypass the client prompt.
  */
 export async function updateRequestStatusAction(
   requestId: string,
@@ -231,30 +233,58 @@ export async function updateRequestStatusAction(
     throw new Error("Not authorized to update this request");
   }
 
+  if (!(REQUEST_STATUSES as readonly string[]).includes(status)) {
+    throw new Error("Invalid request status");
+  }
+
+  const nextStatus = status as RequestStatus;
+  let completionWaiverReason: string | undefined;
+
+  if (nextStatus === "Complete") {
+    const photos = await db.query.requestPhotos.findMany({
+      where: (p, { eq }) => eq(p.requestId, requestId),
+      columns: { type: true },
+    });
+
+    if (!meetsCompletionRequirements(req, photos)) {
+      const trimmedReason = waiverReason?.trim();
+      if (!trimmedReason) {
+        throw new Error(
+          'Cannot mark Complete without final cost, an "after" photo, and an assigned vendor unless a waiver reason is provided.'
+        );
+      }
+      completionWaiverReason = trimmedReason;
+    }
+  }
+
   const previousStatus = req.status;
 
   await db
     .update(requests)
-    .set({ status: status as (typeof req)["status"], updatedAt: new Date() })
+    .set({ status: nextStatus, updatedAt: new Date() })
     .where(eq(requests.id, requestId));
 
   await db.insert(decisionLog).values(
-    waiverReason
+    completionWaiverReason
       ? {
           requestId,
           actorId: session.user.id,
           action: "completion_waived",
-          details: { from: previousStatus, to: status, reason: waiverReason },
+          details: {
+            from: previousStatus,
+            to: nextStatus,
+            reason: completionWaiverReason,
+          },
         }
       : {
           requestId,
           actorId: session.user.id,
           action: "status_changed",
-          details: { from: previousStatus, to: status },
+          details: { from: previousStatus, to: nextStatus },
         }
   );
 
-  if (previousStatus !== status) {
+  if (previousStatus !== nextStatus) {
     const owner = await db.query.users.findFirst({
       where: (u, { eq }) => eq(u.id, req.ownerId),
       columns: { email: true },
@@ -264,8 +294,8 @@ export async function updateRequestStatusAction(
       requestId,
       type: "status_change",
       recipientEmail: owner?.email ?? null,
-      subject: `TurnFlow Home: "${req.title}" is now ${status}`,
-      text: `Your maintenance request "${req.title}" changed status from ${previousStatus} to ${status}.`,
+      subject: `TurnFlow Home: "${req.title}" is now ${nextStatus}`,
+      text: `Your maintenance request "${req.title}" changed status from ${previousStatus} to ${nextStatus}.`,
     });
   }
 
