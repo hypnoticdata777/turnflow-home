@@ -66,7 +66,7 @@ write:
 npm install
 npm run db:push               # apply the Drizzle schema to your Postgres database
 npm run db:seed               # create sample owner/vendor/collaborator accounts and test data
-npx tsx scripts/seed-demo.ts  # optional — richer demo data (quotes, vault doc, reminder)
+npm run db:seed:demo          # optional — richer demo data (quotes, vault doc, reminder)
 npm run dev
 ```
 
@@ -87,6 +87,11 @@ Run the test suite:
 ```bash
 npm test
 ```
+
+Deployment and build notes:
+
+- [Deployment runbook](docs/DEPLOYMENT.md)
+- [Build log](docs/BUILD_LOG.md)
 
 Regenerate the screenshots above (requires the dev server running and
 seeded data):
