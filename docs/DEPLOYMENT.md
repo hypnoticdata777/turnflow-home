@@ -76,7 +76,9 @@ walkthroughs.
 
 - `npm test` passes.
 - `npx tsc --noEmit` passes.
-- `npm run lint` status is known and documented.
+- `npm run lint` passes.
+- `npm run build` passes.
+- `npm audit --omit=dev` reports 0 vulnerabilities.
 - `.env.local` is not committed.
 - Vercel project has Neon and Blob environment variables set.
 - `APP_URL` points to the actual deployed URL.

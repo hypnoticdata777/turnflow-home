@@ -89,6 +89,41 @@ local, staging, and deployed databases.
 - Run `npm run db:migrate`, `npm run db:seed`, and `npm run db:seed:demo`
   against a real Neon database once `.env.local` is available.
 
+## 2026-08-06 - Production Build Without Local Secrets
+
+Scope: make pre-deploy validation runnable before local Neon credentials are
+available.
+
+### Changed
+
+- Made `lib/db/index.ts` initialize the Neon/Drizzle client lazily instead of
+  throwing as soon as the module is imported.
+- Kept the same missing `DATABASE_URL` error for runtime code paths that
+  actually touch the database.
+- Added `npm run build` and production audit checks to the deployment runbook's
+  pre-deploy checklist.
+
+### Why
+
+`next build` imports protected routes while collecting page data. The old eager
+database initialization made a missing local `DATABASE_URL` fail the build even
+though Vercel production will provide the variable at runtime. Lazy
+initialization lets CI/local build validation run without secrets while still
+failing clearly if a database-backed request runs without configuration.
+
+### Validation
+
+- `npm.cmd run build` passed without `.env.local`.
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 33 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+
+### Follow-Up
+
+- Run the app against real Neon and Blob credentials and perform the deployment
+  smoke test.
+
 ## 2026-08-04 - Trust Boundary Hardening
 
 Commit: `31267e3`  
