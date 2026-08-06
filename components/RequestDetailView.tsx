@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import {
@@ -47,6 +47,84 @@ type RequestData = {
 type Photo = { id: string; type: string; url: string };
 type Property = { address: string; nickname: string | null } | null;
 
+function CostEditor({ request }: { request: RequestData }) {
+  const router = useRouter();
+  const [estimatedCost, setEstimatedCost] = useState(request.estimatedCost ?? "");
+  const [quotedCost, setQuotedCost] = useState(request.quotedCost ?? "");
+  const [finalCost, setFinalCost] = useState(request.finalCost ?? "");
+  const [costSaving, setCostSaving] = useState(false);
+  const [costStatus, setCostStatus] = useState("");
+
+  async function handleSaveCosts() {
+    setCostSaving(true);
+    setCostStatus("Saving...");
+    try {
+      await updateCostAction(request.id, { estimatedCost, quotedCost, finalCost });
+      setCostStatus("Saved");
+      router.refresh();
+    } catch (err) {
+      console.error("Failed to save costs:", err);
+      setCostStatus("Failed to save. Please try again.");
+    } finally {
+      setCostSaving(false);
+    }
+  }
+
+  return (
+    <>
+      <h2 className="text-xl font-semibold mb-3">Cost</h2>
+      <div className="grid md:grid-cols-3 gap-2 mb-2">
+        <label className="text-sm">
+          Estimated
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={estimatedCost}
+            onChange={(e) => setEstimatedCost(e.target.value)}
+            className="w-full p-2 border rounded mt-1"
+          />
+        </label>
+        <label className="text-sm">
+          Quoted
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={quotedCost}
+            onChange={(e) => setQuotedCost(e.target.value)}
+            className="w-full p-2 border rounded mt-1"
+          />
+        </label>
+        <label className="text-sm">
+          Final
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={finalCost}
+            onChange={(e) => setFinalCost(e.target.value)}
+            className="w-full p-2 border rounded mt-1"
+          />
+        </label>
+      </div>
+      <div className="flex items-center gap-3 mb-2">
+        <button
+          onClick={handleSaveCosts}
+          disabled={costSaving}
+          className="bg-gray-800 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+        >
+          {costSaving ? "Saving..." : "Save Costs"}
+        </button>
+        {costStatus && <p className="text-sm text-gray-600">{costStatus}</p>}
+      </div>
+      <p className="text-sm text-gray-600 mb-4">
+        Current ({costLabelForRequest(request)}): ${costForRequest(request).toFixed(2)}
+      </p>
+    </>
+  );
+}
+
 export function RequestDetailView({
   request,
   photos: initialPhotos,
@@ -69,21 +147,6 @@ export function RequestDetailView({
   const [statusSaving, setStatusSaving] = useState(false);
   const [photos, setPhotos] = useState(initialPhotos);
   const [uploadStatus, setUploadStatus] = useState("");
-  const [estimatedCost, setEstimatedCost] = useState(request.estimatedCost ?? "");
-  const [quotedCost, setQuotedCost] = useState(request.quotedCost ?? "");
-  const [finalCost, setFinalCost] = useState(request.finalCost ?? "");
-  const [costSaving, setCostSaving] = useState(false);
-  const [costStatus, setCostStatus] = useState("");
-
-  // Cost fields can change from outside this form (e.g. approving a quote
-  // sets quotedCost server-side) — router.refresh() alone won't update
-  // this local state, so re-sync whenever fresh request data comes in.
-  useEffect(() => {
-    setEstimatedCost(request.estimatedCost ?? "");
-    setQuotedCost(request.quotedCost ?? "");
-    setFinalCost(request.finalCost ?? "");
-  }, [request.estimatedCost, request.quotedCost, request.finalCost]);
-
   const propertyLabel = property
     ? property.nickname
       ? `${property.nickname} — ${property.address}`
@@ -117,21 +180,6 @@ export function RequestDetailView({
       setStatus(previousStatus);
     } finally {
       setStatusSaving(false);
-    }
-  }
-
-  async function handleSaveCosts() {
-    setCostSaving(true);
-    setCostStatus("Saving…");
-    try {
-      await updateCostAction(request.id, { estimatedCost, quotedCost, finalCost });
-      setCostStatus("Saved ✓");
-      router.refresh();
-    } catch (err) {
-      console.error("Failed to save costs:", err);
-      setCostStatus("Failed to save. Please try again.");
-    } finally {
-      setCostSaving(false);
     }
   }
 
@@ -221,56 +269,15 @@ export function RequestDetailView({
 
       <hr className="my-4" />
 
-      <h2 className="text-xl font-semibold mb-3">Cost</h2>
-      <div className="grid md:grid-cols-3 gap-2 mb-2">
-        <label className="text-sm">
-          Estimated
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={estimatedCost}
-            onChange={(e) => setEstimatedCost(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
-          />
-        </label>
-        <label className="text-sm">
-          Quoted
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={quotedCost}
-            onChange={(e) => setQuotedCost(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
-          />
-        </label>
-        <label className="text-sm">
-          Final
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={finalCost}
-            onChange={(e) => setFinalCost(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
-          />
-        </label>
-      </div>
-      <div className="flex items-center gap-3 mb-2">
-        <button
-          onClick={handleSaveCosts}
-          disabled={costSaving}
-          className="bg-gray-800 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
-        >
-          {costSaving ? "Saving…" : "Save Costs"}
-        </button>
-        {costStatus && <p className="text-sm text-gray-600">{costStatus}</p>}
-      </div>
-      <p className="text-sm text-gray-600 mb-4">
-        Current ({costLabelForRequest(request)}): $
-        {costForRequest(request).toFixed(2)}
-      </p>
+      <CostEditor
+        key={[
+          request.id,
+          request.estimatedCost ?? "",
+          request.quotedCost ?? "",
+          request.finalCost ?? "",
+        ].join(":")}
+        request={request}
+      />
 
       <hr className="my-4" />
 

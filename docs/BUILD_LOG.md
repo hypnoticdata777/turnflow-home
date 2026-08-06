@@ -2,6 +2,62 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-06 - Lint Blocker Cleared
+
+Scope: React hook lint cleanup for the request detail workflow.
+
+### Changed
+
+- Removed the prop-to-state sync effect from `QuoteWorkspace`.
+- Derived the displayed quote list from props plus locally hidden deleted quote IDs.
+- Extracted the request cost form into a keyed `CostEditor` child so refreshed
+  server cost values remount the form instead of syncing state in an effect.
+
+### Why
+
+Next/React lint now flags synchronous `setState` calls inside effects. The old
+pattern worked functionally, but it blocked a clean pre-deploy checklist.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 33 tests.
+
+## 2026-08-06 - Production Audit Cleared
+
+Scope: dependency audit hardening for deploy readiness.
+
+### Changed
+
+- Updated `next` from `16.2.12` to `16.3.0`.
+- Updated `eslint-config-next` from `16.2.12` to `16.3.0` to keep lint config
+  aligned with the framework version.
+
+### Why
+
+`npm audit --omit=dev` reported high-severity production findings through
+Next's transitive `postcss` and `sharp` dependencies. The audited fix path was
+the Next `16.3.0` release line.
+
+### Validation
+
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 33 tests.
+- `npx.cmd drizzle-kit --version` passed.
+
+### Follow-Up
+
+- Full `npm audit` still reports 4 moderate dev-only findings through
+  `drizzle-kit -> @esbuild-kit/esm-loader -> @esbuild-kit/core-utils ->
+  esbuild@0.18.20`.
+- `drizzle-kit@0.31.10` is currently the latest published version, and npm's
+  suggested forced fix would downgrade to `drizzle-kit@0.18.1`, so this remains
+  documented rather than forced.
+- Convert `db:push` POC setup to committed migrations before broader beta.
+
 ## 2026-08-04 - Trust Boundary Hardening
 
 Commit: `31267e3`  

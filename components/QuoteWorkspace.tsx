@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import {
@@ -37,16 +37,14 @@ export function QuoteWorkspace({
   userId: string;
 }) {
   const router = useRouter();
-  const [quotes, setQuotes] = useState(
-    [...initialQuotes].sort((a, b) => Number(a.amount) - Number(b.amount))
+  const [deletedQuoteIds, setDeletedQuoteIds] = useState<string[]>([]);
+  const quotes = useMemo(
+    () =>
+      initialQuotes
+        .filter((quote) => !deletedQuoteIds.includes(quote.id))
+        .sort((a, b) => Number(a.amount) - Number(b.amount)),
+    [initialQuotes, deletedQuoteIds]
   );
-
-  // router.refresh() re-renders this component's server-side parent with
-  // fresh data but doesn't reset local state, so re-sync whenever the
-  // parent hands down a new quotes array (new create/approve/decline).
-  useEffect(() => {
-    setQuotes([...initialQuotes].sort((a, b) => Number(a.amount) - Number(b.amount)));
-  }, [initialQuotes]);
   const [vendorName, setVendorName] = useState("");
   const [vendorContact, setVendorContact] = useState("");
   const [amount, setAmount] = useState("");
@@ -137,7 +135,7 @@ export function QuoteWorkspace({
     setActingId(quoteId);
     try {
       await deleteQuoteAction(requestId, quoteId);
-      setQuotes((prev) => prev.filter((q) => q.id !== quoteId));
+      setDeletedQuoteIds((prev) => (prev.includes(quoteId) ? prev : [...prev, quoteId]));
       router.refresh();
     } catch (err) {
       console.error("Failed to delete quote:", err);

@@ -101,7 +101,5 @@ walkthroughs.
 - No self-serve signup yet.
 - No workspace/org model yet.
 - No privacy-controls UI yet.
-- `npm run lint` currently reports existing React hook lint issues in
-  `components/QuoteWorkspace.tsx` and `components/RequestDetailView.tsx`.
-- npm audit currently reports dependency findings that need review before a
-  wider public beta.
+- Full `npm audit` still reports a dev-only Drizzle tooling finding through
+  `@esbuild-kit`; production audit is clean with `npm audit --omit=dev`.
