@@ -124,6 +124,39 @@ failing clearly if a database-backed request runs without configuration.
 - Run the app against real Neon and Blob credentials and perform the deployment
   smoke test.
 
+## 2026-08-06 - GitHub CI Added
+
+Scope: move the pre-deploy validation checklist into GitHub Actions.
+
+### Changed
+
+- Added `.github/workflows/ci.yml`.
+- CI now runs on pushes to `main` and on pull requests.
+- The workflow installs from `package-lock.json`, then runs lint, TypeScript,
+  tests, production dependency audit, migration drift check, and production
+  build.
+- Updated the deployment runbook to note that CI covers the pre-deploy checks.
+
+### Why
+
+The project now has a green local checklist, but it should not rely on memory or
+a single workstation. CI makes regressions visible before deploy work continues.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 33 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Confirm the first GitHub Actions run passes on `main` after this commit is
+  pushed.
+
 ## 2026-08-04 - Trust Boundary Hardening
 
 Commit: `31267e3`  

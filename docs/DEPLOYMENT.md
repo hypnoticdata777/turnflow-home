@@ -74,6 +74,10 @@ walkthroughs.
 
 ## Pre-Deploy Checklist
 
+GitHub Actions runs this validation on every push to `main` and every pull
+request. Re-run locally before deploying if the environment or database schema
+changed:
+
 - `npm test` passes.
 - `npx tsc --noEmit` passes.
 - `npm run lint` passes.
