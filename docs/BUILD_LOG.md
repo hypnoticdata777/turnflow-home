@@ -56,7 +56,38 @@ the Next `16.3.0` release line.
 - `drizzle-kit@0.31.10` is currently the latest published version, and npm's
   suggested forced fix would downgrade to `drizzle-kit@0.18.1`, so this remains
   documented rather than forced.
-- Convert `db:push` POC setup to committed migrations before broader beta.
+
+## 2026-08-06 - Baseline Migration Added
+
+Scope: replace direct schema push setup with committed Drizzle migrations.
+
+### Changed
+
+- Added the initial generated migration in `drizzle/0000_living_rhino.sql`.
+- Committed Drizzle migration metadata under `drizzle/meta/`.
+- Updated `drizzle.config.ts` so `db:generate` can run without a live
+  `DATABASE_URL`, while `db:migrate` and `db:push` still require one.
+- Updated the README and deployment runbook to use `npm run db:migrate` for
+  fresh database setup.
+
+### Why
+
+`db:push` was fine for the earliest POC, but a public-safe beta needs a
+reviewable, repeatable schema history that can be applied consistently across
+local, staging, and deployed databases.
+
+### Validation
+
+- `npm.cmd run db:generate` passed and produced the baseline migration.
+- `npm.cmd run db:migrate` without `.env.local` failed fast with the expected
+  missing `DATABASE_URL` error.
+- `npm.cmd run db:push` without `.env.local` failed fast with the expected
+  missing `DATABASE_URL` error.
+
+### Follow-Up
+
+- Run `npm run db:migrate`, `npm run db:seed`, and `npm run db:seed:demo`
+  against a real Neon database once `.env.local` is available.
 
 ## 2026-08-04 - Trust Boundary Hardening
 

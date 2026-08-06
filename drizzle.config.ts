@@ -3,8 +3,16 @@ import { defineConfig } from "drizzle-kit";
 
 config({ path: ".env.local" });
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set — see .env.local.example");
+const databaseUrl =
+  process.env.DATABASE_URL ??
+  "postgres://placeholder:placeholder@localhost:5432/placeholder";
+
+const requiresDatabaseUrl = process.argv.some((arg) =>
+  ["migrate", "push"].includes(arg)
+);
+
+if (requiresDatabaseUrl && !process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not set - see .env.local.example");
 }
 
 export default defineConfig({
@@ -12,6 +20,6 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL,
+    url: databaseUrl,
   },
 });

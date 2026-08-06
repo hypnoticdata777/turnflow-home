@@ -39,17 +39,17 @@ Notes:
 
 ## Fresh Database Setup
 
-For the current POC, apply the schema directly:
+For the current POC, apply the committed schema migrations:
 
 ```bash
 npm install
-npm run db:push
+npm run db:migrate
 npm run db:seed
 npm run db:seed:demo
 ```
 
-`db:push` is acceptable for the current POC phase. Before a broader beta,
-replace this with a committed migration workflow:
+Use `db:generate` only after changing `lib/db/schema.ts`; review and commit the
+generated SQL before applying it:
 
 ```bash
 npm run db:generate

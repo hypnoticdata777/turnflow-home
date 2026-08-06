@@ -64,7 +64,7 @@ write:
 
 ```bash
 npm install
-npm run db:push               # apply the Drizzle schema to your Postgres database
+npm run db:migrate            # apply committed Drizzle migrations to your Postgres database
 npm run db:seed               # create sample owner/vendor/collaborator accounts and test data
 npm run db:seed:demo          # optional — richer demo data (quotes, vault doc, reminder)
 npm run dev
