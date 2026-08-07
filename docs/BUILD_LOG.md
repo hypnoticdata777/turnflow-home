@@ -2,6 +2,45 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-07 - Pending Invite Controls
+
+Scope: owner control over pending vendor/collaborator invite links.
+
+### Changed
+
+- Added `lib/invites/forms.ts` for testable invite form parsing.
+- Added `cancelInviteAction` for owners to delete pending invites and clear the
+  matching request pending-invite pointer.
+- Added `resendInviteAction` for owners to refresh a pending invite expiry and
+  send/log a new invite notification attempt.
+- Added `components/PendingInviteControls.tsx` and surfaced Resend/Cancel
+  controls in Account & Sharing invite activity.
+- Added `__tests__/invite-forms.test.ts` for invite-id parsing.
+- Updated README, deployment smoke tests, and user-testing tasks to include
+  pending invite management.
+
+### Why
+
+Real owners need a recovery path when an invite email does not land or the wrong
+person was invited. Resend/cancel controls make sharing feel intentional and
+reversible without changing the database schema.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 46 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Add a visible copied-link fallback for resend when email is not configured.
+- Add accepted-invite removal/unshare controls once user testing confirms how
+  owners expect revocation to behave.
+
 ## 2026-08-07 - Signup and Profile Friction Pass
 
 Scope: smoother account creation and basic owner profile management.

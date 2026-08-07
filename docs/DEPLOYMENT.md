@@ -105,6 +105,8 @@ changed:
 12. Add one recurring reminder and confirm the setup guide progress updates.
 13. Open Account & Sharing and confirm pending invites and sharing boundaries
     are understandable to a first-time owner.
+14. Resend and cancel a pending invite from Account & Sharing, then confirm the
+    request page reflects the updated pending state.
 
 ## Current Known POC Gaps
 

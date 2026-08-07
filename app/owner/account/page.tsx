@@ -2,6 +2,7 @@ import Link from "next/link";
 import { eq, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/dal";
 import { OwnerProfileForm } from "@/components/OwnerProfileForm";
+import { PendingInviteControls } from "@/components/PendingInviteControls";
 import { db } from "@/lib/db";
 import { invites, properties, reminders, requests, users, vaultDocuments } from "@/lib/db/schema";
 import { ownerAccountReadinessItems, ownerReadinessFlags } from "@/lib/owner-readiness";
@@ -197,6 +198,7 @@ export default async function OwnerAccountPage() {
                   <th className="py-2 pr-4 font-medium">Request</th>
                   <th className="py-2 pr-4 font-medium">Status</th>
                   <th className="py-2 pr-4 font-medium">Expires</th>
+                  <th className="py-2 pr-4 font-medium">Controls</th>
                 </tr>
               </thead>
               <tbody>
@@ -207,6 +209,13 @@ export default async function OwnerAccountPage() {
                     <td className="py-3 pr-4">{invite.request?.title || "Request removed"}</td>
                     <td className="py-3 pr-4 capitalize">{invite.status}</td>
                     <td className="py-3 pr-4">{formatDate(invite.expiresAt)}</td>
+                    <td className="py-3 pr-4">
+                      {invite.status === "pending" ? (
+                        <PendingInviteControls inviteId={invite.id} />
+                      ) : (
+                        <span className="text-xs text-gray-500">Accepted</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

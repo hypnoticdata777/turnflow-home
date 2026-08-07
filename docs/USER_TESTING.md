@@ -59,8 +59,9 @@ Ask the tester to complete these tasks without explaining the interface first:
 8. Save one related document in the vault.
 9. Set one recurring reminder for that property.
 10. Open Account & Sharing and explain who can see the request.
-11. Update the Account & Sharing display name.
-12. Return to the setup guide and explain what has been captured.
+11. Resend the invite, then cancel a second pending invite if one exists.
+12. Update the Account & Sharing display name.
+13. Return to the setup guide and explain what has been captured.
 
 ## Observe
 
@@ -72,6 +73,7 @@ Track these without coaching:
 - Whether the setup guide feels useful or like extra admin work.
 - Whether the tester can distinguish requests, vault documents, and reminders.
 - Whether the invite flow feels safe enough to use with a real contractor.
+- Whether resend/cancel controls make pending invites feel recoverable.
 - Whether Account & Sharing answers the tester's trust/privacy questions.
 - Whether the owner trusts the record as evidence after the job is done.
 

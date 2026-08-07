@@ -1,11 +1,12 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { invites, requests } from "@/lib/db/schema";
 import { requireRole, requireAnyRole } from "@/lib/auth/dal";
 import { sendNotification } from "@/lib/email";
+import { inviteIdFromFormData } from "@/lib/invites/forms";
 
 const INVITE_VALID_DAYS = 14;
 
@@ -73,6 +74,114 @@ export async function createVendorInviteAction(requestId: string, email: string)
 
 export async function createCollaboratorInviteAction(requestId: string, email: string) {
   return createInvite(requestId, email, "collaborator");
+}
+
+export type ManageInviteState =
+  | {
+      error?: string;
+      success?: string;
+    }
+  | undefined;
+
+function revalidateInviteSurfaces(requestId: string | null) {
+  revalidatePath("/owner/account");
+  if (requestId) {
+    revalidatePath(`/owner/requests/${requestId}`);
+  }
+}
+
+export async function cancelInviteAction(
+  _prevState: ManageInviteState,
+  formData: FormData
+): Promise<ManageInviteState> {
+  const session = await requireRole("owner");
+  const parsed = inviteIdFromFormData(formData);
+
+  if (!parsed.success) {
+    return { error: parsed.error.flatten().fieldErrors.inviteId?.[0] || "Invite id is invalid." };
+  }
+
+  const invite = await db.query.invites.findFirst({
+    where: (i, { eq }) => eq(i.id, parsed.data.inviteId),
+  });
+
+  if (!invite || invite.ownerId !== session.user.id) {
+    return { error: "That invite could not be found for this owner account." };
+  }
+  if (invite.status !== "pending") {
+    return { error: "Only pending invites can be canceled." };
+  }
+
+  if (invite.requestId) {
+    await db
+      .update(requests)
+      .set(
+        invite.role === "vendor"
+          ? { pendingVendorInviteId: null }
+          : { pendingCollaboratorInviteId: null }
+      )
+      .where(
+        and(
+          eq(requests.id, invite.requestId),
+          eq(requests.ownerId, session.user.id),
+          invite.role === "vendor"
+            ? eq(requests.pendingVendorInviteId, invite.id)
+            : eq(requests.pendingCollaboratorInviteId, invite.id)
+        )
+      );
+  }
+
+  await db
+    .delete(invites)
+    .where(and(eq(invites.id, invite.id), eq(invites.ownerId, session.user.id)));
+
+  revalidateInviteSurfaces(invite.requestId);
+  return { success: "Invite canceled." };
+}
+
+export async function resendInviteAction(
+  _prevState: ManageInviteState,
+  formData: FormData
+): Promise<ManageInviteState> {
+  const session = await requireRole("owner");
+  const parsed = inviteIdFromFormData(formData);
+
+  if (!parsed.success) {
+    return { error: parsed.error.flatten().fieldErrors.inviteId?.[0] || "Invite id is invalid." };
+  }
+
+  const invite = await db.query.invites.findFirst({
+    where: (i, { eq }) => eq(i.id, parsed.data.inviteId),
+  });
+
+  if (!invite || invite.ownerId !== session.user.id) {
+    return { error: "That invite could not be found for this owner account." };
+  }
+  if (invite.status !== "pending") {
+    return { error: "Only pending invites can be resent." };
+  }
+  if (!invite.requestId) {
+    return { error: "This invite is missing its request." };
+  }
+
+  const expiresAt = new Date(Date.now() + INVITE_VALID_DAYS * 24 * 60 * 60 * 1000);
+  await db
+    .update(invites)
+    .set({ expiresAt })
+    .where(and(eq(invites.id, invite.id), eq(invites.ownerId, session.user.id)));
+
+  const link = `${process.env.APP_URL || ""}/accept-invite?invite=${invite.id}`;
+  await sendNotification({
+    ownerId: session.user.id,
+    requestId: invite.requestId,
+    type: `${invite.role}_invite_resend`,
+    recipientEmail: invite.email,
+    subject: "Your TurnFlow Home invite link",
+    text: `You've been invited as a ${invite.role} on a TurnFlow Home maintenance request.\n\nAccept it here: ${link}\n\nThis invite expires in ${INVITE_VALID_DAYS} days.`,
+  });
+
+  revalidateInviteSurfaces(invite.requestId);
+  return { success: "Invite resent and expiry refreshed." };
 }
 
 export type AcceptInviteResult = { error: string } | { success: true };
