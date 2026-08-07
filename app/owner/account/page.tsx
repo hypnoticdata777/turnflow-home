@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { eq, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/dal";
+import { OwnerProfileForm } from "@/components/OwnerProfileForm";
 import { db } from "@/lib/db";
-import { invites, properties, reminders, requests, vaultDocuments } from "@/lib/db/schema";
+import { invites, properties, reminders, requests, users, vaultDocuments } from "@/lib/db/schema";
 import { ownerAccountReadinessItems, ownerReadinessFlags } from "@/lib/owner-readiness";
 
 function formatDate(date: Date | null) {
@@ -17,7 +18,11 @@ function formatDate(date: Date | null) {
 export default async function OwnerAccountPage() {
   const session = await requireRole("owner");
 
-  const [ownerProperties, ownerRequests, ownerInvites] = await Promise.all([
+  const [ownerProfile, ownerProperties, ownerRequests, ownerInvites] = await Promise.all([
+    db.query.users.findFirst({
+      where: eq(users.id, session.user.id),
+      columns: { name: true, email: true },
+    }),
     db.query.properties.findMany({
       where: eq(properties.ownerId, session.user.id),
       orderBy: (p, { desc }) => desc(p.createdAt),
@@ -56,7 +61,9 @@ export default async function OwnerAccountPage() {
   const pendingInvites = ownerInvites.filter((invite) => invite.status === "pending");
   const acceptedInvites = ownerInvites.filter((invite) => invite.status === "accepted");
   const { sharedRequestCount } = ownerReadinessFlags(readinessInput);
-  const readinessItems = ownerAccountReadinessItems(readinessInput, session.user.email);
+  const displayName = ownerProfile?.name || session.user.name || "Owner";
+  const displayEmail = ownerProfile?.email || session.user.email;
+  const readinessItems = ownerAccountReadinessItems(readinessInput, displayEmail);
 
   return (
     <main className="max-w-6xl">
@@ -72,8 +79,9 @@ export default async function OwnerAccountPage() {
       <section className="mb-6 grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-gray-500">Signed in as</p>
-          <h2 className="mt-1 text-xl font-semibold">{session.user.name || "Owner"}</h2>
-          <p className="mt-1 break-all text-sm text-gray-600">{session.user.email}</p>
+          <h2 className="mt-1 text-xl font-semibold">{displayName}</h2>
+          <p className="mt-1 break-all text-sm text-gray-600">{displayEmail}</p>
+          <OwnerProfileForm initialName={displayName} />
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-gray-500">Shared requests</p>

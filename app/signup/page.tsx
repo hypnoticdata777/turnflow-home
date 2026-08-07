@@ -24,6 +24,7 @@ export default function SignupPage() {
               name="name"
               type="text"
               placeholder="Full name"
+              defaultValue={state?.values?.name}
               required
               className="w-full border border-gray-200 rounded-lg px-3 py-2"
             />
@@ -37,6 +38,7 @@ export default function SignupPage() {
               name="email"
               type="email"
               placeholder="Email"
+              defaultValue={state?.values?.email}
               required
               className="w-full border border-gray-200 rounded-lg px-3 py-2"
             />
@@ -50,9 +52,13 @@ export default function SignupPage() {
               name="password"
               type="password"
               placeholder="Password"
+              minLength={8}
               required
               className="w-full border border-gray-200 rounded-lg px-3 py-2"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Use at least 8 characters with one letter and one number.
+            </p>
             {state?.fieldErrors?.password?.[0] && (
               <p className="mt-1 text-xs text-red-600">
                 {state.fieldErrors.password[0]}

@@ -2,6 +2,50 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-07 - Signup and Profile Friction Pass
+
+Scope: smoother account creation and basic owner profile management.
+
+### Changed
+
+- Added `lib/auth/forms.ts` for shared, testable signup and owner profile
+  validation.
+- Refactored `signupAction` to use the shared parser and return safe name/email
+  values after validation or duplicate-email errors.
+- Updated `/signup` to preserve name/email after failed submissions and show the
+  password rule before submit.
+- Added `updateOwnerProfileAction` for owner display-name updates with
+  server-side role validation and path revalidation.
+- Added `components/OwnerProfileForm.tsx` and embedded it in Account & Sharing.
+- Updated Account & Sharing to read the current owner row from the database so
+  profile edits display immediately.
+- Added `__tests__/auth-forms.test.ts` for signup normalization, password/email
+  errors, safe value preservation, and profile-name validation.
+- Updated README and user-testing tasks to include editable profile behavior.
+
+### Why
+
+Signup is the first real conversion moment. Keeping safe values after errors,
+making password rules visible, and giving owners a basic editable profile makes
+the app feel less like a static POC and more like software people can settle
+into.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 43 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Add password change/reset flows before a broader public beta.
+- Add email verification once outbound email configuration is confirmed.
+- Add invite revoke/resend controls from Account & Sharing.
+
 ## 2026-08-07 - Owner Readiness Test Coverage
 
 Scope: organize and test the first-run readiness rules that drive launch UX.

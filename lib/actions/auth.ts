@@ -2,9 +2,18 @@
 
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
-import { z } from "zod";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { signIn, signOut } from "@/lib/auth/config";
-import { roleHome } from "@/lib/auth/dal";
+import { requireRole, roleHome } from "@/lib/auth/dal";
+import {
+  parseOwnerProfileFields,
+  parseSignupFields,
+  signupValuesFromFormData,
+  type ProfileFieldErrors,
+  type SignupFieldErrors,
+  type SignupFields,
+} from "@/lib/auth/forms";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 
@@ -12,43 +21,38 @@ export type LoginState = { error?: string } | undefined;
 export type SignupState =
   | {
       error?: string;
-      fieldErrors?: {
-        name?: string[];
-        email?: string[];
-        password?: string[];
-      };
+      fieldErrors?: SignupFieldErrors;
+      values?: SignupFields;
     }
   | undefined;
-
-const signupSchema = z.object({
-  name: z.string().trim().min(2, "Enter your name."),
-  email: z.string().trim().toLowerCase().email("Enter a valid email."),
-  password: z
-    .string()
-    .min(8, "Use at least 8 characters.")
-    .regex(/[A-Za-z]/, "Use at least one letter.")
-    .regex(/[0-9]/, "Use at least one number."),
-});
+export type ProfileState =
+  | {
+      error?: string;
+      success?: string;
+      fieldErrors?: ProfileFieldErrors;
+    }
+  | undefined;
 
 export async function signupAction(
   _prevState: SignupState,
   formData: FormData
 ): Promise<SignupState> {
-  const parsed = signupSchema.safeParse({
+  const values = signupValuesFromFormData(formData);
+  const parsed = parseSignupFields({
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
   });
 
   if (!parsed.success) {
-    return { fieldErrors: parsed.error.flatten().fieldErrors };
+    return { fieldErrors: parsed.error.flatten().fieldErrors, values };
   }
 
   const existing = await db.query.users.findFirst({
     where: (u, { eq }) => eq(u.email, parsed.data.email),
   });
   if (existing) {
-    return { error: "An account already exists for that email." };
+    return { error: "An account already exists for that email.", values };
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 10);
@@ -68,10 +72,35 @@ export async function signupAction(
     });
   } catch (error) {
     console.error("Signup failed:", error);
-    return { error: "Could not create that account. Please try again." };
+    return { error: "Could not create that account. Please try again.", values };
   }
 
   redirect("/owner/onboarding");
+}
+
+export async function updateOwnerProfileAction(
+  _prevState: ProfileState,
+  formData: FormData
+): Promise<ProfileState> {
+  const session = await requireRole("owner");
+  const parsed = parseOwnerProfileFields({ name: formData.get("name") });
+
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  try {
+    await db
+      .update(users)
+      .set({ name: parsed.data.name })
+      .where(eq(users.id, session.user.id));
+  } catch (error) {
+    console.error("Profile update failed:", error);
+    return { error: "Could not update your profile. Please try again." };
+  }
+
+  revalidatePath("/owner/account");
+  return { success: "Profile updated." };
 }
 
 export async function loginAction(

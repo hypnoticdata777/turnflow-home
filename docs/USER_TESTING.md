@@ -59,7 +59,8 @@ Ask the tester to complete these tasks without explaining the interface first:
 8. Save one related document in the vault.
 9. Set one recurring reminder for that property.
 10. Open Account & Sharing and explain who can see the request.
-11. Return to the setup guide and explain what has been captured.
+11. Update the Account & Sharing display name.
+12. Return to the setup guide and explain what has been captured.
 
 ## Observe
 
@@ -118,6 +119,7 @@ Device:
 Scenario:
 
 Signup completed?:
+Profile edited?:
 Property completed?:
 Request completed?:
 Evidence attached?:
