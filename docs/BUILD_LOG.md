@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-07 - Owner Readiness Test Coverage
+
+Scope: organize and test the first-run readiness rules that drive launch UX.
+
+### Changed
+
+- Added `lib/owner-readiness.ts` as the shared source of truth for owner setup
+  steps, progress, readiness flags, shared-request counts, and account
+  readiness checklist items.
+- Refactored `/owner/onboarding` and `/owner/account` to use the shared helper
+  instead of duplicating first-run logic in page components.
+- Added `__tests__/owner-readiness.test.ts` covering empty, partial, and more
+  mature owner journeys.
+- Updated README and user-testing docs to note that setup/account readiness
+  rules are now shared and tested.
+- Kept Next's generated `AGENTS.md` guidance change so future worktree status
+  stays cleaner after `next dev` rewrites it.
+
+### Why
+
+The product needs to feel frictionless, but the maturity rules cannot drift
+between pages. Centralizing and testing them makes the owner journey easier to
+change deliberately after user testing.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 38 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Add tests around signup validation once the auth action is split into a
+  testable parser/helper.
+- Add lightweight route smoke tests after a stable demo database is available.
+
 ## 2026-08-07 - Owner Account & Sharing Center
 
 Scope: launch-readiness trust surface for homeowner accounts and invite sharing.

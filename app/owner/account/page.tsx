@@ -3,6 +3,7 @@ import { eq, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
 import { invites, properties, reminders, requests, vaultDocuments } from "@/lib/db/schema";
+import { ownerAccountReadinessItems, ownerReadinessFlags } from "@/lib/owner-readiness";
 
 function formatDate(date: Date | null) {
   if (!date) return "Not recorded";
@@ -45,49 +46,17 @@ export default async function OwnerAccountPage() {
       ])
     : [[], []];
 
+  const readinessInput = {
+    properties: ownerProperties,
+    requests: ownerRequests,
+    invites: ownerInvites,
+    vaultDocuments: ownerVaultDocs,
+    reminders: ownerReminders,
+  };
   const pendingInvites = ownerInvites.filter((invite) => invite.status === "pending");
   const acceptedInvites = ownerInvites.filter((invite) => invite.status === "accepted");
-  const requestsWithEvidence = ownerRequests.filter((request) => request.photos.length > 0);
-  const sharedRequests = ownerRequests.filter(
-    (request) =>
-      request.assignedVendorId ||
-      request.collaboratorId ||
-      request.pendingVendorInviteId ||
-      request.pendingCollaboratorInviteId
-  );
-
-  const readinessItems = [
-    {
-      label: "Owner account",
-      detail: session.user.email || "Signed-in owner profile",
-      complete: true,
-    },
-    {
-      label: "Property record",
-      detail: `${ownerProperties.length} ${ownerProperties.length === 1 ? "property" : "properties"}`,
-      complete: ownerProperties.length > 0,
-    },
-    {
-      label: "Maintenance history",
-      detail: `${ownerRequests.length} ${ownerRequests.length === 1 ? "request" : "requests"} logged`,
-      complete: ownerRequests.length > 0,
-    },
-    {
-      label: "Evidence trail",
-      detail: `${requestsWithEvidence.length} ${requestsWithEvidence.length === 1 ? "request has" : "requests have"} photos or receipts`,
-      complete: requestsWithEvidence.length > 0,
-    },
-    {
-      label: "Saved documents",
-      detail: `${ownerVaultDocs.length} ${ownerVaultDocs.length === 1 ? "vault item" : "vault items"}`,
-      complete: ownerVaultDocs.length > 0,
-    },
-    {
-      label: "Recurring care",
-      detail: `${ownerReminders.length} ${ownerReminders.length === 1 ? "reminder" : "reminders"}`,
-      complete: ownerReminders.length > 0,
-    },
-  ];
+  const { sharedRequestCount } = ownerReadinessFlags(readinessInput);
+  const readinessItems = ownerAccountReadinessItems(readinessInput, session.user.email);
 
   return (
     <main className="max-w-6xl">
@@ -108,7 +77,7 @@ export default async function OwnerAccountPage() {
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-gray-500">Shared requests</p>
-          <h2 className="mt-1 text-3xl font-bold">{sharedRequests.length}</h2>
+          <h2 className="mt-1 text-3xl font-bold">{sharedRequestCount}</h2>
           <p className="mt-1 text-sm text-gray-600">
             Requests with an assigned helper or pending invite.
           </p>

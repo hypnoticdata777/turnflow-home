@@ -3,14 +3,7 @@ import { eq, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
 import { invites, properties, reminders, requests, vaultDocuments } from "@/lib/db/schema";
-
-type SetupStep = {
-  title: string;
-  detail: string;
-  complete: boolean;
-  href: string;
-  cta: string;
-};
+import { ownerSetupProgress, ownerSetupSteps } from "@/lib/owner-readiness";
 
 export default async function OwnerOnboardingPage() {
   const session = await requireRole("owner");
@@ -43,62 +36,15 @@ export default async function OwnerOnboardingPage() {
       ])
     : [[], []];
 
-  const hasProperty = ownerProperties.length > 0;
-  const hasRequest = ownerRequests.length > 0;
-  const hasPhoto = ownerRequests.some((request) => request.photos.length > 0);
-  const hasHelper =
-    ownerInvites.length > 0 ||
-    ownerRequests.some((request) => request.assignedVendorId || request.collaboratorId);
-  const hasVaultDoc = ownerVaultDocs.length > 0;
-  const hasReminder = ownerReminders.length > 0;
-
-  const steps: SetupStep[] = [
-    {
-      title: "Create your first property",
-      detail: "Anchor every repair, receipt, and reminder to the home it belongs to.",
-      complete: hasProperty,
-      href: "/owner/properties",
-      cta: hasProperty ? "Review properties" : "Add property",
-    },
-    {
-      title: "Log one active maintenance issue",
-      detail: "Capture the problem while the details are still fresh.",
-      complete: hasRequest,
-      href: "/owner/requests/new",
-      cta: hasRequest ? "Review requests" : "Create request",
-    },
-    {
-      title: "Attach proof or context",
-      detail: "Add a photo, receipt, or note that would help another person understand the work.",
-      complete: hasPhoto,
-      href: ownerRequests[0] ? `/owner/requests/${ownerRequests[0].id}` : "/owner/requests/new",
-      cta: hasPhoto ? "Review evidence" : "Add evidence",
-    },
-    {
-      title: "Bring in the right person",
-      detail: "Invite a vendor or helper when the repair needs someone outside the household.",
-      complete: hasHelper,
-      href: ownerRequests[0] ? `/owner/requests/${ownerRequests[0].id}` : "/owner/requests/new",
-      cta: hasHelper ? "Review helpers" : "Open request",
-    },
-    {
-      title: "Preserve the repair history",
-      detail: "Store one useful document so the record survives beyond the job.",
-      complete: hasVaultDoc,
-      href: "/owner/vault",
-      cta: hasVaultDoc ? "Review vault" : "Add document",
-    },
-    {
-      title: "Set one recurring reminder",
-      detail: "Turn an easy-to-forget task into a scheduled homeowner routine.",
-      complete: hasReminder,
-      href: "/owner/calendar",
-      cta: hasReminder ? "Review reminders" : "Add reminder",
-    },
-  ];
-
-  const completedCount = steps.filter((step) => step.complete).length;
-  const progress = Math.round((completedCount / steps.length) * 100);
+  const readinessInput = {
+    properties: ownerProperties,
+    requests: ownerRequests,
+    invites: ownerInvites,
+    vaultDocuments: ownerVaultDocs,
+    reminders: ownerReminders,
+  };
+  const steps = ownerSetupSteps(readinessInput, ownerRequests[0]?.id);
+  const { completedCount, totalCount, progress } = ownerSetupProgress(steps);
 
   return (
     <main className="max-w-5xl">
@@ -121,7 +67,7 @@ export default async function OwnerOnboardingPage() {
             <div className="h-full bg-blue-600" style={{ width: `${progress}%` }} />
           </div>
           <p className="text-sm font-medium text-gray-700">
-            {completedCount} of {steps.length} done
+            {completedCount} of {totalCount} done
           </p>
         </div>
       </section>

@@ -139,3 +139,10 @@ After three to five sessions, prioritize the next build around repeated
 friction, not feature wishlists. If testers complete the flow but do not feel
 the record is valuable afterward, tighten the record/proof/history experience
 before adding more modules.
+
+## Product Coverage Notes
+
+The setup guide and Account & Sharing Center now use shared readiness rules in
+`lib/owner-readiness.ts`. When the user testing flow changes, update that helper
+and its tests so the onboarding and account surfaces keep telling the same
+story.
