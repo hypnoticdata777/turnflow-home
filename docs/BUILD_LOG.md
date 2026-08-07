@@ -2,6 +2,53 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-07 - Middleweight First-Run Testing Loop
+
+Scope: homeowner-first signup and setup journey for SaaS user testing.
+
+### Changed
+
+- Added public owner signup at `/signup` with server-side validation,
+  duplicate-email handling, password hashing, and automatic sign-in.
+- Updated the auth proxy so signed-out users can reach `/signup` and signed-in
+  users are redirected away from `/login` and `/signup`.
+- Added `/owner/onboarding`, a state-backed setup guide that tracks progress
+  across property setup, first request, evidence, helper sharing, vault history,
+  and recurring reminders.
+- Added setup guide entry points in the owner sidebar and dashboard.
+- Added `docs/USER_TESTING.md` with a homeowner testing protocol, tasks,
+  observation prompts, success signals, and notes template.
+- Updated README and deployment docs to reflect public owner signup and the
+  homeowner testing path.
+- Updated `dompurify` in `package-lock.json` from `3.4.12` to `3.4.13` to
+  clear the production dependency audit advisory inherited through `jspdf`.
+
+### Why
+
+The next product risk is not hosting mechanics; it is whether a homeowner can
+understand and complete the core SaaS journey without a property management
+company. This slice gives testers a serious first-run path while keeping public
+account creation scoped to owners.
+
+### Validation
+
+- `npm.cmd ci` passed.
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 33 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Run three to five homeowner test sessions using `docs/USER_TESTING.md`.
+- Watch especially for first-request friction, invite trust/privacy concerns,
+  and whether the vault/reminder pieces feel connected to the repair record.
+- Keep vendor and collaborator signup invite-driven until sharing scope and
+  privacy controls are clearer.
+
 ## 2026-08-06 - Lint Blocker Cleared
 
 Scope: React hook lint cleanup for the request detail workflow.

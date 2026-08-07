@@ -92,6 +92,7 @@ Deployment and build notes:
 
 - [Deployment runbook](docs/DEPLOYMENT.md)
 - [Build log](docs/BUILD_LOG.md)
+- [Homeowner user testing protocol](docs/USER_TESTING.md)
 
 Regenerate the screenshots above (requires the dev server running and
 seeded data):
@@ -103,8 +104,10 @@ npx tsx scripts/screenshot.ts
 ## Core features
 
 - Email/password auth with three roles — owner, vendor, collaborator —
-  each routed to its own portal
+  each routed to its own portal; owners can create accounts from `/signup`
 - Property management (add/remove, multiple properties per owner)
+- Homeowner setup guide that tracks the first-run path across property,
+  request, evidence, helper sharing, repair history, and reminders
 - Guided request intake: category + urgency-driven safety checklist,
   location, access instructions, preferred contact method, inline
   before/after/receipt/other photo upload, and an inline "add your first
@@ -135,8 +138,8 @@ npx tsx scripts/screenshot.ts
 - Mobile-responsive layout throughout, verified at 375px with no
   horizontal overflow on any page
 
-## Not yet ported
+## Remaining product gaps
 
-A dedicated privacy-controls UI and self-serve signup (still
-console/seed-script-created accounts) — both were explicitly out of
-scope for the original v1.2 build too, deferred to a later version.
+A dedicated privacy-controls UI, workspace/org model, and fuller account
+management are still pending. Vendor and collaborator accounts remain seeded
+or invite-driven for the POC so public signup stays homeowner-focused.

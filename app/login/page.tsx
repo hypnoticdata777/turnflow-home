@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useActionState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { loginAction } from "@/lib/actions/auth";
 
@@ -53,6 +54,13 @@ function LoginForm() {
         {state?.error && (
           <p className="text-red-600 text-sm mt-3 text-center">{state.error}</p>
         )}
+
+        <p className="mt-5 text-center text-sm text-gray-600">
+          New to TurnFlow Home?{" "}
+          <Link href="/signup" className="font-medium text-blue-700 hover:underline">
+            Create an owner account
+          </Link>
+        </p>
       </div>
     </div>
   );

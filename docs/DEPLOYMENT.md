@@ -7,8 +7,8 @@ This runbook is the repeatable path for a public-safe POC deploy.
 - Host on Vercel.
 - Use Neon Postgres for application data.
 - Use Vercel Blob for photos, quote attachments, and vault documents.
-- Use Auth.js credentials auth with seeded demo accounts until self-serve
-  signup is intentionally added.
+- Use Auth.js credentials auth with public owner signup; vendor and
+  collaborator accounts stay seeded or invite-driven for the POC.
 - Use Resend for email when configured; otherwise notification attempts are
   still logged as failed rows in the app.
 
@@ -91,20 +91,21 @@ changed:
 
 ## Smoke Test After Deploy
 
-1. Sign in as the owner.
-2. Create a property.
-3. Create a maintenance request.
-4. Upload a before photo.
-5. Invite a vendor and confirm the link uses the deployed `APP_URL`.
-6. Sign in as vendor and confirm only assigned requests are visible.
-7. Add/update request status.
-8. Verify the notification log records the send attempt.
-9. Download a proof packet PDF.
-10. Open the vault and upload a public-safe document.
+1. Create a new owner account from `/signup`.
+2. Confirm signup redirects to `/owner/onboarding`.
+3. Create a property.
+4. Create a maintenance request.
+5. Upload a before photo.
+6. Invite a vendor and confirm the link uses the deployed `APP_URL`.
+7. Sign in as vendor and confirm only assigned requests are visible.
+8. Add/update request status.
+9. Verify the notification log records the send attempt.
+10. Download a proof packet PDF.
+11. Open the vault and upload a public-safe document.
+12. Add one recurring reminder and confirm the setup guide progress updates.
 
 ## Current Known POC Gaps
 
-- No self-serve signup yet.
 - No workspace/org model yet.
 - No privacy-controls UI yet.
 - Full `npm audit` still reports a dev-only Drizzle tooling finding through

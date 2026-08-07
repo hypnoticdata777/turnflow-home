@@ -15,7 +15,9 @@ export default auth((req) => {
   const role = session?.user?.role;
 
   const isPublicRoute =
-    nextUrl.pathname === "/login" || nextUrl.pathname.startsWith("/accept-invite");
+    nextUrl.pathname === "/login" ||
+    nextUrl.pathname === "/signup" ||
+    nextUrl.pathname.startsWith("/accept-invite");
 
   if (!isLoggedIn && !isPublicRoute) {
     const loginUrl = new URL("/login", nextUrl);
@@ -24,7 +26,7 @@ export default auth((req) => {
   }
 
   if (isLoggedIn && role) {
-    if (nextUrl.pathname === "/login") {
+    if (nextUrl.pathname === "/login" || nextUrl.pathname === "/signup") {
       return NextResponse.redirect(new URL(roleHome(role), nextUrl));
     }
 

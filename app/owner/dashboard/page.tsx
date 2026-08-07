@@ -61,6 +61,25 @@ export default async function OwnerDashboardPage({
 
   return (
     <main>
+      <section className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-blue-800">
+              First homeowner repair record
+            </p>
+            <p className="mt-1 max-w-2xl text-sm text-gray-700">
+              Use the setup guide to test the serious owner path: property,
+              request, evidence, shared help, history, and reminders.
+            </p>
+          </div>
+          <Link
+            href="/owner/onboarding"
+            className="inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+          >
+            Open setup guide
+          </Link>
+        </div>
+      </section>
       <h1 className="text-3xl font-bold mb-6">🏠 My Maintenance Requests</h1>
 
       {totalCount > 0 && (
