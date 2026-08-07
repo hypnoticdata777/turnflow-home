@@ -79,6 +79,11 @@ export default function SignupPage() {
             Sign in
           </Link>
         </p>
+        <p className="mt-4 rounded-lg bg-gray-50 p-3 text-xs leading-5 text-gray-600">
+          Owner accounts are for managing your own home or rental records.
+          Vendors and helpers join through request-specific invites so sharing
+          stays scoped.
+        </p>
       </div>
     </div>
   );

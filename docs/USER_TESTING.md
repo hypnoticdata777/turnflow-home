@@ -58,7 +58,8 @@ Ask the tester to complete these tasks without explaining the interface first:
 7. Record or review expected cost context.
 8. Save one related document in the vault.
 9. Set one recurring reminder for that property.
-10. Return to the setup guide and explain what has been captured.
+10. Open Account & Sharing and explain who can see the request.
+11. Return to the setup guide and explain what has been captured.
 
 ## Observe
 
@@ -70,6 +71,7 @@ Track these without coaching:
 - Whether the setup guide feels useful or like extra admin work.
 - Whether the tester can distinguish requests, vault documents, and reminders.
 - Whether the invite flow feels safe enough to use with a real contractor.
+- Whether Account & Sharing answers the tester's trust/privacy questions.
 - Whether the owner trusts the record as evidence after the job is done.
 
 ## Success Signals
@@ -81,6 +83,7 @@ The round is working if most testers can:
   dispatch tool.
 - Name at least one future repair or recurring task they would track in it.
 - Explain why photos, quotes, receipts, and reminders belong together.
+- Explain that vendors and collaborators are scoped to specific requests.
 - Say who they would invite and what they would be comfortable sharing.
 
 ## Weak Signals

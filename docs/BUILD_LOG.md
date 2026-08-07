@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-07 - Owner Account & Sharing Center
+
+Scope: launch-readiness trust surface for homeowner accounts and invite sharing.
+
+### Changed
+
+- Added `/owner/account`, a state-backed Account & Sharing Center for owners.
+- Summarized the signed-in owner profile, shared-request count, pending invite
+  count, and first-run readiness signals.
+- Documented current sharing boundaries in-product: vendors and collaborators
+  are request-scoped, while vault documents, reminders, backups, properties, and
+  notification history stay owner-only.
+- Added invite activity visibility for pending and accepted request invites.
+- Added Account navigation, a dashboard "Review sharing" entry point, and a
+  signup trust note explaining request-scoped vendor/helper access.
+- Updated README, deployment smoke tests, and user testing tasks to include
+  Account & Sharing.
+
+### Why
+
+Early users need confidence before inviting a contractor or helper into a
+maintenance record. This page makes the current sharing model visible without
+adding a migration or pretending to have full privacy controls yet.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 33 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Add editable owner profile and password/account management.
+- Add explicit per-invite revoke/resend controls.
+- Turn the current sharing explanation into enforceable privacy-control UI once
+  user testing confirms the right defaults.
+
 ## 2026-08-07 - Middleweight First-Run Testing Loop
 
 Scope: homeowner-first signup and setup journey for SaaS user testing.

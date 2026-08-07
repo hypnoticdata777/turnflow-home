@@ -103,6 +103,8 @@ changed:
 10. Download a proof packet PDF.
 11. Open the vault and upload a public-safe document.
 12. Add one recurring reminder and confirm the setup guide progress updates.
+13. Open Account & Sharing and confirm pending invites and sharing boundaries
+    are understandable to a first-time owner.
 
 ## Current Known POC Gaps
 

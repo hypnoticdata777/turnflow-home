@@ -78,6 +78,12 @@ export default async function OwnerDashboardPage({
           >
             Open setup guide
           </Link>
+          <Link
+            href="/owner/account"
+            className="inline-flex items-center justify-center rounded border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-800"
+          >
+            Review sharing
+          </Link>
         </div>
       </section>
       <h1 className="text-3xl font-bold mb-6">🏠 My Maintenance Requests</h1>

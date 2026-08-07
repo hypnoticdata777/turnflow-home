@@ -3,6 +3,7 @@ import { logoutAction } from "@/lib/actions/auth";
 
 const NAV_ITEMS = [
   { href: "/owner/onboarding", label: "Setup" },
+  { href: "/owner/account", label: "Account" },
   { href: "/owner/dashboard", label: "🏠 Requests" },
   { href: "/owner/requests/new", label: "🆕 New Request" },
   { href: "/owner/properties", label: "🏘️ Properties" },

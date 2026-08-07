@@ -108,6 +108,8 @@ npx tsx scripts/screenshot.ts
 - Property management (add/remove, multiple properties per owner)
 - Homeowner setup guide that tracks the first-run path across property,
   request, evidence, helper sharing, repair history, and reminders
+- Owner Account & Sharing Center with profile context, invite activity,
+  launch-readiness signals, and request-scoped sharing boundaries
 - Guided request intake: category + urgency-driven safety checklist,
   location, access instructions, preferred contact method, inline
   before/after/receipt/other photo upload, and an inline "add your first
