@@ -24,17 +24,19 @@ This checks:
 ## Owner Smoke Test
 
 1. Open `/api/health` and confirm it returns `status: "ok"`.
-2. Create a homeowner account from `/signup`.
-3. Confirm signup lands on `/owner/onboarding`.
-4. Add a property with public-safe address data.
-5. Create a maintenance request with category, urgency, notes, access context,
+2. Call `/api/health/deep` with `Authorization: Bearer $HEALTHCHECK_SECRET` and
+   confirm it returns `status: "ok"` and `checks.database: "ok"`.
+3. Create a homeowner account from `/signup`.
+4. Confirm signup lands on `/owner/onboarding`.
+5. Add a property with public-safe address data.
+6. Create a maintenance request with category, urgency, notes, access context,
    and preferred contact method.
-6. Upload at least one before photo or public-safe proof file.
-7. Add cost context or a quote.
-8. Confirm the setup guide progress changes after property, request, evidence,
+7. Upload at least one before photo or public-safe proof file.
+8. Add cost context or a quote.
+9. Confirm the setup guide progress changes after property, request, evidence,
    sharing, history, and reminder steps.
-9. Download a proof packet PDF.
-10. Export owner backup data from `/owner/backup`.
+10. Download a proof packet PDF.
+11. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 
@@ -54,6 +56,7 @@ This checks:
   readiness, and property list.
 - Browser responses include baseline security headers: nosniff, frame denial,
   strict referrer policy, permissions policy, and HSTS.
+- Deep health is protected and does not expose database errors publicly.
 - Vendor and collaborator portals do not expose unrelated requests.
 - Notification attempts are logged even when outbound email is not configured.
 - Completion still requires final cost, an after photo, and assigned vendor, or

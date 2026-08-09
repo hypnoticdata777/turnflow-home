@@ -24,6 +24,7 @@ APP_URL=
 RESEND_API_KEY=
 NOTIFICATIONS_FROM_EMAIL=
 CRON_SECRET=
+HEALTHCHECK_SECRET=
 ```
 
 Notes:
@@ -34,6 +35,8 @@ Notes:
   correct.
 - `RESEND_API_KEY` can stay blank for a no-email POC, but sends will log as
   failed.
+- `HEALTHCHECK_SECRET` protects `/api/health/deep`; set it before wiring an
+  external deep-health monitor.
 - `CRON_SECRET` should be set in production because `/api/cron/reminder-digest`
   checks the `Authorization: Bearer <secret>` header when the variable exists.
 
@@ -83,6 +86,7 @@ Re-run locally before deploying if the environment or database schema changed:
 - Vercel project has Neon and Blob environment variables set.
 - `APP_URL` points to the actual deployed URL.
 - `CRON_SECRET` is set for production.
+- `HEALTHCHECK_SECRET` is set for production monitoring.
 - Browser responses include the baseline security headers configured in
   `lib/security-headers.ts`.
 - Demo data contains no private address, contact, receipt, or customer details.
@@ -91,27 +95,29 @@ Re-run locally before deploying if the environment or database schema changed:
 
 1. Open `/api/health` and confirm it returns `status: "ok"` with no cached
    response.
-2. Create a new owner account from `/signup`.
-3. Confirm signup redirects to `/owner/onboarding`.
-4. Create a property.
-5. Create a maintenance request.
-6. Upload a before photo.
-7. Invite a vendor and confirm the copyable link uses the deployed `APP_URL`.
-8. Sign in as vendor and confirm only assigned requests are visible.
-9. Add/update request status.
-10. Verify the notification log records the send attempt.
-11. Download a proof packet PDF.
-12. Open the vault and upload a public-safe document.
-13. Add one recurring reminder and confirm the setup guide progress updates.
-14. Open Account & Sharing and confirm pending invites and sharing boundaries
+2. Call `/api/health/deep` with `Authorization: Bearer $HEALTHCHECK_SECRET` and
+   confirm it returns `status: "ok"` and `checks.database: "ok"`.
+3. Create a new owner account from `/signup`.
+4. Confirm signup redirects to `/owner/onboarding`.
+5. Create a property.
+6. Create a maintenance request.
+7. Upload a before photo.
+8. Invite a vendor and confirm the copyable link uses the deployed `APP_URL`.
+9. Sign in as vendor and confirm only assigned requests are visible.
+10. Add/update request status.
+11. Verify the notification log records the send attempt.
+12. Download a proof packet PDF.
+13. Open the vault and upload a public-safe document.
+14. Add one recurring reminder and confirm the setup guide progress updates.
+15. Open Account & Sharing and confirm pending invites and sharing boundaries
     are understandable to a first-time owner.
-15. Resend and cancel a pending invite from Account & Sharing, then confirm the
+16. Resend and cancel a pending invite from Account & Sharing, then confirm the
     request page reflects the updated pending state.
-16. If `RESEND_API_KEY` is blank, confirm resend still shows a copyable invite
+17. If `RESEND_API_KEY` is blank, confirm resend still shows a copyable invite
     link fallback.
-17. Remove accepted vendor/collaborator access from Account & Sharing, then
+18. Remove accepted vendor/collaborator access from Account & Sharing, then
     sign in as that role and confirm the request is no longer visible.
-18. Open the owner's request detail page and confirm the Decision Log shows the
+19. Open the owner's request detail page and confirm the Decision Log shows the
     access-removal event with the removed account email.
 
 ## Current Known POC Gaps

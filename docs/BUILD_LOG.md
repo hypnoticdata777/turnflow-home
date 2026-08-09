@@ -2,6 +2,41 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-09 - Protected Deep Health Check
+
+Scope: add authenticated operational monitoring for database connectivity.
+
+### Changed
+
+- Added `/api/health/deep`, protected by `HEALTHCHECK_SECRET`.
+- Added deep-health auth and payload helpers in `lib/health.ts`.
+- Added tests for bearer parsing, health-check authorization, and deep-health
+  payload shape.
+- Documented `HEALTHCHECK_SECRET` in `.env.local.example`, deployment docs, QA
+  checklist, and README.
+
+### Why
+
+The public health route confirms the app responds, but a SaaS operator also
+needs a private signal that the database can be reached. Keeping it behind a
+separate secret lets monitoring access be rotated independently from cron.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 67 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed and included `/api/health/deep`.
+
+### Follow-Up
+
+- Add storage and email-provider checks if production monitoring needs deeper
+  dependency coverage.
+
 ## 2026-08-09 - Baseline Security Headers
 
 Scope: add conservative browser security headers for hosted POC hardening.

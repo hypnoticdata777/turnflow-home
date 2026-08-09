@@ -80,9 +80,9 @@ That gate runs lint, typecheck, tests, production audit, Drizzle schema drift
 checks, and a production build. Pair it with `docs/QA_CHECKLIST.md` for manual
 owner/vendor/collaborator smoke testing.
 
-Hosted environments also expose `/api/health` for uptime checks. It returns a
-small uncached JSON payload with app status, version, environment, timestamp,
-and commit metadata when available.
+Hosted environments expose `/api/health` for public uptime checks. A protected
+`/api/health/deep` endpoint also checks database connectivity when called with
+`Authorization: Bearer $HEALTHCHECK_SECRET`.
 
 Global browser security headers are configured in `next.config.ts`, with the
 shared header policy defined in `lib/security-headers.ts`.
