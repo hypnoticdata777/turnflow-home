@@ -42,10 +42,11 @@ they are part of a later expert review.
    `/owner/onboarding`.
 3. Run `npm run verify` and complete `docs/QA_CHECKLIST.md` before inviting a
    tester.
-4. Keep demo vendor/collaborator accounts available for invite testing.
-5. Prepare one realistic repair scenario, such as an HVAC issue, leak, broken
+4. Complete `docs/UI_UX_REVIEW.md` for the routes the tester will touch.
+5. Keep demo vendor/collaborator accounts available for invite testing.
+6. Prepare one realistic repair scenario, such as an HVAC issue, leak, broken
    appliance, or door lock problem.
-6. Ask the tester to bring one fake/public-safe image or receipt if possible.
+7. Ask the tester to bring one fake/public-safe image or receipt if possible.
 
 ## Core Tasks
 
@@ -163,3 +164,7 @@ The setup guide and Account & Sharing Center now use shared readiness rules in
 `lib/owner-readiness.ts`. When the user testing flow changes, update that helper
 and its tests so the onboarding and account surfaces keep telling the same
 story.
+
+Use `docs/UI_UX_REVIEW.md` before each moderated round so observer notes include
+layout, language, trust, accessibility, and state-coverage issues, not only task
+completion.

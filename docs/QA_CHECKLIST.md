@@ -54,6 +54,7 @@ This checks:
 
 - Owner-only areas stay owner-only: vault, backup, notifications, account
   readiness, and property list.
+- `docs/UI_UX_REVIEW.md` is complete for every changed homeowner-facing route.
 - Browser responses include baseline security headers: nosniff, frame denial,
   strict referrer policy, permissions policy, and HSTS.
 - Deep health is protected and does not expose database errors publicly.
@@ -72,3 +73,4 @@ This checks:
 - Owner cannot create a property or request.
 - Invite acceptance or access removal leaves stale role visibility.
 - Proof packet, backup export, or vault upload fails for public-safe demo data.
+- Any changed homeowner workflow scores `0` in the UI/UX review scorecard.

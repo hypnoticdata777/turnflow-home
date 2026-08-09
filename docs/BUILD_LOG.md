@@ -2,6 +2,39 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-09 - UI UX Review Process
+
+Scope: make product polish review repeatable for homeowner-facing workflows.
+
+### Changed
+
+- Added `docs/UI_UX_REVIEW.md` with a scorecard, route checklist, interaction
+  checks, visual checks, trust-copy checks, and session notes template.
+- Updated QA, user-testing, and README docs so UI/UX review is part of the POC
+  release rhythm.
+
+### Why
+
+The app now has a strong technical verification gate, but SaaS readiness also
+depends on repeatable product polish. This creates a shared process for judging
+clarity, trust, friction, responsive behavior, accessibility, and homeowner
+language before demos or testing.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 67 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add browser-driven screenshot checks for the routes in the UI/UX checklist.
+
 ## 2026-08-09 - Protected Deep Health Check
 
 Scope: add authenticated operational monitoring for database connectivity.

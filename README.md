@@ -111,6 +111,7 @@ Deployment and build notes:
 - [Build log](docs/BUILD_LOG.md)
 - [Homeowner user testing protocol](docs/USER_TESTING.md)
 - [QA checklist](docs/QA_CHECKLIST.md)
+- [UI/UX review process](docs/UI_UX_REVIEW.md)
 
 Regenerate the screenshots above (requires the dev server running and
 seeded data):
