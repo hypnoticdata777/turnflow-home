@@ -2,6 +2,38 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-08 - CI Uses Product Gate
+
+Scope: keep GitHub validation aligned with local release validation.
+
+### Changed
+
+- Updated `.github/workflows/ci.yml` to run `npm run verify` as the single CI
+  validation step after install.
+- Simplified the deployment pre-check list so `npm run verify` is the canonical
+  automated gate instead of repeating each command separately.
+
+### Why
+
+The local QA gate only protects the product if CI uses the same command. This
+prevents GitHub Actions and local release checks from drifting as the SaaS
+readiness bar gets stricter.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 56 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add a GitHub Actions badge to README once the workflow has a few clean runs.
+
 ## 2026-08-08 - Product QA Gate
 
 Scope: make SaaS-readiness validation repeatable.

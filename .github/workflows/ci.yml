@@ -27,22 +27,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Typecheck
-        run: npx tsc --noEmit
-
-      - name: Test
-        run: npm test
-
-      - name: Production dependency audit
-        run: npm audit --omit=dev
-
-      - name: Check migration drift
-        run: |
-          npm run db:generate
-          git diff --exit-code -- drizzle
-
-      - name: Build
-        run: npm run build
+      - name: Verify product gate
+        run: npm run verify

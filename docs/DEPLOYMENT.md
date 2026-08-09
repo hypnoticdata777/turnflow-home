@@ -78,11 +78,6 @@ GitHub Actions runs validation on every push to `main` and every pull request.
 Re-run locally before deploying if the environment or database schema changed:
 
 - `npm run verify` passes.
-- `npm test` passes.
-- `npx tsc --noEmit` passes.
-- `npm run lint` passes.
-- `npm run build` passes.
-- `npm audit --omit=dev` reports 0 vulnerabilities.
 - `docs/QA_CHECKLIST.md` is complete for the target environment.
 - `.env.local` is not committed.
 - Vercel project has Neon and Blob environment variables set.
