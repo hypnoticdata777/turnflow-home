@@ -119,8 +119,8 @@ npx tsx scripts/screenshot.ts
 - Owner dashboard with per-status filter chips and live counts
 - Vendor and household-collaborator invite-by-email flow with expiring,
   single-use invite links; vendor and collaborator portals each scoped to
-  only their own shared requests, with pending invite resend/cancel controls
-  and copyable fallback links from Account & Sharing
+  only their own shared requests, with copyable invite links on creation and
+  pending invite resend/cancel controls from Account & Sharing
 - Owner-only quote workspace: competing vendor quotes with optional
   attachment, approve/decline, and one-click copy onto the request's cost
 - Append-only decision log recording every status change, and completion

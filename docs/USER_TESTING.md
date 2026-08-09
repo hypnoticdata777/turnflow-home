@@ -54,7 +54,7 @@ Ask the tester to complete these tasks without explaining the interface first:
 3. Log one active maintenance issue.
 4. Add enough notes or access context that a helper could understand the job.
 5. Attach one photo, receipt, or proof item.
-6. Invite a vendor or trusted helper.
+6. Invite a vendor or trusted helper and copy the generated invite link.
 7. Record or review expected cost context.
 8. Save one related document in the vault.
 9. Set one recurring reminder for that property.
@@ -74,6 +74,7 @@ Track these without coaching:
 - Whether the setup guide feels useful or like extra admin work.
 - Whether the tester can distinguish requests, vault documents, and reminders.
 - Whether the invite flow feels safe enough to use with a real contractor.
+- Whether the first invite link is easy to copy and send outside the app.
 - Whether resend/cancel controls make pending invites feel recoverable.
 - Whether the copyable invite link feels understandable when email is not
   configured or does not arrive.

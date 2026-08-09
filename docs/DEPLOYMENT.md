@@ -96,7 +96,7 @@ changed:
 3. Create a property.
 4. Create a maintenance request.
 5. Upload a before photo.
-6. Invite a vendor and confirm the link uses the deployed `APP_URL`.
+6. Invite a vendor and confirm the copyable link uses the deployed `APP_URL`.
 7. Sign in as vendor and confirm only assigned requests are visible.
 8. Add/update request status.
 9. Verify the notification log records the send attempt.

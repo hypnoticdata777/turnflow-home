@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CreateInviteResult } from "@/lib/actions/invites";
+import { CopyableInviteLink } from "@/components/CopyableInviteLink";
 
 export function InviteSection({
   requestId,
@@ -18,6 +19,7 @@ export function InviteSection({
 }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<string | null>(null);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [hasPendingInvite, setHasPendingInvite] = useState(!!pendingInviteId);
 
@@ -28,21 +30,26 @@ export function InviteSection({
     }
     setSending(true);
     setStatus(null);
+    setInviteLink(null);
     try {
       const result = await createInvite(requestId, email);
       if ("error" in result) {
         setStatus(result.error);
         return;
       }
-      const link = `${window.location.origin}/accept-invite?invite=${result.inviteId}`;
       let copied = false;
       try {
-        await navigator.clipboard.writeText(link);
+        await navigator.clipboard.writeText(result.inviteLink);
         copied = true;
       } catch {
         // clipboard access can be denied — the link is still shown below
       }
-      setStatus(`Invite link${copied ? " (copied to clipboard)" : ""}: ${link} — send it yourself if the email doesn't land.`);
+      setInviteLink(result.inviteLink);
+      setStatus(
+        result.emailSent
+          ? `Invite created${copied ? " and copied to clipboard" : ""}.`
+          : "Invite created. Email is not configured, so copy this link instead."
+      );
       setHasPendingInvite(true);
       setEmail("");
     } catch (err) {
@@ -83,6 +90,11 @@ export function InviteSection({
             <p className="text-xs text-gray-500 mt-1">An invite is pending for this request.</p>
           )}
           {status && <p className="text-xs text-gray-600 mt-1 break-all">{status}</p>}
+          {inviteLink && (
+            <div className="mt-2">
+              <CopyableInviteLink inviteLink={inviteLink} />
+            </div>
+          )}
         </div>
       )}
     </div>

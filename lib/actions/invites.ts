@@ -11,7 +11,9 @@ import { buildInviteLink } from "@/lib/invites/links";
 
 const INVITE_VALID_DAYS = 14;
 
-export type CreateInviteResult = { inviteId: string } | { error: string };
+export type CreateInviteResult =
+  | { inviteId: string; inviteLink: string; emailSent: boolean }
+  | { error: string };
 
 /**
  * Owner enters a vendor or collaborator's email; we create an invite row,
@@ -56,7 +58,7 @@ async function createInvite(
     .where(eq(requests.id, requestId));
 
   const link = buildInviteLink(process.env.APP_URL, invite.id);
-  await sendNotification({
+  const emailSent = await sendNotification({
     ownerId: session.user.id,
     requestId,
     type: `${role}_invite`,
@@ -66,7 +68,7 @@ async function createInvite(
   });
 
   revalidatePath(`/owner/requests/${requestId}`);
-  return { inviteId: invite.id };
+  return { inviteId: invite.id, inviteLink: link, emailSent };
 }
 
 export async function createVendorInviteAction(requestId: string, email: string) {

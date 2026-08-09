@@ -2,6 +2,44 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-08 - Request Invite Copy Link
+
+Scope: make initial request-level invite creation match the mature resend flow.
+
+### Changed
+
+- Extracted `components/CopyableInviteLink.tsx` as the shared copyable invite
+  link UI.
+- Updated pending invite resend controls to use the shared copyable-link
+  component.
+- Updated create invite actions to return `inviteLink` and `emailSent` in
+  addition to `inviteId`.
+- Updated request-level `InviteSection` so newly created vendor/collaborator
+  invites show a structured status message and reusable copyable link card.
+- Updated README, deployment smoke tests, and user-testing tasks to include the
+  initial invite copy-link flow.
+
+### Why
+
+Owners should get the same sharing affordance whether they just created an
+invite or are resending it later. This removes the old hard-to-scan status text
+and keeps request-page sharing usable when email is disabled for a POC.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 49 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Consider showing existing pending invite links before resend if user testing
+  shows owners expect to retrieve links without refreshing expiry.
+
 ## 2026-08-08 - Invite Link Fallback
 
 Scope: frictionless pending-invite recovery when email is unavailable.
@@ -39,7 +77,6 @@ that a failed email send does not block the request-sharing flow.
 
 ### Follow-Up
 
-- Add an always-visible copy link for newly created request-level invites too.
 - Add resend delivery state once real email configuration is active.
 
 ## 2026-08-07 - Pending Invite Controls
