@@ -112,7 +112,7 @@ changed:
 16. Remove accepted vendor/collaborator access from Account & Sharing, then
     sign in as that role and confirm the request is no longer visible.
 17. Open the owner's request detail page and confirm the Decision Log shows the
-    access-removal event.
+    access-removal event with the removed account email.
 
 ## Current Known POC Gaps
 

@@ -83,8 +83,8 @@ Track these without coaching:
 - Whether active shared access feels distinct from past invite activity.
 - Whether removing accepted access gives the owner enough confidence to share
   with a real vendor or helper.
-- Whether the request decision log helps the owner understand when access was
-  removed.
+- Whether the request decision log helps the owner understand whose access was
+  removed and when.
 - Whether Account & Sharing answers the tester's trust/privacy questions.
 - Whether the owner trusts the record as evidence after the job is done.
 

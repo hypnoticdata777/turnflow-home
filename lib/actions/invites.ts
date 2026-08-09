@@ -125,6 +125,11 @@ export async function removeSharedAccessAction(
     return { error: `There is no active ${role} access on this request.` };
   }
 
+  const removedUser = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.id, assignedUserId),
+    columns: { email: true },
+  });
+
   await db
     .update(requests)
     .set(
@@ -141,6 +146,7 @@ export async function removeSharedAccessAction(
     details: {
       role,
       removedUserId: assignedUserId,
+      removedUserEmail: removedUser?.email || null,
     },
   });
 

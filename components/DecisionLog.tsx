@@ -6,8 +6,12 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
     `Approved quote from ${d.vendorName || "a vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   quote_declined: (d) =>
     `Declined quote from ${d.vendorName || "a vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
-  shared_access_removed: (d) =>
-    `Removed ${d.role === "collaborator" ? "collaborator" : "vendor"} access from this request.`,
+  shared_access_removed: (d) => {
+    const role = d.role === "collaborator" ? "collaborator" : "vendor";
+    return d.removedUserEmail
+      ? `Removed ${role} access for ${d.removedUserEmail} from this request.`
+      : `Removed ${role} access from this request.`;
+  },
 };
 
 export type LogEntryData = {

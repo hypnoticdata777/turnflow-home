@@ -127,7 +127,8 @@ npx tsx scripts/screenshot.ts
 - Append-only decision log recording every status change, and completion
   gating that requires a final cost, an "after" photo, and an assigned
   vendor before a request can move to Complete (or an explicit, logged
-  waiver reason); accepted sharing removals are recorded here too
+  waiver reason); accepted sharing removals are recorded with the removed
+  account email when available
 - Shared update thread (comments) on every request, postable by the
   owner, assigned vendor, or shared collaborator
 - Property document vault for receipts, warranties, manuals, invoices,

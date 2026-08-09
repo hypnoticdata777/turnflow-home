@@ -2,6 +2,40 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-08 - Shared Access Audit Email
+
+Scope: make access-removal history identifiable to homeowners.
+
+### Changed
+
+- `removeSharedAccessAction` now looks up the removed vendor/collaborator email
+  before clearing request access.
+- Decision-log details now include `removedUserEmail` when the account exists.
+- Decision Log copy now names the removed email address with a readable fallback
+  if the email is unavailable.
+- Expanded decision-log unit coverage for email-backed and fallback audit copy.
+
+### Why
+
+An audit trail should answer "who did I remove?" without making a homeowner
+interpret internal ids. Email-backed revocation history makes the trust center
+and request timeline feel more concrete for early users.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 56 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Consider surfacing removed access events directly in Account & Sharing if user
+  testing shows owners look there first for sharing history.
+
 ## 2026-08-08 - Shared Access Audit Trail
 
 Scope: preserve a request-level record when owner removes accepted access.
@@ -31,8 +65,7 @@ makes the access-control workflow easier to trust during a POC.
 
 ### Follow-Up
 
-- Add the removed user's email to the audit copy if user testing shows ids are
-  too abstract for homeowner review.
+- Completed in `2026-08-08 - Shared Access Audit Email`.
 
 ## 2026-08-08 - Shared Access Removal
 
