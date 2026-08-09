@@ -2,6 +2,40 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-09 - UI UX Findings Register
+
+Scope: give product polish reviews a durable triage trail.
+
+### Changed
+
+- Added `docs/UI_UX_FINDINGS.md` with priority levels, statuses, a findings
+  table, and review closeout rules.
+- Updated UI/UX review, QA, user-testing, and README docs so repeated friction
+  and release-blocking issues flow into the findings register.
+
+### Why
+
+TurnFlow Home needs a repeatable way to turn walkthrough notes and homeowner
+testing confusion into prioritized product work. The register keeps SaaS
+readiness conversations tied to routes, evidence, owner decisions, and fixing
+commits.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 67 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add screenshot artifact paths to findings during the first browser-driven
+  UI/UX pass.
+
 ## 2026-08-09 - UI UX Review Process
 
 Scope: make product polish review repeatable for homeowner-facing workflows.

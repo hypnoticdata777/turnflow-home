@@ -8,7 +8,8 @@ that changes a homeowner-facing workflow.
 - Run this after `npm run verify` and before a user-testing session.
 - Review desktop and mobile widths for every changed route.
 - Capture screenshots only with public-safe demo data.
-- Record repeated issues in `docs/BUILD_LOG.md` or the next product fix list.
+- Log every `0` score and repeated `1` score in `docs/UI_UX_FINDINGS.md`.
+- Record review outcomes in `docs/BUILD_LOG.md`.
 
 ## Scorecard
 
@@ -31,6 +32,13 @@ Score each area from 0 to 2:
 | Data safety | Is public/demo data free of private addresses, contacts, and receipts? | |
 
 Treat any `0` as a release blocker for that workflow.
+
+## Finding Triage
+
+Use `docs/UI_UX_FINDINGS.md` as the durable issue register for review outcomes.
+Every scorecard `0` should become a finding before the release can continue.
+Repeated `1` scores should become `P1` or `P2` findings based on whether they
+hurt homeowner trust or only add polish/friction debt.
 
 ## Route Checklist
 
@@ -90,6 +98,7 @@ Every sharing or evidence workflow should answer:
 Route:
 Device/width:
 Scenario:
+Finding ID:
 
 First-impression score:
 Task-clarity score:

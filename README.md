@@ -112,6 +112,7 @@ Deployment and build notes:
 - [Homeowner user testing protocol](docs/USER_TESTING.md)
 - [QA checklist](docs/QA_CHECKLIST.md)
 - [UI/UX review process](docs/UI_UX_REVIEW.md)
+- [UI/UX findings register](docs/UI_UX_FINDINGS.md)
 
 Regenerate the screenshots above (requires the dev server running and
 seeded data):

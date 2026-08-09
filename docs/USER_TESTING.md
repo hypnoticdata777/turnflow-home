@@ -43,10 +43,12 @@ they are part of a later expert review.
 3. Run `npm run verify` and complete `docs/QA_CHECKLIST.md` before inviting a
    tester.
 4. Complete `docs/UI_UX_REVIEW.md` for the routes the tester will touch.
-5. Keep demo vendor/collaborator accounts available for invite testing.
-6. Prepare one realistic repair scenario, such as an HVAC issue, leak, broken
+5. Open `docs/UI_UX_FINDINGS.md` so repeated confusion can be logged during
+   closeout.
+6. Keep demo vendor/collaborator accounts available for invite testing.
+7. Prepare one realistic repair scenario, such as an HVAC issue, leak, broken
    appliance, or door lock problem.
-7. Ask the tester to bring one fake/public-safe image or receipt if possible.
+8. Ask the tester to bring one fake/public-safe image or receipt if possible.
 
 ## Core Tasks
 
@@ -156,7 +158,8 @@ Next product fix:
 After three to five sessions, prioritize the next build around repeated
 friction, not feature wishlists. If testers complete the flow but do not feel
 the record is valuable afterward, tighten the record/proof/history experience
-before adding more modules.
+before adding more modules. Turn repeated confusion into rows in
+`docs/UI_UX_FINDINGS.md` and assign priority by launch risk.
 
 ## Product Coverage Notes
 
