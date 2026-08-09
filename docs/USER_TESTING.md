@@ -40,10 +40,12 @@ they are part of a later expert review.
 1. Deploy or run the latest `main` build against a test database.
 2. Confirm `/signup` creates an owner account and redirects to
    `/owner/onboarding`.
-3. Keep demo vendor/collaborator accounts available for invite testing.
-4. Prepare one realistic repair scenario, such as an HVAC issue, leak, broken
+3. Run `npm run verify` and complete `docs/QA_CHECKLIST.md` before inviting a
+   tester.
+4. Keep demo vendor/collaborator accounts available for invite testing.
+5. Prepare one realistic repair scenario, such as an HVAC issue, leak, broken
    appliance, or door lock problem.
-5. Ask the tester to bring one fake/public-safe image or receipt if possible.
+6. Ask the tester to bring one fake/public-safe image or receipt if possible.
 
 ## Core Tasks
 

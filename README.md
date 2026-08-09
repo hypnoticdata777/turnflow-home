@@ -70,6 +70,16 @@ npm run db:seed:demo          # optional — richer demo data (quotes, vault doc
 npm run dev
 ```
 
+Before deploying or asking for a POC test pass, run:
+
+```bash
+npm run verify
+```
+
+That gate runs lint, typecheck, tests, production audit, Drizzle schema drift
+checks, and a production build. Pair it with `docs/QA_CHECKLIST.md` for manual
+owner/vendor/collaborator smoke testing.
+
 Environment variables (`.env.local`, see `.env.local.example`):
 
 ```
@@ -93,6 +103,7 @@ Deployment and build notes:
 - [Deployment runbook](docs/DEPLOYMENT.md)
 - [Build log](docs/BUILD_LOG.md)
 - [Homeowner user testing protocol](docs/USER_TESTING.md)
+- [QA checklist](docs/QA_CHECKLIST.md)
 
 Regenerate the screenshots above (requires the dev server running and
 seeded data):

@@ -2,6 +2,39 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-08 - Product QA Gate
+
+Scope: make SaaS-readiness validation repeatable.
+
+### Changed
+
+- Added `typecheck`, `audit:prod`, and `verify` npm scripts.
+- Added `docs/QA_CHECKLIST.md` for automated and manual POC smoke testing.
+- Updated README, deployment docs, and user-testing setup to use the new QA
+  gate.
+
+### Why
+
+The project had strong individual checks, but a launchable SaaS needs a single
+repeatable verification command and a clear manual smoke path for owner, vendor,
+collaborator, sharing, exports, and trust boundaries.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 56 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add browser-driven end-to-end tests for the highest-risk smoke paths once the
+  test database workflow is stable.
+
 ## 2026-08-08 - Shared Access Audit Email
 
 Scope: make access-removal history identifiable to homeowners.
