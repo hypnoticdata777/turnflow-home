@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-08 - Invite Link Fallback
+
+Scope: frictionless pending-invite recovery when email is unavailable.
+
+### Changed
+
+- Added `lib/invites/links.ts` as the shared invite-link builder.
+- Updated create/resend invite actions to use the shared link builder.
+- Updated `resendInviteAction` to return the invite link to the client every
+  time it refreshes a pending invite.
+- Made resend copy explain whether email was sent or whether the owner should
+  copy the fallback link because email is not configured.
+- Added a read-only invite-link field and copy button to
+  `PendingInviteControls`.
+- Extended invite tests to cover fallback localhost URLs, APP_URL trimming, and
+  query-string encoding.
+- Updated README, deployment smoke tests, and user-testing tasks to include the
+  copyable invite-link fallback.
+
+### Why
+
+The hosted POC may intentionally run without outbound email at first. Owners
+still need a smooth way to share an invite link, and testers need to understand
+that a failed email send does not block the request-sharing flow.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 49 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Add an always-visible copy link for newly created request-level invites too.
+- Add resend delivery state once real email configuration is active.
+
 ## 2026-08-07 - Pending Invite Controls
 
 Scope: owner control over pending vendor/collaborator invite links.
@@ -37,7 +77,6 @@ reversible without changing the database schema.
 
 ### Follow-Up
 
-- Add a visible copied-link fallback for resend when email is not configured.
 - Add accepted-invite removal/unshare controls once user testing confirms how
   owners expect revocation to behave.
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { inviteIdFromFormData, parseInviteIdFields } from "@/lib/invites/forms";
+import { buildInviteLink } from "@/lib/invites/links";
 
 describe("parseInviteIdFields", () => {
   it("accepts a valid invite UUID", () => {
@@ -31,5 +32,25 @@ describe("parseInviteIdFields", () => {
     if (parsed.success) {
       expect(parsed.data.inviteId).toBe("22222222-2222-4222-8222-222222222222");
     }
+  });
+});
+
+describe("buildInviteLink", () => {
+  it("builds an absolute invite link from APP_URL", () => {
+    expect(buildInviteLink("https://turnflow.example/", "invite-1")).toBe(
+      "https://turnflow.example/accept-invite?invite=invite-1"
+    );
+  });
+
+  it("falls back to localhost when APP_URL is not configured", () => {
+    expect(buildInviteLink(undefined, "invite-1")).toBe(
+      "http://localhost:3000/accept-invite?invite=invite-1"
+    );
+  });
+
+  it("encodes the invite id in the query string", () => {
+    expect(buildInviteLink("https://turnflow.example", "id with spaces")).toBe(
+      "https://turnflow.example/accept-invite?invite=id%20with%20spaces"
+    );
   });
 });

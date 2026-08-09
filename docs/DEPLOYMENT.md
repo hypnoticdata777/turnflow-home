@@ -107,6 +107,8 @@ changed:
     are understandable to a first-time owner.
 14. Resend and cancel a pending invite from Account & Sharing, then confirm the
     request page reflects the updated pending state.
+15. If `RESEND_API_KEY` is blank, confirm resend still shows a copyable invite
+    link fallback.
 
 ## Current Known POC Gaps
 

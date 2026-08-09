@@ -7,6 +7,7 @@ import { invites, requests } from "@/lib/db/schema";
 import { requireRole, requireAnyRole } from "@/lib/auth/dal";
 import { sendNotification } from "@/lib/email";
 import { inviteIdFromFormData } from "@/lib/invites/forms";
+import { buildInviteLink } from "@/lib/invites/links";
 
 const INVITE_VALID_DAYS = 14;
 
@@ -54,7 +55,7 @@ async function createInvite(
     .set(role === "vendor" ? { pendingVendorInviteId: invite.id } : { pendingCollaboratorInviteId: invite.id })
     .where(eq(requests.id, requestId));
 
-  const link = `${process.env.APP_URL || ""}/accept-invite?invite=${invite.id}`;
+  const link = buildInviteLink(process.env.APP_URL, invite.id);
   await sendNotification({
     ownerId: session.user.id,
     requestId,
@@ -80,6 +81,7 @@ export type ManageInviteState =
   | {
       error?: string;
       success?: string;
+      inviteLink?: string;
     }
   | undefined;
 
@@ -170,8 +172,8 @@ export async function resendInviteAction(
     .set({ expiresAt })
     .where(and(eq(invites.id, invite.id), eq(invites.ownerId, session.user.id)));
 
-  const link = `${process.env.APP_URL || ""}/accept-invite?invite=${invite.id}`;
-  await sendNotification({
+  const link = buildInviteLink(process.env.APP_URL, invite.id);
+  const emailSent = await sendNotification({
     ownerId: session.user.id,
     requestId: invite.requestId,
     type: `${invite.role}_invite_resend`,
@@ -181,7 +183,12 @@ export async function resendInviteAction(
   });
 
   revalidateInviteSurfaces(invite.requestId);
-  return { success: "Invite resent and expiry refreshed." };
+  return {
+    success: emailSent
+      ? "Invite resent and expiry refreshed."
+      : "Invite expiry refreshed. Email is not configured, so copy this link instead.",
+    inviteLink: link,
+  };
 }
 
 export type AcceptInviteResult = { error: string } | { success: true };
