@@ -23,17 +23,18 @@ This checks:
 
 ## Owner Smoke Test
 
-1. Create a homeowner account from `/signup`.
-2. Confirm signup lands on `/owner/onboarding`.
-3. Add a property with public-safe address data.
-4. Create a maintenance request with category, urgency, notes, access context,
+1. Open `/api/health` and confirm it returns `status: "ok"`.
+2. Create a homeowner account from `/signup`.
+3. Confirm signup lands on `/owner/onboarding`.
+4. Add a property with public-safe address data.
+5. Create a maintenance request with category, urgency, notes, access context,
    and preferred contact method.
-5. Upload at least one before photo or public-safe proof file.
-6. Add cost context or a quote.
-7. Confirm the setup guide progress changes after property, request, evidence,
+6. Upload at least one before photo or public-safe proof file.
+7. Add cost context or a quote.
+8. Confirm the setup guide progress changes after property, request, evidence,
    sharing, history, and reminder steps.
-8. Download a proof packet PDF.
-9. Export owner backup data from `/owner/backup`.
+9. Download a proof packet PDF.
+10. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 

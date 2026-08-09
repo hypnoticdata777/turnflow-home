@@ -2,6 +2,41 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-08 - Public Health Check
+
+Scope: add a monitor-friendly hosted app status endpoint.
+
+### Changed
+
+- Added `/api/health` as an uncached public GET route.
+- Added `lib/health.ts` for a testable health payload with status, service,
+  timestamp, version, environment, and commit metadata.
+- Added unit coverage for the health payload and route response.
+- Updated README, deployment smoke tests, and QA checklist to include the
+  health endpoint.
+
+### Why
+
+A SaaS POC needs a simple uptime target that does not require login, seeded
+data, or database access. This gives hosting checks and external monitors a
+stable way to confirm the deployed app is responding.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 59 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed and included `/api/health`.
+
+### Follow-Up
+
+- Add a protected deep-health endpoint later if launch monitoring needs database
+  or storage connectivity checks.
+
 ## 2026-08-08 - CI Uses Product Gate
 
 Scope: keep GitHub validation aligned with local release validation.

@@ -87,27 +87,29 @@ Re-run locally before deploying if the environment or database schema changed:
 
 ## Smoke Test After Deploy
 
-1. Create a new owner account from `/signup`.
-2. Confirm signup redirects to `/owner/onboarding`.
-3. Create a property.
-4. Create a maintenance request.
-5. Upload a before photo.
-6. Invite a vendor and confirm the copyable link uses the deployed `APP_URL`.
-7. Sign in as vendor and confirm only assigned requests are visible.
-8. Add/update request status.
-9. Verify the notification log records the send attempt.
-10. Download a proof packet PDF.
-11. Open the vault and upload a public-safe document.
-12. Add one recurring reminder and confirm the setup guide progress updates.
-13. Open Account & Sharing and confirm pending invites and sharing boundaries
+1. Open `/api/health` and confirm it returns `status: "ok"` with no cached
+   response.
+2. Create a new owner account from `/signup`.
+3. Confirm signup redirects to `/owner/onboarding`.
+4. Create a property.
+5. Create a maintenance request.
+6. Upload a before photo.
+7. Invite a vendor and confirm the copyable link uses the deployed `APP_URL`.
+8. Sign in as vendor and confirm only assigned requests are visible.
+9. Add/update request status.
+10. Verify the notification log records the send attempt.
+11. Download a proof packet PDF.
+12. Open the vault and upload a public-safe document.
+13. Add one recurring reminder and confirm the setup guide progress updates.
+14. Open Account & Sharing and confirm pending invites and sharing boundaries
     are understandable to a first-time owner.
-14. Resend and cancel a pending invite from Account & Sharing, then confirm the
+15. Resend and cancel a pending invite from Account & Sharing, then confirm the
     request page reflects the updated pending state.
-15. If `RESEND_API_KEY` is blank, confirm resend still shows a copyable invite
+16. If `RESEND_API_KEY` is blank, confirm resend still shows a copyable invite
     link fallback.
-16. Remove accepted vendor/collaborator access from Account & Sharing, then
+17. Remove accepted vendor/collaborator access from Account & Sharing, then
     sign in as that role and confirm the request is no longer visible.
-17. Open the owner's request detail page and confirm the Decision Log shows the
+18. Open the owner's request detail page and confirm the Decision Log shows the
     access-removal event with the removed account email.
 
 ## Current Known POC Gaps

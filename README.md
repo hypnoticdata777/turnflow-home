@@ -80,6 +80,10 @@ That gate runs lint, typecheck, tests, production audit, Drizzle schema drift
 checks, and a production build. Pair it with `docs/QA_CHECKLIST.md` for manual
 owner/vendor/collaborator smoke testing.
 
+Hosted environments also expose `/api/health` for uptime checks. It returns a
+small uncached JSON payload with app status, version, environment, timestamp,
+and commit metadata when available.
+
 Environment variables (`.env.local`, see `.env.local.example`):
 
 ```
