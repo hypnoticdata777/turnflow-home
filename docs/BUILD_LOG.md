@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-09 - Public Auth UX Smoke
+
+Scope: make the homeowner entry experience feel more mature and easier to
+verify.
+
+### Changed
+
+- Added `components/AuthChrome.tsx` as a shared auth shell with homeowner-first
+  positioning and trust cues.
+- Refreshed `/login` and `/signup` with explicit labels, autocomplete hints,
+  clearer owner-facing copy, stronger focus states, and steadier button states.
+- Added `scripts/ux-public-smoke.ts` and `npm run ux:public` to check public
+  entry routes at desktop and mobile widths.
+- Saved public-entry smoke screenshots under `screenshots/ux-public/`.
+- Cleaned `scripts/screenshot.ts` comments/output to ASCII so the screenshot
+  workflow does not carry encoding noise.
+- Updated README, QA, and UI/UX review docs with the public-entry smoke check.
+
+### Why
+
+Signup and login are the first trust moment for a homeowner. These screens need
+to explain the product direction quickly, feel less like a school MVP, and be
+easy to check before sharing screenshots or a hosted POC.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 67 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+- `npm run ux:public` passed against `http://localhost:3000`.
+
+### Follow-Up
+
+- Extend browser smoke coverage to authenticated owner routes after demo data
+  setup is standardized.
+
 ## 2026-08-09 - UI UX Findings Register
 
 Scope: give product polish reviews a durable triage trail.

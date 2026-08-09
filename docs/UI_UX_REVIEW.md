@@ -6,6 +6,8 @@ that changes a homeowner-facing workflow.
 ## Review Rhythm
 
 - Run this after `npm run verify` and before a user-testing session.
+- Run `npm run ux:public` against a local or preview server for public entry
+  routes before refreshing screenshots.
 - Review desktop and mobile widths for every changed route.
 - Capture screenshots only with public-safe demo data.
 - Log every `0` score and repeated `1` score in `docs/UI_UX_FINDINGS.md`.

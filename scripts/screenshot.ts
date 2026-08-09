@@ -1,5 +1,5 @@
 // One-off script to generate README screenshots against the local dev
-// server. Not part of the app itself — run manually with:
+// server. Not part of the app itself; run manually with:
 //   npx tsx scripts/screenshot.ts
 import { chromium } from "playwright";
 import path from "node:path";
@@ -43,14 +43,18 @@ async function main() {
   await page.fill('input[name="title"]', "Flickering lights in the garage");
   await shot("03-new-request-checklist");
 
-  // 4. Owner: request detail — the HVAC request has real quotes + decision
+  // 4. Owner: request detail - the HVAC request has real quotes + decision
   // log entries seeded (see scripts/seed-demo.ts), for a richer screenshot
   // than an empty request would give.
   await page.goto(`${BASE_URL}/owner/dashboard`);
   await page.waitForLoadState("networkidle");
-  const hvacCard = page.locator("div.border", { has: page.locator("h2", { hasText: "HVAC not cooling upstairs" }) });
+  const hvacCard = page.locator("div.border", {
+    has: page.locator("h2", { hasText: "HVAC not cooling upstairs" }),
+  });
   const hvacHref = await hvacCard.locator('a:has-text("View")').getAttribute("href");
-  if (!hvacHref) throw new Error("Could not find the HVAC request's View link on the dashboard");
+  if (!hvacHref) {
+    throw new Error("Could not find the HVAC request's View link on the dashboard");
+  }
   await page.goto(`${BASE_URL}${hvacHref}`);
   await page.waitForLoadState("networkidle");
   await shot("04-request-detail");
@@ -60,7 +64,7 @@ async function main() {
   await page.waitForLoadState("networkidle");
   await shot("05-properties");
 
-  // 6. Owner: property document vault — select "The rental" explicitly,
+  // 6. Owner: property document vault - select "The rental" explicitly,
   // since that's the property scripts/seed-demo.ts adds the demo document
   // to, and the page's default selection is whichever property is newest.
   await page.goto(`${BASE_URL}/owner/vault`);
@@ -74,7 +78,7 @@ async function main() {
   await page.waitForLoadState("networkidle");
   await shot("07-calendar");
 
-  // 8. Vendor portal — fresh context so the owner session cookie doesn't linger
+  // 8. Vendor portal - fresh context so the owner session cookie doesn't linger
   await context.close();
   context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   page = await context.newPage();
@@ -82,7 +86,7 @@ async function main() {
   await shot("08-vendor-portal");
 
   await browser.close();
-  console.log("Done — screenshots saved to", OUT_DIR);
+  console.log("Done - screenshots saved to", OUT_DIR);
 }
 
 main().catch((err) => {

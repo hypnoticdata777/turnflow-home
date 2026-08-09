@@ -21,6 +21,17 @@ This checks:
 - Drizzle migration drift with `git diff --exit-code -- drizzle`.
 - Production Next.js build.
 
+For public entry UI checks, run the app locally or against a preview URL, then
+run:
+
+```bash
+npm run ux:public
+```
+
+This captures `/login` and `/signup` at desktop and mobile widths and fails on
+missing accessible labels, missing primary actions, visible encoding artifacts,
+or horizontal overflow.
+
 ## Owner Smoke Test
 
 1. Open `/api/health` and confirm it returns `status: "ok"`.
@@ -58,6 +69,7 @@ This checks:
 - `docs/UI_UX_FINDINGS.md` has no open `P0` or changed-workflow `P1` issues.
 - Browser responses include baseline security headers: nosniff, frame denial,
   strict referrer policy, permissions policy, and HSTS.
+- `npm run ux:public` passes for public entry routes before sharing screenshots.
 - Deep health is protected and does not expose database errors publicly.
 - Vendor and collaborator portals do not expose unrelated requests.
 - Notification attempts are logged even when outbound email is not configured.

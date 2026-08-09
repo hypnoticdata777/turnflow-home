@@ -105,6 +105,17 @@ Run the test suite:
 npm test
 ```
 
+Run the public-entry UI smoke check against a running dev or preview server:
+
+```bash
+npm run ux:public
+```
+
+That browser pass checks `/login` and `/signup` at desktop and mobile widths,
+verifies accessible field labels and primary actions, checks for horizontal
+overflow or visible encoding artifacts, and saves screenshots under
+`screenshots/ux-public/`.
+
 Deployment and build notes:
 
 - [Deployment runbook](docs/DEPLOYMENT.md)
