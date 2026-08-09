@@ -61,8 +61,10 @@ Ask the tester to complete these tasks without explaining the interface first:
 10. Open Account & Sharing and explain who can see the request.
 11. Resend the invite, copy the fallback link, then cancel a second pending
     invite if one exists.
-12. Update the Account & Sharing display name.
-13. Return to the setup guide and explain what has been captured.
+12. After an invite is accepted, remove that active access from Account &
+    Sharing and explain what changed.
+13. Update the Account & Sharing display name.
+14. Return to the setup guide and explain what has been captured.
 
 ## Observe
 
@@ -78,6 +80,9 @@ Track these without coaching:
 - Whether resend/cancel controls make pending invites feel recoverable.
 - Whether the copyable invite link feels understandable when email is not
   configured or does not arrive.
+- Whether active shared access feels distinct from past invite activity.
+- Whether removing accepted access gives the owner enough confidence to share
+  with a real vendor or helper.
 - Whether Account & Sharing answers the tester's trust/privacy questions.
 - Whether the owner trusts the record as evidence after the job is done.
 

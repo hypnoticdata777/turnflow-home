@@ -109,6 +109,8 @@ changed:
     request page reflects the updated pending state.
 15. If `RESEND_API_KEY` is blank, confirm resend still shows a copyable invite
     link fallback.
+16. Remove accepted vendor/collaborator access from Account & Sharing, then
+    sign in as that role and confirm the request is no longer visible.
 
 ## Current Known POC Gaps
 

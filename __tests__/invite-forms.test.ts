@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { inviteIdFromFormData, parseInviteIdFields } from "@/lib/invites/forms";
+import {
+  inviteIdFromFormData,
+  parseInviteIdFields,
+  parseSharedAccessFields,
+  sharedAccessFromFormData,
+} from "@/lib/invites/forms";
 import { buildInviteLink } from "@/lib/invites/links";
 
 describe("parseInviteIdFields", () => {
@@ -31,6 +36,53 @@ describe("parseInviteIdFields", () => {
     expect(parsed.success).toBe(true);
     if (parsed.success) {
       expect(parsed.data.inviteId).toBe("22222222-2222-4222-8222-222222222222");
+    }
+  });
+});
+
+describe("parseSharedAccessFields", () => {
+  it("accepts a valid request UUID and shared access role", () => {
+    const parsed = parseSharedAccessFields({
+      requestId: "33333333-3333-4333-8333-333333333333",
+      role: "vendor",
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data).toEqual({
+        requestId: "33333333-3333-4333-8333-333333333333",
+        role: "vendor",
+      });
+    }
+  });
+
+  it("rejects malformed request ids and unsupported roles", () => {
+    const malformedRequest = parseSharedAccessFields({
+      requestId: "not-a-uuid",
+      role: "vendor",
+    });
+    const unsupportedRole = parseSharedAccessFields({
+      requestId: "33333333-3333-4333-8333-333333333333",
+      role: "owner",
+    });
+
+    expect(malformedRequest.success).toBe(false);
+    expect(unsupportedRole.success).toBe(false);
+  });
+
+  it("parses shared access fields from FormData", () => {
+    const formData = new FormData();
+    formData.set("requestId", "44444444-4444-4444-8444-444444444444");
+    formData.set("role", "collaborator");
+
+    const parsed = sharedAccessFromFormData(formData);
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data).toEqual({
+        requestId: "44444444-4444-4444-8444-444444444444",
+        role: "collaborator",
+      });
     }
   });
 });

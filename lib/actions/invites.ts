@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { invites, requests } from "@/lib/db/schema";
 import { requireRole, requireAnyRole } from "@/lib/auth/dal";
 import { sendNotification } from "@/lib/email";
-import { inviteIdFromFormData } from "@/lib/invites/forms";
+import { inviteIdFromFormData, sharedAccessFromFormData } from "@/lib/invites/forms";
 import { buildInviteLink } from "@/lib/invites/links";
 
 const INVITE_VALID_DAYS = 14;
@@ -92,6 +92,51 @@ function revalidateInviteSurfaces(requestId: string | null) {
   if (requestId) {
     revalidatePath(`/owner/requests/${requestId}`);
   }
+}
+
+export async function removeSharedAccessAction(
+  _prevState: ManageInviteState,
+  formData: FormData
+): Promise<ManageInviteState> {
+  const session = await requireRole("owner");
+  const parsed = sharedAccessFromFormData(formData);
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      error:
+        fieldErrors.requestId?.[0] ||
+        fieldErrors.role?.[0] ||
+        "Shared access details are invalid.",
+    };
+  }
+
+  const { requestId, role } = parsed.data;
+  const req = await db.query.requests.findFirst({
+    where: (r, { eq }) => eq(r.id, requestId),
+  });
+
+  if (!req || req.ownerId !== session.user.id) {
+    return { error: "That request could not be found for this owner account." };
+  }
+
+  const assignedUserId = role === "vendor" ? req.assignedVendorId : req.collaboratorId;
+  if (!assignedUserId) {
+    return { error: `There is no active ${role} access on this request.` };
+  }
+
+  await db
+    .update(requests)
+    .set(
+      role === "vendor"
+        ? { assignedVendorId: null, updatedAt: new Date() }
+        : { collaboratorId: null, updatedAt: new Date() }
+    )
+    .where(and(eq(requests.id, requestId), eq(requests.ownerId, session.user.id)));
+
+  revalidateInviteSurfaces(requestId);
+  revalidatePath(role === "vendor" ? "/vendor" : "/collaborator");
+  return { success: `${role === "vendor" ? "Vendor" : "Collaborator"} access removed.` };
 }
 
 export async function cancelInviteAction(

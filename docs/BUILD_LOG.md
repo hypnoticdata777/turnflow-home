@@ -2,6 +2,44 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-08 - Shared Access Removal
+
+Scope: let owners revoke accepted vendor/collaborator access from Account &
+Sharing.
+
+### Changed
+
+- Added shared-access form parsing for request id and role.
+- Added `removeSharedAccessAction` with owner-role and request-ownership checks
+  before clearing an assigned vendor or collaborator.
+- Added `components/SharedAccessControls.tsx` for the remove-access form.
+- Added an Active shared access section to Account & Sharing, separate from
+  pending/accepted invite history.
+- Added tests for shared-access form parsing.
+- Updated README, deployment smoke tests, and user-testing tasks to include
+  accepted-access removal.
+
+### Why
+
+Accepted invites are not just activity history; they are live visibility into a
+homeowner's repair record. Owners need a clear, reversible access control before
+the product feels mature enough for real vendors and trusted helpers.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 52 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Consider adding an audit-log entry when access is removed so owners can review
+  historical sharing decisions.
+
 ## 2026-08-08 - Request Invite Copy Link
 
 Scope: make initial request-level invite creation match the mature resend flow.
@@ -114,8 +152,7 @@ reversible without changing the database schema.
 
 ### Follow-Up
 
-- Add accepted-invite removal/unshare controls once user testing confirms how
-  owners expect revocation to behave.
+- Completed in `2026-08-08 - Shared Access Removal`.
 
 ## 2026-08-07 - Signup and Profile Friction Pass
 

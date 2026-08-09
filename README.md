@@ -120,7 +120,8 @@ npx tsx scripts/screenshot.ts
 - Vendor and household-collaborator invite-by-email flow with expiring,
   single-use invite links; vendor and collaborator portals each scoped to
   only their own shared requests, with copyable invite links on creation and
-  pending invite resend/cancel controls from Account & Sharing
+  pending invite resend/cancel controls plus accepted-access removal from
+  Account & Sharing
 - Owner-only quote workspace: competing vendor quotes with optional
   attachment, approve/decline, and one-click copy onto the request's cost
 - Append-only decision log recording every status change, and completion
@@ -145,6 +146,6 @@ npx tsx scripts/screenshot.ts
 
 ## Remaining product gaps
 
-A dedicated privacy-controls UI, workspace/org model, and fuller account
-management are still pending. Vendor and collaborator accounts remain seeded
-or invite-driven for the POC so public signup stays homeowner-focused.
+A fuller account-management surface, workspace/org model, and detailed
+privacy audit trail are still pending. Vendor and collaborator accounts remain
+seeded or invite-driven for the POC so public signup stays homeowner-focused.

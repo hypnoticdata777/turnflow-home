@@ -3,6 +3,7 @@ import { eq, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/dal";
 import { OwnerProfileForm } from "@/components/OwnerProfileForm";
 import { PendingInviteControls } from "@/components/PendingInviteControls";
+import { SharedAccessControls } from "@/components/SharedAccessControls";
 import { db } from "@/lib/db";
 import { invites, properties, reminders, requests, users, vaultDocuments } from "@/lib/db/schema";
 import { ownerAccountReadinessItems, ownerReadinessFlags } from "@/lib/owner-readiness";
@@ -31,7 +32,7 @@ export default async function OwnerAccountPage() {
     db.query.requests.findMany({
       where: eq(requests.ownerId, session.user.id),
       orderBy: (r, { desc }) => desc(r.createdAt),
-      with: { property: true, photos: true },
+      with: { property: true, photos: true, assignedVendor: true, collaborator: true },
     }),
     db.query.invites.findMany({
       where: eq(invites.ownerId, session.user.id),
@@ -61,6 +62,24 @@ export default async function OwnerAccountPage() {
   };
   const pendingInvites = ownerInvites.filter((invite) => invite.status === "pending");
   const acceptedInvites = ownerInvites.filter((invite) => invite.status === "accepted");
+  const activeSharedAccess = ownerRequests.flatMap((request) => {
+    const rows = [];
+    if (request.assignedVendorId) {
+      rows.push({
+        request,
+        role: "vendor" as const,
+        person: request.assignedVendor?.email || "Assigned vendor",
+      });
+    }
+    if (request.collaboratorId) {
+      rows.push({
+        request,
+        role: "collaborator" as const,
+        person: request.collaborator?.email || "Shared collaborator",
+      });
+    }
+    return rows;
+  });
   const { sharedRequestCount } = ownerReadinessFlags(readinessInput);
   const displayName = ownerProfile?.name || session.user.name || "Owner";
   const displayEmail = ownerProfile?.email || session.user.email;
@@ -165,6 +184,62 @@ export default async function OwnerAccountPage() {
             </p>
           </div>
         </div>
+      </section>
+
+      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">Active shared access</h2>
+          <p className="text-sm text-gray-600">
+            Remove request access after a vendor or trusted helper has accepted
+            an invite.
+          </p>
+        </div>
+
+        {activeSharedAccess.length === 0 ? (
+          <p className="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-600">
+            No active shared access yet. Accepted vendors and collaborators will
+            appear here once they claim a request invite.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left text-sm">
+              <thead>
+                <tr className="border-b text-gray-500">
+                  <th className="py-2 pr-4 font-medium">Person</th>
+                  <th className="py-2 pr-4 font-medium">Role</th>
+                  <th className="py-2 pr-4 font-medium">Request</th>
+                  <th className="py-2 pr-4 font-medium">Property</th>
+                  <th className="py-2 pr-4 font-medium">Controls</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activeSharedAccess.map((access) => (
+                  <tr
+                    key={`${access.request.id}-${access.role}`}
+                    className="border-b last:border-b-0"
+                  >
+                    <td className="py-3 pr-4">{access.person}</td>
+                    <td className="py-3 pr-4 capitalize">{access.role}</td>
+                    <td className="py-3 pr-4">{access.request.title}</td>
+                    <td className="py-3 pr-4">
+                      {access.request.property
+                        ? access.request.property.nickname
+                          ? `${access.request.property.nickname} - ${access.request.property.address}`
+                          : access.request.property.address
+                        : "Property removed"}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <SharedAccessControls
+                        requestId={access.request.id}
+                        role={access.role}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
