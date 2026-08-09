@@ -2,6 +2,38 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-08 - Shared Access Audit Trail
+
+Scope: preserve a request-level record when owner removes accepted access.
+
+### Changed
+
+- `removeSharedAccessAction` now writes a `shared_access_removed` decision-log
+  entry after clearing assigned vendor/collaborator access.
+- Added decision-log display copy for removed vendor/collaborator access.
+- Added unit coverage for the new decision-log copy.
+
+### Why
+
+Revoking access should leave a visible record, not just mutate a hidden
+assignment field. This helps homeowners understand their sharing history and
+makes the access-control workflow easier to trust during a POC.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 55 tests.
+- `npm.cmd audit --omit=dev --cache .npm-cache` passed: 0 vulnerabilities.
+- `npm.cmd run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Add the removed user's email to the audit copy if user testing shows ids are
+  too abstract for homeowner review.
+
 ## 2026-08-08 - Shared Access Removal
 
 Scope: let owners revoke accepted vendor/collaborator access from Account &
@@ -37,8 +69,7 @@ the product feels mature enough for real vendors and trusted helpers.
 
 ### Follow-Up
 
-- Consider adding an audit-log entry when access is removed so owners can review
-  historical sharing decisions.
+- Completed in `2026-08-08 - Shared Access Audit Trail`.
 
 ## 2026-08-08 - Request Invite Copy Link
 

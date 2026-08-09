@@ -3,7 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { invites, requests } from "@/lib/db/schema";
+import { decisionLog, invites, requests } from "@/lib/db/schema";
 import { requireRole, requireAnyRole } from "@/lib/auth/dal";
 import { sendNotification } from "@/lib/email";
 import { inviteIdFromFormData, sharedAccessFromFormData } from "@/lib/invites/forms";
@@ -133,6 +133,16 @@ export async function removeSharedAccessAction(
         : { collaboratorId: null, updatedAt: new Date() }
     )
     .where(and(eq(requests.id, requestId), eq(requests.ownerId, session.user.id)));
+
+  await db.insert(decisionLog).values({
+    requestId,
+    actorId: session.user.id,
+    action: "shared_access_removed",
+    details: {
+      role,
+      removedUserId: assignedUserId,
+    },
+  });
 
   revalidateInviteSurfaces(requestId);
   revalidatePath(role === "vendor" ? "/vendor" : "/collaborator");
