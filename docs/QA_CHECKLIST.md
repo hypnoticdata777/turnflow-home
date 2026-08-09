@@ -52,6 +52,8 @@ This checks:
 
 - Owner-only areas stay owner-only: vault, backup, notifications, account
   readiness, and property list.
+- Browser responses include baseline security headers: nosniff, frame denial,
+  strict referrer policy, permissions policy, and HSTS.
 - Vendor and collaborator portals do not expose unrelated requests.
 - Notification attempts are logged even when outbound email is not configured.
 - Completion still requires final cost, an after photo, and assigned vendor, or

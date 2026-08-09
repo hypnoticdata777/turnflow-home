@@ -2,6 +2,41 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-09 - Baseline Security Headers
+
+Scope: add conservative browser security headers for hosted POC hardening.
+
+### Changed
+
+- Added `lib/security-headers.ts` as the shared baseline header policy.
+- Updated `next.config.ts` to apply the security headers globally.
+- Added unit coverage for header uniqueness and expected values.
+- Updated README, deployment docs, and QA checklist to include security-header
+  expectations.
+
+### Why
+
+A homeowner SaaS should ship with basic browser protections before public
+testing: content-type sniffing protection, clickjacking defense, referrer
+control, locked-down browser permissions, and HSTS. CSP is intentionally left
+for a separate nonce-aware pass so we do not break Next scripts or uploads.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 61 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Design and test a nonce-based Content Security Policy after the hosted app and
+  any analytics/email/asset domains are finalized.
+
 ## 2026-08-08 - Public Health Check
 
 Scope: add a monitor-friendly hosted app status endpoint.

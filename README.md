@@ -84,6 +84,9 @@ Hosted environments also expose `/api/health` for uptime checks. It returns a
 small uncached JSON payload with app status, version, environment, timestamp,
 and commit metadata when available.
 
+Global browser security headers are configured in `next.config.ts`, with the
+shared header policy defined in `lib/security-headers.ts`.
+
 Environment variables (`.env.local`, see `.env.local.example`):
 
 ```

@@ -83,6 +83,8 @@ Re-run locally before deploying if the environment or database schema changed:
 - Vercel project has Neon and Blob environment variables set.
 - `APP_URL` points to the actual deployed URL.
 - `CRON_SECRET` is set for production.
+- Browser responses include the baseline security headers configured in
+  `lib/security-headers.ts`.
 - Demo data contains no private address, contact, receipt, or customer details.
 
 ## Smoke Test After Deploy
