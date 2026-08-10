@@ -2,6 +2,43 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Owner Readiness Guidance
+
+Scope: make first-run and account readiness feel guided instead of passive.
+
+### Changed
+
+- Added reusable owner readiness summary helpers for next-best-action guidance.
+- Added onboarding summary copy that tells a homeowner what to do next, whether
+  the workspace is empty, in progress, or ready for a walkthrough.
+- Added Account & Sharing readiness guidance so the trust center reinforces the
+  same setup story as onboarding.
+- Added tests for next incomplete setup step detection and empty/in-progress/
+  ready summary states.
+
+### Why
+
+The product should not make early users infer what matters next. A launch-ready
+SaaS experience should clearly name the next useful action and help the owner
+understand why the record is becoming more valuable.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 69 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+- App/component/lib encoding artifact scan passed.
+
+### Follow-Up
+
+- Use this readiness summary in future route-level smoke output once seeded
+  owner route capture is available.
+
 ## 2026-08-10 - Owner Trust Action Forms
 
 Scope: reduce friction and trust risk in owner forms, invites, proof, quotes,

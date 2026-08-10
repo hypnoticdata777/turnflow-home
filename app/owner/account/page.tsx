@@ -6,7 +6,14 @@ import { PendingInviteControls } from "@/components/PendingInviteControls";
 import { SharedAccessControls } from "@/components/SharedAccessControls";
 import { db } from "@/lib/db";
 import { invites, properties, reminders, requests, users, vaultDocuments } from "@/lib/db/schema";
-import { ownerAccountReadinessItems, ownerReadinessFlags } from "@/lib/owner-readiness";
+import {
+  ownerAccountReadinessItems,
+  ownerNextSetupStep,
+  ownerReadinessFlags,
+  ownerSetupProgress,
+  ownerSetupSteps,
+  ownerSetupSummary,
+} from "@/lib/owner-readiness";
 
 function formatDate(date: Date | null) {
   if (!date) return "Not recorded";
@@ -84,6 +91,22 @@ export default async function OwnerAccountPage() {
   const displayName = ownerProfile?.name || session.user.name || "Owner";
   const displayEmail = ownerProfile?.email || session.user.email;
   const readinessItems = ownerAccountReadinessItems(readinessInput, displayEmail);
+  const setupSteps = ownerSetupSteps(readinessInput, ownerRequests[0]?.id);
+  const setupSummary = ownerSetupSummary(setupSteps);
+  const nextStep = ownerNextSetupStep(setupSteps);
+  const { completedCount, totalCount, progress } = ownerSetupProgress(setupSteps);
+  const summaryClasses =
+    setupSummary.tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : setupSummary.tone === "empty"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : "border-amber-200 bg-amber-50 text-amber-950";
+  const summaryButtonClasses =
+    setupSummary.tone === "ready"
+      ? "bg-emerald-800"
+      : setupSummary.tone === "empty"
+        ? "bg-blue-800"
+        : "bg-amber-800";
 
   return (
     <main className="max-w-6xl">
@@ -116,6 +139,30 @@ export default async function OwnerAccountPage() {
           <p className="mt-1 text-sm text-gray-600">
             Open invite links that can still be claimed.
           </p>
+        </div>
+      </section>
+
+      <section className={`mb-6 rounded-lg border p-5 shadow-sm ${summaryClasses}`}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold">
+              Owner readiness: {completedCount} of {totalCount} complete ({progress}%)
+            </p>
+            <h2 className="mt-1 text-xl font-semibold">
+              {setupSummary.headline}
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6">
+              {setupSummary.detail}
+            </p>
+          </div>
+          {nextStep && (
+            <Link
+              href={nextStep.href}
+              className={`inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium text-white ${summaryButtonClasses}`}
+            >
+              {nextStep.cta}
+            </Link>
+          )}
         </div>
       </section>
 

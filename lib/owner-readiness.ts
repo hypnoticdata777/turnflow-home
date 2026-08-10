@@ -29,6 +29,12 @@ export type OwnerReadinessItem = {
   complete: boolean;
 };
 
+export type OwnerSetupSummary = {
+  headline: string;
+  detail: string;
+  tone: "empty" | "in_progress" | "ready";
+};
+
 export function ownerReadinessFlags(input: OwnerReadinessInput) {
   return {
     hasProperty: input.properties.length > 0,
@@ -106,6 +112,39 @@ export function ownerSetupProgress(steps: OwnerSetupStep[]) {
   const completedCount = steps.filter((step) => step.complete).length;
   const progress = steps.length ? Math.round((completedCount / steps.length) * 100) : 0;
   return { completedCount, totalCount: steps.length, progress };
+}
+
+export function ownerNextSetupStep(steps: OwnerSetupStep[]) {
+  return steps.find((step) => !step.complete) ?? null;
+}
+
+export function ownerSetupSummary(steps: OwnerSetupStep[]): OwnerSetupSummary {
+  const { completedCount, totalCount } = ownerSetupProgress(steps);
+  const nextStep = ownerNextSetupStep(steps);
+
+  if (completedCount === 0 && nextStep) {
+    return {
+      headline: "Start with the home itself.",
+      detail:
+        "Add the property first so every request, photo, receipt, and reminder has a clear place to live.",
+      tone: "empty",
+    };
+  }
+
+  if (!nextStep) {
+    return {
+      headline: "This owner workspace is ready for a serious walkthrough.",
+      detail:
+        "The core record now includes property context, a request, evidence, shared help, saved history, and a reminder.",
+      tone: "ready",
+    };
+  }
+
+  return {
+    headline: `${completedCount} of ${totalCount} launch-readiness steps are complete.`,
+    detail: `Next best action: ${nextStep.cta.toLowerCase()} so the repair record keeps becoming more useful.`,
+    tone: "in_progress",
+  };
 }
 
 export function ownerAccountReadinessItems(

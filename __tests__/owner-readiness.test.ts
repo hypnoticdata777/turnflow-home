@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   ownerAccountReadinessItems,
+  ownerNextSetupStep,
   ownerReadinessFlags,
   ownerSetupProgress,
+  ownerSetupSummary,
   ownerSetupSteps,
   type OwnerReadinessInput,
 } from "@/lib/owner-readiness";
@@ -93,6 +95,49 @@ describe("ownerSetupSteps / ownerSetupProgress", () => {
       cta: "Open request",
     });
     expect(ownerSetupProgress(steps)).toMatchObject({ completedCount: 3, progress: 50 });
+  });
+
+  it("returns the next incomplete setup step", () => {
+    const steps = ownerSetupSteps({
+      ...emptyInput,
+      properties: [{}],
+      requests: [{ id: "request-1" }],
+    });
+
+    expect(ownerNextSetupStep(steps)).toMatchObject({
+      title: "Attach proof or context",
+      cta: "Add evidence",
+    });
+  });
+
+  it("summarizes empty, in-progress, and ready owner setup states", () => {
+    expect(ownerSetupSummary(ownerSetupSteps(emptyInput))).toMatchObject({
+      headline: "Start with the home itself.",
+      tone: "empty",
+    });
+
+    const inProgressSteps = ownerSetupSteps({
+      ...emptyInput,
+      properties: [{}],
+      requests: [{ id: "request-1" }],
+    });
+    expect(ownerSetupSummary(inProgressSteps)).toMatchObject({
+      headline: "2 of 6 launch-readiness steps are complete.",
+      tone: "in_progress",
+    });
+
+    const readySteps = ownerSetupSteps({
+      properties: [{}],
+      requests: [{ id: "request-1", photos: [{}], assignedVendorId: "vendor-1" }],
+      invites: [],
+      vaultDocuments: [{}],
+      reminders: [{}],
+    });
+    expect(ownerNextSetupStep(readySteps)).toBeNull();
+    expect(ownerSetupSummary(readySteps)).toMatchObject({
+      headline: "This owner workspace is ready for a serious walkthrough.",
+      tone: "ready",
+    });
   });
 });
 
