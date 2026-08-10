@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Post-Create Request Handoff
+
+Scope: keep homeowners in the new repair record after request submission.
+
+### Changed
+
+- Added `lib/request-submit.ts` for post-create photo upload outcomes,
+  request-detail redirect paths, and creation notice copy.
+- Changed `NewRequestForm` so successful request creation opens the new request
+  detail page instead of returning to the dashboard.
+- Preserved queued photo upload context in the redirect query string so the
+  detail page can explain complete, partial, failed, or no-upload outcomes.
+- Added a creation notice to `RequestDetailView` for the post-submit landing
+  state.
+- Added tests for photo upload status, redirect path generation, and
+  owner-facing creation notices.
+
+### Why
+
+After creating a request, the next natural homeowner action is to review the
+record, confirm proof landed, add costs, or invite help. Returning to the list
+adds an avoidable step and makes photo upload failures too easy to miss.
+
+### Validation
+
+- `npm test -- request-submit` passed: 6 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 93 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Consider clearing creation query params after the first view if repeated
+  refreshes make the saved notice feel stale during user testing.
+
 ## 2026-08-10 - Request Intake Readiness Guidance
 
 Scope: make the new maintenance request form guide homeowners toward a useful

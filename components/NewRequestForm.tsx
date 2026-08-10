@@ -21,6 +21,7 @@ import {
   requestIntakeSteps,
   requestIntakeSummary,
 } from "@/lib/request-intake";
+import { photoUploadStatus, requestDetailPathAfterCreate } from "@/lib/request-submit";
 
 type Property = { id: string; address: string; nickname: string | null };
 
@@ -103,6 +104,7 @@ export function NewRequestForm({
 
     const requestId = result.requestId;
     const queued = PHOTO_TYPES.filter((t) => queuedPhotos[t]);
+    let failedPhotoUploads = 0;
     for (const type of queued) {
       const file = queuedPhotos[type]!;
       setPhotoStatus(`Uploading ${type}...`);
@@ -115,10 +117,12 @@ export function NewRequestForm({
         await recordRequestPhotoAction(requestId, type, blob.url, blob.pathname);
       } catch (err) {
         console.error(`Failed to upload ${type} photo:`, err);
+        failedPhotoUploads++;
       }
     }
 
-    router.push("/owner/dashboard");
+    const uploadStatus = photoUploadStatus(queued.length, failedPhotoUploads);
+    router.push(requestDetailPathAfterCreate(requestId, uploadStatus));
   }
 
   const checklist = checklistForCategory(category);

@@ -23,6 +23,7 @@ import { InviteSection } from "@/components/InviteSection";
 import { CommentThread, type CommentData } from "@/components/CommentThread";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { missingCompletionProof, requestGuidance } from "@/lib/request-guidance";
+import type { RequestCreatedNotice } from "@/lib/request-submit";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
 type PhotoType = (typeof PHOTO_TYPES)[number];
@@ -134,6 +135,7 @@ export function RequestDetailView({
   comments,
   property,
   userId,
+  creationNotice,
 }: {
   request: RequestData;
   photos: Photo[];
@@ -142,6 +144,7 @@ export function RequestDetailView({
   comments: CommentData[];
   property: Property;
   userId: string;
+  creationNotice: RequestCreatedNotice | null;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(request.status);
@@ -232,6 +235,19 @@ export function RequestDetailView({
 
   return (
     <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow">
+      {creationNotice && (
+        <section
+          className={`mb-5 rounded-lg border p-4 ${
+            creationNotice.tone === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+              : "border-amber-200 bg-amber-50 text-amber-950"
+          }`}
+        >
+          <h2 className="text-lg font-semibold">{creationNotice.headline}</h2>
+          <p className="mt-1 text-sm leading-6">{creationNotice.detail}</p>
+        </section>
+      )}
+
       <section className="mb-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
