@@ -32,6 +32,17 @@ This captures `/login` and `/signup` at desktop and mobile widths and fails on
 missing accessible labels, missing primary actions, visible encoding artifacts,
 or horizontal overflow.
 
+After `DATABASE_URL` is configured and demo accounts are seeded, run:
+
+```bash
+npm run db:seed
+npm run ux:owner
+```
+
+This signs in as the demo owner, checks core owner routes at desktop and mobile
+widths, verifies active navigation, and saves screenshots under
+`screenshots/ux-owner/`.
+
 ## Owner Smoke Test
 
 1. Open `/api/health` and confirm it returns `status: "ok"`.
@@ -70,6 +81,7 @@ or horizontal overflow.
 - Browser responses include baseline security headers: nosniff, frame denial,
   strict referrer policy, permissions policy, and HSTS.
 - `npm run ux:public` passes for public entry routes before sharing screenshots.
+- `npm run ux:owner` passes for signed-in owner routes before a moderated test.
 - Deep health is protected and does not expose database errors publicly.
 - Vendor and collaborator portals do not expose unrelated requests.
 - Notification attempts are logged even when outbound email is not configured.

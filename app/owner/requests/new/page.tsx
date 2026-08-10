@@ -13,7 +13,7 @@ export default async function NewRequestPage() {
 
   return (
     <main>
-      <h1 className="text-3xl font-bold mb-6">🆕 New Maintenance Request</h1>
+      <h1 className="mb-6 text-3xl font-bold">New maintenance request</h1>
       <NewRequestForm properties={ownerProperties} userId={session.user.id} />
     </main>
   );

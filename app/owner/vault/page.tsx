@@ -30,10 +30,10 @@ export default async function VaultPage({
 
   return (
     <main>
-      <h1 className="text-3xl font-bold mb-2">🗄️ Property Vault</h1>
-      <p className="text-sm text-gray-500 mb-4">
+      <h1 className="mb-2 text-3xl font-bold">Property vault</h1>
+      <p className="mb-4 text-sm text-gray-500">
         Receipts, warranties, manuals, invoices, and inspection reports for a
-        property — independent of any single request.
+        property, independent of any single request.
       </p>
 
       {ownerProperties.length === 0 ? (
@@ -47,19 +47,19 @@ export default async function VaultPage({
       ) : (
         <>
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-1">Property</label>
+            <label className="mb-1 block text-sm font-medium">Property</label>
             <div className="flex flex-wrap gap-2">
               {ownerProperties.map((p) => (
                 <Link
                   key={p.id}
                   href={`/owner/vault?propertyId=${p.id}`}
-                  className={`text-sm px-3 py-1 rounded-full border whitespace-nowrap ${
+                  className={`rounded-full border px-3 py-1 text-sm whitespace-nowrap ${
                     selectedPropertyId === p.id
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  {p.nickname ? `${p.nickname} — ${p.address}` : p.address}
+                  {p.nickname ? `${p.nickname} - ${p.address}` : p.address}
                 </Link>
               ))}
             </div>

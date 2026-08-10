@@ -41,7 +41,7 @@ export function VaultManager({
     }
 
     setSubmitting(true);
-    setFormStatus("Uploading…");
+    setFormStatus("Uploading...");
     try {
       const pathname = vaultDocumentPath(propertyId, userId, file.name);
       const blob = await upload(pathname, file, {
@@ -55,7 +55,7 @@ export function VaultManager({
       formData.set("url", blob.url);
       formData.set("blobPath", blob.pathname);
 
-      setFormStatus("Saving…");
+      setFormStatus("Saving...");
       const result = await createVaultDocumentAction(propertyId, formData);
       if ("error" in result) {
         setFormStatus(result.error);
@@ -65,7 +65,7 @@ export function VaultManager({
       setName("");
       setCategory(VAULT_DOCUMENT_CATEGORIES[0]);
       setFile(null);
-      setFormStatus("Document added ✓");
+      setFormStatus("Document added.");
       router.refresh();
     } catch (err) {
       console.error("Failed to upload vault document:", err);
@@ -91,24 +91,26 @@ export function VaultManager({
 
   return (
     <div>
-      <div className="bg-white p-4 rounded-xl shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">Add a Document</h2>
-        <form onSubmit={handleSubmit} className="grid md:grid-cols-4 gap-3 items-end">
+      <div className="mb-6 rounded-xl bg-white p-4 shadow">
+        <h2 className="mb-4 text-xl font-semibold">Add a document</h2>
+        <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-4 md:items-end">
           <div>
-            <label className="block text-xs font-medium mb-1">Name</label>
+            <label className="mb-1 block text-xs font-medium">Name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Water heater warranty"
-              className="w-full p-2 border rounded text-sm"
+              className="w-full rounded border p-2 text-sm"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">Category</label>
+            <label className="mb-1 block text-xs font-medium">Category</label>
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value as (typeof VAULT_DOCUMENT_CATEGORIES)[number])}
-              className="w-full p-2 border rounded bg-white text-sm"
+              onChange={(e) =>
+                setCategory(e.target.value as (typeof VAULT_DOCUMENT_CATEGORIES)[number])
+              }
+              className="w-full rounded border bg-white p-2 text-sm"
             >
               {VAULT_DOCUMENT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -118,7 +120,7 @@ export function VaultManager({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1">File</label>
+            <label className="mb-1 block text-xs font-medium">File</label>
             <input
               type="file"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
@@ -128,29 +130,37 @@ export function VaultManager({
           <button
             type="submit"
             disabled={submitting}
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+            className="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
           >
-            {submitting ? "Uploading…" : "Add Document"}
+            {submitting ? "Uploading..." : "Add document"}
           </button>
         </form>
-        {formStatus && <p className="text-sm text-gray-600 mt-2">{formStatus}</p>}
+        {formStatus && <p className="mt-2 text-sm text-gray-600">{formStatus}</p>}
       </div>
 
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="text-xl font-semibold mb-4">Documents</h2>
+      <div className="rounded-xl bg-white p-4 shadow">
+        <h2 className="mb-4 text-xl font-semibold">Documents</h2>
         {documents.length === 0 ? (
           <p className="text-gray-500">No documents yet.</p>
         ) : (
           <div className="space-y-2">
             {documents.map((d) => (
-              <div key={d.id} className="p-3 border rounded flex justify-between items-center">
+              <div
+                key={d.id}
+                className="flex flex-col gap-3 rounded border p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
                 <div>
                   <p>
                     <strong>{d.name}</strong>{" "}
                     <span className="text-xs text-gray-500">({d.category})</span>
                   </p>
                   <p className="text-sm">
-                    <a href={d.url} target="_blank" rel="noopener" className="text-blue-600 underline">
+                    <a
+                      href={d.url}
+                      target="_blank"
+                      rel="noopener"
+                      className="text-blue-600 underline"
+                    >
                       View / download
                     </a>
                   </p>
@@ -158,7 +168,7 @@ export function VaultManager({
                 <button
                   onClick={() => handleDelete(d.id)}
                   disabled={deletingId === d.id}
-                  className="bg-red-600 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
+                  className="rounded bg-red-600 px-3 py-1 text-sm text-white disabled:opacity-50"
                 >
                   Delete
                 </button>

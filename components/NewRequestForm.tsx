@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import {
+  CONTACT_METHODS,
   REQUEST_CATEGORIES,
   REQUEST_URGENCIES,
-  CONTACT_METHODS,
   checklistForCategory,
 } from "@/lib/utils";
 import {
@@ -87,7 +87,7 @@ export function NewRequestForm({
     const queued = PHOTO_TYPES.filter((t) => queuedPhotos[t]);
     for (const type of queued) {
       const file = queuedPhotos[type]!;
-      setPhotoStatus(`Uploading ${type}…`);
+      setPhotoStatus(`Uploading ${type}...`);
       try {
         const pathname = requestPhotoPath(requestId, type, userId, file.name);
         const blob = await upload(pathname, file, {
@@ -106,82 +106,82 @@ export function NewRequestForm({
   const checklist = checklistForCategory(category);
 
   return (
-    <div className="max-w-2xl bg-white p-6 rounded-xl shadow">
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+    <div className="max-w-2xl rounded-xl bg-white p-6 shadow">
+      {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
 
       {properties.length === 0 && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
-          <p className="text-sm font-medium mb-2">
-            Let&apos;s add your first property before your first request — it
-            only takes a second.
+        <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3">
+          <p className="mb-2 text-sm font-medium">
+            Let&apos;s add your first property before your first request. It only
+            takes a second.
           </p>
-          <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex flex-col gap-2 md:flex-row">
             <input
               type="text"
               placeholder="Address"
               value={quickAddress}
               onChange={(e) => setQuickAddress(e.target.value)}
-              className="flex-1 p-2 border rounded text-sm"
+              className="flex-1 rounded border p-2 text-sm"
             />
             <input
               type="text"
               placeholder="Nickname (optional)"
               value={quickNickname}
               onChange={(e) => setQuickNickname(e.target.value)}
-              className="flex-1 p-2 border rounded text-sm"
+              className="flex-1 rounded border p-2 text-sm"
             />
             <button
               type="button"
               onClick={handleQuickAddProperty}
               disabled={quickAddPending}
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm whitespace-nowrap disabled:opacity-50"
+              className="rounded bg-blue-600 px-4 py-2 text-sm text-white whitespace-nowrap disabled:opacity-50"
             >
-              {quickAddPending ? "Saving…" : "Add Property"}
+              {quickAddPending ? "Saving..." : "Add property"}
             </button>
           </div>
           {quickAddError && (
-            <p className="text-xs text-red-600 mt-1">{quickAddError}</p>
+            <p className="mt-1 text-xs text-red-600">{quickAddError}</p>
           )}
         </div>
       )}
 
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Property</label>
-          <select name="propertyId" required className="w-full p-2 border rounded bg-white">
+          <label className="mb-1 block text-sm font-medium">Property</label>
+          <select name="propertyId" required className="w-full rounded border bg-white p-2">
             <option value="">
-              {properties.length === 0 ? "— add a property first —" : "— select a property —"}
+              {properties.length === 0 ? "Add a property first" : "Select a property"}
             </option>
             {properties.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.nickname ? `${p.nickname} — ${p.address}` : p.address}
+                {p.nickname ? `${p.nickname} - ${p.address}` : p.address}
               </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Short Title</label>
+          <label className="mb-1 block text-sm font-medium">Short title</label>
           <input
             name="title"
             type="text"
             required
             placeholder="e.g. Kitchen faucet leaking"
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
+            <label className="mb-1 block text-sm font-medium">Category</label>
             <select
               name="category"
               required
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full p-2 border rounded bg-white"
+              className="w-full rounded border bg-white p-2"
             >
-              <option value="">— select a category —</option>
+              <option value="">Select a category</option>
               {REQUEST_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -190,15 +190,15 @@ export function NewRequestForm({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Urgency</label>
+            <label className="mb-1 block text-sm font-medium">Urgency</label>
             <select
               name="urgency"
               required
               value={urgency}
               onChange={(e) => setUrgency(e.target.value)}
-              className="w-full p-2 border rounded bg-white"
+              className="w-full rounded border bg-white p-2"
             >
-              <option value="">— select urgency —</option>
+              <option value="">Select urgency</option>
               {REQUEST_URGENCIES.map((u) => (
                 <option key={u} value={u}>
                   {u}
@@ -209,18 +209,18 @@ export function NewRequestForm({
         </div>
 
         {urgency === "Emergency" && (
-          <p className="text-sm bg-red-50 border border-red-200 text-red-700 rounded p-3">
-            ⚠️ TurnFlow Home is not an emergency dispatch service. If this is
-            a genuine emergency (fire, gas leak, flooding, electrical
-            hazard), contact emergency services or a licensed professional
-            directly — use this request only to track and document it.
+          <p className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            TurnFlow Home is not an emergency dispatch service. If this is a
+            genuine emergency (fire, gas leak, flooding, electrical hazard),
+            contact emergency services or a licensed professional directly. Use
+            this request only to track and document it.
           </p>
         )}
 
         {checklist.length > 0 && (
-          <div className="text-sm bg-blue-50 border border-blue-200 text-blue-800 rounded p-3">
-            <p className="font-medium mb-1">Before you go further</p>
-            <ul className="list-disc list-inside space-y-1">
+          <div className="rounded border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+            <p className="mb-1 font-medium">Before you go further</p>
+            <ul className="list-inside list-disc space-y-1">
               {checklist.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -229,19 +229,21 @@ export function NewRequestForm({
         )}
 
         <div>
-          <label className="block text-sm font-medium mb-1">Room / Location</label>
+          <label className="mb-1 block text-sm font-medium">Room / location</label>
           <input
             name="location"
             type="text"
             placeholder="e.g. Kitchen, 2nd floor bathroom"
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Preferred Contact Method</label>
-          <select name="contactMethod" className="w-full p-2 border rounded bg-white">
-            <option value="">— preferred contact method —</option>
+          <label className="mb-1 block text-sm font-medium">
+            Preferred contact method
+          </label>
+          <select name="contactMethod" className="w-full rounded border bg-white p-2">
+            <option value="">Preferred contact method</option>
             {CONTACT_METHODS.map((m) => (
               <option key={m} value={m}>
                 {m}
@@ -251,39 +253,39 @@ export function NewRequestForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Access Instructions</label>
+          <label className="mb-1 block text-sm font-medium">Access instructions</label>
           <textarea
             name="accessInstructions"
             rows={2}
             placeholder="e.g. Lockbox code, gate access, pets on site"
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Notes</label>
+          <label className="mb-1 block text-sm font-medium">Notes</label>
           <textarea
             name="notes"
             rows={3}
             placeholder="Describe the issue"
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Photos (optional)</label>
-          <p className="text-xs text-gray-500 mb-2">
+          <label className="mb-1 block text-sm font-medium">Photos (optional)</label>
+          <p className="mb-2 text-xs text-gray-500">
             Attach photos now, or add them later from the request page.
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
             {PHOTO_TYPES.map((type) => (
-              <div key={type} className="border p-3 rounded">
-                <h3 className="font-medium mb-2 text-sm capitalize">{type}</h3>
+              <div key={type} className="rounded border p-3">
+                <h3 className="mb-2 text-sm font-medium capitalize">{type}</h3>
                 <input
                   type="file"
                   accept="image/*"
                   capture="environment"
-                  className="mb-1 text-sm w-full"
+                  className="mb-1 w-full text-sm"
                   onChange={(e) =>
                     setQueuedPhotos((prev) => ({
                       ...prev,
@@ -295,19 +297,22 @@ export function NewRequestForm({
               </div>
             ))}
           </div>
-          {photoStatus && <p className="text-sm text-gray-600 mt-2">{photoStatus}</p>}
+          {photoStatus && <p className="mt-2 text-sm text-gray-600">{photoStatus}</p>}
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <button
             type="submit"
             disabled={saving}
-            className="bg-green-600 text-white px-6 py-2 rounded disabled:opacity-50"
+            className="rounded bg-green-600 px-6 py-2 text-white disabled:opacity-50"
           >
-            {saving ? "Saving…" : "💾 Save Request"}
+            {saving ? "Saving..." : "Save request"}
           </button>
-          <a href="/owner/dashboard" className="bg-gray-600 text-white px-6 py-2 rounded inline-block">
-            ⬅ Cancel
+          <a
+            href="/owner/dashboard"
+            className="inline-block rounded bg-gray-600 px-6 py-2 text-center text-white"
+          >
+            Cancel
           </a>
         </div>
       </form>

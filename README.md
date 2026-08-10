@@ -116,6 +116,18 @@ verifies accessible field labels and primary actions, checks for horizontal
 overflow or visible encoding artifacts, and saves screenshots under
 `screenshots/ux-public/`.
 
+Run the signed-in owner UI smoke check after configuring `DATABASE_URL` and
+seeding demo accounts:
+
+```bash
+npm run db:seed
+npm run ux:owner
+```
+
+That pass signs in as `owner@test.com` by default, checks the core owner routes,
+verifies active navigation, catches visible encoding artifacts and horizontal
+overflow, and saves screenshots under `screenshots/ux-owner/`.
+
 Deployment and build notes:
 
 - [Deployment runbook](docs/DEPLOYMENT.md)

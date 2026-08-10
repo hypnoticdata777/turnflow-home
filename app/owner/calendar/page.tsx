@@ -14,7 +14,7 @@ export default async function CalendarPage() {
   if (ownerProperties.length === 0) {
     return (
       <main>
-        <h1 className="text-3xl font-bold mb-2">📅 Maintenance Calendar</h1>
+        <h1 className="mb-2 text-3xl font-bold">Maintenance calendar</h1>
         <p className="text-gray-500">
           Add a property before creating reminders.{" "}
           <Link href="/owner/properties" className="text-blue-600 underline">
@@ -34,7 +34,7 @@ export default async function CalendarPage() {
 
   const properties = ownerProperties.map((p) => ({
     id: p.id,
-    label: p.nickname ? `${p.nickname} — ${p.address}` : p.address,
+    label: p.nickname ? `${p.nickname} - ${p.address}` : p.address,
   }));
 
   return (

@@ -2,6 +2,54 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Owner Workspace Navigation UX
+
+Scope: mature the signed-in owner workspace so navigation and route confidence
+feel cleaner before launch testing.
+
+### Changed
+
+- Rebuilt `components/OwnerSidebar.tsx` as an active-route client navigation
+  component with plain labels, route descriptions, and `aria-current`.
+- Wrapped owner navigation in `Suspense` from `app/owner/layout.tsx` to follow
+  the Next 16 `usePathname` guidance for layouts that include dynamic routes.
+- Cleaned visible encoding artifacts and symbol-heavy copy from owner dashboard,
+  request intake, properties, vault, calendar, notifications, backup, and shared
+  owner components.
+- Tightened mobile stacking on request cards, property rows, vault documents,
+  reminders, notifications, and request-intake actions.
+- Added `scripts/ux-owner-smoke.ts` and `npm run ux:owner` for authenticated
+  owner route checks at desktop and mobile widths.
+- Updated README, QA, and UI/UX review docs with the owner smoke check.
+
+### Why
+
+The public auth flow now feels stronger, but the signed-in workspace still
+needed a clearer sense of place and fewer rough edges. A homeowner should never
+see broken glyphs in headings, buttons, status text, or navigation, and every
+owner route should make the current location obvious.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 67 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+- App/component encoding artifact scan passed.
+- `npm run ux:public` passed against `http://localhost:3000`.
+- `npm run ux:owner` added and failure mode verified, but local route capture
+  was blocked because `DATABASE_URL` is not configured and `npm run db:seed`
+  cannot create the demo owner account on this machine.
+
+### Follow-Up
+
+- Extend the owner smoke from route confidence into one scripted create-request
+  walkthrough after test data isolation is improved.
+
 ## 2026-08-09 - Public Auth UX Smoke
 
 Scope: make the homeowner entry experience feel more mature and easier to

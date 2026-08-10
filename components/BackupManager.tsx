@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { getBackupDataAction, restoreBackupAction, type BackupProperty, type BackupRequest } from "@/lib/actions/backup";
-import { toCsvRow, costForRequest, costLabelForRequest } from "@/lib/utils";
+import {
+  getBackupDataAction,
+  restoreBackupAction,
+  type BackupProperty,
+  type BackupRequest,
+} from "@/lib/actions/backup";
+import { costForRequest, costLabelForRequest, toCsvRow } from "@/lib/utils";
 
 function downloadBlob(content: string, filename: string, type: string) {
   const blob = new Blob([content], { type });
@@ -37,12 +42,17 @@ export function BackupManager() {
         "application/json"
       );
       setStatus({
-        text: `✅ Exported ${properties.length} propert${properties.length === 1 ? "y" : "ies"} and ${requests.length} request(s).`,
+        text: `Exported ${properties.length} propert${
+          properties.length === 1 ? "y" : "ies"
+        } and ${requests.length} request(s).`,
         isError: false,
       });
     } catch (err) {
       console.error("Backup failed:", err);
-      setStatus({ text: "❌ Backup failed. Check your connection and try again.", isError: true });
+      setStatus({
+        text: "Backup failed. Check your connection and try again.",
+        isError: true,
+      });
     } finally {
       setBackingUp(false);
     }
@@ -57,12 +67,21 @@ export function BackupManager() {
       const propertyLabel = (id: string | null | undefined) => {
         const p = id ? propertyById[id] : undefined;
         if (!p) return "";
-        return p.nickname ? `${p.nickname} — ${p.address}` : p.address || "";
+        return p.nickname ? `${p.nickname} - ${p.address}` : p.address || "";
       };
 
       const header = toCsvRow([
-        "Property", "Title", "Category", "Urgency", "Status",
-        "Estimated Cost", "Quoted Cost", "Final Cost", "Current Cost", "Cost Basis", "Created",
+        "Property",
+        "Title",
+        "Category",
+        "Urgency",
+        "Status",
+        "Estimated Cost",
+        "Quoted Cost",
+        "Final Cost",
+        "Current Cost",
+        "Cost Basis",
+        "Created",
       ]);
       const rows = requests.map((r) =>
         toCsvRow([
@@ -85,10 +104,13 @@ export function BackupManager() {
         `turnflow_home_history_${new Date().toISOString().slice(0, 10)}.csv`,
         "text/csv"
       );
-      setStatus({ text: `✅ Exported ${requests.length} request(s) as CSV.`, isError: false });
+      setStatus({ text: `Exported ${requests.length} request(s) as CSV.`, isError: false });
     } catch (err) {
       console.error("CSV export failed:", err);
-      setStatus({ text: "❌ CSV export failed. Check your connection and try again.", isError: true });
+      setStatus({
+        text: "CSV export failed. Check your connection and try again.",
+        isError: true,
+      });
     } finally {
       setExportingCsv(false);
     }
@@ -96,7 +118,7 @@ export function BackupManager() {
 
   async function handleRestore() {
     if (!file) {
-      setStatus({ text: "❌ Please select a JSON backup file first.", isError: true });
+      setStatus({ text: "Please select a JSON backup file first.", isError: true });
       return;
     }
 
@@ -108,40 +130,53 @@ export function BackupManager() {
       try {
         data = JSON.parse(text);
       } catch {
-        setStatus({ text: "❌ Invalid JSON file.", isError: true });
+        setStatus({ text: "Invalid JSON file.", isError: true });
         return;
       }
 
       if (!data || !Array.isArray(data.properties) || !Array.isArray(data.requests)) {
-        setStatus({ text: '❌ Backup file must contain "properties" and "requests" arrays.', isError: true });
+        setStatus({
+          text: 'Backup file must contain "properties" and "requests" arrays.',
+          isError: true,
+        });
         return;
       }
 
-      const result = await restoreBackupAction({ properties: data.properties, requests: data.requests });
+      const result = await restoreBackupAction({
+        properties: data.properties,
+        requests: data.requests,
+      });
       setFile(null);
       if (result.errors.length === 0) {
         setStatus({
-          text: `✅ Restored ${result.importedProperties} propert${result.importedProperties === 1 ? "y" : "ies"} and ${result.importedRequests} request(s).`,
+          text: `Restored ${result.importedProperties} propert${
+            result.importedProperties === 1 ? "y" : "ies"
+          } and ${result.importedRequests} request(s).`,
           isError: false,
         });
       } else {
         setStatus({
-          text: `⚠️ Restored ${result.importedProperties} propert(ies) and ${result.importedRequests} request(s). Failed: ${result.errors.join(", ")}`,
+          text: `Restored ${result.importedProperties} propert(ies) and ${
+            result.importedRequests
+          } request(s). Failed: ${result.errors.join(", ")}`,
           isError: true,
         });
       }
     } catch (err) {
       console.error("Restore failed:", err);
-      setStatus({ text: "❌ Restore failed. Check your connection and try again.", isError: true });
+      setStatus({
+        text: "Restore failed. Check your connection and try again.",
+        isError: true,
+      });
     } finally {
       setRestoring(false);
     }
   }
 
   return (
-    <div className="max-w-lg mx-auto bg-white p-6 rounded-xl shadow">
-      <h1 className="text-2xl font-bold mb-2">Backup &amp; Restore</h1>
-      <p className="text-sm text-gray-500 mb-6">
+    <div className="mx-auto max-w-lg rounded-xl bg-white p-6 shadow">
+      <h1 className="mb-2 text-2xl font-bold">Backup &amp; restore</h1>
+      <p className="mb-6 text-sm text-gray-500">
         Exports and imports your properties and maintenance requests, so
         you&apos;re never locked into this tool.
       </p>
@@ -149,23 +184,23 @@ export function BackupManager() {
       <button
         onClick={handleBackup}
         disabled={backingUp}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-2 w-full disabled:opacity-50"
+        className="mb-2 w-full rounded bg-blue-500 px-4 py-2 text-white disabled:opacity-50"
       >
-        {backingUp ? "Preparing…" : "📥 Download Backup (JSON)"}
+        {backingUp ? "Preparing..." : "Download backup (JSON)"}
       </button>
       <button
         onClick={handleCsvExport}
         disabled={exportingCsv}
-        className="bg-blue-400 text-white px-4 py-2 rounded mb-6 w-full disabled:opacity-50"
+        className="mb-6 w-full rounded bg-blue-400 px-4 py-2 text-white disabled:opacity-50"
       >
-        {exportingCsv ? "Preparing…" : "📄 Download History (CSV)"}
+        {exportingCsv ? "Preparing..." : "Download history (CSV)"}
       </button>
 
-      <h2 className="text-xl font-semibold mb-2">Restore from Backup</h2>
-      <p className="text-sm text-gray-500 mb-3">
-        Importing will <strong>add</strong> the properties and requests from
-        the file as new entries, owned by whoever is currently signed in —
-        existing records are not overwritten.
+      <h2 className="mb-2 text-xl font-semibold">Restore from backup</h2>
+      <p className="mb-3 text-sm text-gray-500">
+        Importing will <strong>add</strong> the properties and requests from the
+        file as new entries, owned by whoever is currently signed in; existing
+        records are not overwritten.
       </p>
       <input
         type="file"
@@ -176,13 +211,15 @@ export function BackupManager() {
       <button
         onClick={handleRestore}
         disabled={restoring}
-        className="bg-green-600 text-white px-4 py-2 rounded w-full disabled:opacity-50"
+        className="w-full rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
       >
-        {restoring ? "Restoring…" : "📤 Restore Backup"}
+        {restoring ? "Restoring..." : "Restore backup"}
       </button>
 
       {status && (
-        <p className={`mt-4 ${status.isError ? "text-red-500" : "text-gray-700"}`}>{status.text}</p>
+        <p className={`mt-4 ${status.isError ? "text-red-500" : "text-gray-700"}`}>
+          {status.text}
+        </p>
       )}
     </div>
   );
