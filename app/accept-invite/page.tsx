@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession, roleHome } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
 import { AcceptInviteButton } from "@/components/AcceptInviteButton";
+import { helperInviteExpectations } from "@/lib/helper-workspace";
 
 export default async function AcceptInvitePage({
   searchParams,
@@ -60,6 +61,8 @@ export default async function AcceptInvitePage({
     return <Shell status="The request this invite is for could not be found." />;
   }
 
+  const expectations = helperInviteExpectations(invite.role);
+
   return (
     <Shell status={`You have been invited to work on this request as a ${invite.role}.`}>
       <dl className="mb-4 space-y-2 text-sm text-gray-700">
@@ -76,6 +79,17 @@ export default async function AcceptInvitePage({
           <dd>{req.location || "Not recorded"}</dd>
         </div>
       </dl>
+      <div className="mb-5 border-y border-gray-100 py-3">
+        <p className="mb-2 text-sm font-semibold text-gray-950">What happens next</p>
+        <ul className="divide-y divide-gray-100">
+          {expectations.map((item) => (
+            <li key={item.title} className="py-2">
+              <p className="text-sm font-medium text-gray-900">{item.title}</p>
+              <p className="text-xs leading-5 text-gray-600">{item.detail}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
       <AcceptInviteButton inviteId={inviteId} redirectTo={roleHome(invite.role)} />
     </Shell>
   );

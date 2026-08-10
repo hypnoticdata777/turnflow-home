@@ -13,8 +13,9 @@ import {
 } from "@/lib/actions/requests";
 import { requestPhotoPath } from "@/lib/blob-paths";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
+import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
-import { helperWorkspaceGuidance } from "@/lib/helper-workspace";
+import { helperOnboardingItems, helperWorkspaceGuidance } from "@/lib/helper-workspace";
 import { missingCompletionProof } from "@/lib/request-guidance";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
@@ -49,6 +50,7 @@ export function VendorPortal({
   const [completionReviewRequestId, setCompletionReviewRequestId] = useState<string | null>(null);
   const [statusError, setStatusError] = useState("");
   const guidance = helperWorkspaceGuidance("vendor", requests);
+  const onboardingItems = helperOnboardingItems("vendor", requests);
 
   async function applyStatusChange(requestId: string, newStatus: string, waiverReason?: string) {
     setStatusError("");
@@ -105,6 +107,8 @@ export function VendorPortal({
           complete: "Complete",
         }}
       />
+
+      <HelperOnboardingChecklist role="vendor" items={onboardingItems} />
 
       <section
         id="helper-scope"

@@ -2,6 +2,43 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Helper First-Run Onboarding
+
+Scope: make invited vendor and collaborator first-run experiences clearer before
+and after invite acceptance.
+
+### Changed
+
+- Added reusable helper onboarding items for vendor and collaborator workspaces.
+- Added `HelperOnboardingChecklist` so helper users can jump from first-run
+  guidance to scoped access, shared work, uploads, or updates.
+- Added role-specific invite expectation copy on `/accept-invite` before the
+  helper accepts the request.
+- Extended helper-workspace tests for onboarding items and invite expectations.
+
+### Why
+
+Invited helpers should not have to infer what TurnFlow Home is asking from them.
+A mature helper experience explains the access boundary, the immediate next
+step, and the evidence or update that helps the owner trust the record.
+
+### Validation
+
+- `npm test -- helper-workspace` passed: 11 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 106 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add browser smoke assertions for the helper checklist once seeded helper
+  sessions are available in the local UX harness.
+
 ## 2026-08-10 - Helper Workspace Guidance
 
 Scope: make vendor and collaborator workspaces feel scoped, clear, and

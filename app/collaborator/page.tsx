@@ -2,8 +2,9 @@ import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
 import { CommentThread } from "@/components/CommentThread";
 import { HelperPortalShell } from "@/components/HelperPortalShell";
+import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
-import { helperWorkspaceGuidance } from "@/lib/helper-workspace";
+import { helperOnboardingItems, helperWorkspaceGuidance } from "@/lib/helper-workspace";
 import {
   costForRequest,
   costLabelForRequest,
@@ -19,6 +20,7 @@ export default async function CollaboratorPage() {
     with: { property: { columns: { address: true, nickname: true } }, comments: true },
   });
   const guidance = helperWorkspaceGuidance("collaborator", sharedRequests);
+  const onboardingItems = helperOnboardingItems("collaborator", sharedRequests);
 
   return (
     <HelperPortalShell
@@ -36,6 +38,8 @@ export default async function CollaboratorPage() {
             complete: "Complete",
           }}
         />
+
+        <HelperOnboardingChecklist role="collaborator" items={onboardingItems} />
 
         <section
           id="helper-scope"

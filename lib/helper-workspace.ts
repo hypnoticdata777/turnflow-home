@@ -28,6 +28,19 @@ export type HelperWorkspaceGuidance = {
   attentionCount: number;
 };
 
+export type HelperOnboardingItem = {
+  title: string;
+  detail: string;
+  href: string;
+  cta: string;
+  status: "available" | "focus" | "waiting";
+};
+
+export type HelperInviteExpectation = {
+  title: string;
+  detail: string;
+};
+
 function hasAfterPhoto(request: HelperWorkspaceRequest) {
   return (request.photos ?? []).some((photo) => photo.type === "after");
 }
@@ -140,4 +153,102 @@ export function helperWorkspaceGuidance(
     stats,
     attentionCount,
   };
+}
+
+export function helperOnboardingItems(
+  role: HelperRole,
+  requests: HelperWorkspaceRequest[]
+): HelperOnboardingItem[] {
+  const stats = helperWorkspaceStats(requests);
+  const hasRequests = stats.totalCount > 0;
+
+  if (role === "vendor") {
+    return [
+      {
+        title: "Know the boundary",
+        detail:
+          "This account can only see requests assigned to it. Owner documents, other properties, and unrelated repairs stay private.",
+        href: "#helper-scope",
+        cta: "Review access",
+        status: hasRequests ? "available" : "focus",
+      },
+      {
+        title: "Confirm the job context",
+        detail:
+          "Check the property, location, access instructions, urgency, and preferred contact before changing status.",
+        href: "#helper-requests",
+        cta: "Review request",
+        status: hasRequests ? "focus" : "waiting",
+      },
+      {
+        title: "Close with proof",
+        detail:
+          "Add after photos, receipts, and final cost context before the owner treats the work as complete.",
+        href: "#helper-upload",
+        cta: "Upload proof",
+        status: stats.needsProofCount > 0 ? "focus" : hasRequests ? "available" : "waiting",
+      },
+    ];
+  }
+
+  return [
+    {
+      title: "Know the boundary",
+      detail:
+        "This account can only see requests the owner shared with it. Owner-only tools and unrelated records stay private.",
+      href: "#helper-scope",
+      cta: "Review access",
+      status: hasRequests ? "available" : "focus",
+    },
+    {
+      title: "Read the shared record",
+      detail:
+        "Review the status, notes, property, cost label, and urgency before adding anything to the thread.",
+      href: "#helper-requests",
+      cta: "Review work",
+      status: hasRequests ? "focus" : "waiting",
+    },
+    {
+      title: "Add useful context",
+      detail:
+        "Post short updates when you checked something, noticed a change, or need the owner to make a decision.",
+      href: "#helper-requests",
+      cta: "Post update",
+      status: stats.quietCount > 0 ? "focus" : hasRequests ? "available" : "waiting",
+    },
+  ];
+}
+
+export function helperInviteExpectations(role: HelperRole): HelperInviteExpectation[] {
+  if (role === "vendor") {
+    return [
+      {
+        title: "Scoped request access",
+        detail: "After accepting, this vendor account only sees the assigned repair.",
+      },
+      {
+        title: "Job context first",
+        detail: "Review the location, urgency, access instructions, and preferred contact.",
+      },
+      {
+        title: "Proof closes the loop",
+        detail: "Upload photos or receipts so the owner has a durable record.",
+      },
+    ];
+  }
+
+  return [
+    {
+      title: "Scoped request access",
+      detail: "After accepting, this collaborator account only sees the shared repair.",
+    },
+    {
+      title: "Shared record review",
+      detail: "Review status, notes, cost context, and property details in one place.",
+    },
+    {
+      title: "Helpful updates only",
+      detail: "Add comments when your context helps the owner decide or understand progress.",
+    },
+  ];
 }

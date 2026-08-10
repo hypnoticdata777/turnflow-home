@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  helperInviteExpectations,
+  helperOnboardingItems,
   helperWorkspaceGuidance,
   helperWorkspaceStats,
   type HelperWorkspaceRequest,
@@ -20,6 +22,100 @@ describe("helperWorkspaceStats", () => {
       needsProofCount: 1,
       quietCount: 2,
     });
+  });
+});
+
+describe("helperOnboardingItems", () => {
+  it("keeps vendor onboarding focused on scope, context, and proof", () => {
+    const items = helperOnboardingItems("vendor", [
+      { status: "In Progress", finalCost: null, photos: [{ type: "before" }] },
+    ]);
+
+    expect(items).toMatchObject([
+      {
+        title: "Know the boundary",
+        href: "#helper-scope",
+        status: "available",
+      },
+      {
+        title: "Confirm the job context",
+        href: "#helper-requests",
+        status: "focus",
+      },
+      {
+        title: "Close with proof",
+        href: "#helper-upload",
+        status: "focus",
+      },
+    ]);
+  });
+
+  it("keeps collaborator onboarding focused on scoped updates", () => {
+    const items = helperOnboardingItems("collaborator", [
+      { status: "Waiting", comments: [] },
+    ]);
+
+    expect(items).toMatchObject([
+      {
+        title: "Know the boundary",
+        href: "#helper-scope",
+        status: "available",
+      },
+      {
+        title: "Read the shared record",
+        href: "#helper-requests",
+        status: "focus",
+      },
+      {
+        title: "Add useful context",
+        href: "#helper-requests",
+        status: "focus",
+      },
+    ]);
+  });
+
+  it("marks helper work items as waiting when nothing is shared yet", () => {
+    expect(helperOnboardingItems("vendor", [])).toMatchObject([
+      { status: "focus" },
+      { status: "waiting" },
+      { status: "waiting" },
+    ]);
+  });
+});
+
+describe("helperInviteExpectations", () => {
+  it("sets vendor invite expectations before acceptance", () => {
+    expect(helperInviteExpectations("vendor")).toEqual([
+      {
+        title: "Scoped request access",
+        detail: "After accepting, this vendor account only sees the assigned repair.",
+      },
+      {
+        title: "Job context first",
+        detail: "Review the location, urgency, access instructions, and preferred contact.",
+      },
+      {
+        title: "Proof closes the loop",
+        detail: "Upload photos or receipts so the owner has a durable record.",
+      },
+    ]);
+  });
+
+  it("sets collaborator invite expectations before acceptance", () => {
+    expect(helperInviteExpectations("collaborator")).toEqual([
+      {
+        title: "Scoped request access",
+        detail: "After accepting, this collaborator account only sees the shared repair.",
+      },
+      {
+        title: "Shared record review",
+        detail: "Review status, notes, cost context, and property details in one place.",
+      },
+      {
+        title: "Helpful updates only",
+        detail: "Add comments when your context helps the owner decide or understand progress.",
+      },
+    ]);
   });
 });
 
