@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import {
@@ -15,6 +15,12 @@ import {
 } from "@/lib/actions/requests";
 import { createProperty } from "@/lib/actions/properties";
 import { requestPhotoPath } from "@/lib/blob-paths";
+import {
+  requestIntakeNextStep,
+  requestIntakeProgress,
+  requestIntakeSteps,
+  requestIntakeSummary,
+} from "@/lib/request-intake";
 
 type Property = { id: string; address: string; nickname: string | null };
 
@@ -30,7 +36,19 @@ export function NewRequestForm({
 }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const propertyId = useId();
+  const titleId = useId();
+  const categoryId = useId();
+  const urgencyId = useId();
+  const locationId = useId();
+  const contactMethodId = useId();
+  const accessInstructionsId = useId();
+  const notesId = useId();
+  const quickAddressId = useId();
+  const quickNicknameId = useId();
 
+  const [selectedPropertyId, setSelectedPropertyId] = useState("");
+  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [urgency, setUrgency] = useState("");
   const [queuedPhotos, setQueuedPhotos] = useState<Record<PhotoType, File | null>>({
@@ -104,6 +122,29 @@ export function NewRequestForm({
   }
 
   const checklist = checklistForCategory(category);
+  const queuedPhotoCount = PHOTO_TYPES.filter((type) => queuedPhotos[type]).length;
+  const intakeSteps = requestIntakeSteps({
+    propertyId: selectedPropertyId,
+    title,
+    category,
+    urgency,
+    photoCount: queuedPhotoCount,
+  });
+  const intakeSummary = requestIntakeSummary(intakeSteps);
+  const nextStep = requestIntakeNextStep(intakeSteps);
+  const { completedCount, totalCount, progress } = requestIntakeProgress(intakeSteps);
+  const summaryClasses =
+    intakeSummary.tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : intakeSummary.tone === "empty"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : "border-amber-200 bg-amber-50 text-amber-950";
+  const summaryButtonClasses =
+    intakeSummary.tone === "ready"
+      ? "bg-emerald-800"
+      : intakeSummary.tone === "empty"
+        ? "bg-blue-800"
+        : "bg-amber-800";
 
   return (
     <div className="max-w-2xl rounded-xl bg-white p-6 shadow">
@@ -116,25 +157,37 @@ export function NewRequestForm({
             takes a second.
           </p>
           <div className="flex flex-col gap-2 md:flex-row">
-            <input
-              type="text"
-              placeholder="Address"
-              value={quickAddress}
-              onChange={(e) => setQuickAddress(e.target.value)}
-              className="flex-1 rounded border p-2 text-sm"
-            />
-            <input
-              type="text"
-              placeholder="Nickname (optional)"
-              value={quickNickname}
-              onChange={(e) => setQuickNickname(e.target.value)}
-              className="flex-1 rounded border p-2 text-sm"
-            />
+            <div className="flex-1">
+              <label htmlFor={quickAddressId} className="mb-1 block text-xs font-medium">
+                Address
+              </label>
+              <input
+                id={quickAddressId}
+                type="text"
+                placeholder="123 Main St"
+                value={quickAddress}
+                onChange={(e) => setQuickAddress(e.target.value)}
+                className="w-full rounded border p-2 text-sm"
+              />
+            </div>
+            <div className="flex-1">
+              <label htmlFor={quickNicknameId} className="mb-1 block text-xs font-medium">
+                Nickname
+              </label>
+              <input
+                id={quickNicknameId}
+                type="text"
+                placeholder="Optional"
+                value={quickNickname}
+                onChange={(e) => setQuickNickname(e.target.value)}
+                className="w-full rounded border p-2 text-sm"
+              />
+            </div>
             <button
               type="button"
               onClick={handleQuickAddProperty}
               disabled={quickAddPending}
-              className="rounded bg-blue-600 px-4 py-2 text-sm text-white whitespace-nowrap disabled:opacity-50"
+              className="rounded bg-blue-600 px-4 py-2 text-sm text-white whitespace-nowrap disabled:opacity-50 md:self-end"
             >
               {quickAddPending ? "Saving..." : "Add property"}
             </button>
@@ -146,9 +199,54 @@ export function NewRequestForm({
       )}
 
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium">Property</label>
-          <select name="propertyId" required className="w-full rounded border bg-white p-2">
+        <section className={`rounded-lg border p-4 ${summaryClasses}`}>
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="text-sm font-semibold">
+                Request draft: {completedCount} of {totalCount} ready ({progress}%)
+              </p>
+              <h2 className="mt-1 text-xl font-semibold">{intakeSummary.headline}</h2>
+              <p className="mt-2 text-sm leading-6">{intakeSummary.detail}</p>
+            </div>
+            {nextStep && (
+              <a
+                href={nextStep.href}
+                className={`inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium text-white ${summaryButtonClasses}`}
+              >
+                {nextStep.cta}
+              </a>
+            )}
+          </div>
+          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/70">
+            <div className="h-full bg-current" style={{ width: `${progress}%` }} />
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {intakeSteps.map((step) => (
+              <div key={step.label} className="rounded border border-current/20 bg-white/70 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold">{step.label}</p>
+                  <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold">
+                    {step.complete ? "Ready" : "Needs work"}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs leading-5">{step.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <div id="request-property" className="scroll-mt-6">
+          <label htmlFor={propertyId} className="mb-1 block text-sm font-medium">
+            Property
+          </label>
+          <select
+            id={propertyId}
+            name="propertyId"
+            required
+            value={selectedPropertyId}
+            onChange={(e) => setSelectedPropertyId(e.target.value)}
+            className="w-full rounded border bg-white p-2"
+          >
             <option value="">
               {properties.length === 0 ? "Add a property first" : "Select a property"}
             </option>
@@ -160,21 +258,29 @@ export function NewRequestForm({
           </select>
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium">Short title</label>
+        <div id="request-title" className="scroll-mt-6">
+          <label htmlFor={titleId} className="mb-1 block text-sm font-medium">
+            Short title
+          </label>
           <input
+            id={titleId}
             name="title"
             type="text"
             required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Kitchen faucet leaking"
             className="w-full rounded border p-2"
           />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium">Category</label>
+          <div id="request-category" className="scroll-mt-6">
+            <label htmlFor={categoryId} className="mb-1 block text-sm font-medium">
+              Category
+            </label>
             <select
+              id={categoryId}
               name="category"
               required
               value={category}
@@ -189,9 +295,12 @@ export function NewRequestForm({
               ))}
             </select>
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Urgency</label>
+          <div id="request-urgency" className="scroll-mt-6">
+            <label htmlFor={urgencyId} className="mb-1 block text-sm font-medium">
+              Urgency
+            </label>
             <select
+              id={urgencyId}
               name="urgency"
               required
               value={urgency}
@@ -229,8 +338,11 @@ export function NewRequestForm({
         )}
 
         <div>
-          <label className="mb-1 block text-sm font-medium">Room / location</label>
+          <label htmlFor={locationId} className="mb-1 block text-sm font-medium">
+            Room / location
+          </label>
           <input
+            id={locationId}
             name="location"
             type="text"
             placeholder="e.g. Kitchen, 2nd floor bathroom"
@@ -239,10 +351,14 @@ export function NewRequestForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label htmlFor={contactMethodId} className="mb-1 block text-sm font-medium">
             Preferred contact method
           </label>
-          <select name="contactMethod" className="w-full rounded border bg-white p-2">
+          <select
+            id={contactMethodId}
+            name="contactMethod"
+            className="w-full rounded border bg-white p-2"
+          >
             <option value="">Preferred contact method</option>
             {CONTACT_METHODS.map((m) => (
               <option key={m} value={m}>
@@ -253,8 +369,11 @@ export function NewRequestForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">Access instructions</label>
+          <label htmlFor={accessInstructionsId} className="mb-1 block text-sm font-medium">
+            Access instructions
+          </label>
           <textarea
+            id={accessInstructionsId}
             name="accessInstructions"
             rows={2}
             placeholder="e.g. Lockbox code, gate access, pets on site"
@@ -263,8 +382,11 @@ export function NewRequestForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">Notes</label>
+          <label htmlFor={notesId} className="mb-1 block text-sm font-medium">
+            Notes
+          </label>
           <textarea
+            id={notesId}
             name="notes"
             rows={3}
             placeholder="Describe the issue"
@@ -272,7 +394,7 @@ export function NewRequestForm({
           />
         </div>
 
-        <div>
+        <div id="request-photos" className="scroll-mt-6">
           <label className="mb-1 block text-sm font-medium">Photos (optional)</label>
           <p className="mb-2 text-xs text-gray-500">
             Attach photos now, or add them later from the request page.

@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Request Intake Readiness Guidance
+
+Scope: make the new maintenance request form guide homeowners toward a useful
+repair record before submission.
+
+### Changed
+
+- Added `lib/request-intake.ts` for reusable intake-readiness steps, progress,
+  next action, and summary copy.
+- Added a request draft readiness panel to `NewRequestForm` with progress,
+  next-action jump links, and field-level readiness signals.
+- Made the main intake fields controlled where needed so readiness updates as
+  the homeowner fills the form.
+- Added explicit labels and steadier alignment to the quick-add property fields.
+- Added tests for empty, partial, trimmed, and ready request-intake states.
+
+### Why
+
+Good request intake reduces downstream friction. A homeowner should know whether
+the request has enough property, title, category, urgency, and proof context
+before they save it and invite someone else into the record.
+
+### Validation
+
+- `npm test -- request-intake` passed: 5 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 87 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Consider adding a small post-submit landing path that opens the new request
+  detail page directly when first-run testing shows owners expect to add proof
+  or sharing immediately.
+
 ## 2026-08-10 - Inline Completion Waiver Review
 
 Scope: replace prototype-style completion prompts with a calmer inline review
