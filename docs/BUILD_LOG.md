@@ -2,6 +2,43 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Request Detail Readiness Guidance
+
+Scope: make each repair record show whether it is complete enough to trust.
+
+### Changed
+
+- Added `lib/request-guidance.ts` for reusable request-level readiness signals.
+- Added request detail guidance for evidence, cost context, shared help, and
+  completion proof.
+- Added jump links from the request guidance panel to proof, cost, quotes,
+  sharing, comments, and decision-log sections.
+- Added tests for empty, partial, ready, completed-with-gaps, and
+  assigned-vendor proof-gap states.
+
+### Why
+
+The request detail screen is where homeowner trust is won or lost. A mature
+repair record should make proof gaps obvious before the owner exports a packet,
+marks work complete, or shares the request with someone else.
+
+### Validation
+
+- `npm test -- request-guidance` passed: 10 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 82 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Consider replacing the browser prompt for completion waivers with an inline
+  review modal after route-level smoke coverage can exercise request details.
+
 ## 2026-08-10 - Dashboard Readiness Guidance
 
 Scope: make the returning owner dashboard feel state-aware and action-oriented.

@@ -22,6 +22,7 @@ import { DecisionLog, actorLabel, type LogEntryData } from "@/components/Decisio
 import { downloadProofPacketPdf } from "@/lib/pdf/proofPacket";
 import { InviteSection } from "@/components/InviteSection";
 import { CommentThread, type CommentData } from "@/components/CommentThread";
+import { requestGuidance } from "@/lib/request-guidance";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
 type PhotoType = (typeof PHOTO_TYPES)[number];
@@ -71,7 +72,7 @@ function CostEditor({ request }: { request: RequestData }) {
   }
 
   return (
-    <section>
+    <section id="cost" className="scroll-mt-6">
       <h2 className="mb-3 text-xl font-semibold">Cost</h2>
       <div className="mb-2 grid gap-2 md:grid-cols-3">
         <label className="text-sm">
@@ -152,6 +153,19 @@ export function RequestDetailView({
       ? `${property.nickname} - ${property.address}`
       : property.address
     : "Property not found";
+  const guidance = requestGuidance({ ...request, photos });
+  const guidanceClasses =
+    guidance.tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : guidance.tone === "attention"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : "border-amber-200 bg-amber-50 text-amber-950";
+  const guidanceButtonClasses =
+    guidance.tone === "ready"
+      ? "bg-emerald-800"
+      : guidance.tone === "attention"
+        ? "bg-blue-800"
+        : "bg-amber-800";
 
   async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const newStatus = e.target.value;
@@ -257,6 +271,50 @@ export function RequestDetailView({
           </div>
         </dl>
 
+        <section className={`mt-5 rounded-lg border p-4 ${guidanceClasses}`}>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-sm font-semibold">
+                {`${guidance.eyebrow}: ${guidance.completedCount} of ${guidance.totalCount} ready (${guidance.progress}%)`}
+              </p>
+              <h2 className="mt-1 text-xl font-semibold">{guidance.headline}</h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6">{guidance.detail}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href={guidance.primaryHref}
+                className={`inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium text-white ${guidanceButtonClasses}`}
+              >
+                {guidance.primaryCta}
+              </a>
+              <a
+                href={guidance.secondaryHref}
+                className="inline-flex items-center justify-center rounded border border-current bg-white/75 px-4 py-2 text-sm font-medium"
+              >
+                {guidance.secondaryCta}
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/70">
+            <div className="h-full bg-current" style={{ width: `${guidance.progress}%` }} />
+          </div>
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {guidance.items.map((item) => (
+              <div key={item.label} className="rounded border border-current/20 bg-white/70 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold">{item.label}</p>
+                  <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold">
+                    {item.complete ? "Ready" : "Needs work"}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs leading-5">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="block text-sm">
             <span className="font-semibold">Status</span>
@@ -296,28 +354,32 @@ export function RequestDetailView({
 
       <hr className="my-4" />
 
-      <QuoteWorkspace requestId={request.id} quotes={quotes} userId={userId} />
+      <section id="quotes" className="scroll-mt-6">
+        <QuoteWorkspace requestId={request.id} quotes={quotes} userId={userId} />
+      </section>
 
       <hr className="my-4" />
 
-      <InviteSection
-        requestId={request.id}
-        label="Vendor"
-        assigneeId={request.assignedVendorId}
-        pendingInviteId={request.pendingVendorInviteId}
-        createInvite={createVendorInviteAction}
-      />
-      <InviteSection
-        requestId={request.id}
-        label="Collaborator"
-        assigneeId={request.collaboratorId}
-        pendingInviteId={request.pendingCollaboratorInviteId}
-        createInvite={createCollaboratorInviteAction}
-      />
+      <section id="sharing" className="scroll-mt-6">
+        <InviteSection
+          requestId={request.id}
+          label="Vendor"
+          assigneeId={request.assignedVendorId}
+          pendingInviteId={request.pendingVendorInviteId}
+          createInvite={createVendorInviteAction}
+        />
+        <InviteSection
+          requestId={request.id}
+          label="Collaborator"
+          assigneeId={request.collaboratorId}
+          pendingInviteId={request.pendingCollaboratorInviteId}
+          createInvite={createCollaboratorInviteAction}
+        />
+      </section>
 
       <hr className="my-4" />
 
-      <section>
+      <section id="photos" className="scroll-mt-6">
         <h2 className="mb-3 text-xl font-semibold">Photos</h2>
         <p className="mb-3 text-sm text-gray-500">
           Add before, after, receipt, or other proof to keep the repair record
@@ -361,17 +423,21 @@ export function RequestDetailView({
 
       <hr className="my-4" />
 
-      <DecisionLog entries={log} userId={userId} assignedVendorId={request.assignedVendorId} />
+      <section id="decision-log" className="scroll-mt-6">
+        <DecisionLog entries={log} userId={userId} assignedVendorId={request.assignedVendorId} />
+      </section>
 
       <hr className="my-4" />
 
-      <CommentThread
-        requestId={request.id}
-        comments={comments}
-        userId={userId}
-        assignedVendorId={request.assignedVendorId}
-        collaboratorId={request.collaboratorId}
-      />
+      <section id="comments" className="scroll-mt-6">
+        <CommentThread
+          requestId={request.id}
+          comments={comments}
+          userId={userId}
+          assignedVendorId={request.assignedVendorId}
+          collaboratorId={request.collaboratorId}
+        />
+      </section>
 
       <hr className="my-4" />
 
