@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { invites, properties, reminders, requests, vaultDocuments } from "@/lib/db/schema";
 import {
   ownerDashboardGuidance,
+  ownerRequestCardSignal,
   ownerSetupProgress,
   ownerSetupSteps,
   ownerValueMetrics,
@@ -119,8 +120,20 @@ export default async function OwnerDashboardPage({
       : tone === "attention"
         ? "bg-blue-800 hover:bg-blue-900"
         : tone === "progress"
-          ? "bg-amber-800 hover:bg-amber-900"
+        ? "bg-amber-800 hover:bg-amber-900"
           : "bg-gray-800 hover:bg-gray-900";
+  const requestSignalClasses = (tone: ReturnType<typeof ownerRequestCardSignal>["tone"]) =>
+    tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : tone === "attention"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : "border-amber-200 bg-amber-50 text-amber-950";
+  const requestSignalButtonClasses = (tone: ReturnType<typeof ownerRequestCardSignal>["tone"]) =>
+    tone === "ready"
+      ? "bg-emerald-800 hover:bg-emerald-900"
+      : tone === "attention"
+        ? "bg-blue-800 hover:bg-blue-900"
+        : "bg-amber-800 hover:bg-amber-900";
 
   return (
     <main>
@@ -241,6 +254,7 @@ export default async function OwnerDashboardPage({
           {ownerRequests.map((r) => {
             const cost = costForRequest(r);
             const costLabel = costLabelForRequest(r);
+            const signal = ownerRequestCardSignal(r);
             const propertyLabel = r.property
               ? r.property.nickname
                 ? `${r.property.nickname} - ${r.property.address}`
@@ -248,7 +262,7 @@ export default async function OwnerDashboardPage({
               : "No property";
 
             return (
-              <div key={r.id} className="rounded border bg-white p-4 shadow">
+              <article key={r.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <h2 className="text-xl font-semibold">{r.title}</h2>
                   <span
@@ -269,15 +283,35 @@ export default async function OwnerDashboardPage({
                 <p>
                   <strong>Cost ({costLabel}):</strong> ${cost.toFixed(2)}
                 </p>
+
+                <div
+                  className={`mt-4 rounded-lg border p-3 sm:flex sm:items-start sm:justify-between sm:gap-4 ${requestSignalClasses(
+                    signal.tone
+                  )}`}
+                >
+                  <div>
+                    <p className="text-sm font-semibold">{signal.label}</p>
+                    <p className="mt-1 text-sm leading-6">{signal.detail}</p>
+                  </div>
+                  <Link
+                    href={signal.href}
+                    className={`mt-3 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white sm:mt-0 ${requestSignalButtonClasses(
+                      signal.tone
+                    )}`}
+                  >
+                    {signal.cta}
+                  </Link>
+                </div>
+
                 <div className="mt-3 flex gap-2">
                   <Link
                     href={`/owner/requests/${r.id}`}
-                    className="rounded bg-blue-600 px-3 py-1 text-white"
+                    className="rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
-                    View
+                    Open full record
                   </Link>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

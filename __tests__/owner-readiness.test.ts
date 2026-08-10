@@ -4,6 +4,7 @@ import {
   ownerDashboardGuidance,
   ownerNextSetupStep,
   ownerReadinessFlags,
+  ownerRequestCardSignal,
   ownerSetupProgress,
   ownerSetupSummary,
   ownerSetupSteps,
@@ -309,6 +310,96 @@ describe("ownerValueMetrics", () => {
       tone: "progress",
       href: "/owner/onboarding",
       cta: "Add reminder",
+    });
+  });
+});
+
+describe("ownerRequestCardSignal", () => {
+  it("prioritizes review decisions on request cards", () => {
+    expect(
+      ownerRequestCardSignal({
+        id: "request-1",
+        status: "Needs Review",
+        finalCost: "250",
+        photos: [{ type: "after" }],
+      })
+    ).toMatchObject({
+      label: "Decision needed",
+      detail: "Proof and final cost are ready. Review the record before closing this out.",
+      tone: "attention",
+      href: "/owner/requests/request-1",
+      cta: "Review request",
+    });
+  });
+
+  it("points quote-needed cards to the quote workspace", () => {
+    expect(ownerRequestCardSignal({ id: "request-1", status: "Needs Quote" })).toMatchObject({
+      label: "Quote needed",
+      tone: "attention",
+      href: "/owner/requests/request-1#quotes",
+      cta: "Add quote",
+    });
+  });
+
+  it("flags completed cards with missing proof", () => {
+    expect(
+      ownerRequestCardSignal({
+        id: "request-1",
+        status: "Complete",
+        finalCost: null,
+        photos: [{ type: "before" }],
+      })
+    ).toMatchObject({
+      label: "Closed with proof gap",
+      tone: "attention",
+      href: "/owner/requests/request-1#photos",
+      cta: "Fix proof",
+    });
+  });
+
+  it("marks cards proof-backed when final cost and after photo are saved", () => {
+    expect(
+      ownerRequestCardSignal({
+        id: "request-1",
+        status: "In Progress",
+        finalCost: "250",
+        photos: [{ type: "after" }],
+      })
+    ).toMatchObject({
+      label: "Proof-backed",
+      tone: "ready",
+      href: "/owner/requests/request-1#decision-log",
+      cta: "Review history",
+    });
+  });
+
+  it("points empty records toward first proof", () => {
+    expect(
+      ownerRequestCardSignal({
+        id: "request-1",
+        status: "Draft",
+        photos: [],
+      })
+    ).toMatchObject({
+      label: "Needs first proof",
+      tone: "attention",
+      href: "/owner/requests/request-1#photos",
+      cta: "Add proof",
+    });
+  });
+
+  it("points proof-only records toward cost context", () => {
+    expect(
+      ownerRequestCardSignal({
+        id: "request-1",
+        status: "In Progress",
+        photos: [{ type: "before" }],
+      })
+    ).toMatchObject({
+      label: "Needs cost context",
+      tone: "progress",
+      href: "/owner/requests/request-1#cost",
+      cta: "Add cost",
     });
   });
 });

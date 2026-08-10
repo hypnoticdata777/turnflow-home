@@ -2,6 +2,43 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Owner Request Card Signals
+
+Scope: make each owner dashboard request card explain the next useful action.
+
+### Changed
+
+- Added reusable `ownerRequestCardSignal` rules for decision-needed, quote-needed,
+  proof-gap, proof-backed, first-proof, cost-context, owner-only, and in-motion
+  request states.
+- Updated `/owner/dashboard` request cards with per-card guidance and direct
+  action links.
+- Extended owner-readiness tests for the new request-card signal states.
+- Updated the UI/UX review route checklist to include request-card signals.
+
+### Why
+
+The dashboard should help homeowners triage maintenance at a glance. A request
+card should explain why it matters and what to do next without forcing the owner
+to open every record.
+
+### Validation
+
+- `npm test -- owner-readiness` passed: 19 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 132 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner browser smoke assertions for dashboard request-card signals once
+  seeded owner auth is available locally or in preview.
+
 ## 2026-08-10 - Request Record Value Snapshot
 
 Scope: make an individual repair record explain the value it gives a

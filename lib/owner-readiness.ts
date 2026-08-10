@@ -54,6 +54,14 @@ export type OwnerValueMetric = {
   cta: string;
 };
 
+export type OwnerRequestCardSignal = {
+  label: string;
+  detail: string;
+  tone: "attention" | "progress" | "ready";
+  href: string;
+  cta: string;
+};
+
 function hasAfterPhoto(request: OwnerReadinessRequest) {
   return (request.photos ?? []).some((photo) => {
     if (typeof photo !== "object" || photo === null) return false;
@@ -81,6 +89,15 @@ function joinSentenceParts(parts: string[]) {
   if (parts.length <= 1) return parts[0] ?? "";
   if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
   return `${parts.slice(0, -1).join(", ")}, and ${parts.at(-1)}`;
+}
+
+function requestHelperCount(request: OwnerReadinessRequest) {
+  return [
+    request.assignedVendorId,
+    request.collaboratorId,
+    request.pendingVendorInviteId,
+    request.pendingCollaboratorInviteId,
+  ].filter(Boolean).length;
 }
 
 export function ownerReadinessFlags(input: OwnerReadinessInput) {
@@ -196,6 +213,96 @@ export function ownerValueMetrics(input: OwnerReadinessInput): OwnerValueMetric[
       cta: reminderCount > 0 ? "Review reminders" : "Add reminder",
     },
   ];
+}
+
+export function ownerRequestCardSignal(
+  request: OwnerReadinessRequest
+): OwnerRequestCardSignal {
+  const requestHref = request.id ? `/owner/requests/${request.id}` : "/owner/dashboard";
+  const photos = request.photos ?? [];
+  const hasProof = photos.length > 0;
+  const proofReady = hasAfterPhoto(request) && hasFinalCost(request);
+  const helpers = requestHelperCount(request);
+
+  if (request.status === "Needs Review") {
+    return {
+      label: "Decision needed",
+      detail: proofReady
+        ? "Proof and final cost are ready. Review the record before closing this out."
+        : "Review the record before closing this out; the proof packet still has gaps.",
+      tone: "attention",
+      href: requestHref,
+      cta: "Review request",
+    };
+  }
+
+  if (request.status === "Needs Quote") {
+    return {
+      label: "Quote needed",
+      detail: "Add a quote or estimate so the owner decision has cost context.",
+      tone: "attention",
+      href: `${requestHref}#quotes`,
+      cta: "Add quote",
+    };
+  }
+
+  if (request.status === "Complete" && !proofReady) {
+    return {
+      label: "Closed with proof gap",
+      detail: "This is complete, but final cost or after-photo proof is still missing.",
+      tone: "attention",
+      href: `${requestHref}#photos`,
+      cta: "Fix proof",
+    };
+  }
+
+  if (proofReady) {
+    return {
+      label: "Proof-backed",
+      detail: "Final cost and after-photo proof are saved for this repair.",
+      tone: "ready",
+      href: `${requestHref}#decision-log`,
+      cta: "Review history",
+    };
+  }
+
+  if (!hasProof) {
+    return {
+      label: "Needs first proof",
+      detail: "Add a photo or receipt so this repair has a useful record.",
+      tone: "attention",
+      href: `${requestHref}#photos`,
+      cta: "Add proof",
+    };
+  }
+
+  if (!hasFinalCost(request)) {
+    return {
+      label: "Needs cost context",
+      detail: "Proof has started. Add estimated, quoted, or final cost next.",
+      tone: "progress",
+      href: `${requestHref}#cost`,
+      cta: "Add cost",
+    };
+  }
+
+  if (helpers === 0) {
+    return {
+      label: "Owner-only record",
+      detail: "Add scoped help if a vendor or trusted helper needs to see this repair.",
+      tone: "progress",
+      href: `${requestHref}#sharing`,
+      cta: "Invite help",
+    };
+  }
+
+  return {
+    label: "In motion",
+    detail: "Cost, proof, and helper context are started. Keep updates current.",
+    tone: "progress",
+    href: requestHref,
+    cta: "Open record",
+  };
 }
 
 export function ownerSetupSteps(
