@@ -7,7 +7,6 @@ import {
   REQUEST_STATUSES,
   costForRequest,
   costLabelForRequest,
-  meetsCompletionRequirements,
   requestStatusBadgeClasses,
 } from "@/lib/utils";
 import {
@@ -22,7 +21,8 @@ import { DecisionLog, actorLabel, type LogEntryData } from "@/components/Decisio
 import { downloadProofPacketPdf } from "@/lib/pdf/proofPacket";
 import { InviteSection } from "@/components/InviteSection";
 import { CommentThread, type CommentData } from "@/components/CommentThread";
-import { requestGuidance } from "@/lib/request-guidance";
+import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
+import { missingCompletionProof, requestGuidance } from "@/lib/request-guidance";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
 type PhotoType = (typeof PHOTO_TYPES)[number];
@@ -148,6 +148,8 @@ export function RequestDetailView({
   const [statusSaving, setStatusSaving] = useState(false);
   const [photos, setPhotos] = useState(initialPhotos);
   const [uploadStatus, setUploadStatus] = useState("");
+  const [statusError, setStatusError] = useState("");
+  const [showCompletionReview, setShowCompletionReview] = useState(false);
   const propertyLabel = property
     ? property.nickname
       ? `${property.nickname} - ${property.address}`
@@ -166,34 +168,37 @@ export function RequestDetailView({
       : guidance.tone === "attention"
         ? "bg-blue-800"
         : "bg-amber-800";
+  const missingProof = missingCompletionProof({ ...request, photos });
 
-  async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const newStatus = e.target.value;
+  async function applyStatusChange(newStatus: string, waiverReason?: string) {
     const previousStatus = status;
 
-    let waiverReason: string | undefined;
-    if (newStatus === "Complete" && !meetsCompletionRequirements(request, photos)) {
-      const reason = window.prompt(
-        'This request is missing required proof to mark it Complete: a final cost, an "after" photo, and an assigned vendor. Enter a reason to complete it anyway, or cancel to go back.'
-      );
-      if (!reason || !reason.trim()) {
-        e.target.value = previousStatus;
-        return;
-      }
-      waiverReason = reason.trim();
-    }
-
+    setStatusError("");
     setStatus(newStatus);
     setStatusSaving(true);
     try {
       await updateRequestStatusAction(request.id, newStatus, waiverReason);
+      setShowCompletionReview(false);
       router.refresh();
     } catch (err) {
       console.error("Failed to update status:", err);
       setStatus(previousStatus);
+      setStatusError("Failed to update status. Please try again.");
     } finally {
       setStatusSaving(false);
     }
+  }
+
+  async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const newStatus = e.target.value;
+
+    if (newStatus === "Complete" && missingProof.length > 0) {
+      setStatusError("");
+      setShowCompletionReview(true);
+      return;
+    }
+
+    await applyStatusChange(newStatus);
   }
 
   function handleDownloadPdf() {
@@ -338,9 +343,27 @@ export function RequestDetailView({
             Download proof packet (PDF)
           </button>
         </div>
+        {statusError && <p className="mt-2 text-sm font-medium text-red-700">{statusError}</p>}
       </section>
 
       <hr className="my-4" />
+
+      {showCompletionReview && (
+        <>
+          <CompletionWaiverReview
+            missingProof={missingProof}
+            guidance="You can still mark this complete with a written reason. The waiver is saved in the decision log so the record explains why proof was missing."
+            submitting={statusSaving}
+            onCancel={() => {
+              setShowCompletionReview(false);
+              setStatusError("");
+            }}
+            onConfirm={(reason) => applyStatusChange("Complete", reason)}
+          />
+
+          <hr className="my-4" />
+        </>
+      )}
 
       <CostEditor
         key={[

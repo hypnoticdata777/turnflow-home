@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Inline Completion Waiver Review
+
+Scope: replace prototype-style completion prompts with a calmer inline review
+flow for owner and vendor users.
+
+### Changed
+
+- Added `CompletionWaiverReview` as a shared client component for completing a
+  request when required proof is missing.
+- Replaced the owner request detail `window.prompt` with inline proof-gap
+  review, required waiver reason entry, cancel controls, and persistent error
+  copy.
+- Replaced the vendor portal completion prompt with the same inline review,
+  including vendor-specific guidance when final cost still needs owner input.
+- Reused request proof-gap detection so the UI and server guard stay aligned.
+
+### Why
+
+Browser prompts make a trust-sensitive completion action feel unfinished. Inline
+review keeps the user in context, names the missing proof, and makes the waiver
+reason feel like part of the repair record instead of an interruption.
+
+### Validation
+
+- `npm run typecheck` passed.
+- `npm test -- request-guidance` passed: 10 tests.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 82 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+- Owner/vendor completion prompt scan passed.
+
+### Follow-Up
+
+- Add browser smoke coverage for the inline completion review once seeded
+  request-detail and vendor workflows can be captured reliably.
+
 ## 2026-08-10 - Request Detail Readiness Guidance
 
 Scope: make each repair record show whether it is complete enough to trust.

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import {
   REQUEST_STATUSES,
-  meetsCompletionRequirements,
   requestStatusBadgeClasses,
 } from "@/lib/utils";
 import {
@@ -13,6 +12,8 @@ import {
   updateRequestStatusAction,
 } from "@/lib/actions/requests";
 import { requestPhotoPath } from "@/lib/blob-paths";
+import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
+import { missingCompletionProof } from "@/lib/request-guidance";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
 type PhotoType = (typeof PHOTO_TYPES)[number];
@@ -43,28 +44,33 @@ export function VendorPortal({
   const [savingId, setSavingId] = useState<string | null>(null);
   const [selectedRequestId, setSelectedRequestId] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
+  const [completionReviewRequestId, setCompletionReviewRequestId] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState("");
 
-  async function handleStatusChange(requestId: string, newStatus: string) {
-    const req = requests.find((r) => r.id === requestId);
-
-    let waiverReason: string | undefined;
-    if (newStatus === "Complete" && req && !meetsCompletionRequirements(req, req.photos)) {
-      const reason = window.prompt(
-        "This request is missing required proof to mark it Complete: a final cost and an after photo. Ask the owner to enter the final cost if needed. Enter a reason to complete it anyway, or cancel to go back."
-      );
-      if (!reason || !reason.trim()) return;
-      waiverReason = reason.trim();
-    }
-
+  async function applyStatusChange(requestId: string, newStatus: string, waiverReason?: string) {
+    setStatusError("");
     setSavingId(requestId);
     try {
       await updateRequestStatusAction(requestId, newStatus, waiverReason);
+      setCompletionReviewRequestId(null);
       router.refresh();
     } catch (err) {
       console.error("Failed to update status:", err);
+      setStatusError("Failed to update status. Please try again.");
     } finally {
       setSavingId(null);
     }
+  }
+
+  async function handleStatusChange(requestId: string, newStatus: string) {
+    const req = requests.find((r) => r.id === requestId);
+    if (newStatus === "Complete" && req && missingCompletionProof(req).length > 0) {
+      setStatusError("");
+      setCompletionReviewRequestId(requestId);
+      return;
+    }
+
+    await applyStatusChange(requestId, newStatus);
   }
 
   async function handleUpload(type: PhotoType, file: File | undefined) {
@@ -110,6 +116,7 @@ export function VendorPortal({
                   ? `${r.property.nickname} - ${r.property.address}`
                   : r.property.address
                 : "Property not found";
+              const missingProof = missingCompletionProof(r);
               return (
                 <article key={r.id} className="rounded-lg border bg-white p-4 shadow-sm">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -163,6 +170,24 @@ export function VendorPortal({
                       ))}
                     </select>
                   </label>
+                  {statusError && savingId === null && completionReviewRequestId === r.id && (
+                    <p className="mt-2 text-sm font-medium text-red-700">{statusError}</p>
+                  )}
+
+                  {completionReviewRequestId === r.id && (
+                    <div className="mt-4">
+                      <CompletionWaiverReview
+                        missingProof={missingProof}
+                        guidance="You can complete this request with a written reason, but ask the owner to add final cost details when they are missing. The waiver is saved in the decision log."
+                        submitting={savingId === r.id}
+                        onCancel={() => {
+                          setCompletionReviewRequestId(null);
+                          setStatusError("");
+                        }}
+                        onConfirm={(reason) => applyStatusChange(r.id, "Complete", reason)}
+                      />
+                    </div>
+                  )}
                 </article>
               );
             })}
