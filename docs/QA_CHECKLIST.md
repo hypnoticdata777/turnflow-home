@@ -40,8 +40,9 @@ npm run db:seed
 npm run ux:owner
 ```
 
-This signs in as the demo owner, checks core owner routes at desktop and mobile
-widths, verifies active navigation, and saves screenshots under
+This resets the demo account passwords, ensures public-safe demo owner data
+exists, signs in as the demo owner, checks core owner routes at desktop and
+mobile widths, verifies active navigation, and saves screenshots under
 `screenshots/ux-owner/`.
 
 For scoped helper portals, run:
@@ -51,8 +52,9 @@ npm run db:seed
 npm run ux:helper
 ```
 
-This signs in as demo vendor and collaborator accounts, checks each scoped
-workspace at desktop and mobile widths, and saves screenshots under
+This resets the demo helper account passwords, ensures at least one request is
+assigned to the demo vendor and shared with the demo collaborator, checks each
+scoped workspace at desktop and mobile widths, and saves screenshots under
 `screenshots/ux-helper/`.
 
 ## Owner Smoke Test

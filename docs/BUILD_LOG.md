@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Deterministic Helper Demo Seed
+
+Scope: remove the local/helper smoke blocker by making seeded demo accounts and
+scoped helper work repeatable.
+
+### Changed
+
+- Rebuilt `scripts/seed.ts` so known demo accounts are created or reset with
+  the documented password on every seed run.
+- Added deterministic public-safe demo property data.
+- Added deterministic request assignment so the demo vendor and demo
+  collaborator both have scoped work to inspect.
+- Updated QA and deployment docs to explain that `db:seed` resets demo
+  passwords and prepares helper-visible demo work.
+
+### Why
+
+Browser UX smoke should not depend on manual database cleanup or a lucky prior
+state. A launch-ready POC needs repeatable seed data so owner, vendor, and
+collaborator workflows can be tested the same way every time.
+
+### Validation
+
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 116 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+- `npm run db:seed` was attempted but is blocked in this local checkout because
+  `DATABASE_URL` is not set in `.env.local`; helper browser smoke should be
+  rerun after database env is configured.
+
+### Follow-Up
+
+- Keep production seed usage limited to empty public-safe POC databases, never
+  a tenant database with real users.
+
 ## 2026-08-10 - Vendor Proof Upload Handoff
 
 Scope: reduce vendor friction from request readiness to proof upload and owner

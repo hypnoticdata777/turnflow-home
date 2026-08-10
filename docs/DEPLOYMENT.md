@@ -64,7 +64,7 @@ user data.
 
 ## Demo Accounts
 
-`npm run db:seed` creates these local/demo accounts:
+`npm run db:seed` creates or resets these local/demo accounts:
 
 | Role | Email | Password |
 |---|---|---|
@@ -74,6 +74,11 @@ user data.
 
 Use only public-safe demo data for screenshots, portfolio links, and hosted POC
 walkthroughs.
+
+The same seed also guarantees a public-safe demo property and one request that
+is assigned to the demo vendor and shared with the demo collaborator. That data
+keeps `npm run ux:owner` and `npm run ux:helper` repeatable in preview and POC
+environments.
 
 ## Pre-Deploy Checklist
 

@@ -1,34 +1,47 @@
-// Dev seed script — replaces the old Firebase build's seed.html.
-// Creates one login-capable account per role (there's no self-serve
-// signup in this port either, matching the original's console-created-
-// account model) plus one sample property + request for the owner.
+// Dev seed script - creates deterministic demo accounts and scoped helper work.
 //
 // Run with: npm run db:seed
 
 import { config } from "dotenv";
 import bcrypt from "bcryptjs";
-
-config({ path: ".env.local" });
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import * as schema from "../lib/db/schema";
 
+config({ path: ".env.local" });
+
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set — see .env.local.example");
+  throw new Error("DATABASE_URL is not set - see .env.local.example");
 }
 
 const sql = neon(process.env.DATABASE_URL);
 const db = drizzle(sql, { schema });
 
 const SEED_PASSWORD = "password123";
+const DEMO_PROPERTY_ADDRESS = "123 Demo Lane";
+const DEMO_PROPERTY_NICKNAME = "Demo home";
+const DEMO_REQUEST_TITLE = "Kitchen faucet leaking";
 
-async function upsertUser(email: string, role: "owner" | "vendor" | "collaborator", name: string) {
+async function upsertDemoUser(
+  email: string,
+  role: "owner" | "vendor" | "collaborator",
+  name: string
+) {
+  const passwordHash = await bcrypt.hash(SEED_PASSWORD, 10);
   const existing = await db.query.users.findFirst({
     where: (u, { eq }) => eq(u.email, email),
   });
-  if (existing) return existing;
 
-  const passwordHash = await bcrypt.hash(SEED_PASSWORD, 10);
+  if (existing) {
+    const [user] = await db
+      .update(schema.users)
+      .set({ passwordHash, role, name })
+      .where(eq(schema.users.id, existing.id))
+      .returning();
+    return user;
+  }
+
   const [user] = await db
     .insert(schema.users)
     .values({ email, passwordHash, role, name })
@@ -36,52 +49,109 @@ async function upsertUser(email: string, role: "owner" | "vendor" | "collaborato
   return user;
 }
 
+async function upsertDemoProperty(ownerId: string) {
+  const existing = await db.query.properties.findFirst({
+    where: (p, { eq }) => eq(p.address, DEMO_PROPERTY_ADDRESS),
+  });
+
+  if (existing) {
+    const [property] = await db
+      .update(schema.properties)
+      .set({
+        ownerId,
+        nickname: DEMO_PROPERTY_NICKNAME,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.properties.id, existing.id))
+      .returning();
+    return property;
+  }
+
+  const [property] = await db
+    .insert(schema.properties)
+    .values({
+      ownerId,
+      address: DEMO_PROPERTY_ADDRESS,
+      nickname: DEMO_PROPERTY_NICKNAME,
+    })
+    .returning();
+  return property;
+}
+
+async function upsertDemoRequest({
+  ownerId,
+  propertyId,
+  vendorId,
+  collaboratorId,
+}: {
+  ownerId: string;
+  propertyId: string;
+  vendorId: string;
+  collaboratorId: string;
+}) {
+  const existing = await db.query.requests.findFirst({
+    where: (r, { eq }) => eq(r.title, DEMO_REQUEST_TITLE),
+  });
+
+  const requestValues = {
+    ownerId,
+    propertyId,
+    category: "Plumbing",
+    urgency: "Medium",
+    location: "Kitchen",
+    accessInstructions: "Use the side gate lockbox. Demo code only.",
+    contactMethod: "Email",
+    notes: "Drips constantly, worse when the dishwasher runs.",
+    status: "In Progress" as const,
+    estimatedCost: "125.00",
+    assignedVendorId: vendorId,
+    collaboratorId,
+    updatedAt: new Date(),
+  };
+
+  if (existing) {
+    const [request] = await db
+      .update(schema.requests)
+      .set(requestValues)
+      .where(eq(schema.requests.id, existing.id))
+      .returning();
+    return request;
+  }
+
+  const [request] = await db
+    .insert(schema.requests)
+    .values({
+      ...requestValues,
+      title: DEMO_REQUEST_TITLE,
+    })
+    .returning();
+  return request;
+}
+
 async function main() {
   console.log("Seeding TurnFlow Home dev data...");
 
-  const owner = await upsertUser("owner@test.com", "owner", "Test Owner");
-  const vendor = await upsertUser("vendor@test.com", "vendor", "Test Vendor");
-  const collaborator = await upsertUser(
+  const owner = await upsertDemoUser("owner@test.com", "owner", "Test Owner");
+  const vendor = await upsertDemoUser("vendor@test.com", "vendor", "Test Vendor");
+  const collaborator = await upsertDemoUser(
     "collaborator@test.com",
     "collaborator",
     "Test Collaborator"
   );
 
-  let property = await db.query.properties.findFirst({
-    where: (p, { eq }) => eq(p.ownerId, owner.id),
+  const property = await upsertDemoProperty(owner.id);
+  const request = await upsertDemoRequest({
+    ownerId: owner.id,
+    propertyId: property.id,
+    vendorId: vendor.id,
+    collaboratorId: collaborator.id,
   });
-  if (!property) {
-    [property] = await db
-      .insert(schema.properties)
-      .values({
-        ownerId: owner.id,
-        address: "123 Main St",
-        nickname: "The rental",
-      })
-      .returning();
-  }
 
-  const existingRequest = await db.query.requests.findFirst({
-    where: (r, { eq }) => eq(r.propertyId, property!.id),
-  });
-  if (!existingRequest) {
-    await db.insert(schema.requests).values({
-      ownerId: owner.id,
-      propertyId: property!.id,
-      title: "Kitchen faucet leaking",
-      category: "Plumbing",
-      urgency: "Medium",
-      location: "Kitchen",
-      contactMethod: "Email",
-      notes: "Drips constantly, worse when the dishwasher runs.",
-      status: "Draft",
-    });
-  }
-
-  console.log("Done. Seeded accounts (all use password: %s):", SEED_PASSWORD);
+  console.log("Done. Seeded accounts reset to password: %s", SEED_PASSWORD);
   console.log(`  owner:         ${owner.email}`);
   console.log(`  vendor:        ${vendor.email}`);
   console.log(`  collaborator:  ${collaborator.email}`);
+  console.log(`  shared request: ${request.title}`);
 }
 
 main()
