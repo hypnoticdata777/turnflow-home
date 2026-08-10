@@ -2,6 +2,44 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Dashboard Readiness Guidance
+
+Scope: make the returning owner dashboard feel state-aware and action-oriented.
+
+### Changed
+
+- Added reusable dashboard guidance derived from the owner readiness setup steps.
+- Reworked `/owner/dashboard` so the top banner adapts for empty, in-progress,
+  and ready owner workspaces.
+- Pulled dashboard readiness from the full owner context: properties, requests,
+  proof, invites, vault documents, and reminders.
+- Improved the status-filter empty state with a direct path back to all
+  requests.
+- Added tests for empty, in-progress, and ready dashboard guidance states.
+
+### Why
+
+The dashboard is the most likely day-to-day landing page. It should not keep
+showing first-run copy after the owner has made progress; it should reflect the
+state of the workspace and point to the next useful action.
+
+### Validation
+
+- `npm test -- owner-readiness` passed: 10 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 72 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add route-level smoke assertions for the dashboard guidance once seeded owner
+  route capture is available.
+
 ## 2026-08-10 - Owner Readiness Guidance
 
 Scope: make first-run and account readiness feel guided instead of passive.

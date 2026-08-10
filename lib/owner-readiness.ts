@@ -35,6 +35,14 @@ export type OwnerSetupSummary = {
   tone: "empty" | "in_progress" | "ready";
 };
 
+export type OwnerDashboardGuidance = OwnerSetupSummary & {
+  eyebrow: string;
+  primaryHref: string;
+  primaryCta: string;
+  secondaryHref: string;
+  secondaryCta: string;
+};
+
 export function ownerReadinessFlags(input: OwnerReadinessInput) {
   return {
     hasProperty: input.properties.length > 0,
@@ -144,6 +152,34 @@ export function ownerSetupSummary(steps: OwnerSetupStep[]): OwnerSetupSummary {
     headline: `${completedCount} of ${totalCount} launch-readiness steps are complete.`,
     detail: `Next best action: ${nextStep.cta.toLowerCase()} so the repair record keeps becoming more useful.`,
     tone: "in_progress",
+  };
+}
+
+export function ownerDashboardGuidance(steps: OwnerSetupStep[]): OwnerDashboardGuidance {
+  const summary = ownerSetupSummary(steps);
+  const nextStep = ownerNextSetupStep(steps);
+
+  if (!nextStep) {
+    return {
+      eyebrow: "Workspace ready",
+      headline: "Your repair record is ready for day-to-day use.",
+      detail:
+        "Keep logging new maintenance work as it comes up, and review sharing whenever someone else needs scoped access.",
+      tone: "ready",
+      primaryHref: "/owner/requests/new",
+      primaryCta: "Log another request",
+      secondaryHref: "/owner/account",
+      secondaryCta: "Review sharing",
+    };
+  }
+
+  return {
+    ...summary,
+    eyebrow: summary.tone === "empty" ? "First repair record" : "Owner workspace progress",
+    primaryHref: nextStep.href,
+    primaryCta: nextStep.cta,
+    secondaryHref: "/owner/onboarding",
+    secondaryCta: "Open setup guide",
   };
 }
 

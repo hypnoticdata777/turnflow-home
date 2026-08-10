@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ownerAccountReadinessItems,
+  ownerDashboardGuidance,
   ownerNextSetupStep,
   ownerReadinessFlags,
   ownerSetupProgress,
@@ -136,6 +137,65 @@ describe("ownerSetupSteps / ownerSetupProgress", () => {
     expect(ownerNextSetupStep(readySteps)).toBeNull();
     expect(ownerSetupSummary(readySteps)).toMatchObject({
       headline: "This owner workspace is ready for a serious walkthrough.",
+      tone: "ready",
+    });
+  });
+});
+
+describe("ownerDashboardGuidance", () => {
+  it("points a brand-new owner to the first useful dashboard action", () => {
+    const guidance = ownerDashboardGuidance(ownerSetupSteps(emptyInput));
+
+    expect(guidance).toMatchObject({
+      eyebrow: "First repair record",
+      headline: "Start with the home itself.",
+      primaryHref: "/owner/properties",
+      primaryCta: "Add property",
+      secondaryHref: "/owner/onboarding",
+      secondaryCta: "Open setup guide",
+      tone: "empty",
+    });
+  });
+
+  it("keeps the dashboard focused on the next incomplete setup step", () => {
+    const guidance = ownerDashboardGuidance(
+      ownerSetupSteps(
+        {
+          ...emptyInput,
+          properties: [{}],
+          requests: [{ id: "request-1" }],
+        },
+        "request-1"
+      )
+    );
+
+    expect(guidance).toMatchObject({
+      eyebrow: "Owner workspace progress",
+      headline: "2 of 6 launch-readiness steps are complete.",
+      primaryHref: "/owner/requests/request-1",
+      primaryCta: "Add evidence",
+      tone: "in_progress",
+    });
+  });
+
+  it("switches ready accounts toward daily request management", () => {
+    const guidance = ownerDashboardGuidance(
+      ownerSetupSteps({
+        properties: [{}],
+        requests: [{ id: "request-1", photos: [{}], collaboratorId: "helper-1" }],
+        invites: [],
+        vaultDocuments: [{}],
+        reminders: [{}],
+      })
+    );
+
+    expect(guidance).toMatchObject({
+      eyebrow: "Workspace ready",
+      headline: "Your repair record is ready for day-to-day use.",
+      primaryHref: "/owner/requests/new",
+      primaryCta: "Log another request",
+      secondaryHref: "/owner/account",
+      secondaryCta: "Review sharing",
       tone: "ready",
     });
   });

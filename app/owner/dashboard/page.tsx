@@ -1,8 +1,13 @@
 import Link from "next/link";
-import { and, eq, sql } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
-import { requests } from "@/lib/db/schema";
+import { invites, properties, reminders, requests, vaultDocuments } from "@/lib/db/schema";
+import {
+  ownerDashboardGuidance,
+  ownerSetupProgress,
+  ownerSetupSteps,
+} from "@/lib/owner-readiness";
 import {
   REQUEST_STATUSES,
   costForRequest,
@@ -11,13 +16,6 @@ import {
   type RequestStatus,
 } from "@/lib/utils";
 
-// Package 2 (status filtering) is genuinely simpler here than in the
-// original Firestore build: Firestore couldn't cheaply combine an equality
-// filter with the existing orderBy without a composite index, so that version
-// had to fall back to "fetch everything, filter/count in JS" whenever a status
-// filter was active. Postgres has no such limitation: the filter and the
-// per-status counts are both just plain SQL, and the active filter lives in
-// the URL (?status=...) instead of client state.
 export default async function OwnerDashboardPage({
   searchParams,
 }: {
@@ -30,25 +28,68 @@ export default async function OwnerDashboardPage({
       ? (status as RequestStatus)
       : null;
 
-  const whereClause = activeStatus
-    ? and(eq(requests.ownerId, session.user.id), eq(requests.status, activeStatus))
-    : eq(requests.ownerId, session.user.id);
-
-  const [ownerRequests, statusCounts] = await Promise.all([
+  const [allOwnerRequests, ownerProperties, ownerInvites] = await Promise.all([
     db.query.requests.findMany({
-      where: whereClause,
+      where: eq(requests.ownerId, session.user.id),
       orderBy: (r, { desc }) => desc(r.createdAt),
-      with: { property: true },
+      with: { property: true, photos: true },
     }),
-    db
-      .select({ status: requests.status, count: sql<number>`count(*)`.mapWith(Number) })
-      .from(requests)
-      .where(eq(requests.ownerId, session.user.id))
-      .groupBy(requests.status),
+    db.query.properties.findMany({
+      where: eq(properties.ownerId, session.user.id),
+      orderBy: (p, { desc }) => desc(p.createdAt),
+    }),
+    db.query.invites.findMany({
+      where: eq(invites.ownerId, session.user.id),
+      orderBy: (i, { desc }) => desc(i.createdAt),
+    }),
   ]);
 
-  const countByStatus = Object.fromEntries(statusCounts.map((s) => [s.status, s.count]));
-  const totalCount = statusCounts.reduce((sum, s) => sum + s.count, 0);
+  const propertyIds = ownerProperties.map((property) => property.id);
+  const [ownerVaultDocs, ownerReminders] = propertyIds.length
+    ? await Promise.all([
+        db.query.vaultDocuments.findMany({
+          where: inArray(vaultDocuments.propertyId, propertyIds),
+        }),
+        db.query.reminders.findMany({
+          where: inArray(reminders.propertyId, propertyIds),
+        }),
+      ])
+    : [[], []];
+
+  const ownerRequests = activeStatus
+    ? allOwnerRequests.filter((request) => request.status === activeStatus)
+    : allOwnerRequests;
+  const countByStatus = Object.fromEntries(
+    REQUEST_STATUSES.map((requestStatus) => [
+      requestStatus,
+      allOwnerRequests.filter((request) => request.status === requestStatus).length,
+    ])
+  );
+  const totalCount = allOwnerRequests.length;
+  const steps = ownerSetupSteps(
+    {
+      properties: ownerProperties,
+      requests: allOwnerRequests,
+      invites: ownerInvites,
+      vaultDocuments: ownerVaultDocs,
+      reminders: ownerReminders,
+    },
+    allOwnerRequests[0]?.id
+  );
+  const guidance = ownerDashboardGuidance(steps);
+  const { completedCount, totalCount: setupStepCount, progress } = ownerSetupProgress(steps);
+  const guidanceClasses =
+    guidance.tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : guidance.tone === "empty"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : "border-amber-200 bg-amber-50 text-amber-950";
+  const guidanceButtonClasses =
+    guidance.tone === "ready"
+      ? "bg-emerald-800"
+      : guidance.tone === "empty"
+        ? "bg-blue-800"
+        : "bg-amber-800";
 
   const chipClasses = (isActive: boolean) =>
     `rounded-full border px-3 py-1 text-sm whitespace-nowrap ${
@@ -59,35 +100,34 @@ export default async function OwnerDashboardPage({
 
   return (
     <main>
-      <section className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-5">
+      <section className={`mb-6 rounded-lg border p-5 ${guidanceClasses}`}>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-semibold text-blue-800">
-              First homeowner repair record
+            <p className="text-sm font-semibold">
+              {guidance.eyebrow}: {completedCount} of {setupStepCount} ready ({progress}%)
             </p>
-            <p className="mt-1 max-w-2xl text-sm text-gray-700">
-              Use the setup guide to test the serious owner path: property,
-              request, evidence, shared help, history, and reminders.
+            <h1 className="mt-1 text-3xl font-bold">My maintenance requests</h1>
+            <p className="mt-2 text-lg font-semibold">{guidance.headline}</p>
+            <p className="mt-1 max-w-3xl text-sm leading-6">
+              {guidance.detail}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
-              href="/owner/onboarding"
-              className="inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+              href={guidance.primaryHref}
+              className={`inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium text-white ${guidanceButtonClasses}`}
             >
-              Open setup guide
+              {guidance.primaryCta}
             </Link>
             <Link
-              href="/owner/account"
-              className="inline-flex items-center justify-center rounded border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-800"
+              href={guidance.secondaryHref}
+              className="inline-flex items-center justify-center rounded border border-current bg-white/75 px-4 py-2 text-sm font-medium"
             >
-              Review sharing
+              {guidance.secondaryCta}
             </Link>
           </div>
         </div>
       </section>
-
-      <h1 className="mb-6 text-3xl font-bold">My maintenance requests</h1>
 
       {totalCount > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
@@ -122,7 +162,18 @@ export default async function OwnerDashboardPage({
           </Link>
         </div>
       ) : ownerRequests.length === 0 ? (
-        <p className="text-gray-500">No requests with status &quot;{activeStatus}&quot;.</p>
+        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-5">
+          <p className="font-medium">No {activeStatus} requests right now.</p>
+          <p className="mt-1 text-sm text-gray-600">
+            Try another status filter or return to the full request list.
+          </p>
+          <Link
+            href="/owner/dashboard"
+            className="mt-3 inline-flex items-center justify-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium"
+          >
+            View all requests
+          </Link>
+        </div>
       ) : (
         <div className="space-y-4">
           {ownerRequests.map((r) => {
