@@ -2,6 +2,51 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Vendor Proof Upload Handoff
+
+Scope: reduce vendor friction from request readiness to proof upload and owner
+updates.
+
+### Changed
+
+- Made helper request readiness actions interactive when used from the vendor
+  workspace.
+- Vendor `Add proof` actions now preselect the matching request and scroll to
+  the upload form.
+- Added selected-request upload guidance so vendors know whether the next best
+  proof is an after photo, receipt, extra context photo, or owner final-cost
+  follow-up.
+- Added vendor update threads to assigned request cards so vendors can ask the
+  owner for missing context or final cost details.
+- Extended helper tests for upload guidance and updated the helper UX smoke
+  script to assert checklist, readiness, updates, and upload guidance.
+
+### Why
+
+A launch-ready vendor flow should not make users reselect the same job or guess
+where to communicate. The card should hand the vendor directly into the right
+proof or update action.
+
+### Validation
+
+- `npm test -- helper-workspace` passed: 21 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 116 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+- `npm run ux:helper` was attempted against local dev; it reached login but
+  could not sign in as `vendor@test.com`, so browser UX smoke remains blocked
+  until seeded helper auth data is available locally or on the hosted POC.
+
+### Follow-Up
+
+- Run `npm run ux:helper` against the hosted POC after production environment
+  variables and seeded/demo helper accounts are configured.
+
 ## 2026-08-10 - Helper Request Card Readiness
 
 Scope: make each helper-facing request card explain what is ready, missing, or

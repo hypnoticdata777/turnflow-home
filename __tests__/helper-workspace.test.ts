@@ -5,6 +5,7 @@ import {
   helperRequestCardState,
   helperWorkspaceGuidance,
   helperWorkspaceStats,
+  vendorUploadPrompt,
   type HelperWorkspaceRequest,
 } from "@/lib/helper-workspace";
 
@@ -136,7 +137,7 @@ describe("helperRequestCardState", () => {
       detail: "Ask the owner for location and access instructions before work starts.",
       tone: "attention",
       actionHref: "#helper-requests",
-      actionCta: "Review details",
+      actionCta: "Ask owner",
     });
   });
 
@@ -214,6 +215,61 @@ describe("helperRequestCardState", () => {
       label: "Ready for owner review",
       tone: "ready",
       actionCta: "Review thread",
+    });
+  });
+});
+
+describe("vendorUploadPrompt", () => {
+  it("starts with a calm request selection prompt", () => {
+    expect(vendorUploadPrompt(null)).toEqual({
+      title: "Select a request to upload proof.",
+      detail: "Choose one assigned request, then add the photo or receipt that belongs to that job.",
+      recommendedPhotoTypes: [],
+    });
+  });
+
+  it("prioritizes after photos when both closeout proof pieces are missing", () => {
+    expect(
+      vendorUploadPrompt({
+        status: "In Progress",
+        finalCost: null,
+        photos: [{ type: "before" }],
+      })
+    ).toEqual({
+      title: "After photo is the best next upload.",
+      detail:
+        "Upload the after photo here. If final cost is still missing, leave an update so the owner can record it.",
+      recommendedPhotoTypes: ["after", "receipt", "other"],
+    });
+  });
+
+  it("points final-cost-only gaps toward owner context instead of another required photo", () => {
+    expect(
+      vendorUploadPrompt({
+        status: "Needs Review",
+        finalCost: null,
+        photos: [{ type: "after" }],
+      })
+    ).toEqual({
+      title: "Final cost still needs owner context.",
+      detail:
+        "Photos look ready. Leave an update if the owner needs invoice or final cost details from you.",
+      recommendedPhotoTypes: ["receipt", "other"],
+    });
+  });
+
+  it("keeps extra proof available when core proof is present", () => {
+    expect(
+      vendorUploadPrompt({
+        status: "Needs Review",
+        finalCost: "250",
+        photos: [{ type: "after" }],
+      })
+    ).toEqual({
+      title: "Core proof is already on record.",
+      detail:
+        "You can still add receipts or extra context photos if they make the owner's record clearer.",
+      recommendedPhotoTypes: ["receipt", "other"],
     });
   });
 });

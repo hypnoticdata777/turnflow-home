@@ -1,3 +1,5 @@
+"use client";
+
 import type { HelperRequestCardState } from "@/lib/helper-workspace";
 
 const toneClasses: Record<HelperRequestCardState["tone"], string> = {
@@ -12,7 +14,15 @@ const actionClasses: Record<HelperRequestCardState["tone"], string> = {
   ready: "bg-emerald-800 hover:bg-emerald-900",
 };
 
-export function HelperRequestReadiness({ state }: { state: HelperRequestCardState }) {
+export function HelperRequestReadiness({
+  state,
+  onAction,
+}: {
+  state: HelperRequestCardState;
+  onAction?: () => void;
+}) {
+  const actionClassesValue = `mt-3 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white sm:mt-0 ${actionClasses[state.tone]}`;
+
   return (
     <div
       className={`mt-4 rounded-lg border p-3 sm:flex sm:items-center sm:justify-between sm:gap-4 ${toneClasses[state.tone]}`}
@@ -21,12 +31,15 @@ export function HelperRequestReadiness({ state }: { state: HelperRequestCardStat
         <p className="text-sm font-semibold">{state.label}</p>
         <p className="mt-1 text-sm leading-6">{state.detail}</p>
       </div>
-      <a
-        href={state.actionHref}
-        className={`mt-3 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white sm:mt-0 ${actionClasses[state.tone]}`}
-      >
-        {state.actionCta}
-      </a>
+      {onAction ? (
+        <button type="button" onClick={onAction} className={actionClassesValue}>
+          {state.actionCta}
+        </button>
+      ) : (
+        <a href={state.actionHref} className={actionClassesValue}>
+          {state.actionCta}
+        </a>
+      )}
     </div>
   );
 }

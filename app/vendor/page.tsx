@@ -12,6 +12,7 @@ export default async function VendorPage() {
     with: {
       property: { columns: { address: true, nickname: true } },
       photos: { columns: { type: true } },
+      comments: true,
     },
     columns: {
       id: true,

@@ -12,6 +12,7 @@ import {
   updateRequestStatusAction,
 } from "@/lib/actions/requests";
 import { requestPhotoPath } from "@/lib/blob-paths";
+import { CommentThread, type CommentData } from "@/components/CommentThread";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
 import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
@@ -20,6 +21,8 @@ import {
   helperOnboardingItems,
   helperRequestCardState,
   helperWorkspaceGuidance,
+  vendorUploadPrompt,
+  type HelperRequestCardState,
 } from "@/lib/helper-workspace";
 import { missingCompletionProof } from "@/lib/request-guidance";
 
@@ -39,6 +42,7 @@ type VendorRequest = {
   finalCost: string | null;
   property: { address: string; nickname: string | null } | null;
   photos: { type: string }[];
+  comments: CommentData[];
 };
 
 export function VendorPortal({
@@ -56,6 +60,27 @@ export function VendorPortal({
   const [statusError, setStatusError] = useState("");
   const guidance = helperWorkspaceGuidance("vendor", requests);
   const onboardingItems = helperOnboardingItems("vendor", requests);
+  const selectedRequest = requests.find((r) => r.id === selectedRequestId);
+  const uploadPrompt = vendorUploadPrompt(selectedRequest);
+
+  function focusUploadForRequest(request: VendorRequest) {
+    setSelectedRequestId(request.id);
+    setUploadStatus(`Ready to upload proof for ${request.title}.`);
+    requestAnimationFrame(() => {
+      document.getElementById("helper-upload")?.scrollIntoView({ behavior: "smooth" });
+    });
+  }
+
+  function handleReadinessAction(request: VendorRequest, state: HelperRequestCardState) {
+    if (state.actionHref === "#helper-upload") {
+      focusUploadForRequest(request);
+      return;
+    }
+
+    document
+      .getElementById(`request-updates-${request.id}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   async function applyStatusChange(requestId: string, newStatus: string, waiverReason?: string) {
     setStatusError("");
@@ -193,7 +218,10 @@ export function VendorPortal({
                     </div>
                   </dl>
 
-                  <HelperRequestReadiness state={readiness} />
+                  <HelperRequestReadiness
+                    state={readiness}
+                    onAction={() => handleReadinessAction(r, readiness)}
+                  />
 
                   <label className="mt-4 block text-sm">
                     <span className="font-semibold">Status</span>
@@ -228,6 +256,15 @@ export function VendorPortal({
                       />
                     </div>
                   )}
+
+                  <div id={`request-updates-${r.id}`} className="mt-4 scroll-mt-6 border-t pt-3">
+                    <CommentThread
+                      requestId={r.id}
+                      comments={r.comments}
+                      userId={userId}
+                      assignedVendorId={r.assignedVendorId}
+                    />
+                  </div>
                 </article>
               );
             })}
@@ -260,7 +297,24 @@ export function VendorPortal({
           </select>
         </label>
 
-        {selectedRequestId && (
+        <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <p className="text-sm font-semibold text-gray-950">{uploadPrompt.title}</p>
+          <p className="mt-1 text-sm leading-6 text-gray-600">{uploadPrompt.detail}</p>
+          {selectedRequest && uploadPrompt.recommendedPhotoTypes.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {uploadPrompt.recommendedPhotoTypes.map((type) => (
+                <span
+                  key={type}
+                  className="rounded-full border border-gray-200 bg-white px-2 py-1 text-xs font-medium capitalize text-gray-700"
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {selectedRequest && (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {PHOTO_TYPES.map((type) => (
               <div key={type} className="rounded border p-3">

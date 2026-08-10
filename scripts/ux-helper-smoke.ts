@@ -67,6 +67,44 @@ async function assertRoute(page: Page, pathName: string, heading: string) {
   }
 }
 
+async function assertHelperWorkspace(page: Page, pathName: string, role: "vendor" | "collaborator") {
+  const expectedText =
+    role === "vendor"
+      ? [
+          "First run checklist",
+          "Work like a trusted vendor.",
+          "What you can see",
+          "Upload photos",
+          "Select a request to upload proof.",
+        ]
+      : [
+          "First run checklist",
+          "Work like a trusted collaborator.",
+          "What you can see",
+          "Shared requests",
+        ];
+
+  for (const text of expectedText) {
+    if ((await page.getByText(text, { exact: true }).count()) === 0) {
+      throw new Error(`${pathName} is missing helper workspace text "${text}"`);
+    }
+  }
+
+  const readinessCount = await page
+    .getByText(
+      /Missing job context|Needs closeout proof|Ready for closeout|Closed out|Needs first update|In motion|Ready for owner review/
+    )
+    .count();
+
+  if (readinessCount === 0) {
+    throw new Error(`${pathName} is missing helper request readiness cues`);
+  }
+
+  if (role === "vendor" && (await page.getByText("Updates", { exact: true }).count()) === 0) {
+    throw new Error(`${pathName} is missing vendor update threads`);
+  }
+}
+
 async function hideDevOverlays(page: Page) {
   await page.evaluate(() => {
     document
@@ -87,6 +125,7 @@ async function main() {
       const vendorPage = await vendorContext.newPage();
       await login(vendorPage, VENDOR_EMAIL, VENDOR_PASSWORD);
       await assertRoute(vendorPage, "/vendor", "Assigned requests");
+      await assertHelperWorkspace(vendorPage, "/vendor", "vendor");
       await hideDevOverlays(vendorPage);
       await vendorPage.screenshot({
         path: path.join(OUT_DIR, `vendor-${viewport.name}.png`),
@@ -101,6 +140,7 @@ async function main() {
       const collaboratorPage = await collaboratorContext.newPage();
       await login(collaboratorPage, COLLABORATOR_EMAIL, COLLABORATOR_PASSWORD);
       await assertRoute(collaboratorPage, "/collaborator", "Shared requests");
+      await assertHelperWorkspace(collaboratorPage, "/collaborator", "collaborator");
       await hideDevOverlays(collaboratorPage);
       await collaboratorPage.screenshot({
         path: path.join(OUT_DIR, `collaborator-${viewport.name}.png`),

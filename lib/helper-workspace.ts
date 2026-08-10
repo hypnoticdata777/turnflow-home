@@ -52,6 +52,12 @@ export type HelperRequestCardState = {
   actionCta: string;
 };
 
+export type HelperUploadPrompt = {
+  title: string;
+  detail: string;
+  recommendedPhotoTypes: string[];
+};
+
 function hasAfterPhoto(request: HelperWorkspaceRequest) {
   return (request.photos ?? []).some((photo) => photo.type === "after");
 }
@@ -285,7 +291,7 @@ export function helperRequestCardState(
         detail: `Ask the owner for ${joinList(missingContext)} before work starts.`,
         tone: "attention",
         actionHref: "#helper-requests",
-        actionCta: "Review details",
+        actionCta: "Ask owner",
       };
     }
 
@@ -344,6 +350,56 @@ export function helperRequestCardState(
     tone: "progress",
     actionHref: "#helper-requests",
     actionCta: "Review thread",
+  };
+}
+
+export function vendorUploadPrompt(
+  request: HelperWorkspaceRequest | null | undefined
+): HelperUploadPrompt {
+  if (!request) {
+    return {
+      title: "Select a request to upload proof.",
+      detail: "Choose one assigned request, then add the photo or receipt that belongs to that job.",
+      recommendedPhotoTypes: [],
+    };
+  }
+
+  const missingProof = missingVendorProof(request);
+  const recommendedPhotoTypes = [];
+  if (!hasAfterPhoto(request)) recommendedPhotoTypes.push("after");
+  recommendedPhotoTypes.push("receipt", "other");
+
+  if (missingProof.length === 0) {
+    return {
+      title: "Core proof is already on record.",
+      detail:
+        "You can still add receipts or extra context photos if they make the owner's record clearer.",
+      recommendedPhotoTypes,
+    };
+  }
+
+  if (missingProof.includes("after photo") && missingProof.includes("final cost")) {
+    return {
+      title: "After photo is the best next upload.",
+      detail:
+        "Upload the after photo here. If final cost is still missing, leave an update so the owner can record it.",
+      recommendedPhotoTypes,
+    };
+  }
+
+  if (missingProof.includes("after photo")) {
+    return {
+      title: "Add the after photo before closeout.",
+      detail: "The final cost is present, so an after photo is the main proof still needed.",
+      recommendedPhotoTypes,
+    };
+  }
+
+  return {
+    title: "Final cost still needs owner context.",
+    detail:
+      "Photos look ready. Leave an update if the owner needs invoice or final cost details from you.",
+    recommendedPhotoTypes,
   };
 }
 
