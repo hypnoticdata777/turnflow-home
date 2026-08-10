@@ -16,32 +16,56 @@ export function PropertyForm() {
 
   return (
     <form ref={formRef} action={action} className="space-y-3">
-      <input
-        name="address"
-        type="text"
-        placeholder="Address"
-        required
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="unit"
-        type="text"
-        placeholder="Unit (optional)"
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="nickname"
-        type="text"
-        placeholder='Nickname (optional, e.g. "The rental")'
-        className="w-full p-2 border rounded"
-      />
-      {state?.error && <p className="text-red-500 text-sm">{state.error}</p>}
+      <div>
+        <label htmlFor="property-address" className="mb-1 block text-sm font-medium">
+          Address
+        </label>
+        <input
+          id="property-address"
+          name="address"
+          type="text"
+          placeholder="123 Main St"
+          required
+          className="w-full rounded border p-2"
+        />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label htmlFor="property-unit" className="mb-1 block text-sm font-medium">
+            Unit
+          </label>
+          <input
+            id="property-unit"
+            name="unit"
+            type="text"
+            placeholder="Optional"
+            className="w-full rounded border p-2"
+          />
+        </div>
+        <div>
+          <label htmlFor="property-nickname" className="mb-1 block text-sm font-medium">
+            Nickname
+          </label>
+          <input
+            id="property-nickname"
+            name="nickname"
+            type="text"
+            placeholder="e.g. The rental"
+            className="w-full rounded border p-2"
+          />
+        </div>
+      </div>
+      {state?.error && (
+        <p className="text-sm text-red-600" role="alert">
+          {state.error}
+        </p>
+      )}
       <button
         type="submit"
         disabled={pending}
-        className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+        className="rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
       >
-        {pending ? "Saving…" : "Add Property"}
+        {pending ? "Saving..." : "Add property"}
       </button>
     </form>
   );

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 export function CopyableInviteLink({ inviteLink }: { inviteLink: string }) {
+  const inputId = useId();
   const [copyStatus, setCopyStatus] = useState("");
 
   async function copyInviteLink() {
@@ -15,15 +16,18 @@ export function CopyableInviteLink({ inviteLink }: { inviteLink: string }) {
   }
 
   return (
-    <div className="max-w-xs rounded border border-gray-200 bg-gray-50 p-2">
-      <label className="block text-xs font-medium text-gray-600">Invite link</label>
+    <div className="max-w-md rounded border border-gray-200 bg-gray-50 p-3">
+      <label htmlFor={inputId} className="block text-xs font-medium text-gray-600">
+        Invite link
+      </label>
       <input
+        id={inputId}
         readOnly
         value={inviteLink}
         className="mt-1 w-full rounded border border-gray-200 bg-white px-2 py-1 text-xs"
         onFocus={(event) => event.currentTarget.select()}
       />
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
         <button
           type="button"
           onClick={copyInviteLink}

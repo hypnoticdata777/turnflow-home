@@ -24,7 +24,11 @@ export function SharedAccessControls({
         {pending ? "Removing..." : "Remove access"}
       </button>
       {state?.success && <p className="text-xs text-green-700">{state.success}</p>}
-      {state?.error && <p className="text-xs text-red-600">{state.error}</p>}
+      {state?.error && (
+        <p className="text-xs text-red-600" role="alert">
+          {state.error}
+        </p>
+      )}
     </form>
   );
 }

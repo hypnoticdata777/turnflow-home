@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import {
-  createQuoteAction,
   approveQuoteAction,
+  createQuoteAction,
   declineQuoteAction,
   deleteQuoteAction,
 } from "@/lib/actions/quotes";
@@ -37,6 +37,11 @@ export function QuoteWorkspace({
   userId: string;
 }) {
   const router = useRouter();
+  const vendorNameId = useId();
+  const vendorContactId = useId();
+  const amountId = useId();
+  const notesId = useId();
+  const attachmentId = useId();
   const [deletedQuoteIds, setDeletedQuoteIds] = useState<string[]>([]);
   const quotes = useMemo(
     () =>
@@ -63,7 +68,7 @@ export function QuoteWorkspace({
     }
 
     setSubmitting(true);
-    setFormStatus("Saving…");
+    setFormStatus("Saving...");
     try {
       const formData = new FormData();
       formData.set("vendorName", vendorName.trim());
@@ -72,7 +77,7 @@ export function QuoteWorkspace({
       formData.set("notes", notes.trim());
 
       if (attachment) {
-        setFormStatus("Uploading attachment…");
+        setFormStatus("Uploading attachment...");
         const pathname = requestPhotoPath(requestId, "quote", userId, attachment.name);
         const blob = await upload(pathname, attachment, {
           access: "public",
@@ -82,7 +87,7 @@ export function QuoteWorkspace({
         formData.set("attachmentBlobPath", blob.pathname);
       }
 
-      setFormStatus("Saving…");
+      setFormStatus("Saving...");
       const result = await createQuoteAction(requestId, formData);
       if ("error" in result) {
         setFormStatus(result.error);
@@ -94,7 +99,7 @@ export function QuoteWorkspace({
       setAmount("");
       setNotes("");
       setAttachment(null);
-      setFormStatus("Quote added ✓");
+      setFormStatus("Quote added.");
       router.refresh();
     } catch (err) {
       console.error("Failed to add quote:", err);
@@ -146,22 +151,22 @@ export function QuoteWorkspace({
   }
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-3">Quotes</h2>
+    <section>
+      <h2 className="mb-3 text-xl font-semibold">Quotes</h2>
 
-      <div className="space-y-3 mb-4">
+      <div className="mb-4 space-y-3">
         {quotes.length === 0 ? (
-          <p className="text-gray-500 text-sm">No quotes recorded yet.</p>
+          <p className="text-sm text-gray-500">No quotes recorded yet.</p>
         ) : (
           quotes.map((q) => (
-            <div
+            <article
               key={q.id}
-              className={`border p-3 rounded ${q.status === "approved" ? "border-green-400" : ""}`}
+              className={`rounded border p-3 ${q.status === "approved" ? "border-green-400" : ""}`}
             >
-              <div className="flex justify-between items-start">
-                <h3 className="font-medium">{q.vendorName || "(unnamed vendor)"}</h3>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <h3 className="font-medium">{q.vendorName || "Unnamed vendor"}</h3>
                 <span
-                  className={`text-xs font-medium px-2 py-1 rounded-full ${
+                  className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${
                     QUOTE_STATUS_CLASSES[q.status] || QUOTE_STATUS_CLASSES.pending
                   }`}
                 >
@@ -169,21 +174,26 @@ export function QuoteWorkspace({
                 </span>
               </div>
               {q.vendorContact && <p className="text-sm text-gray-600">{q.vendorContact}</p>}
-              <p className="text-lg font-semibold mt-1">${Number(q.amount).toFixed(2)}</p>
-              {q.notes && <p className="text-sm text-gray-600 mt-1">{q.notes}</p>}
+              <p className="mt-1 text-lg font-semibold">${Number(q.amount).toFixed(2)}</p>
+              {q.notes && <p className="mt-1 text-sm text-gray-600">{q.notes}</p>}
               {q.attachmentUrl && (
-                <p className="text-sm mt-1">
-                  <a href={q.attachmentUrl} target="_blank" rel="noopener" className="text-blue-600 underline">
+                <p className="mt-1 text-sm">
+                  <a
+                    href={q.attachmentUrl}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-blue-600 underline"
+                  >
                     View attachment
                   </a>
                 </p>
               )}
-              <div className="mt-2 flex gap-2 text-sm">
+              <div className="mt-2 flex flex-wrap gap-2 text-sm">
                 {q.status !== "approved" && (
                   <button
                     onClick={() => handleApprove(q.id)}
                     disabled={actingId === q.id}
-                    className="bg-green-600 text-white px-2 py-1 rounded disabled:opacity-50"
+                    className="rounded bg-green-600 px-2 py-1 text-white disabled:opacity-50"
                   >
                     Approve
                   </button>
@@ -192,7 +202,7 @@ export function QuoteWorkspace({
                   <button
                     onClick={() => handleDecline(q.id)}
                     disabled={actingId === q.id}
-                    className="bg-gray-500 text-white px-2 py-1 rounded disabled:opacity-50"
+                    className="rounded bg-gray-500 px-2 py-1 text-white disabled:opacity-50"
                   >
                     Decline
                   </button>
@@ -200,67 +210,97 @@ export function QuoteWorkspace({
                 <button
                   onClick={() => handleDelete(q.id)}
                   disabled={actingId === q.id}
-                  className="bg-red-600 text-white px-2 py-1 rounded disabled:opacity-50"
+                  className="rounded bg-red-600 px-2 py-1 text-white disabled:opacity-50"
                 >
                   Delete
                 </button>
               </div>
-            </div>
+            </article>
           ))
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t pt-4 space-y-2">
-        <h3 className="font-medium text-sm">Add a quote</h3>
-        <div className="grid md:grid-cols-2 gap-2">
+      <form onSubmit={handleSubmit} className="space-y-3 border-t pt-4">
+        <h3 className="text-sm font-medium">Add a quote</h3>
+        <div className="grid gap-2 md:grid-cols-2">
+          <div>
+            <label htmlFor={vendorNameId} className="mb-1 block text-sm font-medium">
+              Vendor name
+            </label>
+            <input
+              id={vendorNameId}
+              type="text"
+              placeholder="Vendor name"
+              value={vendorName}
+              onChange={(e) => setVendorName(e.target.value)}
+              className="w-full rounded border p-2 text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor={vendorContactId} className="mb-1 block text-sm font-medium">
+              Vendor contact
+            </label>
+            <input
+              id={vendorContactId}
+              type="text"
+              placeholder="Optional"
+              value={vendorContact}
+              onChange={(e) => setVendorContact(e.target.value)}
+              className="w-full rounded border p-2 text-sm"
+            />
+          </div>
+        </div>
+        <div>
+          <label htmlFor={amountId} className="mb-1 block text-sm font-medium">
+            Amount
+          </label>
           <input
-            type="text"
-            placeholder="Vendor name"
-            value={vendorName}
-            onChange={(e) => setVendorName(e.target.value)}
-            className="p-2 border rounded text-sm"
-          />
-          <input
-            type="text"
-            placeholder="Vendor contact (optional)"
-            value={vendorContact}
-            onChange={(e) => setVendorContact(e.target.value)}
-            className="p-2 border rounded text-sm"
+            id={amountId}
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full rounded border p-2 text-sm"
           />
         </div>
-        <input
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-full p-2 border rounded text-sm"
-        />
-        <textarea
-          placeholder="Notes (optional)"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="w-full p-2 border rounded text-sm"
-          rows={2}
-        />
-        <input
-          type="file"
-          accept="image/*,application/pdf"
-          onChange={(e) => setAttachment(e.target.files?.[0] || null)}
-          className="text-sm"
-        />
-        <div className="flex items-center gap-3">
+        <div>
+          <label htmlFor={notesId} className="mb-1 block text-sm font-medium">
+            Notes
+          </label>
+          <textarea
+            id={notesId}
+            placeholder="Optional"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full rounded border p-2 text-sm"
+            rows={2}
+          />
+        </div>
+        <div>
+          <label htmlFor={attachmentId} className="mb-1 block text-sm font-medium">
+            Attachment
+          </label>
+          <input
+            id={attachmentId}
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={(e) => setAttachment(e.target.files?.[0] || null)}
+            className="text-sm"
+          />
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <button
             type="submit"
             disabled={submitting}
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+            className="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
           >
-            {submitting ? "Saving…" : "Add Quote"}
+            {submitting ? "Saving..." : "Add quote"}
           </button>
           {formStatus && <p className="text-sm text-gray-600">{formStatus}</p>}
         </div>
       </form>
-    </div>
+    </section>
   );
 }

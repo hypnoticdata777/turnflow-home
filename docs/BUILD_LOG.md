@@ -2,6 +2,49 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Owner Trust Action Forms
+
+Scope: reduce friction and trust risk in owner forms, invites, proof, quotes,
+exports, and destructive actions.
+
+### Changed
+
+- Refreshed `PropertyForm` with explicit labels, clearer placeholders, and
+  cleaner pending/error states.
+- Refreshed `InviteSection`, `CopyableInviteLink`, `SharedAccessControls`, and
+  pending invite messaging so request sharing is easier to understand.
+- Refreshed property delete/export controls with clearer action labels and
+  pending states.
+- Refreshed `RequestDetailView` with a clearer repair-record header, structured
+  details, cleaner status/proof packet controls, and better photo proof copy.
+- Refreshed `QuoteWorkspace` with labeled inputs, cleaner quote actions, and
+  plain pending/success text.
+- Removed visible encoding artifacts from owner trust-action components.
+
+### Why
+
+Launch readiness depends on the moments where users make irreversible or
+trust-sensitive decisions: inviting helpers, removing access, changing status,
+uploading proof, approving quotes, exporting history, and deleting property
+records. These controls need to feel explicit, readable, and recoverable.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 67 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+- App/component encoding artifact scan passed.
+
+### Follow-Up
+
+- Add browser smoke coverage for the request detail route once seeded owner data
+  is available locally or in preview.
+
 ## 2026-08-10 - Helper Workspace UX
 
 Scope: mature shared-access experiences for vendors, collaborators, and invite

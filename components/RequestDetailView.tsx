@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 import {
   REQUEST_STATUSES,
-  requestStatusBadgeClasses,
   costForRequest,
   costLabelForRequest,
   meetsCompletionRequirements,
+  requestStatusBadgeClasses,
 } from "@/lib/utils";
 import {
   recordRequestPhotoAction,
-  updateRequestStatusAction,
   updateCostAction,
+  updateRequestStatusAction,
 } from "@/lib/actions/requests";
-import { createVendorInviteAction, createCollaboratorInviteAction } from "@/lib/actions/invites";
+import { createCollaboratorInviteAction, createVendorInviteAction } from "@/lib/actions/invites";
 import { requestPhotoPath } from "@/lib/blob-paths";
 import { QuoteWorkspace, type QuoteData } from "@/components/QuoteWorkspace";
 import { DecisionLog, actorLabel, type LogEntryData } from "@/components/DecisionLog";
@@ -60,7 +60,7 @@ function CostEditor({ request }: { request: RequestData }) {
     setCostStatus("Saving...");
     try {
       await updateCostAction(request.id, { estimatedCost, quotedCost, finalCost });
-      setCostStatus("Saved");
+      setCostStatus("Saved.");
       router.refresh();
     } catch (err) {
       console.error("Failed to save costs:", err);
@@ -71,9 +71,9 @@ function CostEditor({ request }: { request: RequestData }) {
   }
 
   return (
-    <>
-      <h2 className="text-xl font-semibold mb-3">Cost</h2>
-      <div className="grid md:grid-cols-3 gap-2 mb-2">
+    <section>
+      <h2 className="mb-3 text-xl font-semibold">Cost</h2>
+      <div className="mb-2 grid gap-2 md:grid-cols-3">
         <label className="text-sm">
           Estimated
           <input
@@ -82,7 +82,7 @@ function CostEditor({ request }: { request: RequestData }) {
             min="0"
             value={estimatedCost}
             onChange={(e) => setEstimatedCost(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
+            className="mt-1 w-full rounded border p-2"
           />
         </label>
         <label className="text-sm">
@@ -93,7 +93,7 @@ function CostEditor({ request }: { request: RequestData }) {
             min="0"
             value={quotedCost}
             onChange={(e) => setQuotedCost(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
+            className="mt-1 w-full rounded border p-2"
           />
         </label>
         <label className="text-sm">
@@ -104,24 +104,24 @@ function CostEditor({ request }: { request: RequestData }) {
             min="0"
             value={finalCost}
             onChange={(e) => setFinalCost(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
+            className="mt-1 w-full rounded border p-2"
           />
         </label>
       </div>
-      <div className="flex items-center gap-3 mb-2">
+      <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
         <button
           onClick={handleSaveCosts}
           disabled={costSaving}
-          className="bg-gray-800 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+          className="rounded bg-gray-800 px-4 py-2 text-sm text-white disabled:opacity-50"
         >
-          {costSaving ? "Saving..." : "Save Costs"}
+          {costSaving ? "Saving..." : "Save costs"}
         </button>
         {costStatus && <p className="text-sm text-gray-600">{costStatus}</p>}
       </div>
-      <p className="text-sm text-gray-600 mb-4">
+      <p className="mb-4 text-sm text-gray-600">
         Current ({costLabelForRequest(request)}): ${costForRequest(request).toFixed(2)}
       </p>
-    </>
+    </section>
   );
 }
 
@@ -149,9 +149,9 @@ export function RequestDetailView({
   const [uploadStatus, setUploadStatus] = useState("");
   const propertyLabel = property
     ? property.nickname
-      ? `${property.nickname} — ${property.address}`
+      ? `${property.nickname} - ${property.address}`
       : property.address
-    : "(property not found)";
+    : "Property not found";
 
   async function handleStatusChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const newStatus = e.target.value;
@@ -160,8 +160,7 @@ export function RequestDetailView({
     let waiverReason: string | undefined;
     if (newStatus === "Complete" && !meetsCompletionRequirements(request, photos)) {
       const reason = window.prompt(
-        'This request is missing required proof to mark it Complete (a final cost, an "after" photo, and an assigned vendor). ' +
-          "Enter a reason to complete it anyway, or cancel to go back."
+        'This request is missing required proof to mark it Complete: a final cost, an "after" photo, and an assigned vendor. Enter a reason to complete it anyway, or cancel to go back.'
       );
       if (!reason || !reason.trim()) {
         e.target.value = previousStatus;
@@ -196,7 +195,7 @@ export function RequestDetailView({
 
   async function handleUpload(type: PhotoType, file: File | undefined) {
     if (!file) return;
-    setUploadStatus(`Uploading ${type}…`);
+    setUploadStatus(`Uploading ${type}...`);
     try {
       const pathname = requestPhotoPath(request.id, type, userId, file.name);
       const blob = await upload(pathname, file, {
@@ -205,7 +204,7 @@ export function RequestDetailView({
       });
       await recordRequestPhotoAction(request.id, type, blob.url, blob.pathname);
       setPhotos((prev) => [...prev, { id: blob.pathname, type, url: blob.url }]);
-      setUploadStatus(`Uploaded ${type} ✓`);
+      setUploadStatus(`Uploaded ${type}.`);
     } catch (err) {
       console.error(`Failed to upload ${type}:`, err);
       setUploadStatus(`Failed to upload ${type}.`);
@@ -213,59 +212,75 @@ export function RequestDetailView({
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow">
-      <div className="mb-6 text-gray-700 space-y-1">
-        <p>
-          <strong>Title:</strong> {request.title}
-        </p>
-        <p>
-          <strong>Property:</strong> {propertyLabel}
-        </p>
-        <p>
-          <strong>Category:</strong> {request.category} &nbsp;
-          <strong>Urgency:</strong> {request.urgency}
-        </p>
-        <p>
-          <strong>Location:</strong> {request.location || "—"}
-        </p>
-        <p>
-          <strong>Preferred Contact:</strong> {request.contactMethod || "—"}
-        </p>
-        <p>
-          <strong>Access Instructions:</strong> {request.accessInstructions || "—"}
-        </p>
-        <p>
-          <strong>Notes:</strong> {request.notes || "—"}
-        </p>
-        <label className="block mt-2 text-sm">
-          <strong>Status:</strong>
-          <select
-            value={status}
-            onChange={handleStatusChange}
-            disabled={statusSaving}
-            className="border rounded p-1 ml-1"
-          >
-            {REQUEST_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+    <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow">
+      <section className="mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-blue-700">Repair record</p>
+            <h1 className="text-3xl font-bold">{request.title}</h1>
+          </div>
           <span
-            className={`ml-2 text-xs font-medium px-2 py-1 rounded-full ${requestStatusBadgeClasses(
+            className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${requestStatusBadgeClasses(
               status
             )}`}
           >
             {status}
           </span>
-        </label>
-        <button
-          onClick={handleDownloadPdf}
-          className="mt-3 bg-gray-700 text-white px-4 py-2 rounded text-sm"
-        >
-          📄 Download Proof Packet (PDF)
-        </button>
-      </div>
+        </div>
+
+        <dl className="mt-4 grid gap-3 text-sm text-gray-700 sm:grid-cols-2">
+          <div>
+            <dt className="font-semibold">Property</dt>
+            <dd>{propertyLabel}</dd>
+          </div>
+          <div>
+            <dt className="font-semibold">Category / urgency</dt>
+            <dd>
+              {request.category} / {request.urgency}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold">Location</dt>
+            <dd>{request.location || "Not recorded"}</dd>
+          </div>
+          <div>
+            <dt className="font-semibold">Preferred contact</dt>
+            <dd>{request.contactMethod || "Not recorded"}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="font-semibold">Access instructions</dt>
+            <dd>{request.accessInstructions || "Not recorded"}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="font-semibold">Notes</dt>
+            <dd>{request.notes || "Not recorded"}</dd>
+          </div>
+        </dl>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+          <label className="block text-sm">
+            <span className="font-semibold">Status</span>
+            <select
+              value={status}
+              onChange={handleStatusChange}
+              disabled={statusSaving}
+              className="mt-1 w-full rounded border bg-white p-2 sm:w-64"
+            >
+              {REQUEST_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            onClick={handleDownloadPdf}
+            className="rounded bg-gray-700 px-4 py-2 text-sm text-white"
+          >
+            Download proof packet (PDF)
+          </button>
+        </div>
+      </section>
 
       <hr className="my-4" />
 
@@ -302,35 +317,47 @@ export function RequestDetailView({
 
       <hr className="my-4" />
 
-      <h2 className="text-xl font-semibold mb-3">Photos</h2>
-      <div className="grid md:grid-cols-4 gap-4 mb-3">
-        {PHOTO_TYPES.map((type) => (
-          <div key={type} className="border p-3 rounded">
-            <h3 className="font-medium mb-2 capitalize">{type}</h3>
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="mb-2 text-sm w-full"
-              onChange={(e) => handleUpload(type, e.target.files?.[0])}
-            />
-          </div>
-        ))}
-      </div>
-      <p className="text-sm text-gray-600 mb-4">{uploadStatus}</p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        {photos.length === 0 ? (
-          <p className="text-gray-500 col-span-full">No photos yet.</p>
-        ) : (
-          photos.map((p) => (
-            <figure key={p.id} className="border rounded p-1">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.url} alt={`${p.type} photo`} className="w-full h-36 object-cover rounded" />
-              <figcaption className="text-center text-sm capitalize mt-1">{p.type}</figcaption>
-            </figure>
-          ))
-        )}
-      </div>
+      <section>
+        <h2 className="mb-3 text-xl font-semibold">Photos</h2>
+        <p className="mb-3 text-sm text-gray-500">
+          Add before, after, receipt, or other proof to keep the repair record
+          complete.
+        </p>
+        <div className="mb-3 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+          {PHOTO_TYPES.map((type) => (
+            <div key={type} className="rounded border p-3">
+              <h3 className="mb-2 font-medium capitalize">{type}</h3>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="mb-2 w-full text-sm"
+                onChange={(e) => handleUpload(type, e.target.files?.[0])}
+              />
+            </div>
+          ))}
+        </div>
+        {uploadStatus && <p className="mb-4 text-sm text-gray-600">{uploadStatus}</p>}
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          {photos.length === 0 ? (
+            <p className="col-span-full text-gray-500">No photos yet.</p>
+          ) : (
+            photos.map((p) => (
+              <figure key={p.id} className="rounded border p-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.url}
+                  alt={`${p.type} photo`}
+                  className="h-36 w-full rounded object-cover"
+                />
+                <figcaption className="mt-1 text-center text-sm capitalize">
+                  {p.type}
+                </figcaption>
+              </figure>
+            ))
+          )}
+        </div>
+      </section>
 
       <hr className="my-4" />
 
@@ -348,8 +375,11 @@ export function RequestDetailView({
 
       <hr className="my-4" />
 
-      <a href="/owner/dashboard" className="bg-gray-600 text-white px-4 py-2 rounded inline-block">
-        ⬅ Back to Dashboard
+      <a
+        href="/owner/dashboard"
+        className="inline-block rounded bg-gray-600 px-4 py-2 text-white"
+      >
+        Back to dashboard
       </a>
     </div>
   );

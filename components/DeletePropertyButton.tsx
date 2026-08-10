@@ -8,19 +8,20 @@ export function DeletePropertyButton({ propertyId }: { propertyId: string }) {
 
   return (
     <button
-      className="bg-red-500 text-white px-3 py-1 rounded disabled:opacity-50"
+      className="rounded bg-red-600 px-3 py-1 text-sm text-white disabled:opacity-50"
       disabled={isPending}
       onClick={() => {
         if (
           !confirm(
-            "Delete this property? This also permanently deletes every request (and their photos) tied to it. This cannot be undone."
+            "Delete this property? This also permanently deletes every request and photo tied to it. This cannot be undone."
           )
-        )
+        ) {
           return;
+        }
         startTransition(() => deletePropertyAction(propertyId));
       }}
     >
-      {isPending ? "Deleting…" : "Delete"}
+      {isPending ? "Deleting..." : "Delete"}
     </button>
   );
 }
