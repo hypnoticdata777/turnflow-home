@@ -22,6 +22,7 @@ import { downloadProofPacketPdf } from "@/lib/pdf/proofPacket";
 import { InviteSection } from "@/components/InviteSection";
 import { CommentThread, type CommentData } from "@/components/CommentThread";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
+import { RequestCreatedNoticeBanner } from "@/components/RequestCreatedNoticeBanner";
 import { missingCompletionProof, requestGuidance } from "@/lib/request-guidance";
 import type { RequestCreatedNotice } from "@/lib/request-submit";
 
@@ -235,18 +236,7 @@ export function RequestDetailView({
 
   return (
     <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow">
-      {creationNotice && (
-        <section
-          className={`mb-5 rounded-lg border p-4 ${
-            creationNotice.tone === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-              : "border-amber-200 bg-amber-50 text-amber-950"
-          }`}
-        >
-          <h2 className="text-lg font-semibold">{creationNotice.headline}</h2>
-          <p className="mt-1 text-sm leading-6">{creationNotice.detail}</p>
-        </section>
-      )}
+      {creationNotice && <RequestCreatedNoticeBanner notice={creationNotice} />}
 
       <section className="mb-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

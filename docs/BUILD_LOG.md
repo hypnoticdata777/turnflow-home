@@ -2,6 +2,44 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Post-Create Notice Cleanup
+
+Scope: keep the request-created handoff helpful without making the URL or
+refresh behavior feel stale.
+
+### Changed
+
+- Added `RequestCreatedNoticeBanner` as a dismissible saved-request notice for
+  the request detail page.
+- Cleaned `created` and `uploads` query params from the browser URL after the
+  post-create notice renders.
+- Added a reusable helper that removes only post-create query params while
+  preserving unrelated params and hash anchors.
+- Extended request-submit tests for clean request-detail URLs.
+
+### Why
+
+The post-create notice should reassure the homeowner once, then get out of the
+way. Leaving handoff query params in the URL makes refreshes feel confusing and
+less polished during normal use.
+
+### Validation
+
+- `npm test -- request-submit` passed: 8 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 95 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Revisit this notice after browser smoke coverage exists for the create-request
+  journey to confirm timing feels right on slow photo uploads.
+
 ## 2026-08-10 - Post-Create Request Handoff
 
 Scope: keep homeowners in the new repair record after request submission.

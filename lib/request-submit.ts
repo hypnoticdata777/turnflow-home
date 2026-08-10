@@ -21,6 +21,18 @@ export function requestDetailPathAfterCreate(
   return `/owner/requests/${requestId}?${params.toString()}`;
 }
 
+export function requestDetailPathWithoutCreateParams(
+  pathname: string,
+  search: string,
+  hash = ""
+) {
+  const params = new URLSearchParams(search);
+  params.delete("created");
+  params.delete("uploads");
+  const query = params.toString();
+  return `${pathname}${query ? `?${query}` : ""}${hash}`;
+}
+
 export function requestCreatedNotice(
   created: string | string[] | undefined,
   uploads: string | string[] | undefined

@@ -3,6 +3,7 @@ import {
   photoUploadStatus,
   requestCreatedNotice,
   requestDetailPathAfterCreate,
+  requestDetailPathWithoutCreateParams,
 } from "@/lib/request-submit";
 
 describe("photoUploadStatus", () => {
@@ -20,6 +21,27 @@ describe("requestDetailPathAfterCreate", () => {
     expect(requestDetailPathAfterCreate("request-1", "complete")).toBe(
       "/owner/requests/request-1?created=1&uploads=complete"
     );
+  });
+});
+
+describe("requestDetailPathWithoutCreateParams", () => {
+  it("removes only post-create params from the current request URL", () => {
+    expect(
+      requestDetailPathWithoutCreateParams(
+        "/owner/requests/request-1",
+        "?created=1&uploads=partial&tab=proof",
+        "#photos"
+      )
+    ).toBe("/owner/requests/request-1?tab=proof#photos");
+  });
+
+  it("returns a clean path when no other params remain", () => {
+    expect(
+      requestDetailPathWithoutCreateParams(
+        "/owner/requests/request-1",
+        "?created=1&uploads=none"
+      )
+    ).toBe("/owner/requests/request-1");
   });
 });
 
