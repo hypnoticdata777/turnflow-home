@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
+import { vaultDocuments } from "@/lib/db/schema";
+import { ownerVaultValueMetrics } from "@/lib/owner-readiness";
 import { VaultManager } from "@/components/VaultManager";
 
 export default async function VaultPage({
@@ -21,12 +24,29 @@ export default async function VaultPage({
       ? propertyId
       : ownerProperties[0]?.id;
 
-  const documents = selectedPropertyId
+  const propertyIds = ownerProperties.map((property) => property.id);
+  const allDocuments = propertyIds.length
     ? await db.query.vaultDocuments.findMany({
-        where: (v, { eq }) => eq(v.propertyId, selectedPropertyId),
+        where: inArray(vaultDocuments.propertyId, propertyIds),
         orderBy: (v, { desc }) => desc(v.createdAt),
       })
     : [];
+  const documents = selectedPropertyId
+    ? allDocuments.filter((document) => document.propertyId === selectedPropertyId)
+    : [];
+  const valueMetrics = ownerVaultValueMetrics({
+    properties: ownerProperties,
+    documents: allDocuments,
+    selectedPropertyId,
+  });
+  const metricClasses = (tone: (typeof valueMetrics)[number]["tone"]) =>
+    tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : tone === "attention"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : tone === "progress"
+          ? "border-amber-200 bg-amber-50 text-amber-950"
+          : "border-gray-200 bg-white text-gray-950";
 
   return (
     <main>
@@ -64,6 +84,27 @@ export default async function VaultPage({
               ))}
             </div>
           </div>
+
+          <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="mb-4">
+              <p className="text-sm font-semibold text-blue-700">Property history</p>
+              <h2 className="text-2xl font-bold text-gray-950">
+                What this vault protects after the work is done
+              </h2>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {valueMetrics.map((metric) => (
+                <article
+                  key={metric.label}
+                  className={`rounded-lg border p-4 ${metricClasses(metric.tone)}`}
+                >
+                  <p className="text-sm font-semibold">{metric.label}</p>
+                  <p className="mt-2 text-3xl font-bold">{metric.value}</p>
+                  <p className="mt-2 min-h-20 text-sm leading-6">{metric.detail}</p>
+                </article>
+              ))}
+            </div>
+          </section>
 
           {selectedPropertyId && (
             <VaultManager

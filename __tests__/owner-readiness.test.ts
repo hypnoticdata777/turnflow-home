@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ownerAccountReadinessItems,
+  ownerCalendarValueMetrics,
   ownerDashboardGuidance,
   ownerNextSetupStep,
   ownerReadinessFlags,
@@ -8,6 +9,7 @@ import {
   ownerSetupProgress,
   ownerSetupSummary,
   ownerSetupSteps,
+  ownerVaultValueMetrics,
   ownerValueMetrics,
   type OwnerReadinessInput,
 } from "@/lib/owner-readiness";
@@ -310,6 +312,152 @@ describe("ownerValueMetrics", () => {
       tone: "progress",
       href: "/owner/onboarding",
       cta: "Add reminder",
+    });
+  });
+});
+
+describe("ownerVaultValueMetrics", () => {
+  it("explains the value of saved property documents", () => {
+    const metrics = ownerVaultValueMetrics({
+      properties: [{ id: "property-1" }, { id: "property-2" }],
+      selectedPropertyId: "property-1",
+      documents: [
+        {
+          propertyId: "property-1",
+          requestId: "request-1",
+          category: "Receipt",
+        },
+        {
+          propertyId: "property-1",
+          category: "Warranty",
+        },
+        {
+          propertyId: "property-2",
+          category: "Manual",
+        },
+      ],
+    });
+
+    expect(metrics).toEqual([
+      {
+        label: "Saved records",
+        value: 2,
+        detail:
+          "2 documents saved for this property so warranties, invoices, manuals, and inspections stay findable.",
+        tone: "ready",
+      },
+      {
+        label: "Properties covered",
+        value: 2,
+        detail: "2 of 2 properties have at least one saved document.",
+        tone: "ready",
+      },
+      {
+        label: "Repair-linked docs",
+        value: 1,
+        detail: "1 document can be traced back to a repair request.",
+        tone: "ready",
+      },
+      {
+        label: "Categories saved",
+        value: 2,
+        detail: "Saved categories: Receipt, Warranty.",
+        tone: "progress",
+      },
+    ]);
+  });
+
+  it("keeps an empty vault focused on the first useful document", () => {
+    const metrics = ownerVaultValueMetrics({
+      properties: [{ id: "property-1" }],
+      selectedPropertyId: "property-1",
+      documents: [],
+    });
+
+    expect(metrics[0]).toMatchObject({
+      label: "Saved records",
+      value: 0,
+      tone: "empty",
+    });
+    expect(metrics[1]).toMatchObject({
+      label: "Properties covered",
+      value: 0,
+      detail: "0 of 1 properties have at least one saved document.",
+      tone: "empty",
+    });
+  });
+});
+
+describe("ownerCalendarValueMetrics", () => {
+  it("surfaces overdue, due-soon, and property coverage signals", () => {
+    const metrics = ownerCalendarValueMetrics(
+      {
+        properties: [{ id: "property-1" }, { id: "property-2" }, { id: "property-3" }],
+        reminders: [
+          {
+            propertyId: "property-1",
+            nextDueAt: "2026-01-10T12:00:00.000Z",
+            intervalDays: 30,
+          },
+          {
+            propertyId: "property-2",
+            nextDueAt: "2026-01-20T12:00:00.000Z",
+            intervalDays: 90,
+          },
+          {
+            propertyId: "property-2",
+            nextDueAt: "2026-02-20T12:00:00.000Z",
+            intervalDays: 90,
+          },
+        ],
+      },
+      new Date("2026-01-15T12:00:00.000Z")
+    );
+
+    expect(metrics).toEqual([
+      {
+        label: "Overdue care",
+        value: 1,
+        detail: "1 routine should be handled before it turns into a repair.",
+        tone: "attention",
+      },
+      {
+        label: "Due soon",
+        value: 1,
+        detail: "1 routine is due in the next 14 days.",
+        tone: "progress",
+      },
+      {
+        label: "Properties covered",
+        value: 2,
+        detail: "2 of 3 properties have at least one recurring reminder.",
+        tone: "progress",
+      },
+      {
+        label: "Recurring routines",
+        value: 3,
+        detail: "3 reminders saved across 2 cadences.",
+        tone: "ready",
+      },
+    ]);
+  });
+
+  it("guides an empty calendar toward one repeatable task", () => {
+    const metrics = ownerCalendarValueMetrics({
+      properties: [{ id: "property-1" }],
+      reminders: [],
+    });
+
+    expect(metrics[0]).toMatchObject({
+      label: "Overdue care",
+      value: 0,
+      tone: "empty",
+    });
+    expect(metrics[3]).toMatchObject({
+      label: "Recurring routines",
+      value: 0,
+      detail: "Start with one repeatable task like HVAC filters, gutters, or water heater care.",
+      tone: "empty",
     });
   });
 });

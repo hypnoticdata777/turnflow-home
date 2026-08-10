@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Owner Care Value Snapshots
+
+Scope: make the vault and maintenance calendar explain their homeowner value
+before the owner interacts with forms or lists.
+
+### Changed
+
+- Added reusable vault-value metrics for saved records, property document
+  coverage, repair-linked documents, and saved categories.
+- Added reusable calendar-value metrics for overdue care, upcoming routines,
+  property coverage, and recurring maintenance cadence.
+- Updated `/owner/vault` with a property-history snapshot above the document
+  manager.
+- Updated `/owner/calendar` with a preventive-care snapshot and tightened the
+  reminder manager heading/copy.
+- Extended owner-readiness tests for vault and calendar value states.
+- Updated the UI/UX review route checklist for the new care snapshots.
+
+### Why
+
+Homeowners should feel the payoff after a repair is complete, not just while a
+request is active. The vault and calendar now frame documents and reminders as
+maintenance history, prevention, and decision support instead of plain storage.
+
+### Validation
+
+- `npm test -- owner-readiness` passed: 23 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 136 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner browser smoke assertions for vault/calendar snapshots once seeded
+  owner auth is available locally or in preview.
+
 ## 2026-08-10 - Owner Request Card Signals
 
 Scope: make each owner dashboard request card explain the next useful action.

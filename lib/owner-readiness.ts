@@ -54,12 +54,35 @@ export type OwnerValueMetric = {
   cta: string;
 };
 
+export type OwnerCareMetric = {
+  label: string;
+  value: number;
+  detail: string;
+  tone: "attention" | "progress" | "ready" | "empty";
+};
+
 export type OwnerRequestCardSignal = {
   label: string;
   detail: string;
   tone: "attention" | "progress" | "ready";
   href: string;
   cta: string;
+};
+
+export type OwnerCareProperty = {
+  id?: string | null;
+};
+
+export type OwnerCareVaultDocument = {
+  propertyId?: string | null;
+  requestId?: string | null;
+  category?: string | null;
+};
+
+export type OwnerCareReminder = {
+  propertyId?: string | null;
+  nextDueAt?: string | Date | null;
+  intervalDays?: number | null;
 };
 
 function hasAfterPhoto(request: OwnerReadinessRequest) {
@@ -211,6 +234,161 @@ export function ownerValueMetrics(input: OwnerReadinessInput): OwnerValueMetric[
       tone: reminderCount > 0 ? "ready" : savedHistoryCount > 0 ? "progress" : "empty",
       href: reminderCount > 0 ? "/owner/calendar" : "/owner/onboarding",
       cta: reminderCount > 0 ? "Review reminders" : "Add reminder",
+    },
+  ];
+}
+
+export function ownerVaultValueMetrics({
+  properties,
+  documents,
+  selectedPropertyId,
+}: {
+  properties: OwnerCareProperty[];
+  documents: OwnerCareVaultDocument[];
+  selectedPropertyId?: string | null;
+}): OwnerCareMetric[] {
+  const selectedDocuments = selectedPropertyId
+    ? documents.filter((document) => document.propertyId === selectedPropertyId)
+    : documents;
+  const savedRecordCount = selectedDocuments.length;
+  const coveredPropertyCount = new Set(
+    documents.map((document) => document.propertyId).filter(Boolean)
+  ).size;
+  const linkedDocumentCount = selectedDocuments.filter((document) => document.requestId).length;
+  const savedCategories = Array.from(
+    new Set(selectedDocuments.map((document) => document.category).filter(Boolean))
+  ).sort();
+
+  return [
+    {
+      label: "Saved records",
+      value: savedRecordCount,
+      detail:
+        savedRecordCount > 0
+          ? `${plural(savedRecordCount, "document")} saved for this property so warranties, invoices, manuals, and inspections stay findable.`
+          : "Add the first document so future repairs start with the home's real history.",
+      tone: savedRecordCount > 0 ? "ready" : "empty",
+    },
+    {
+      label: "Properties covered",
+      value: coveredPropertyCount,
+      detail:
+        properties.length > 0
+          ? `${coveredPropertyCount} of ${properties.length} properties have at least one saved document.`
+          : "Add a property before building a homeowner document record.",
+      tone:
+        properties.length === 0
+          ? "empty"
+          : coveredPropertyCount === properties.length
+            ? "ready"
+            : coveredPropertyCount > 0
+              ? "progress"
+              : "empty",
+    },
+    {
+      label: "Repair-linked docs",
+      value: linkedDocumentCount,
+      detail:
+        linkedDocumentCount > 0
+          ? `${plural(linkedDocumentCount, "document")} can be traced back to a repair request.`
+          : savedRecordCount > 0
+            ? "Documents are saved; link future receipts or invoices to the repair they came from."
+            : "Request-linked receipts and invoices will make the vault more useful during disputes or resale.",
+      tone:
+        linkedDocumentCount > 0 ? "ready" : savedRecordCount > 0 ? "progress" : "empty",
+    },
+    {
+      label: "Categories saved",
+      value: savedCategories.length,
+      detail:
+        savedCategories.length > 0
+          ? `Saved categories: ${savedCategories.join(", ")}.`
+          : "Start with the document type a homeowner is most likely to hunt for later.",
+      tone:
+        savedCategories.length >= 3
+          ? "ready"
+          : savedCategories.length > 0
+            ? "progress"
+            : "empty",
+    },
+  ];
+}
+
+export function ownerCalendarValueMetrics(
+  {
+    properties,
+    reminders,
+  }: {
+    properties: OwnerCareProperty[];
+    reminders: OwnerCareReminder[];
+  },
+  now = new Date()
+): OwnerCareMetric[] {
+  const nowMillis = now.getTime();
+  const dueSoonLimitMillis = nowMillis + 14 * 24 * 60 * 60 * 1000;
+  const dueReminders = reminders
+    .map((reminder) => ({
+      ...reminder,
+      dueMillis: reminder.nextDueAt ? new Date(reminder.nextDueAt).getTime() : Number.NaN,
+    }))
+    .filter((reminder) => Number.isFinite(reminder.dueMillis));
+  const overdueCount = dueReminders.filter((reminder) => reminder.dueMillis < nowMillis).length;
+  const dueSoonCount = dueReminders.filter(
+    (reminder) => reminder.dueMillis >= nowMillis && reminder.dueMillis <= dueSoonLimitMillis
+  ).length;
+  const coveredPropertyCount = new Set(
+    reminders.map((reminder) => reminder.propertyId).filter(Boolean)
+  ).size;
+  const cadenceCount = new Set(reminders.map((reminder) => reminder.intervalDays).filter(Boolean))
+    .size;
+
+  return [
+    {
+      label: "Overdue care",
+      value: overdueCount,
+      detail:
+        overdueCount > 0
+          ? `${plural(overdueCount, "routine")} should be handled before it turns into a repair.`
+          : reminders.length > 0
+            ? "No recurring maintenance is overdue right now."
+            : "Add one recurring task so the calendar can watch for overdue care.",
+      tone: overdueCount > 0 ? "attention" : reminders.length > 0 ? "ready" : "empty",
+    },
+    {
+      label: "Due soon",
+      value: dueSoonCount,
+      detail:
+        dueSoonCount > 0
+          ? `${plural(dueSoonCount, "routine")} ${isAre(dueSoonCount)} due in the next 14 days.`
+          : reminders.length > 0
+            ? "No saved routine is due in the next 14 days."
+            : "Upcoming work will appear here once reminders are scheduled.",
+      tone: dueSoonCount > 0 ? "progress" : reminders.length > 0 ? "ready" : "empty",
+    },
+    {
+      label: "Properties covered",
+      value: coveredPropertyCount,
+      detail:
+        properties.length > 0
+          ? `${coveredPropertyCount} of ${properties.length} properties have at least one recurring reminder.`
+          : "Add a property before creating a maintenance calendar.",
+      tone:
+        properties.length === 0
+          ? "empty"
+          : coveredPropertyCount === properties.length
+            ? "ready"
+            : coveredPropertyCount > 0
+              ? "progress"
+              : "empty",
+    },
+    {
+      label: "Recurring routines",
+      value: reminders.length,
+      detail:
+        reminders.length > 0
+          ? `${plural(reminders.length, "reminder")} saved across ${plural(cadenceCount, "cadence")}.`
+          : "Start with one repeatable task like HVAC filters, gutters, or water heater care.",
+      tone: reminders.length > 0 ? "ready" : "empty",
     },
   ];
 }

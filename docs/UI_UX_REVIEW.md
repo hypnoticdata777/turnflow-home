@@ -60,9 +60,12 @@ Review these routes in every POC pass:
   decision log, and sharing controls feel like one repair record.
 - `/owner/account`: sharing boundaries, active access, invite history, and
   profile edits are understandable.
-- `/owner/vault`: documents feel connected to property history, not hidden
-  storage.
-- `/owner/calendar`: reminders feel useful for homeowners, not just operators.
+- `/owner/vault`: property-history snapshot, document coverage, repair-linked
+  docs, categories, upload flow, and delete states feel like a useful home
+  record rather than hidden storage.
+- `/owner/calendar`: preventive-care snapshot, overdue/due-soon signals,
+  property coverage, reminder creation, calendar export, and mark-done flow
+  feel useful for homeowners, not just operators.
 - `/vendor` and `/collaborator`: scoped access is obvious and unrelated owner
   data is absent.
 

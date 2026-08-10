@@ -137,7 +137,7 @@ export function ReminderManager({
   return (
     <div>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-bold">Maintenance calendar</h1>
+        <h2 className="text-2xl font-bold">Recurring reminders</h2>
         <button
           onClick={handleDownloadIcs}
           className="rounded bg-gray-700 px-4 py-2 text-sm text-white"
@@ -146,8 +146,8 @@ export function ReminderManager({
         </button>
       </div>
       <p className="mb-4 text-sm text-gray-500">
-        Recurring maintenance across all your properties: HVAC filters, gutter
-        cleaning, water heater flushes, and anything else on a schedule.
+        Schedule HVAC filters, gutter cleaning, water heater flushes, and any
+        other routine that should not depend on memory.
       </p>
 
       <div className="mb-6 rounded-xl bg-white p-4 shadow">
