@@ -38,6 +38,21 @@ export type RequestGuidance = {
   missingCompletionProof: string[];
 };
 
+export type RequestRecordValueInput = RequestGuidanceInput & {
+  quotes?: Array<unknown>;
+  log?: Array<unknown>;
+  comments?: Array<unknown>;
+};
+
+export type RequestRecordValueMetric = {
+  label: string;
+  value: string;
+  detail: string;
+  tone: "attention" | "progress" | "ready";
+  href: string;
+  cta: string;
+};
+
 function pluralize(count: number, singular: string, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
@@ -56,6 +71,15 @@ function completionProofAction(missingProof: string[]) {
   return { href: "#sharing", cta: "Review sharing" };
 }
 
+function helperCount(input: RequestGuidanceInput) {
+  return [
+    input.assignedVendorId,
+    input.collaboratorId,
+    input.pendingVendorInviteId,
+    input.pendingCollaboratorInviteId,
+  ].filter(Boolean).length;
+}
+
 export function missingCompletionProof(input: RequestGuidanceInput): string[] {
   const missing = [];
   if (!input.finalCost) missing.push("final cost");
@@ -65,12 +89,7 @@ export function missingCompletionProof(input: RequestGuidanceInput): string[] {
 }
 
 export function requestReadinessItems(input: RequestGuidanceInput): RequestReadinessItem[] {
-  const helperCount = [
-    input.assignedVendorId,
-    input.collaboratorId,
-    input.pendingVendorInviteId,
-    input.pendingCollaboratorInviteId,
-  ].filter(Boolean).length;
+  const helpers = helperCount(input);
   const costLabel = costLabelForRequest(input);
   const currentCost = costForRequest(input);
 
@@ -94,10 +113,10 @@ export function requestReadinessItems(input: RequestGuidanceInput): RequestReadi
     {
       label: "Shared help",
       detail:
-        helperCount > 0
-          ? `${pluralize(helperCount, "assigned or invited person", "assigned or invited people")}`
+        helpers > 0
+          ? `${pluralize(helpers, "assigned or invited person", "assigned or invited people")}`
           : "Only the owner can see this request",
-      complete: helperCount > 0,
+      complete: helpers > 0,
     },
     {
       label: "Completion proof",
@@ -105,6 +124,72 @@ export function requestReadinessItems(input: RequestGuidanceInput): RequestReadi
         ? "Final cost, after photo, and assigned vendor are on record"
         : `Missing ${missingCompletionProof(input).join(", ")}`,
       complete: meetsCompletionRequirements(input, input.photos),
+    },
+  ];
+}
+
+export function requestRecordValueMetrics(
+  input: RequestRecordValueInput
+): RequestRecordValueMetric[] {
+  const missingProof = missingCompletionProof(input);
+  const proofReady = meetsCompletionRequirements(input, input.photos);
+  const costLabel = costLabelForRequest(input);
+  const currentCost = costForRequest(input);
+  const helpers = helperCount(input);
+  const commentCount = input.comments?.length ?? 0;
+  const quoteCount = input.quotes?.length ?? 0;
+  const logCount = input.log?.length ?? 0;
+
+  return [
+    {
+      label: "Proof packet",
+      value: String(input.photos.length),
+      detail: proofReady
+        ? "Final cost, after photo, and assigned vendor are ready for a clean export."
+        : input.photos.length > 0
+          ? `${pluralize(input.photos.length, "proof item")} saved. Missing ${missingProof.join(", ")}.`
+          : "No photos or receipts are saved yet for this repair.",
+      tone: proofReady ? "ready" : input.photos.length > 0 ? "progress" : "attention",
+      href: "#photos",
+      cta: proofReady ? "Review proof" : "Add proof",
+    },
+    {
+      label: "Cost clarity",
+      value: costLabel === "No cost recorded" ? "$0.00" : `$${currentCost.toFixed(2)}`,
+      detail:
+        costLabel === "No cost recorded"
+          ? "No estimate, quote, or final cost has been recorded yet."
+          : `${costLabel} cost is recorded${quoteCount > 0 ? ` with ${pluralize(quoteCount, "quote")} in the workspace` : ""}.`,
+      tone:
+        costLabel === "Final"
+          ? "ready"
+          : costLabel === "No cost recorded"
+            ? "attention"
+            : "progress",
+      href: costLabel === "No cost recorded" ? "#cost" : "#quotes",
+      cta: costLabel === "No cost recorded" ? "Add cost" : "Review cost",
+    },
+    {
+      label: "Shared coordination",
+      value: String(helpers),
+      detail:
+        helpers > 0
+          ? `${pluralize(helpers, "helper")} scoped to this request and ${pluralize(commentCount, "update")} in the thread.`
+          : "No vendor or trusted helper has scoped access to this repair yet.",
+      tone: helpers > 0 && commentCount > 0 ? "ready" : helpers > 0 ? "progress" : "attention",
+      href: helpers > 0 ? "#comments" : "#sharing",
+      cta: helpers > 0 ? "Review updates" : "Invite help",
+    },
+    {
+      label: "Decision history",
+      value: String(logCount),
+      detail:
+        logCount > 0
+          ? `${pluralize(logCount, "decision")} recorded for status, quotes, access, or completion.`
+          : "Decisions will appear here as quotes, status changes, and access changes happen.",
+      tone: logCount > 0 ? "ready" : "progress",
+      href: "#decision-log",
+      cta: "Review history",
     },
   ];
 }

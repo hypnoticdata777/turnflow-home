@@ -23,7 +23,11 @@ import { InviteSection } from "@/components/InviteSection";
 import { CommentThread, type CommentData } from "@/components/CommentThread";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { RequestCreatedNoticeBanner } from "@/components/RequestCreatedNoticeBanner";
-import { missingCompletionProof, requestGuidance } from "@/lib/request-guidance";
+import {
+  missingCompletionProof,
+  requestGuidance,
+  requestRecordValueMetrics,
+} from "@/lib/request-guidance";
 import type { RequestCreatedNotice } from "@/lib/request-submit";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
@@ -160,6 +164,13 @@ export function RequestDetailView({
       : property.address
     : "Property not found";
   const guidance = requestGuidance({ ...request, photos });
+  const recordValueMetrics = requestRecordValueMetrics({
+    ...request,
+    photos,
+    quotes,
+    log,
+    comments,
+  });
   const guidanceClasses =
     guidance.tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -171,7 +182,19 @@ export function RequestDetailView({
       ? "bg-emerald-800"
       : guidance.tone === "attention"
         ? "bg-blue-800"
-        : "bg-amber-800";
+      : "bg-amber-800";
+  const recordValueClasses = (tone: (typeof recordValueMetrics)[number]["tone"]) =>
+    tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : tone === "attention"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : "border-amber-200 bg-amber-50 text-amber-950";
+  const recordValueButtonClasses = (tone: (typeof recordValueMetrics)[number]["tone"]) =>
+    tone === "ready"
+      ? "bg-emerald-800 hover:bg-emerald-900"
+      : tone === "attention"
+        ? "bg-blue-800 hover:bg-blue-900"
+        : "bg-amber-800 hover:bg-amber-900";
   const missingProof = missingCompletionProof({ ...request, photos });
 
   async function applyStatusChange(newStatus: string, waiverReason?: string) {
@@ -326,6 +349,48 @@ export function RequestDetailView({
           </div>
         </section>
 
+        <section className="mt-5 rounded-lg border border-gray-200 bg-white p-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-blue-700">Record value</p>
+              <h2 className="text-xl font-semibold text-gray-950">
+                What this repair record gives you
+              </h2>
+            </div>
+            <button
+              onClick={handleDownloadPdf}
+              className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Export proof packet
+            </button>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {recordValueMetrics.map((metric) => (
+              <article
+                key={metric.label}
+                className={`rounded-lg border p-3 ${recordValueClasses(metric.tone)}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{metric.label}</p>
+                    <p className="mt-1 text-2xl font-bold">{metric.value}</p>
+                  </div>
+                  <a
+                    href={metric.href}
+                    className={`inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white ${recordValueButtonClasses(
+                      metric.tone
+                    )}`}
+                  >
+                    {metric.cta}
+                  </a>
+                </div>
+                <p className="mt-2 text-sm leading-6">{metric.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="block text-sm">
             <span className="font-semibold">Status</span>
@@ -342,12 +407,6 @@ export function RequestDetailView({
               ))}
             </select>
           </label>
-          <button
-            onClick={handleDownloadPdf}
-            className="rounded bg-gray-700 px-4 py-2 text-sm text-white"
-          >
-            Download proof packet (PDF)
-          </button>
         </div>
         {statusError && <p className="mt-2 text-sm font-medium text-red-700">{statusError}</p>}
       </section>

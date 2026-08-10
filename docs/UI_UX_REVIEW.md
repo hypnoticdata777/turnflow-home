@@ -56,8 +56,8 @@ Review these routes in every POC pass:
   next action are scannable.
 - `/owner/requests/new`: intake length, safety checklist, access notes, and
   contact preference feel worth the effort.
-- `/owner/requests/[id]`: proof, quote, comments, decision log, and sharing
-  controls feel like one repair record.
+- `/owner/requests/[id]`: record-value snapshot, proof, quote, comments,
+  decision log, and sharing controls feel like one repair record.
 - `/owner/account`: sharing boundaries, active access, invite history, and
   profile edits are understandable.
 - `/owner/vault`: documents feel connected to property history, not hidden

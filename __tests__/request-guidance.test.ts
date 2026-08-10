@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   missingCompletionProof,
   requestGuidance,
+  requestRecordValueMetrics,
   requestReadinessItems,
   type RequestGuidanceInput,
 } from "@/lib/request-guidance";
@@ -171,6 +172,119 @@ describe("requestGuidance", () => {
       primaryCta: "Review sharing",
       missingCompletionProof: ["assigned vendor"],
     });
+  });
+});
+
+describe("requestRecordValueMetrics", () => {
+  it("explains the value missing from an empty repair record", () => {
+    expect(requestRecordValueMetrics(baseRequest)).toEqual([
+      {
+        label: "Proof packet",
+        value: "0",
+        detail: "No photos or receipts are saved yet for this repair.",
+        tone: "attention",
+        href: "#photos",
+        cta: "Add proof",
+      },
+      {
+        label: "Cost clarity",
+        value: "$0.00",
+        detail: "No estimate, quote, or final cost has been recorded yet.",
+        tone: "attention",
+        href: "#cost",
+        cta: "Add cost",
+      },
+      {
+        label: "Shared coordination",
+        value: "0",
+        detail: "No vendor or trusted helper has scoped access to this repair yet.",
+        tone: "attention",
+        href: "#sharing",
+        cta: "Invite help",
+      },
+      {
+        label: "Decision history",
+        value: "0",
+        detail: "Decisions will appear here as quotes, status changes, and access changes happen.",
+        tone: "progress",
+        href: "#decision-log",
+        cta: "Review history",
+      },
+    ]);
+  });
+
+  it("shows partial value when proof, quote, and shared access exist", () => {
+    const metrics = requestRecordValueMetrics({
+      ...baseRequest,
+      estimatedCost: "125",
+      assignedVendorId: "vendor-1",
+      photos: [{ type: "before" }],
+      quotes: [{}],
+      comments: [],
+    });
+
+    expect(metrics.slice(0, 3)).toMatchObject([
+      {
+        label: "Proof packet",
+        value: "1",
+        detail: "1 proof item saved. Missing final cost, after photo.",
+        tone: "progress",
+      },
+      {
+        label: "Cost clarity",
+        value: "$125.00",
+        detail: "Estimated cost is recorded with 1 quote in the workspace.",
+        tone: "progress",
+        href: "#quotes",
+      },
+      {
+        label: "Shared coordination",
+        value: "1",
+        detail: "1 helper scoped to this request and 0 updates in the thread.",
+        tone: "progress",
+      },
+    ]);
+  });
+
+  it("marks a mature repair record as homeowner-ready", () => {
+    const metrics = requestRecordValueMetrics({
+      ...baseRequest,
+      status: "Needs Review",
+      finalCost: "250",
+      assignedVendorId: "vendor-1",
+      collaboratorId: "helper-1",
+      photos: [{ type: "before" }, { type: "after" }, { type: "receipt" }],
+      quotes: [{}, {}],
+      comments: [{}],
+      log: [{}, {}],
+    });
+
+    expect(metrics).toMatchObject([
+      {
+        label: "Proof packet",
+        value: "3",
+        tone: "ready",
+        cta: "Review proof",
+      },
+      {
+        label: "Cost clarity",
+        value: "$250.00",
+        detail: "Final cost is recorded with 2 quotes in the workspace.",
+        tone: "ready",
+      },
+      {
+        label: "Shared coordination",
+        value: "2",
+        detail: "2 helpers scoped to this request and 1 update in the thread.",
+        tone: "ready",
+      },
+      {
+        label: "Decision history",
+        value: "2",
+        detail: "2 decisions recorded for status, quotes, access, or completion.",
+        tone: "ready",
+      },
+    ]);
   });
 });
 

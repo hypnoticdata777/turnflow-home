@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Request Record Value Snapshot
+
+Scope: make an individual repair record explain the value it gives a
+homeowner.
+
+### Changed
+
+- Added reusable request record-value metrics for proof packet, cost clarity,
+  shared coordination, and decision history.
+- Added a record-value snapshot to the owner request detail page.
+- Moved proof-packet export into the value snapshot and removed the duplicate
+  status-row export button.
+- Extended request-guidance tests for empty, partial, and mature repair record
+  value states.
+- Updated the UI/UX review route checklist to include the request record-value
+  snapshot.
+
+### Why
+
+The request detail page is where a homeowner should feel the product payoff:
+proof saved, costs understood, helpers coordinated, and decisions preserved.
+That value should be visible before the owner digs through individual sections.
+
+### Validation
+
+- `npm test -- request-guidance` passed: 13 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 126 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner browser smoke assertions for the request record-value snapshot once
+  seeded owner auth is available locally or in preview.
+
 ## 2026-08-10 - Homeowner Value Snapshot
 
 Scope: make the owner dashboard explain the day-to-day value homeowners get
