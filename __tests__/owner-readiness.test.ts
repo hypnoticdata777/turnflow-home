@@ -7,6 +7,7 @@ import {
   ownerSetupProgress,
   ownerSetupSummary,
   ownerSetupSteps,
+  ownerValueMetrics,
   type OwnerReadinessInput,
 } from "@/lib/owner-readiness";
 
@@ -197,6 +198,117 @@ describe("ownerDashboardGuidance", () => {
       secondaryHref: "/owner/account",
       secondaryCta: "Review sharing",
       tone: "ready",
+    });
+  });
+});
+
+describe("ownerValueMetrics", () => {
+  it("shows a new homeowner the practical value still to build", () => {
+    expect(ownerValueMetrics(emptyInput)).toEqual([
+      {
+        label: "Decisions to make",
+        value: 0,
+        detail: "No request is waiting on a quote or review right now.",
+        tone: "ready",
+        href: "/owner/dashboard",
+        cta: "View requests",
+      },
+      {
+        label: "Proof-backed records",
+        value: 0,
+        detail: "Create a request and add proof so the home has a record before work starts.",
+        tone: "empty",
+        href: "/owner/requests/new",
+        cta: "Add proof",
+      },
+      {
+        label: "Shared help",
+        value: 0,
+        detail: "Invite a vendor or trusted helper only when a repair needs outside help.",
+        tone: "empty",
+        href: "/owner/requests/new",
+        cta: "Invite help",
+      },
+      {
+        label: "Preventive care",
+        value: 0,
+        detail: "Add reminders and saved documents so the record helps after the repair is done.",
+        tone: "empty",
+        href: "/owner/onboarding",
+        cta: "Add reminder",
+      },
+    ]);
+  });
+
+  it("surfaces open owner decisions and proof value", () => {
+    const metrics = ownerValueMetrics({
+      properties: [{}],
+      requests: [
+        {
+          id: "request-1",
+          status: "Needs Review",
+          finalCost: "250",
+          photos: [{ type: "before" }, { type: "after" }],
+          assignedVendorId: "vendor-1",
+        },
+        {
+          id: "request-2",
+          status: "Needs Quote",
+          photos: [{ type: "before" }],
+          pendingCollaboratorInviteId: "invite-1",
+        },
+      ],
+      invites: [{}],
+      vaultDocuments: [{}],
+      reminders: [{}],
+    });
+
+    expect(metrics).toMatchObject([
+      {
+        label: "Decisions to make",
+        value: 2,
+        detail: "1 request needs review, 1 request needs quotes, and 1 invite is pending.",
+        tone: "attention",
+        href: "/owner/dashboard?status=Needs%20Review",
+        cta: "Review decisions",
+      },
+      {
+        label: "Proof-backed records",
+        value: 1,
+        detail:
+          "1 of 2 requests have final cost and after photo proof. 2 have at least one proof item.",
+        tone: "ready",
+        href: "/owner/requests/request-1#photos",
+      },
+      {
+        label: "Shared help",
+        value: 2,
+        tone: "ready",
+        href: "/owner/requests/request-1#sharing",
+      },
+      {
+        label: "Preventive care",
+        value: 1,
+        tone: "ready",
+        href: "/owner/calendar",
+      },
+    ]);
+  });
+
+  it("treats saved documents without reminders as progress, not complete value", () => {
+    const metrics = ownerValueMetrics({
+      ...emptyInput,
+      requests: [{ id: "request-1", status: "In Progress" }],
+      vaultDocuments: [{ id: "doc-1" }],
+    });
+
+    expect(metrics[3]).toMatchObject({
+      label: "Preventive care",
+      value: 0,
+      detail: "1 document is saved, but no recurring reminders are scheduled yet.",
+      tone: "progress",
+      href: "/owner/onboarding",
+      cta: "Add reminder",
     });
   });
 });

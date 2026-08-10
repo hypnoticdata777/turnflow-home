@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Homeowner Value Snapshot
+
+Scope: make the owner dashboard explain the day-to-day value homeowners get
+from TurnFlow Home.
+
+### Changed
+
+- Added reusable `ownerValueMetrics` to summarize owner decisions, proof-backed
+  records, shared helper access, and preventive care.
+- Added a homeowner-value snapshot to `/owner/dashboard` with metric-specific
+  next actions.
+- Extended owner-readiness tests for empty, active-decision, proof, sharing, and
+  preventive-care value states.
+- Updated the UI/UX review route checklist to include the dashboard value
+  snapshot.
+
+### Why
+
+Homeowners need to see the payoff quickly: fewer loose decisions, stronger
+repair proof, safer helper sharing, and maintenance records that remain useful
+after the job. The dashboard should make that value visible without requiring a
+tour.
+
+### Validation
+
+- `npm test -- owner-readiness` passed: 13 tests.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 123 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Once seeded owner smoke can run locally or against preview, add browser
+  assertions for the homeowner-value snapshot.
+
 ## 2026-08-10 - POC Readiness Preflight
 
 Scope: make launch/auth/browser-smoke readiness easier to diagnose before

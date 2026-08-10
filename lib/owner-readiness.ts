@@ -1,5 +1,7 @@
 export type OwnerReadinessRequest = {
   id?: string;
+  status?: string;
+  finalCost?: string | number | null;
   photos?: Array<unknown>;
   assignedVendorId?: string | null;
   collaboratorId?: string | null;
@@ -43,6 +45,44 @@ export type OwnerDashboardGuidance = OwnerSetupSummary & {
   secondaryCta: string;
 };
 
+export type OwnerValueMetric = {
+  label: string;
+  value: number;
+  detail: string;
+  tone: "attention" | "progress" | "ready" | "empty";
+  href: string;
+  cta: string;
+};
+
+function hasAfterPhoto(request: OwnerReadinessRequest) {
+  return (request.photos ?? []).some((photo) => {
+    if (typeof photo !== "object" || photo === null) return false;
+    return "type" in photo && photo.type === "after";
+  });
+}
+
+function hasFinalCost(request: OwnerReadinessRequest) {
+  return request.finalCost !== undefined && request.finalCost !== null && request.finalCost !== "";
+}
+
+function plural(count: number, singular: string, pluralLabel = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : pluralLabel}`;
+}
+
+function isAre(count: number) {
+  return count === 1 ? "is" : "are";
+}
+
+function needNeeds(count: number) {
+  return count === 1 ? "needs" : "need";
+}
+
+function joinSentenceParts(parts: string[]) {
+  if (parts.length <= 1) return parts[0] ?? "";
+  if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
+  return `${parts.slice(0, -1).join(", ")}, and ${parts.at(-1)}`;
+}
+
 export function ownerReadinessFlags(input: OwnerReadinessInput) {
   return {
     hasProperty: input.properties.length > 0,
@@ -61,6 +101,101 @@ export function ownerReadinessFlags(input: OwnerReadinessInput) {
         request.pendingCollaboratorInviteId
     ).length,
   };
+}
+
+export function ownerValueMetrics(input: OwnerReadinessInput): OwnerValueMetric[] {
+  const needsReviewCount = input.requests.filter(
+    (request) => request.status === "Needs Review"
+  ).length;
+  const needsQuoteCount = input.requests.filter(
+    (request) => request.status === "Needs Quote"
+  ).length;
+  const decisionCount = needsReviewCount + needsQuoteCount;
+  const pendingInviteCount = input.invites.length;
+  const proofProtectedCount = input.requests.filter(
+    (request) => hasAfterPhoto(request) && hasFinalCost(request)
+  ).length;
+  const evidenceCount = input.requests.filter(
+    (request) => (request.photos ?? []).length > 0
+  ).length;
+  const sharedRequestCount = ownerReadinessFlags(input).sharedRequestCount;
+  const savedHistoryCount = input.vaultDocuments.length;
+  const reminderCount = input.reminders.length;
+  const requestCount = input.requests.length;
+  const decisionParts = [
+    needsReviewCount > 0
+      ? `${plural(needsReviewCount, "request")} ${needNeeds(needsReviewCount)} review`
+      : null,
+    needsQuoteCount > 0
+      ? `${plural(needsQuoteCount, "request")} ${needNeeds(needsQuoteCount)} quotes`
+      : null,
+    pendingInviteCount > 0
+      ? `${plural(pendingInviteCount, "invite")} ${isAre(pendingInviteCount)} pending`
+      : null,
+  ].filter((part): part is string => Boolean(part));
+
+  return [
+    {
+      label: "Decisions to make",
+      value: decisionCount,
+      detail:
+        decisionCount > 0
+          ? `${joinSentenceParts(decisionParts)}.`
+        : pendingInviteCount > 0
+            ? `${plural(pendingInviteCount, "invite")} ${isAre(pendingInviteCount)} pending, but no request is waiting on a quote or review.`
+            : "No request is waiting on a quote or review right now.",
+      tone: decisionCount > 0 ? "attention" : pendingInviteCount > 0 ? "progress" : "ready",
+      href:
+        needsReviewCount > 0
+          ? "/owner/dashboard?status=Needs%20Review"
+          : needsQuoteCount > 0
+            ? "/owner/dashboard?status=Needs%20Quote"
+            : "/owner/dashboard",
+      cta: decisionCount > 0 ? "Review decisions" : "View requests",
+    },
+    {
+      label: "Proof-backed records",
+      value: proofProtectedCount,
+      detail:
+        requestCount > 0
+          ? `${proofProtectedCount} of ${requestCount} requests have final cost and after photo proof. ${evidenceCount} have at least one proof item.`
+          : "Create a request and add proof so the home has a record before work starts.",
+      tone:
+        proofProtectedCount > 0
+          ? "ready"
+          : evidenceCount > 0
+            ? "progress"
+            : requestCount > 0
+              ? "attention"
+              : "empty",
+      href: input.requests[0]?.id ? `/owner/requests/${input.requests[0].id}#photos` : "/owner/requests/new",
+      cta: proofProtectedCount > 0 ? "Review proof" : "Add proof",
+    },
+    {
+      label: "Shared help",
+      value: sharedRequestCount,
+      detail:
+        sharedRequestCount > 0
+          ? `${plural(sharedRequestCount, "request")} ${sharedRequestCount === 1 ? "includes" : "include"} scoped vendor or helper access.`
+          : "Invite a vendor or trusted helper only when a repair needs outside help.",
+      tone: sharedRequestCount > 0 ? "ready" : requestCount > 0 ? "progress" : "empty",
+      href: input.requests[0]?.id ? `/owner/requests/${input.requests[0].id}#sharing` : "/owner/requests/new",
+      cta: sharedRequestCount > 0 ? "Review access" : "Invite help",
+    },
+    {
+      label: "Preventive care",
+      value: reminderCount,
+      detail:
+        reminderCount > 0
+          ? `${plural(reminderCount, "reminder")} ${isAre(reminderCount)} keeping repeat maintenance from being forgotten. ${plural(savedHistoryCount, "document")} ${isAre(savedHistoryCount)} saved in the vault.`
+          : savedHistoryCount > 0
+            ? `${plural(savedHistoryCount, "document")} ${isAre(savedHistoryCount)} saved, but no recurring reminders are scheduled yet.`
+            : "Add reminders and saved documents so the record helps after the repair is done.",
+      tone: reminderCount > 0 ? "ready" : savedHistoryCount > 0 ? "progress" : "empty",
+      href: reminderCount > 0 ? "/owner/calendar" : "/owner/onboarding",
+      cta: reminderCount > 0 ? "Review reminders" : "Add reminder",
+    },
+  ];
 }
 
 export function ownerSetupSteps(

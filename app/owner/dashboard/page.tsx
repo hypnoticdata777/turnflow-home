@@ -7,6 +7,7 @@ import {
   ownerDashboardGuidance,
   ownerSetupProgress,
   ownerSetupSteps,
+  ownerValueMetrics,
 } from "@/lib/owner-readiness";
 import {
   REQUEST_STATUSES,
@@ -78,6 +79,13 @@ export default async function OwnerDashboardPage({
   );
   const guidance = ownerDashboardGuidance(steps);
   const { completedCount, totalCount: setupStepCount, progress } = ownerSetupProgress(steps);
+  const valueMetrics = ownerValueMetrics({
+    properties: ownerProperties,
+    requests: allOwnerRequests,
+    invites: ownerInvites,
+    vaultDocuments: ownerVaultDocs,
+    reminders: ownerReminders,
+  });
   const guidanceClasses =
     guidance.tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -97,6 +105,22 @@ export default async function OwnerDashboardPage({
         ? "border-blue-600 bg-blue-600 text-white"
         : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
     }`;
+  const valueMetricClasses = (tone: (typeof valueMetrics)[number]["tone"]) =>
+    tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : tone === "attention"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : tone === "progress"
+          ? "border-amber-200 bg-amber-50 text-amber-950"
+          : "border-gray-200 bg-white text-gray-950";
+  const valueMetricButtonClasses = (tone: (typeof valueMetrics)[number]["tone"]) =>
+    tone === "ready"
+      ? "bg-emerald-800 hover:bg-emerald-900"
+      : tone === "attention"
+        ? "bg-blue-800 hover:bg-blue-900"
+        : tone === "progress"
+          ? "bg-amber-800 hover:bg-amber-900"
+          : "bg-gray-800 hover:bg-gray-900";
 
   return (
     <main>
@@ -126,6 +150,44 @@ export default async function OwnerDashboardPage({
               {guidance.secondaryCta}
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-blue-700">Homeowner value</p>
+            <h2 className="text-2xl font-bold text-gray-950">
+              What TurnFlow is protecting for this home
+            </h2>
+          </div>
+          <Link
+            href="/owner/onboarding"
+            className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Open setup guide
+          </Link>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {valueMetrics.map((metric) => (
+            <article
+              key={metric.label}
+              className={`rounded-lg border p-4 ${valueMetricClasses(metric.tone)}`}
+            >
+              <p className="text-sm font-semibold">{metric.label}</p>
+              <p className="mt-2 text-3xl font-bold">{metric.value}</p>
+              <p className="mt-2 min-h-20 text-sm leading-6">{metric.detail}</p>
+              <Link
+                href={metric.href}
+                className={`mt-4 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white ${valueMetricButtonClasses(
+                  metric.tone
+                )}`}
+              >
+                {metric.cta}
+              </Link>
+            </article>
+          ))}
         </div>
       </section>
 

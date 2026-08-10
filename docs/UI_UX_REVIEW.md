@@ -52,7 +52,8 @@ Review these routes in every POC pass:
 - `/signup`: owner-focused positioning, clear password expectations, no vendor
   or PMC confusion.
 - `/owner/onboarding`: setup guide feels useful, not like extra admin work.
-- `/owner/dashboard`: status filters, counts, and next action are scannable.
+- `/owner/dashboard`: homeowner-value snapshot, status filters, counts, and
+  next action are scannable.
 - `/owner/requests/new`: intake length, safety checklist, access notes, and
   contact preference feel worth the effort.
 - `/owner/requests/[id]`: proof, quote, comments, decision log, and sharing
