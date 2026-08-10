@@ -1,207 +1,224 @@
 # TurnFlow Home
 
-A maintenance-request tracker for property owners, vendors, and household
-collaborators — built to replace the "text a photo and hope someone
-remembers" workflow with a single shared source of truth for every repair,
-quote, and receipt.
+A homeowner-first maintenance workspace for people who want to manage repair
+records, proof, costs, documents, reminders, and scoped help without handing the
+whole process to a property management company.
 
-Owners log an issue in under a minute (with a category-specific safety
-checklist), invite a vendor by email, track status from submission through
-completion, and keep a running record of cost and decisions per property.
-Vendors get a scoped portal showing only the jobs assigned to them.
+TurnFlow Home replaces the "text a photo and hope someone remembers" workflow
+with one shared record for each property. Homeowners can log an issue, attach
+photos or receipts, compare cost context, invite a vendor or trusted helper,
+track decisions, preserve property history, and schedule recurring care.
+Vendors and collaborators get scoped portals that show only the requests shared
+with them.
 
-> **Status:** feature-complete port of the original v1.2 MVP onto the new
-> stack, tested against a real Postgres database throughout — every
-> package from the Firebase build (guided intake, vendor invites, quotes,
-> decision log with completion gating, property vault, PDF/CSV export,
-> maintenance calendar, email notifications, collaborator sharing) has a
-> working equivalent here.
+> **Status:** launch-oriented SaaS POC candidate. The original Firebase MVP has
+> been rebuilt on a real backend with Next.js, Postgres/Neon, Drizzle, Auth.js,
+> and Vercel Blob. Core homeowner, vendor, and collaborator workflows are in
+> place, automated verification passes, and the owner UI now includes
+> readiness/value guidance across setup, dashboard, request detail, properties,
+> vault, calendar, and account sharing. A real hosted POC still needs production
+> environment configuration, seeded demo data, refreshed screenshots, and manual
+> user testing before inviting external users.
+
+## Product Direction
+
+TurnFlow Home is intentionally homeowner-focused. It is not trying to be a full
+PMC operations platform with dispatch, technician routing, payroll, or internal
+company reporting. The value is calmer ownership:
+
+- Know what needs attention at each property.
+- Keep proof, costs, quotes, decisions, receipts, warranties, and reminders in
+  one home record.
+- Share only the right request with a vendor or trusted helper.
+- Keep exportable maintenance history after the work is done.
+- Catch recurring maintenance before it becomes a bigger repair.
 
 ## Screenshots
 
+These screenshots show the current route coverage pattern. Refresh them before
+using the repo for a public case study or hosted POC, because the owner UI has
+recently gained more value snapshots and care signals.
+
 | | |
 |---|---|
-| **Sign in** | **Owner dashboard — status filtering** |
+| **Sign in** | **Owner dashboard - status filtering** |
 | ![Login](screenshots/01-login.png) | ![Dashboard](screenshots/02-dashboard.png) |
-| **Guided intake with safety checklist** | **Request detail — quotes, cost, decision log** |
+| **Guided intake with safety checklist** | **Request detail - quotes, cost, decision log** |
 | ![New request](screenshots/03-new-request-checklist.png) | ![Request detail](screenshots/04-request-detail.png) |
 | **Properties** | **Property document vault** |
 | ![Properties](screenshots/05-properties.png) | ![Vault](screenshots/06-vault.png) |
 | **Maintenance calendar** | **Vendor portal** |
 | ![Calendar](screenshots/07-calendar.png) | ![Vendor portal](screenshots/08-vendor-portal.png) |
 
-## Why it was rebuilt
-
-The original MVP (v1.2) was a static, vanilla-JS site backed entirely by
-Firebase — Firestore, Firebase Auth, and Firestore security rules as the
-*only* authorization layer, with no server of its own. It shipped every
-planned feature but was never run against live infrastructure.
-
-This version drops Firebase for a stack with a real backend and moves
-every authorization rule that used to live in `firestore.rules` into
-server-side code that re-checks session, role, and ownership on every
-write:
-
-| Layer | Then | Now |
-|---|---|---|
-| Framework | Static HTML + vanilla JS | Next.js (App Router, TypeScript) |
-| Database | Firestore | Neon (serverless Postgres) + Drizzle ORM |
-| File storage | Firebase Storage | Vercel Blob (direct-from-browser upload, server-authorized) |
-| Auth | Firebase Auth | Auth.js (NextAuth v5), credentials + JWT sessions |
-| Authorization | Firestore security rules | Server Actions, re-validated per request |
-| Hosting | Firebase Hosting | Vercel |
-
-## Tech stack
-
-- **Next.js 16** (App Router, TypeScript, Server Actions)
-- **Neon** (serverless Postgres) via **Drizzle ORM**
-- **Vercel Blob** for photo/document storage
-- **Auth.js (NextAuth v5)** — credentials provider, JWT sessions
-- **Tailwind CSS v4**
-- **Vitest** for unit tests
-
-## Getting started
-
-```bash
-npm install
-npm run db:migrate            # apply committed Drizzle migrations to your Postgres database
-npm run db:seed               # create sample owner/vendor/collaborator accounts and test data
-npm run db:seed:demo          # optional — richer demo data (quotes, vault doc, reminder)
-npm run dev
-```
-
-Before deploying or asking for a POC test pass, run:
-
-```bash
-npm run verify
-```
-
-That gate runs lint, typecheck, tests, production audit, Drizzle schema drift
-checks, and a production build. Pair it with `docs/QA_CHECKLIST.md` for manual
-owner/vendor/collaborator smoke testing.
-
-Hosted environments expose `/api/health` for public uptime checks. A protected
-`/api/health/deep` endpoint also checks database connectivity when called with
-`Authorization: Bearer $HEALTHCHECK_SECRET`.
-
-Global browser security headers are configured in `next.config.ts`, with the
-shared header policy defined in `lib/security-headers.ts`.
-
-Environment variables (`.env.local`, see `.env.local.example`):
-
-```
-DATABASE_URL=                  # Neon pooled connection string
-BLOB_READ_WRITE_TOKEN=         # Vercel Blob read/write token
-AUTH_SECRET=                   # random string, e.g. `openssl rand -base64 32`
-APP_URL=http://localhost:3000
-RESEND_API_KEY=                # optional — leave blank to log-only, no email sent
-NOTIFICATIONS_FROM_EMAIL=notifications@example.com
-CRON_SECRET=                   # optional — protects /api/cron/reminder-digest in production
-```
-
-Run the test suite:
-
-```bash
-npm test
-```
-
-Run the public-entry UI smoke check against a running dev or preview server:
-
-```bash
-npm run ux:public
-```
-
-That browser pass checks `/login` and `/signup` at desktop and mobile widths,
-verifies accessible field labels and primary actions, checks for horizontal
-overflow or visible encoding artifacts, and saves screenshots under
-`screenshots/ux-public/`.
-
-Run the signed-in owner UI smoke check after configuring `AUTH_SECRET` and
-`DATABASE_URL`, then seeding demo accounts:
-
-```bash
-npm run db:seed
-npm run ux:owner
-```
-
-That pass signs in as `owner@test.com` by default, checks the core owner routes,
-verifies active navigation, catches visible encoding artifacts and horizontal
-overflow, and saves screenshots under `screenshots/ux-owner/`.
-
-Run the helper UI smoke check after configuring `AUTH_SECRET` and
-`DATABASE_URL`, then seeding demo accounts:
-
-```bash
-npm run db:seed
-npm run ux:helper
-```
-
-That pass signs in as `vendor@test.com` and `collaborator@test.com` by default,
-checks the scoped helper workspaces, catches visible encoding artifacts and
-horizontal overflow, and saves screenshots under `screenshots/ux-helper/`.
-
-Deployment and build notes:
-
-- [Deployment runbook](docs/DEPLOYMENT.md)
-- [Build log](docs/BUILD_LOG.md)
-- [Homeowner user testing protocol](docs/USER_TESTING.md)
-- [QA checklist](docs/QA_CHECKLIST.md)
-- [UI/UX review process](docs/UI_UX_REVIEW.md)
-- [UI/UX findings register](docs/UI_UX_FINDINGS.md)
-
-Regenerate the screenshots above (requires the dev server running and
-seeded data):
+Regenerate screenshots after starting the dev server and seeding demo data:
 
 ```bash
 npx tsx scripts/screenshot.ts
 ```
 
-## Core features
+## Why It Was Rebuilt
 
-- Email/password auth with three roles — owner, vendor, collaborator —
-  each routed to its own portal; owners can create accounts from `/signup`
-- Property management (add/remove, multiple properties per owner)
-- Homeowner setup guide that tracks the first-run path across property,
-  request, evidence, helper sharing, repair history, and reminders
-- Owner Account & Sharing Center with editable profile context, invite activity,
-  launch-readiness signals, and request-scoped sharing boundaries
-- Shared owner-readiness rules covered by tests so setup and account surfaces
-  stay aligned as the product matures
-- Guided request intake: category + urgency-driven safety checklist,
-  location, access instructions, preferred contact method, inline
-  before/after/receipt/other photo upload, and an inline "add your first
-  property" mini-form so a new owner is never blocked
-- Owner dashboard with per-status filter chips and live counts
-- Vendor and household-collaborator invite-by-email flow with expiring,
-  single-use invite links; vendor and collaborator portals each scoped to
-  only their own shared requests, with copyable invite links on creation and
-  pending invite resend/cancel controls plus accepted-access removal from
-  Account & Sharing
-- Owner-only quote workspace: competing vendor quotes with optional
-  attachment, approve/decline, and one-click copy onto the request's cost
-- Append-only decision log recording every status change, and completion
-  gating that requires a final cost, an "after" photo, and an assigned
-  vendor before a request can move to Complete (or an explicit, logged
-  waiver reason); accepted sharing removals are recorded with the removed
-  account email when available
-- Shared update thread (comments) on every request, postable by the
-  owner, assigned vendor, or shared collaborator
-- Property document vault for receipts, warranties, manuals, invoices,
-  and inspection reports, independent of any single request
-- Per-request PDF proof packets and per-property PDF history rollups
-  (`jspdf-autotable`), plus JSON backup/restore and CSV history export
-- Recurring maintenance calendar per property (HVAC filters, gutter
-  cleaning, etc.) with due-soon/overdue tracking and `.ics` calendar
-  export
-- Email notifications (via Resend) for status changes, vendor/collaborator
-  invites, and a daily overdue/due-soon reminder digest (Vercel Cron),
-  with every send attempt — success or failure — logged to a
-  Notifications page
-- Mobile-responsive layout throughout, verified at 375px with no
-  horizontal overflow on any page
+The original MVP was a static, vanilla-JS site backed by Firebase: Firestore,
+Firebase Auth, Firebase Storage, and Firestore security rules. This version
+moves the product onto a stack with a real server boundary, relational data,
+server-side authorization checks, and deploy-ready verification.
 
-## Remaining product gaps
+| Layer | Then | Now |
+|---|---|---|
+| Framework | Static HTML + vanilla JS | Next.js 16 App Router + TypeScript |
+| Database | Firestore | Neon serverless Postgres + Drizzle ORM |
+| File storage | Firebase Storage | Vercel Blob |
+| Auth | Firebase Auth | Auth.js / NextAuth v5 |
+| Authorization | Firestore security rules | Server Actions and role/ownership checks |
+| Hosting target | Firebase Hosting | Vercel |
 
-A fuller account-management surface, workspace/org model, and detailed
-privacy audit trail are still pending. Vendor and collaborator accounts remain
-seeded or invite-driven for the POC so public signup stays homeowner-focused.
+## Tech Stack
+
+- Next.js 16, App Router, TypeScript, Server Actions
+- Neon serverless Postgres with Drizzle ORM
+- Vercel Blob for photos, quote attachments, and vault documents
+- Auth.js / NextAuth v5 with credentials auth and JWT sessions
+- Tailwind CSS v4
+- Vitest for unit tests
+- Playwright-based smoke scripts for public, owner, and helper routes
+
+## Getting Started
+
+```bash
+npm install
+npm run db:migrate
+npm run db:seed
+npm run db:seed:demo
+npm run dev
+```
+
+Environment variables live in `.env.local`; use `.env.local.example` as the
+template.
+
+```text
+DATABASE_URL=
+BLOB_READ_WRITE_TOKEN=
+AUTH_SECRET=
+APP_URL=http://localhost:3000
+RESEND_API_KEY=
+NOTIFICATIONS_FROM_EMAIL=notifications@example.com
+CRON_SECRET=
+HEALTHCHECK_SECRET=
+```
+
+Before deploying or asking anyone to test a hosted POC, run:
+
+```bash
+npm run poc:ready
+npm run verify
+```
+
+`npm run poc:ready` checks whether the required auth, database, Blob, app URL,
+healthcheck, cron, and notification settings are ready for a user-facing POC.
+
+`npm run verify` runs lint, typecheck, unit tests, production dependency audit,
+Drizzle schema generation, schema drift check, and a production build.
+
+## Smoke Testing
+
+Run public route checks against a running local or preview server:
+
+```bash
+npm run ux:public
+```
+
+After configuring `AUTH_SECRET` and `DATABASE_URL`, seed demo accounts and run
+signed-in owner/helper smoke checks:
+
+```bash
+npm run db:seed
+npm run ux:owner
+npm run ux:helper
+```
+
+The smoke scripts check responsive route behavior, active navigation, visible
+encoding artifacts, horizontal overflow, and key route-specific cues. Screenshots
+are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
+`screenshots/ux-helper/`.
+
+## Core Features
+
+- Homeowner public signup and email/password login.
+- Role-based owner, vendor, and collaborator portals.
+- Property records for multiple homes per owner.
+- Property care signals that summarize active work, history gaps, reminder gaps,
+  and ready property-care records.
+- Homeowner setup guide that tracks first-run progress across property, request,
+  evidence, helper sharing, saved history, and recurring care.
+- Owner dashboard with status filters, live counts, homeowner-value metrics, and
+  request-card next actions.
+- Guided request intake with category-specific safety checklist, urgency,
+  location, access instructions, contact preference, inline photo upload, and
+  quick first-property creation.
+- Request detail value snapshot for proof packet, cost clarity, scoped
+  coordination, and decision history.
+- Before, after, receipt, and other photo uploads per request.
+- Quote workspace with competing vendor quotes, attachments, approve/decline,
+  and cost-copy actions.
+- Append-only decision log for status changes, waivers, quote decisions, and
+  access changes.
+- Completion gating that requires final cost, after-photo proof, and assigned
+  vendor, unless the owner records an explicit waiver reason.
+- Request comments shared by owner, assigned vendor, and shared collaborator.
+- Vendor and collaborator invite flow with expiring links, copyable invite URLs,
+  pending invite management, accepted-access removal, and scoped portals.
+- Owner Account & Sharing Center with profile context, invite activity, access
+  boundaries, and account-readiness signals.
+- Property vault for receipts, warranties, manuals, invoices, inspection
+  reports, and other documents.
+- Vault value snapshot for saved records, property document coverage,
+  repair-linked docs, and saved categories.
+- Maintenance calendar with overdue/due-soon signals, property coverage,
+  recurring cadence metrics, mark-done actions, and `.ics` export.
+- Per-request PDF proof packets, per-property PDF history rollups, CSV history
+  export, and JSON backup/restore.
+- Email notifications through Resend for invites, status changes, and reminder
+  digest, with log-only fallback when email is not configured.
+- Public `/api/health` endpoint and protected `/api/health/deep` database check.
+- Global browser security headers configured in `next.config.ts`.
+
+## Documentation
+
+- [Deployment runbook](docs/DEPLOYMENT.md)
+- [Build log](docs/BUILD_LOG.md)
+- [POC QA checklist](docs/QA_CHECKLIST.md)
+- [Homeowner user testing protocol](docs/USER_TESTING.md)
+- [UI/UX review process](docs/UI_UX_REVIEW.md)
+- [UI/UX findings register](docs/UI_UX_FINDINGS.md)
+
+## Current POC Readiness
+
+The codebase is in good shape for the next hosted POC preparation pass:
+
+- Automated verification passes locally.
+- Unit coverage includes owner readiness, request guidance, helper workspace,
+  POC readiness, utilities, exports, and submission helpers.
+- Database schema generation reports no drift.
+- Production dependency audit reports no vulnerabilities.
+- Browser smoke scripts exist for public, owner, and helper routes.
+
+Before inviting external users, the remaining launch steps are:
+
+- Configure a real preview/production environment.
+- Run `npm run poc:ready` in that environment.
+- Seed public-safe demo data.
+- Run owner and helper browser smoke tests against the hosted URL.
+- Refresh screenshots for README, portfolio, and case study.
+- Run a homeowner user-testing pass and log findings in `docs/UI_UX_FINDINGS.md`.
+
+## Remaining Product Gaps
+
+- No organization/workspace billing model yet.
+- Vendor and collaborator accounts remain invite-driven or seeded for the POC;
+  public signup stays homeowner-focused.
+- Email can run in log-only mode, but real launch testing should verify Resend
+  deliverability, sender domain setup, and reminder cron behavior.
+- Privacy/audit history is strong for request decisions and access changes, but
+  a deeper account-level privacy audit trail is still future work.
+- Payments, subscriptions, onboarding analytics, and production observability are
+  not wired yet.

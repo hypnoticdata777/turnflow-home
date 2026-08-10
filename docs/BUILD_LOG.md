@@ -2,6 +2,37 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - README Product Positioning Refresh
+
+Scope: bring the public repo README up to date with the homeowner-first SaaS
+POC direction.
+
+### Changed
+
+- Rewrote the README introduction around homeowner maintenance records instead
+  of generic property-owner tracking.
+- Added product direction notes that distinguish TurnFlow Home from a full PMC
+  operations platform.
+- Updated status, stack, setup, smoke testing, core features, POC readiness,
+  and remaining product gaps.
+- Noted that screenshots should be refreshed before public case-study or hosted
+  POC use.
+
+### Why
+
+The app has matured beyond a direct MVP port. The README now matches the current
+product story: homeowner value, scoped help, property care signals, proof,
+history, prevention, and hosted POC readiness.
+
+### Validation
+
+- `git diff --check` passed.
+- Full app verification was not rerun because this was documentation-only.
+
+### Follow-Up
+
+- Refresh README screenshots after seeded hosted smoke testing.
+
 ## 2026-08-10 - Property Care Signals
 
 Scope: make each property show its homeowner care state and next best action.
