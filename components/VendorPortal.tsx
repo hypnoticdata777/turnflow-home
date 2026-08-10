@@ -13,6 +13,8 @@ import {
 } from "@/lib/actions/requests";
 import { requestPhotoPath } from "@/lib/blob-paths";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
+import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
+import { helperWorkspaceGuidance } from "@/lib/helper-workspace";
 import { missingCompletionProof } from "@/lib/request-guidance";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
@@ -46,6 +48,7 @@ export function VendorPortal({
   const [uploadStatus, setUploadStatus] = useState("");
   const [completionReviewRequestId, setCompletionReviewRequestId] = useState<string | null>(null);
   const [statusError, setStatusError] = useState("");
+  const guidance = helperWorkspaceGuidance("vendor", requests);
 
   async function applyStatusChange(requestId: string, newStatus: string, waiverReason?: string) {
     setStatusError("");
@@ -93,7 +96,32 @@ export function VendorPortal({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <HelperWorkspaceOverview
+        guidance={guidance}
+        labels={{
+          total: "Assigned",
+          active: "Active",
+          attention: "Need proof",
+          complete: "Complete",
+        }}
+      />
+
+      <section
+        id="helper-scope"
+        className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      >
+        <h2 className="text-xl font-semibold">What you can see</h2>
+        <p className="mt-2 text-sm leading-6 text-gray-600">
+          This workspace only shows requests assigned to this vendor account.
+          Owner-only areas like documents, backups, reminders, and other
+          properties stay outside this view.
+        </p>
+      </section>
+
+      <section
+        id="helper-requests"
+        className="scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      >
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold">My requests</h2>
@@ -195,7 +223,10 @@ export function VendorPortal({
         )}
       </section>
 
-      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <section
+        id="helper-upload"
+        className="scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      >
         <h2 className="mb-1 text-xl font-semibold">Upload photos</h2>
         <p className="mb-4 text-sm text-gray-500">
           Add before, after, receipt, or other proof to the assigned request.

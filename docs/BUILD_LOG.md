@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Helper Workspace Guidance
+
+Scope: make vendor and collaborator workspaces feel scoped, clear, and
+action-oriented.
+
+### Changed
+
+- Added `lib/helper-workspace.ts` for reusable helper workspace stats and
+  role-specific guidance.
+- Added `HelperWorkspaceOverview` for shared helper summary cards, next actions,
+  and workload metrics.
+- Added vendor workspace guidance for assigned work, proof gaps, active work,
+  completed work, and scoped access.
+- Added collaborator workspace guidance for shared work, quiet request threads,
+  active work, completed work, and scoped access.
+- Added tests for vendor and collaborator empty, attention, progress, and ready
+  helper states.
+
+### Why
+
+Owners will only trust the product if invited vendors and helpers also get a
+professional, obvious experience. Helper users should immediately understand
+what they can see, what they can do, and what needs attention.
+
+### Validation
+
+- `npm test -- helper-workspace` passed: 6 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 101 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Extend helper smoke coverage to assert the helper overview once seeded helper
+  accounts are available locally.
+
 ## 2026-08-10 - Post-Create Notice Cleanup
 
 Scope: keep the request-created handoff helpful without making the URL or
