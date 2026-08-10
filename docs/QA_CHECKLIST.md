@@ -9,6 +9,7 @@ Run:
 
 ```bash
 npm run verify
+npm run poc:ready
 ```
 
 This checks:
@@ -20,6 +21,8 @@ This checks:
 - Drizzle schema generation.
 - Drizzle migration drift with `git diff --exit-code -- drizzle`.
 - Production Next.js build.
+- POC-critical environment variables for auth, database, Blob uploads, app
+  links, deep health, reminder cron, and email delivery.
 
 For public entry UI checks, run the app locally or against a preview URL, then
 run:

@@ -46,6 +46,7 @@ For the current POC, apply the committed schema migrations:
 
 ```bash
 npm install
+npm run poc:ready
 npm run db:migrate
 npm run db:seed
 npm run db:seed:demo
@@ -86,6 +87,7 @@ GitHub Actions runs validation on every push to `main` and every pull request.
 Re-run locally before deploying if the environment or database schema changed:
 
 - `npm run verify` passes.
+- `npm run poc:ready` has no blocked items for the target environment.
 - `docs/QA_CHECKLIST.md` is complete for the target environment.
 - `.env.local` is not committed.
 - Vercel project has Neon and Blob environment variables set.

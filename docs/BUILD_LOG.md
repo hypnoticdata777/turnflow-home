@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - POC Readiness Preflight
+
+Scope: make launch/auth/browser-smoke readiness easier to diagnose before
+running seed or inviting users.
+
+### Changed
+
+- Added `lib/poc-readiness.ts` for pure environment readiness checks.
+- Added `scripts/poc-readiness.ts` and `npm run poc:ready` for a human-readable
+  CLI preflight.
+- Added tests for ready, blocked, warning, and invalid email-sender readiness
+  states.
+- Added `npm run poc:ready` to QA and deployment runbooks.
+- Cleaned `.env.local.example` comments so launch setup docs are ASCII-clean.
+
+### Why
+
+The product can pass code verification while still being unusable for seeded
+auth flows if required environment variables are missing. A preflight makes the
+next blocked step obvious before `db:seed`, `ux:owner`, `ux:helper`, or a hosted
+POC launch.
+
+### Validation
+
+- `npm test -- poc-readiness` passed: 4 tests.
+- `npm run typecheck` passed.
+- `npm run poc:ready` correctly reported this local checkout as blocked because
+  required launch env vars are not set.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 120 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run `npm run poc:ready` in the actual preview/production environment before
+  the next hosted POC smoke pass.
+
 ## 2026-08-10 - Deterministic Helper Demo Seed
 
 Scope: remove the local/helper smoke blocker by making seeded demo accounts and
