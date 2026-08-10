@@ -54,6 +54,9 @@ Review these routes in every POC pass:
 - `/owner/onboarding`: setup guide feels useful, not like extra admin work.
 - `/owner/dashboard`: homeowner-value snapshot, request-card signals, status
   filters, counts, and next action are scannable.
+- `/owner/properties`: first property setup, property care signals,
+  request/document/reminder counts, history export, and delete boundaries feel
+  clear.
 - `/owner/requests/new`: intake length, safety checklist, access notes, and
   contact preference feel worth the effort.
 - `/owner/requests/[id]`: record-value snapshot, proof, quote, comments,

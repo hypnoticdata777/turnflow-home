@@ -2,6 +2,44 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Property Care Signals
+
+Scope: make each property show its homeowner care state and next best action.
+
+### Changed
+
+- Added reusable `ownerPropertyCareSignal` rules for first repair record,
+  active work, document gaps, reminder gaps, and ready property-care records.
+- Updated `/owner/properties` with homeowner-facing positioning, per-property
+  request/document/reminder counts, and next-action panels.
+- Improved the zero-property empty state so first-run owners understand why the
+  property comes before requests, photos, receipts, and reminders.
+- Extended owner-readiness tests for property care states.
+- Updated the UI/UX review checklist to include property care signals.
+
+### Why
+
+The property page is the anchor for the product. A homeowner should be able to
+look at a property and know whether it has active work, useful history,
+recurring care, or a clear gap to fix next.
+
+### Validation
+
+- `npm test -- owner-readiness` passed: 27 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 140 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner browser smoke assertions for property care signals once seeded
+  owner auth is available locally or in preview.
+
 ## 2026-08-10 - Owner Care Value Snapshots
 
 Scope: make the vault and maintenance calendar explain their homeowner value

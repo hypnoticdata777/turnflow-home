@@ -4,6 +4,7 @@ import {
   ownerCalendarValueMetrics,
   ownerDashboardGuidance,
   ownerNextSetupStep,
+  ownerPropertyCareSignal,
   ownerReadinessFlags,
   ownerRequestCardSignal,
   ownerSetupProgress,
@@ -458,6 +459,117 @@ describe("ownerCalendarValueMetrics", () => {
       value: 0,
       detail: "Start with one repeatable task like HVAC filters, gutters, or water heater care.",
       tone: "empty",
+    });
+  });
+});
+
+describe("ownerPropertyCareSignal", () => {
+  it("points a new property toward its first repair record", () => {
+    expect(
+      ownerPropertyCareSignal({
+        propertyId: "property-1",
+        requests: [],
+        documents: [],
+        reminders: [],
+      })
+    ).toEqual({
+      label: "Needs first repair record",
+      detail:
+        "Start this property with one real maintenance issue so TurnFlow can build a useful home record.",
+      tone: "attention",
+      href: "/owner/requests/new",
+      cta: "Log first issue",
+    });
+  });
+
+  it("prioritizes active property work before history gaps", () => {
+    expect(
+      ownerPropertyCareSignal({
+        propertyId: "property-1",
+        requests: [
+          {
+            propertyId: "property-1",
+            status: "In Progress",
+          },
+          {
+            propertyId: "property-1",
+            status: "Complete",
+          },
+        ],
+        documents: [],
+        reminders: [],
+      })
+    ).toMatchObject({
+      label: "Work in motion",
+      detail:
+        "1 request is active for this property. Keep status, cost, and proof current as work moves.",
+      tone: "attention",
+      href: "/owner/dashboard",
+      cta: "Review requests",
+    });
+  });
+
+  it("moves completed properties toward documents and reminders", () => {
+    const base = {
+      propertyId: "property-1",
+      requests: [
+        {
+          propertyId: "property-1",
+          status: "Complete",
+          finalCost: "175",
+          photos: [{ type: "after" }],
+        },
+      ],
+      reminders: [],
+    };
+
+    expect(
+      ownerPropertyCareSignal({
+        ...base,
+        documents: [],
+      })
+    ).toMatchObject({
+      label: "History gap",
+      tone: "progress",
+      href: "/owner/vault?propertyId=property-1",
+      cta: "Add document",
+    });
+
+    expect(
+      ownerPropertyCareSignal({
+        ...base,
+        documents: [{ propertyId: "property-1", category: "Warranty" }],
+      })
+    ).toMatchObject({
+      label: "Prevention gap",
+      tone: "progress",
+      href: "/owner/calendar",
+      cta: "Add reminder",
+    });
+  });
+
+  it("marks the property care record ready when history and routines exist", () => {
+    expect(
+      ownerPropertyCareSignal({
+        propertyId: "property-1",
+        requests: [
+          {
+            propertyId: "property-1",
+            status: "Complete",
+            finalCost: "175",
+            photos: [{ type: "after" }],
+          },
+        ],
+        documents: [{ propertyId: "property-1", category: "Receipt" }],
+        reminders: [{ propertyId: "property-1", intervalDays: 90 }],
+      })
+    ).toEqual({
+      label: "Care record ready",
+      detail:
+        "1 request logged, 1 proof-backed record, 1 vault document, and 1 reminder saved for this property.",
+      tone: "ready",
+      href: "/owner/vault?propertyId=property-1",
+      cta: "Review history",
     });
   });
 });

@@ -1,5 +1,6 @@
 export type OwnerReadinessRequest = {
   id?: string;
+  propertyId?: string | null;
   status?: string;
   finalCost?: string | number | null;
   photos?: Array<unknown>;
@@ -83,6 +84,14 @@ export type OwnerCareReminder = {
   propertyId?: string | null;
   nextDueAt?: string | Date | null;
   intervalDays?: number | null;
+};
+
+export type OwnerPropertyCareSignal = {
+  label: string;
+  detail: string;
+  tone: "attention" | "progress" | "ready";
+  href: string;
+  cta: string;
 };
 
 function hasAfterPhoto(request: OwnerReadinessRequest) {
@@ -391,6 +400,90 @@ export function ownerCalendarValueMetrics(
       tone: reminders.length > 0 ? "ready" : "empty",
     },
   ];
+}
+
+export function ownerPropertyCareSignal({
+  propertyId,
+  requests,
+  documents,
+  reminders,
+}: {
+  propertyId: string;
+  requests: OwnerReadinessRequest[];
+  documents: OwnerCareVaultDocument[];
+  reminders: OwnerCareReminder[];
+}): OwnerPropertyCareSignal {
+  const propertyRequests = requests.filter((request) => request.propertyId === propertyId);
+  const propertyDocuments = documents.filter((document) => document.propertyId === propertyId);
+  const propertyReminders = reminders.filter((reminder) => reminder.propertyId === propertyId);
+  const activeRequests = propertyRequests.filter(
+    (request) => request.status !== "Complete" && request.status !== "Archived"
+  );
+  const proofBackedRequests = propertyRequests.filter(
+    (request) => hasAfterPhoto(request) && hasFinalCost(request)
+  );
+  const selectedVaultHref = `/owner/vault?propertyId=${propertyId}`;
+
+  if (propertyRequests.length === 0) {
+    return {
+      label: "Needs first repair record",
+      detail:
+        propertyDocuments.length > 0 || propertyReminders.length > 0
+          ? "The property has history or reminders. Log the next repair so issues, proof, and costs have one place to land."
+          : "Start this property with one real maintenance issue so TurnFlow can build a useful home record.",
+      tone: "attention",
+      href: "/owner/requests/new",
+      cta: "Log first issue",
+    };
+  }
+
+  if (activeRequests.length > 0) {
+    return {
+      label: "Work in motion",
+      detail: `${plural(activeRequests.length, "request")} ${isAre(
+        activeRequests.length
+      )} active for this property. Keep status, cost, and proof current as work moves.`,
+      tone: "attention",
+      href: "/owner/dashboard",
+      cta: "Review requests",
+    };
+  }
+
+  if (propertyDocuments.length === 0) {
+    return {
+      label: "History gap",
+      detail:
+        "Requests exist, but the property vault has no saved documents yet. Add the warranty, receipt, manual, or invoice you would want later.",
+      tone: "progress",
+      href: selectedVaultHref,
+      cta: "Add document",
+    };
+  }
+
+  if (propertyReminders.length === 0) {
+    return {
+      label: "Prevention gap",
+      detail:
+        "The property has repair history and saved documents. Add one recurring care task so maintenance is easier to stay ahead of.",
+      tone: "progress",
+      href: "/owner/calendar",
+      cta: "Add reminder",
+    };
+  }
+
+  return {
+    label: "Care record ready",
+    detail: `${plural(propertyRequests.length, "request")} logged, ${plural(
+      proofBackedRequests.length,
+      "proof-backed record"
+    )}, ${plural(propertyDocuments.length, "vault document")}, and ${plural(
+      propertyReminders.length,
+      "reminder"
+    )} saved for this property.`,
+    tone: "ready",
+    href: selectedVaultHref,
+    cta: "Review history",
+  };
 }
 
 export function ownerRequestCardSignal(
