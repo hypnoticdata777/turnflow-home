@@ -3,6 +3,9 @@ export type HelperRole = "vendor" | "collaborator";
 export type HelperWorkspaceRequest = {
   status: string;
   finalCost?: string | number | null;
+  location?: string | null;
+  accessInstructions?: string | null;
+  contactMethod?: string | null;
   photos?: Array<{ type: string }>;
   comments?: Array<unknown>;
 };
@@ -41,12 +44,41 @@ export type HelperInviteExpectation = {
   detail: string;
 };
 
+export type HelperRequestCardState = {
+  label: string;
+  detail: string;
+  tone: "attention" | "progress" | "ready";
+  actionHref: string;
+  actionCta: string;
+};
+
 function hasAfterPhoto(request: HelperWorkspaceRequest) {
   return (request.photos ?? []).some((photo) => photo.type === "after");
 }
 
 function hasFinalCost(request: HelperWorkspaceRequest) {
   return request.finalCost !== undefined && request.finalCost !== null && request.finalCost !== "";
+}
+
+function missingVendorContext(request: HelperWorkspaceRequest) {
+  const missing = [];
+  if (!request.location) missing.push("location");
+  if (!request.accessInstructions) missing.push("access instructions");
+  if (!request.contactMethod) missing.push("preferred contact");
+  return missing;
+}
+
+function missingVendorProof(request: HelperWorkspaceRequest) {
+  const missing = [];
+  if (!hasAfterPhoto(request)) missing.push("after photo");
+  if (!hasFinalCost(request)) missing.push("final cost");
+  return missing;
+}
+
+function joinList(items: string[]) {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items.at(-1)}`;
 }
 
 export function helperWorkspaceStats(
@@ -217,6 +249,102 @@ export function helperOnboardingItems(
       status: stats.quietCount > 0 ? "focus" : hasRequests ? "available" : "waiting",
     },
   ];
+}
+
+export function helperRequestCardState(
+  role: HelperRole,
+  request: HelperWorkspaceRequest
+): HelperRequestCardState {
+  if (role === "vendor") {
+    const missingContext = missingVendorContext(request);
+    const missingProof = missingVendorProof(request);
+
+    if (request.status === "Complete") {
+      if (missingProof.length > 0) {
+        return {
+          label: "Closed with proof gap",
+          detail: `This is complete, but ${joinList(missingProof)} ${missingProof.length === 1 ? "is" : "are"} still missing from the record.`,
+          tone: "attention",
+          actionHref: "#helper-upload",
+          actionCta: "Add proof",
+        };
+      }
+
+      return {
+        label: "Closed out",
+        detail: "The request is marked complete and the core proof is on record.",
+        tone: "ready",
+        actionHref: "#helper-requests",
+        actionCta: "Review details",
+      };
+    }
+
+    if (missingContext.length > 0) {
+      return {
+        label: "Missing job context",
+        detail: `Ask the owner for ${joinList(missingContext)} before work starts.`,
+        tone: "attention",
+        actionHref: "#helper-requests",
+        actionCta: "Review details",
+      };
+    }
+
+    if (missingProof.length > 0) {
+      return {
+        label: "Needs closeout proof",
+        detail: `Add ${joinList(missingProof)} before this work is treated as complete.`,
+        tone: "progress",
+        actionHref: "#helper-upload",
+        actionCta: "Add proof",
+      };
+    }
+
+    return {
+      label: "Ready for closeout",
+      detail: "Job context and core proof are present. Update status when the owner is ready.",
+      tone: "ready",
+      actionHref: "#helper-requests",
+      actionCta: "Review status",
+    };
+  }
+
+  if (request.status === "Complete") {
+    return {
+      label: "Closed out",
+      detail: "The owner has marked this shared request complete.",
+      tone: "ready",
+      actionHref: "#helper-requests",
+      actionCta: "Review record",
+    };
+  }
+
+  if ((request.comments ?? []).length === 0) {
+    return {
+      label: "Needs first update",
+      detail: "Post a short note if you checked something or the owner needs context.",
+      tone: "attention",
+      actionHref: "#helper-requests",
+      actionCta: "Post update",
+    };
+  }
+
+  if (request.status === "Needs Review") {
+    return {
+      label: "Ready for owner review",
+      detail: "The thread has context and the request is waiting for review.",
+      tone: "ready",
+      actionHref: "#helper-requests",
+      actionCta: "Review thread",
+    };
+  }
+
+  return {
+    label: "In motion",
+    detail: "The shared thread has updates. Add another note only when it helps.",
+    tone: "progress",
+    actionHref: "#helper-requests",
+    actionCta: "Review thread",
+  };
 }
 
 export function helperInviteExpectations(role: HelperRole): HelperInviteExpectation[] {

@@ -3,8 +3,13 @@ import { db } from "@/lib/db";
 import { CommentThread } from "@/components/CommentThread";
 import { HelperPortalShell } from "@/components/HelperPortalShell";
 import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
+import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
-import { helperOnboardingItems, helperWorkspaceGuidance } from "@/lib/helper-workspace";
+import {
+  helperOnboardingItems,
+  helperRequestCardState,
+  helperWorkspaceGuidance,
+} from "@/lib/helper-workspace";
 import {
   costForRequest,
   costLabelForRequest,
@@ -68,6 +73,7 @@ export default async function CollaboratorPage() {
                   ? `${r.property.nickname} - ${r.property.address}`
                   : r.property.address
                 : "Property not found";
+              const readiness = helperRequestCardState("collaborator", r);
               return (
                 <section key={r.id} className="rounded-lg border bg-white p-4 shadow-sm">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -100,6 +106,8 @@ export default async function CollaboratorPage() {
                       <dd>{r.notes || "Not recorded"}</dd>
                     </div>
                   </dl>
+
+                  <HelperRequestReadiness state={readiness} />
 
                   <div className="mt-4 border-t pt-3">
                     <CommentThread

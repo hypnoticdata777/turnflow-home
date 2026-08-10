@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Helper Request Card Readiness
+
+Scope: make each helper-facing request card explain what is ready, missing, or
+waiting for the helper's next action.
+
+### Changed
+
+- Added reusable helper request card state logic for vendor and collaborator
+  cards.
+- Added `HelperRequestReadiness` so helper cards show a compact readiness cue
+  with a clear next action.
+- Updated vendor cards to flag missing job context, closeout proof gaps,
+  ready-for-closeout work, and completed records with proof gaps.
+- Updated collaborator cards to flag quiet threads, active shared work,
+  owner-review state, and completed records.
+- Extended helper-workspace tests for request-card readiness states.
+
+### Why
+
+Helpers should not have to scan the whole workspace to understand a single job.
+Putting readiness directly on each card reduces back-and-forth, helps vendors
+collect the right proof, and helps collaborators post useful updates only where
+they add value.
+
+### Validation
+
+- `npm test -- helper-workspace` passed: 17 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 112 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Let vendor card actions preselect the matching request in the upload form for
+  an even smoother proof-upload path.
+
 ## 2026-08-10 - Helper First-Run Onboarding
 
 Scope: make invited vendor and collaborator first-run experiences clearer before

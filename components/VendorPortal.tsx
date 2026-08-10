@@ -14,8 +14,13 @@ import {
 import { requestPhotoPath } from "@/lib/blob-paths";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
+import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
-import { helperOnboardingItems, helperWorkspaceGuidance } from "@/lib/helper-workspace";
+import {
+  helperOnboardingItems,
+  helperRequestCardState,
+  helperWorkspaceGuidance,
+} from "@/lib/helper-workspace";
 import { missingCompletionProof } from "@/lib/request-guidance";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
@@ -149,6 +154,7 @@ export function VendorPortal({
                   : r.property.address
                 : "Property not found";
               const missingProof = missingCompletionProof(r);
+              const readiness = helperRequestCardState("vendor", r);
               return (
                 <article key={r.id} className="rounded-lg border bg-white p-4 shadow-sm">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -186,6 +192,8 @@ export function VendorPortal({
                       <dd>{r.accessInstructions || "Not recorded"}</dd>
                     </div>
                   </dl>
+
+                  <HelperRequestReadiness state={readiness} />
 
                   <label className="mt-4 block text-sm">
                     <span className="font-semibold">Status</span>

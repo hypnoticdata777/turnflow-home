@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   helperInviteExpectations,
   helperOnboardingItems,
+  helperRequestCardState,
   helperWorkspaceGuidance,
   helperWorkspaceStats,
   type HelperWorkspaceRequest,
@@ -116,6 +117,104 @@ describe("helperInviteExpectations", () => {
         detail: "Add comments when your context helps the owner decide or understand progress.",
       },
     ]);
+  });
+});
+
+describe("helperRequestCardState", () => {
+  it("flags missing vendor job context before proof gaps", () => {
+    expect(
+      helperRequestCardState("vendor", {
+        status: "Scheduled",
+        finalCost: null,
+        location: "",
+        accessInstructions: null,
+        contactMethod: "Text",
+        photos: [],
+      })
+    ).toMatchObject({
+      label: "Missing job context",
+      detail: "Ask the owner for location and access instructions before work starts.",
+      tone: "attention",
+      actionHref: "#helper-requests",
+      actionCta: "Review details",
+    });
+  });
+
+  it("points vendors with context toward missing closeout proof", () => {
+    expect(
+      helperRequestCardState("vendor", {
+        status: "In Progress",
+        finalCost: "200",
+        location: "Kitchen",
+        accessInstructions: "Lockbox at side gate",
+        contactMethod: "Phone",
+        photos: [{ type: "before" }],
+      })
+    ).toMatchObject({
+      label: "Needs closeout proof",
+      detail: "Add after photo before this work is treated as complete.",
+      tone: "progress",
+      actionHref: "#helper-upload",
+      actionCta: "Add proof",
+    });
+  });
+
+  it("marks vendor cards ready when context and proof are present", () => {
+    expect(
+      helperRequestCardState("vendor", {
+        status: "Needs Review",
+        finalCost: "200",
+        location: "Kitchen",
+        accessInstructions: "Lockbox at side gate",
+        contactMethod: "Phone",
+        photos: [{ type: "after" }],
+      })
+    ).toMatchObject({
+      label: "Ready for closeout",
+      tone: "ready",
+      actionCta: "Review status",
+    });
+  });
+
+  it("flags completed vendor cards that still have proof gaps", () => {
+    expect(
+      helperRequestCardState("vendor", {
+        status: "Complete",
+        finalCost: null,
+        photos: [{ type: "before" }],
+      })
+    ).toMatchObject({
+      label: "Closed with proof gap",
+      detail: "This is complete, but after photo and final cost are still missing from the record.",
+      tone: "attention",
+      actionHref: "#helper-upload",
+    });
+  });
+
+  it("points quiet collaborator cards toward the first useful update", () => {
+    expect(
+      helperRequestCardState("collaborator", {
+        status: "Waiting",
+        comments: [],
+      })
+    ).toMatchObject({
+      label: "Needs first update",
+      tone: "attention",
+      actionCta: "Post update",
+    });
+  });
+
+  it("marks collaborator cards ready when the shared thread needs review", () => {
+    expect(
+      helperRequestCardState("collaborator", {
+        status: "Needs Review",
+        comments: [{}],
+      })
+    ).toMatchObject({
+      label: "Ready for owner review",
+      tone: "ready",
+      actionCta: "Review thread",
+    });
   });
 });
 
