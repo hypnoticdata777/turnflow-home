@@ -2,6 +2,54 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-10 - Helper Workspace UX
+
+Scope: mature shared-access experiences for vendors, collaborators, and invite
+acceptance.
+
+### Changed
+
+- Added `components/HelperPortalShell.tsx` so vendor and collaborator pages use
+  a consistent scoped-workspace frame.
+- Refreshed `/vendor` with clearer assigned-request cards, scoped-access copy,
+  status controls, and proof-upload guidance.
+- Refreshed `/collaborator` with clearer shared-request cards and update
+  posting layout.
+- Refreshed `/accept-invite` with calmer trust copy, plain error states, and a
+  cleaner acceptance card.
+- Cleaned visible encoding artifacts from invite acceptance, helper comments,
+  vendor status/upload states, and collaborator copy.
+- Added `scripts/ux-helper-smoke.ts` and `npm run ux:helper` for vendor and
+  collaborator route smoke coverage.
+- Updated README, QA, and UI/UX review docs with the helper smoke check.
+
+### Why
+
+TurnFlow Home only earns owner trust if invited helpers see a scoped,
+professional experience. Vendors and collaborators should immediately
+understand what they can see, what they can update, and why they are not inside
+the owner's full workspace.
+
+### Validation
+
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 67 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+- App/component encoding artifact scan passed.
+- `npm run ux:helper` added and failure mode verified, but local route capture
+  was blocked because `AUTH_SECRET` and `DATABASE_URL` are not configured and
+  `npm run db:seed` cannot create demo helper accounts on this machine.
+
+### Follow-Up
+
+- Add a scripted invite-acceptance walkthrough once test database setup is
+  available in local/CI.
+
 ## 2026-08-10 - Owner Workspace Navigation UX
 
 Scope: mature the signed-in owner workspace so navigation and route confidence

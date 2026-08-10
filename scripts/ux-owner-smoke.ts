@@ -41,7 +41,7 @@ async function login(page: Page) {
         "Owner smoke could not sign in.",
         `Attempted account: ${OWNER_EMAIL}`,
         alertText ? `Login page message: ${alertText}` : "No login error was rendered.",
-        "Confirm DATABASE_URL is configured, run npm run db:seed, and rerun npm run ux:owner.",
+        "Confirm AUTH_SECRET and DATABASE_URL are configured, run npm run db:seed, and rerun npm run ux:owner.",
       ].join(" ")
     );
   }

@@ -4,7 +4,13 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { acceptInviteAction } from "@/lib/actions/invites";
 
-export function AcceptInviteButton({ inviteId, redirectTo }: { inviteId: string; redirectTo: string }) {
+export function AcceptInviteButton({
+  inviteId,
+  redirectTo,
+}: {
+  inviteId: string;
+  redirectTo: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +29,15 @@ export function AcceptInviteButton({ inviteId, redirectTo }: { inviteId: string;
             router.push(redirectTo);
           })
         }
-        className="w-full bg-black text-white rounded-xl py-2 disabled:opacity-50"
+        className="w-full rounded-lg bg-gray-950 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isPending ? "Accepting…" : "Accept Invite"}
+        {isPending ? "Accepting..." : "Accept invite"}
       </button>
-      {error && <p className="text-red-600 text-sm mt-2 text-center">{error}</p>}
+      {error && (
+        <p className="mt-2 text-center text-sm text-red-700" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

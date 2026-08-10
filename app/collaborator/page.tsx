@@ -1,8 +1,12 @@
 import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
-import { logoutAction } from "@/lib/actions/auth";
-import { requestStatusBadgeClasses, costForRequest, costLabelForRequest } from "@/lib/utils";
 import { CommentThread } from "@/components/CommentThread";
+import { HelperPortalShell } from "@/components/HelperPortalShell";
+import {
+  costForRequest,
+  costLabelForRequest,
+  requestStatusBadgeClasses,
+} from "@/lib/utils";
 
 export default async function CollaboratorPage() {
   const session = await requireRole("collaborator");
@@ -14,50 +18,57 @@ export default async function CollaboratorPage() {
   });
 
   return (
-    <main className="max-w-4xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-2">
-        <h1 className="text-3xl font-bold">Shared Requests</h1>
-        <form action={logoutAction}>
-          <button className="px-3 py-1 border rounded">Logout</button>
-        </form>
-      </div>
-      <p className="text-gray-500 mb-6">
-        Maintenance requests shared with you — status, details, and a place
-        to post updates.
-      </p>
-
+    <HelperPortalShell
+      eyebrow="Collaborator workspace"
+      title="Shared requests"
+      description="See only the maintenance requests an owner shared with you, review the current status, and post helpful updates back to the record."
+    >
       {sharedRequests.length === 0 ? (
-        <p className="text-gray-500">No requests have been shared with you yet.</p>
+        <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-gray-600">No requests have been shared with you yet.</p>
+        </section>
       ) : (
         <div className="space-y-4">
           {sharedRequests.map((r) => {
             const propertyLabel = r.property
               ? r.property.nickname
-                ? `${r.property.nickname} — ${r.property.address}`
+                ? `${r.property.nickname} - ${r.property.address}`
                 : r.property.address
-              : "(property not found)";
+              : "Property not found";
             return (
-              <div key={r.id} className="border p-4 rounded bg-white shadow">
-                <div className="flex justify-between items-start">
+              <section key={r.id} className="rounded-lg border bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <h2 className="text-xl font-semibold">{r.title}</h2>
-                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${requestStatusBadgeClasses(r.status)}`}>
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs font-medium ${requestStatusBadgeClasses(
+                      r.status
+                    )}`}
+                  >
                     {r.status}
                   </span>
                 </div>
-                <p className="text-sm mt-1">
-                  <strong>Property:</strong> {propertyLabel}
-                </p>
-                <p className="text-sm">
-                  <strong>Category:</strong> {r.category} &nbsp; <strong>Urgency:</strong> {r.urgency}
-                </p>
-                <p className="text-sm">
-                  <strong>Cost ({costLabelForRequest(r)}):</strong> ${costForRequest(r).toFixed(2)}
-                </p>
-                <p className="text-sm">
-                  <strong>Notes:</strong> {r.notes || "—"}
-                </p>
+                <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                  <div>
+                    <dt className="font-semibold">Property</dt>
+                    <dd>{propertyLabel}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">Category / urgency</dt>
+                    <dd>
+                      {r.category} / {r.urgency}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">Cost ({costLabelForRequest(r)})</dt>
+                    <dd>${costForRequest(r).toFixed(2)}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold">Notes</dt>
+                    <dd>{r.notes || "Not recorded"}</dd>
+                  </div>
+                </dl>
 
-                <div className="mt-3 border-t pt-2">
+                <div className="mt-4 border-t pt-3">
                   <CommentThread
                     requestId={r.id}
                     comments={r.comments}
@@ -66,11 +77,11 @@ export default async function CollaboratorPage() {
                     collaboratorId={r.collaboratorId}
                   />
                 </div>
-              </div>
+              </section>
             );
           })}
         </div>
       )}
-    </main>
+    </HelperPortalShell>
   );
 }

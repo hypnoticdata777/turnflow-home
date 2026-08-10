@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "ux:public": "tsx scripts/ux-public-smoke.ts",
     "ux:owner": "tsx scripts/ux-owner-smoke.ts",
+    "ux:helper": "tsx scripts/ux-helper-smoke.ts",
     "audit:prod": "npm audit --omit=dev --cache .npm-cache",
     "verify": "npm run lint && npm run typecheck && npm test && npm run audit:prod && npm run db:generate && git diff --exit-code -- drizzle && npm run build",
     "db:generate": "drizzle-kit generate",

@@ -3,8 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
-import { REQUEST_STATUSES, requestStatusBadgeClasses, meetsCompletionRequirements } from "@/lib/utils";
-import { updateRequestStatusAction, recordRequestPhotoAction } from "@/lib/actions/requests";
+import {
+  REQUEST_STATUSES,
+  meetsCompletionRequirements,
+  requestStatusBadgeClasses,
+} from "@/lib/utils";
+import {
+  recordRequestPhotoAction,
+  updateRequestStatusAction,
+} from "@/lib/actions/requests";
 import { requestPhotoPath } from "@/lib/blob-paths";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
@@ -25,7 +32,13 @@ type VendorRequest = {
   photos: { type: string }[];
 };
 
-export function VendorPortal({ requests, userId }: { requests: VendorRequest[]; userId: string }) {
+export function VendorPortal({
+  requests,
+  userId,
+}: {
+  requests: VendorRequest[];
+  userId: string;
+}) {
   const router = useRouter();
   const [savingId, setSavingId] = useState<string | null>(null);
   const [selectedRequestId, setSelectedRequestId] = useState("");
@@ -37,8 +50,7 @@ export function VendorPortal({ requests, userId }: { requests: VendorRequest[]; 
     let waiverReason: string | undefined;
     if (newStatus === "Complete" && req && !meetsCompletionRequirements(req, req.photos)) {
       const reason = window.prompt(
-        'This request is missing required proof to mark it Complete (a final cost and an "after" photo — ask the owner to enter the final cost if needed). ' +
-          "Enter a reason to complete it anyway, or cancel to go back."
+        "This request is missing required proof to mark it Complete: a final cost and an after photo. Ask the owner to enter the final cost if needed. Enter a reason to complete it anyway, or cancel to go back."
       );
       if (!reason || !reason.trim()) return;
       waiverReason = reason.trim();
@@ -57,7 +69,7 @@ export function VendorPortal({ requests, userId }: { requests: VendorRequest[]; 
 
   async function handleUpload(type: PhotoType, file: File | undefined) {
     if (!file || !selectedRequestId) return;
-    setUploadStatus(`Uploading ${type}…`);
+    setUploadStatus(`Uploading ${type}...`);
     try {
       const pathname = requestPhotoPath(selectedRequestId, type, userId, file.name);
       const blob = await upload(pathname, file, {
@@ -65,7 +77,8 @@ export function VendorPortal({ requests, userId }: { requests: VendorRequest[]; 
         handleUploadUrl: "/api/blob-upload",
       });
       await recordRequestPhotoAction(selectedRequestId, type, blob.url, blob.pathname);
-      setUploadStatus(`Uploaded ${type} ✓`);
+      setUploadStatus(`Uploaded ${type}.`);
+      router.refresh();
     } catch (err) {
       console.error(`Failed to upload ${type}:`, err);
       setUploadStatus(`Failed to upload ${type}.`);
@@ -74,48 +87,74 @@ export function VendorPortal({ requests, userId }: { requests: VendorRequest[]; 
 
   return (
     <div className="space-y-6">
-      <section className="bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-3">My Requests</h2>
+      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">My requests</h2>
+            <p className="text-sm text-gray-500">
+              You can only see repair records assigned to this vendor account.
+            </p>
+          </div>
+          <p className="text-sm font-medium text-gray-700">
+            {requests.length} assigned
+          </p>
+        </div>
+
         {requests.length === 0 ? (
-          <p className="text-gray-500">No requests assigned to you yet.</p>
+          <p className="text-gray-500">No requests are assigned to you yet.</p>
         ) : (
           <div className="space-y-4">
             {requests.map((r) => {
               const propertyLabel = r.property
                 ? r.property.nickname
-                  ? `${r.property.nickname} — ${r.property.address}`
+                  ? `${r.property.nickname} - ${r.property.address}`
                   : r.property.address
-                : "(property not found)";
+                : "Property not found";
               return (
-                <div key={r.id} className="bg-white border rounded-xl p-4 shadow-sm">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-semibold mb-1">{r.title}</h3>
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${requestStatusBadgeClasses(r.status)}`}>
+                <article key={r.id} className="rounded-lg border bg-white p-4 shadow-sm">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <h3 className="text-lg font-semibold">{r.title}</h3>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${requestStatusBadgeClasses(
+                        r.status
+                      )}`}
+                    >
                       {r.status}
                     </span>
                   </div>
-                  <p className="text-sm">
-                    <strong>Property:</strong> {propertyLabel}
-                  </p>
-                  <p className="text-sm">
-                    <strong>Category:</strong> {r.category} &nbsp; <strong>Urgency:</strong> {r.urgency}
-                  </p>
-                  <p className="text-sm">
-                    <strong>Location:</strong> {r.location || "—"}
-                  </p>
-                  <p className="text-sm">
-                    <strong>Access Instructions:</strong> {r.accessInstructions || "—"}
-                  </p>
-                  <p className="text-sm mb-2">
-                    <strong>Preferred Contact:</strong> {r.contactMethod || "—"}
-                  </p>
-                  <label className="block text-sm mt-2">
-                    <strong>Status:</strong>
+
+                  <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt className="font-semibold">Property</dt>
+                      <dd>{propertyLabel}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Category / urgency</dt>
+                      <dd>
+                        {r.category} / {r.urgency}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Location</dt>
+                      <dd>{r.location || "Not recorded"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Preferred contact</dt>
+                      <dd>{r.contactMethod || "Not recorded"}</dd>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <dt className="font-semibold">Access instructions</dt>
+                      <dd>{r.accessInstructions || "Not recorded"}</dd>
+                    </div>
+                  </dl>
+
+                  <label className="mt-4 block text-sm">
+                    <span className="font-semibold">Status</span>
                     <select
                       value={r.status}
                       disabled={savingId === r.id}
                       onChange={(e) => handleStatusChange(r.id, e.target.value)}
-                      className="border rounded p-1 ml-1"
+                      className="mt-1 w-full rounded border bg-white p-2 sm:max-w-xs"
                     >
                       {REQUEST_STATUSES.map((s) => (
                         <option key={s} value={s}>
@@ -124,23 +163,27 @@ export function VendorPortal({ requests, userId }: { requests: VendorRequest[]; 
                       ))}
                     </select>
                   </label>
-                </div>
+                </article>
               );
             })}
           </div>
         )}
       </section>
 
-      <section className="bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-4">Upload Photos</h2>
-        <label className="block mb-4">
+      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <h2 className="mb-1 text-xl font-semibold">Upload photos</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          Add before, after, receipt, or other proof to the assigned request.
+        </p>
+
+        <label className="mb-4 block text-sm font-medium">
           Request
           <select
             value={selectedRequestId}
             onChange={(e) => setSelectedRequestId(e.target.value)}
-            className="w-full border p-2 rounded bg-white"
+            className="mt-1 w-full rounded border bg-white p-2"
           >
-            <option value="">— select a request —</option>
+            <option value="">Select a request</option>
             {requests.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.title}
@@ -150,22 +193,22 @@ export function VendorPortal({ requests, userId }: { requests: VendorRequest[]; 
         </label>
 
         {selectedRequestId && (
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {PHOTO_TYPES.map((type) => (
-              <div key={type} className="border p-3 rounded">
-                <h3 className="font-medium mb-2 capitalize">{type}</h3>
+              <div key={type} className="rounded border p-3">
+                <h3 className="mb-2 font-medium capitalize">{type}</h3>
                 <input
                   type="file"
                   accept="image/*"
                   capture="environment"
-                  className="mb-2 text-sm w-full"
+                  className="mb-2 w-full text-sm"
                   onChange={(e) => handleUpload(type, e.target.files?.[0])}
                 />
               </div>
             ))}
           </div>
         )}
-        <p className="text-sm mt-3 text-gray-600">{uploadStatus}</p>
+        {uploadStatus && <p className="mt-3 text-sm text-gray-600">{uploadStatus}</p>}
       </section>
     </div>
   );

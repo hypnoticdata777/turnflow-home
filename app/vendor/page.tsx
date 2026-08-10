@@ -1,6 +1,6 @@
 import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
-import { logoutAction } from "@/lib/actions/auth";
+import { HelperPortalShell } from "@/components/HelperPortalShell";
 import { VendorPortal } from "@/components/VendorPortal";
 
 export default async function VendorPage() {
@@ -28,14 +28,12 @@ export default async function VendorPage() {
   });
 
   return (
-    <main className="max-w-5xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">🛠 Assigned Requests</h1>
-        <form action={logoutAction}>
-          <button className="px-3 py-1 border rounded">Logout</button>
-        </form>
-      </div>
+    <HelperPortalShell
+      eyebrow="Vendor workspace"
+      title="Assigned requests"
+      description="Review the repair details the owner shared with you, update status, and add proof photos for the assigned work."
+    >
       <VendorPortal requests={assignedRequests} userId={session.user.id} />
-    </main>
+    </HelperPortalShell>
   );
 }

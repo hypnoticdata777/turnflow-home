@@ -9,6 +9,8 @@ that changes a homeowner-facing workflow.
 - Run `npm run ux:public` against a local or preview server for public entry
   routes before refreshing screenshots.
 - Run `npm run ux:owner` after seeding demo accounts when owner routes changed.
+- Run `npm run ux:helper` after seeding demo accounts when shared-access routes
+  changed.
 - Review desktop and mobile widths for every changed route.
 - Capture screenshots only with public-safe demo data.
 - Log every `0` score and repeated `1` score in `docs/UI_UX_FINDINGS.md`.

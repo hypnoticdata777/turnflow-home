@@ -32,7 +32,8 @@ This captures `/login` and `/signup` at desktop and mobile widths and fails on
 missing accessible labels, missing primary actions, visible encoding artifacts,
 or horizontal overflow.
 
-After `DATABASE_URL` is configured and demo accounts are seeded, run:
+After `AUTH_SECRET` and `DATABASE_URL` are configured and demo accounts are
+seeded, run:
 
 ```bash
 npm run db:seed
@@ -42,6 +43,17 @@ npm run ux:owner
 This signs in as the demo owner, checks core owner routes at desktop and mobile
 widths, verifies active navigation, and saves screenshots under
 `screenshots/ux-owner/`.
+
+For scoped helper portals, run:
+
+```bash
+npm run db:seed
+npm run ux:helper
+```
+
+This signs in as demo vendor and collaborator accounts, checks each scoped
+workspace at desktop and mobile widths, and saves screenshots under
+`screenshots/ux-helper/`.
 
 ## Owner Smoke Test
 
@@ -82,6 +94,8 @@ widths, verifies active navigation, and saves screenshots under
   strict referrer policy, permissions policy, and HSTS.
 - `npm run ux:public` passes for public entry routes before sharing screenshots.
 - `npm run ux:owner` passes for signed-in owner routes before a moderated test.
+- `npm run ux:helper` passes for vendor/collaborator routes before testing
+  shared access.
 - Deep health is protected and does not expose database errors publicly.
 - Vendor and collaborator portals do not expose unrelated requests.
 - Notification attempts are logged even when outbound email is not configured.

@@ -11,9 +11,8 @@ export default async function AcceptInvitePage({
   const { invite: inviteId } = await searchParams;
   const session = await getSession();
 
-  // Unauthenticated: bounce to login, but remember where to come back to
-  // (proxy.ts treats /accept-invite as a public route specifically so this
-  // page — not proxy — controls the redirect and keeps the invite id).
+  // Unauthenticated visitors are sent to login, but the invite id is kept so
+  // the acceptance flow can resume after sign-in.
   if (!session?.user) {
     const callbackUrl = `/accept-invite${inviteId ? `?invite=${inviteId}` : ""}`;
     redirect(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
@@ -28,12 +27,12 @@ export default async function AcceptInvitePage({
   });
 
   if (!invite) {
-    return <Shell status="This invite doesn't exist or is no longer valid." />;
+    return <Shell status="This invite does not exist or is no longer valid." />;
   }
   if (invite.role !== session.user.role) {
     return (
       <Shell
-        status={`This invite is for a ${invite.role} account. You're signed in as a ${session.user.role} — sign out and sign in with the right account to accept it.`}
+        status={`This invite is for a ${invite.role} account. You are signed in as a ${session.user.role}. Sign out and sign in with the right account to accept it.`}
       />
     );
   }
@@ -62,18 +61,21 @@ export default async function AcceptInvitePage({
   }
 
   return (
-    <Shell status={`You've been invited to work on this request as a ${invite.role}:`}>
-      <div className="text-sm text-gray-700 space-y-1 mb-4">
-        <p>
-          <strong>Title:</strong> {req.title}
-        </p>
-        <p>
-          <strong>Category:</strong> {req.category}
-        </p>
-        <p>
-          <strong>Location:</strong> {req.location || "—"}
-        </p>
-      </div>
+    <Shell status={`You have been invited to work on this request as a ${invite.role}.`}>
+      <dl className="mb-4 space-y-2 text-sm text-gray-700">
+        <div>
+          <dt className="font-semibold">Title</dt>
+          <dd>{req.title}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold">Category</dt>
+          <dd>{req.category}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold">Location</dt>
+          <dd>{req.location || "Not recorded"}</dd>
+        </div>
+      </dl>
       <AcceptInviteButton inviteId={inviteId} redirectTo={roleHome(invite.role)} />
     </Shell>
   );
@@ -81,15 +83,19 @@ export default async function AcceptInvitePage({
 
 function Shell({ status, children }: { status: string; children?: React.ReactNode }) {
   return (
-    <div className="min-h-screen grid place-items-center bg-gray-50">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold">🤝 Accept Invite</h1>
-          <p className="text-gray-500">TurnFlow Home</p>
+    <main className="grid min-h-screen place-items-center bg-[#f6f7f4] px-4 py-8">
+      <section className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-emerald-800">TurnFlow Home</p>
+          <h1 className="mt-2 text-2xl font-bold">Accept invite</h1>
+          <p className="mt-2 text-sm leading-6 text-gray-600">
+            Confirm the shared maintenance request before it appears in your
+            scoped workspace.
+          </p>
         </div>
-        <p className="text-sm text-gray-700 mb-4">{status}</p>
+        <p className="mb-4 text-sm text-gray-700">{status}</p>
         {children}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
