@@ -17,7 +17,16 @@ export default async function RequestDetailPage({
 
   const request = await db.query.requests.findFirst({
     where: (r, { eq }) => eq(r.id, id),
-    with: { property: true, photos: true, quotes: true, log: true, comments: true },
+    with: {
+      property: true,
+      photos: true,
+      quotes: true,
+      log: true,
+      comments: true,
+      workSessions: {
+        orderBy: (w, { desc }) => desc(w.createdAt),
+      },
+    },
   });
 
   if (!request || request.ownerId !== session.user.id) {
@@ -58,6 +67,7 @@ export default async function RequestDetailPage({
         quotes={request.quotes}
         log={request.log}
         comments={request.comments}
+        workSessions={request.workSessions}
         property={request.property}
         userId={session.user.id}
         creationNotice={requestCreatedNotice(created, uploads)}

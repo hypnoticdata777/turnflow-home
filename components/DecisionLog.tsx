@@ -10,6 +10,8 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
     `Vendor bid submitted by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   vendor_bid_updated: (d) =>
     `Vendor bid updated by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
+  work_session_event: (d) =>
+    `${d.label || "Work session updated"}${d.notes ? `: ${d.notes}` : "."}`,
   shared_access_removed: (d) => {
     const role = d.role === "collaborator" ? "collaborator" : "vendor";
     return d.removedUserEmail

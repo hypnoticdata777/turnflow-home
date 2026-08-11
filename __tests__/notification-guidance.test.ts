@@ -14,6 +14,7 @@ describe("notificationTypeLabel", () => {
     expect(notificationTypeLabel("vendor_bid_updated")).toBe("Vendor bid updated");
     expect(notificationTypeLabel("vendor_bid_approved")).toBe("Vendor bid approved");
     expect(notificationTypeLabel("vendor_bid_declined")).toBe("Vendor bid declined");
+    expect(notificationTypeLabel("work_session_event")).toBe("Work session event");
     expect(notificationTypeLabel("unknown_type")).toBe("unknown_type");
   });
 });
@@ -25,7 +26,7 @@ describe("notificationDeliveryMetrics", () => {
         label: "Logged attempts",
         value: "0",
         detail:
-          "Notification attempts will appear here after invites, status changes, vendor bids, bid decisions, or reminder digests.",
+          "Notification attempts will appear here after invites, status changes, vendor bids, bid decisions, work sessions, or reminder digests.",
         tone: "empty",
       },
       {
@@ -69,7 +70,7 @@ describe("notificationDeliveryMetrics", () => {
         label: "Logged attempts",
         value: "3",
         detail:
-          "Every invite, status, vendor bid update, bid decision, and reminder email attempt is preserved here.",
+          "Every invite, status, vendor bid update, bid decision, work session, and reminder email attempt is preserved here.",
         tone: "ready",
       },
       {

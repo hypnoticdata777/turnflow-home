@@ -15,6 +15,9 @@ export default async function VendorPage() {
       property: { columns: { address: true, nickname: true } },
       photos: { columns: { type: true } },
       comments: true,
+      workSessions: {
+        orderBy: (w, { desc }) => desc(w.createdAt),
+      },
     },
     columns: {
       id: true,

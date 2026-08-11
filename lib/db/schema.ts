@@ -60,6 +60,12 @@ export const notificationStatusEnum = pgEnum("notification_status", [
   "sent",
   "failed",
 ]);
+export const workSessionEventEnum = pgEnum("work_session_event", [
+  "started",
+  "paused",
+  "resumed",
+  "stopped",
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -189,6 +195,19 @@ export const comments = pgTable("comments", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const workSessions = pgTable("work_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  requestId: uuid("request_id")
+    .notNull()
+    .references(() => requests.id, { onDelete: "cascade" }),
+  vendorId: uuid("vendor_id")
+    .notNull()
+    .references(() => users.id),
+  event: workSessionEventEnum("event").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const vaultDocuments = pgTable("vault_documents", {
   id: uuid("id").defaultRandom().primaryKey(),
   propertyId: uuid("property_id")
@@ -279,6 +298,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   properties: many(properties),
   ownedRequests: many(requests, { relationName: "ownerRequests" }),
   vendorProfile: one(vendorProfiles),
+  workSessions: many(workSessions),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -310,6 +330,7 @@ export const requestsRelations = relations(requests, ({ one, many }) => ({
   quotes: many(quotes),
   log: many(decisionLog),
   comments: many(comments),
+  workSessions: many(workSessions),
 }));
 
 export const requestPhotosRelations = relations(requestPhotos, ({ one }) => ({
@@ -348,6 +369,14 @@ export const commentsRelations = relations(comments, ({ one }) => ({
     references: [requests.id],
   }),
   author: one(users, { fields: [comments.authorId], references: [users.id] }),
+}));
+
+export const workSessionsRelations = relations(workSessions, ({ one }) => ({
+  request: one(requests, {
+    fields: [workSessions.requestId],
+    references: [requests.id],
+  }),
+  vendor: one(users, { fields: [workSessions.vendorId], references: [users.id] }),
 }));
 
 export const invitesRelations = relations(invites, ({ one }) => ({
@@ -391,6 +420,7 @@ export type RequestPhoto = typeof requestPhotos.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type DecisionLogEntry = typeof decisionLog.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
+export type WorkSession = typeof workSessions.$inferSelect;
 export type Invite = typeof invites.$inferSelect;
 export type VaultDocument = typeof vaultDocuments.$inferSelect;
 export type Reminder = typeof reminders.$inferSelect;

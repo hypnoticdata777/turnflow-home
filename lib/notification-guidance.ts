@@ -31,6 +31,7 @@ const TYPE_LABELS: Record<string, string> = {
   vendor_bid_updated: "Vendor bid updated",
   vendor_bid_approved: "Vendor bid approved",
   vendor_bid_declined: "Vendor bid declined",
+  work_session_event: "Work session event",
   reminder_due: "Maintenance reminder",
 };
 
@@ -60,8 +61,8 @@ export function notificationDeliveryMetrics(
       value: String(entries.length),
       detail:
         entries.length > 0
-          ? "Every invite, status, vendor bid update, bid decision, and reminder email attempt is preserved here."
-          : "Notification attempts will appear here after invites, status changes, vendor bids, bid decisions, or reminder digests.",
+          ? "Every invite, status, vendor bid update, bid decision, work session, and reminder email attempt is preserved here."
+          : "Notification attempts will appear here after invites, status changes, vendor bids, bid decisions, work sessions, or reminder digests.",
       tone: entries.length > 0 ? "ready" : "empty",
     },
     {

@@ -12,6 +12,7 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
   quote_declined: (d) => `Declined quote from ${d.vendorName || "a vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   vendor_bid_submitted: (d) => `Vendor bid submitted by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   vendor_bid_updated: (d) => `Vendor bid updated by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
+  work_session_event: (d) => `${d.label || "Work session updated"}${d.notes ? `: ${d.notes}` : "."}`,
 };
 
 function lastAutoTableFinalY(doc: jsPDF): number {

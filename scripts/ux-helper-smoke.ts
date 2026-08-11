@@ -80,6 +80,8 @@ async function assertHelperWorkspace(page: Page, pathName: string, role: "vendor
           "Vendor lifecycle",
           "Bid / price context",
           "Private owner bid",
+          "Work session",
+          "Work timeline",
           "Vendor status",
           "What you can see",
           "Upload photos",

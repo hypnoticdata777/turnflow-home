@@ -187,6 +187,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Vendor lifecycle tracker for assigned jobs, covering opportunity, bid/price
   context, owner approval, scheduled/ready, work in progress, closeout proof,
   and billing record stages.
+- Vendor work-session events for start, pause, resume, and stop, with notes,
+  owner-visible timeline history, decision-log entries, and owner notifications.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
   after-photo gaps, and final-cost gaps before owner review.
 - Owner Account & Sharing Center with profile context, invite activity, access
@@ -200,8 +202,9 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Per-request PDF proof packets, per-property PDF history rollups, CSV history
   export, and JSON backup/restore.
 - Email notifications through Resend for invites, status changes, vendor bid
-  updates, vendor bid decisions, and reminder digests, with log-only fallback
-  and owner-facing delivery-health guidance when email is not configured.
+  updates, vendor bid decisions, work-session events, and reminder digests, with
+  log-only fallback and owner-facing delivery-health guidance when email is not
+  configured.
 - Public `/api/health` endpoint and protected `/api/health/deep` database check.
 - Global browser security headers configured in `next.config.ts`.
 
@@ -240,10 +243,11 @@ Before inviting external users, the remaining launch steps are:
 - No organization/workspace billing model yet.
 - Vendor and collaborator accounts remain invite-driven or seeded for the POC;
   public signup stays homeowner-focused.
-- Open vendor opportunity bidding, automated trade matching, work-session
-  tracking, and billing records are planned product layers. The current vendor
-  profile, assigned-vendor bid flow, and lifecycle tracker make assigned jobs
-  more traceable, but they do not yet create an open vendor marketplace.
+- Open vendor opportunity bidding, automated trade matching, richer billing
+  records, and payments are planned product layers. The current vendor profile,
+  assigned-vendor bid flow, lifecycle tracker, and work-session timeline make
+  assigned jobs more traceable, but they do not yet create an open vendor
+  marketplace.
 - Email can run in log-only mode, but real launch testing should verify Resend
   deliverability, sender domain setup, and reminder cron behavior.
 - Privacy/audit history is strong for request decisions and access changes, but

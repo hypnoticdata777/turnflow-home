@@ -28,6 +28,8 @@ The current app supports assigned vendor accounts:
   vendor-submitted ratio, and per-quote price position.
 - Vendors receive logged notification attempts when an owner approves or
   declines their submitted bid, keeping the bid loop visible on both sides.
+- Vendors can record start, pause, resume, and stop work-session events with
+  notes; owners can see the resulting work timeline on the request record.
 - The vendor portal now shows a per-request lifecycle tracker:
   opportunity received, bid/price context, owner approval, scheduled/ready,
   work in progress, closeout proof, and billing record.
@@ -82,7 +84,8 @@ True bidding and billing will need additional tables or expanded fields:
   and opportunity status.
 - Vendor bids: vendor ID, amount, notes, available dates, attachments,
   expiration, and owner decision state.
-- Work sessions: start, pause, resume, stop, timestamps, notes, and actor.
+- Work sessions: start, pause, resume, stop, timestamps, notes, and actor. Done
+  for assigned vendors.
 - Closeout submissions: proof bundle, materials, receipts, invoice amount, and
   owner review decision.
 - Billing records: final amount, invoice reference, payment status, and export
@@ -106,7 +109,7 @@ True bidding and billing will need additional tables or expanded fields:
 5. Add owner bid review guidance. Done.
 6. Add vendor bid decision notifications after owner approval/decline. Done.
 7. Add owner bid comparison metrics for active quotes. Done.
-8. Add open opportunity notifications before assignment.
-9. Add owner bid comparison and approval tied to assigned vendor selection.
-10. Add work session events for start, pause, resume, stop, and notes.
+8. Add work session events for start, pause, resume, stop, and notes. Done.
+9. Add open opportunity notifications before assignment.
+10. Add owner bid comparison and approval tied to assigned vendor selection.
 11. Add closeout submission and owner review before billing record finalization.

@@ -45,6 +45,15 @@ describe("describeLogAction", () => {
     ).toBe("Vendor bid updated by Brightside Home Services ($350.00).");
   });
 
+  it("describes work session events with notes", () => {
+    expect(
+      describeLogAction("work_session_event", {
+        label: "Paused work",
+        notes: "Waiting for access to the shutoff valve",
+      })
+    ).toBe("Paused work: Waiting for access to the shutoff valve");
+  });
+
   it("falls back to the action key for unknown log events", () => {
     expect(describeLogAction("unknown_event", null)).toBe("unknown_event");
   });

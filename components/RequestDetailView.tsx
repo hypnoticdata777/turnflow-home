@@ -25,6 +25,7 @@ import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { RequestCreatedNoticeBanner } from "@/components/RequestCreatedNoticeBanner";
 import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
 import { VendorFitPanel } from "@/components/VendorFitPanel";
+import { WorkSessionTimeline, type WorkSessionData } from "@/components/WorkSessionTimeline";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -154,6 +155,7 @@ export function RequestDetailView({
   quotes,
   log,
   comments,
+  workSessions,
   property,
   userId,
   creationNotice,
@@ -164,6 +166,7 @@ export function RequestDetailView({
   quotes: QuoteData[];
   log: LogEntryData[];
   comments: CommentData[];
+  workSessions: WorkSessionData[];
   property: Property;
   userId: string;
   creationNotice: RequestCreatedNotice | null;
@@ -539,6 +542,10 @@ export function RequestDetailView({
       <section id="decision-log" className="scroll-mt-6">
         <DecisionLog entries={log} userId={userId} assignedVendorId={request.assignedVendorId} />
       </section>
+
+      <hr className="my-4" />
+
+      <WorkSessionTimeline events={workSessions} />
 
       <hr className="my-4" />
 

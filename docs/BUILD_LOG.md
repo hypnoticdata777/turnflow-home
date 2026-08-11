@@ -2,6 +2,51 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Vendor Work Session Events
+
+Scope: make vendor work activity traceable from start through pause, resume, and
+stop.
+
+### Changed
+
+- Added `work_session_event` and `work_sessions` to the Drizzle schema.
+- Added a vendor-only work-session action that verifies assigned-vendor access.
+- Added work-session controls to `/vendor` with notes, recommended next action,
+  and timeline history.
+- Added an owner-visible work timeline to request detail.
+- Logged work-session events in the decision log and proof packet.
+- Sent/logged owner notifications for work-session events.
+- Updated owner/helper smoke checks, README, UI/UX review docs, notification
+  guidance, and vendor lifecycle roadmap.
+
+### Why
+
+Status alone is too blunt for a serious vendor workflow. A homeowner should be
+able to see when work actually started, why it paused, when it resumed, and
+when the vendor stopped for owner review. This creates the trace needed for
+later closeout, billing, and user testing without introducing payments yet.
+
+### Validation
+
+- `npm test -- work-sessions decision-log notification-guidance` passed: 19
+  tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0003_cute_shooting_star.sql`.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 208 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migration.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add closeout submission and owner review before billing record finalization.
+- Add open opportunity notifications before assignment.
+- Add manual UX pass for work-session controls on desktop and mobile demo data.
+
 ## 2026-08-11 - Owner Quote Comparison Metrics
 
 Scope: make multi-quote owner decisions easier to compare without turning the
@@ -40,7 +85,7 @@ availability, and confidence still matter.
 ### Follow-Up
 
 - Add open opportunity notifications before assignment.
-- Add work-session events for start, pause, resume, stop, and billing prep.
+- Add closeout submission and owner review before billing record finalization.
 - Add manual UX pass for quote comparison on desktop and mobile demo data.
 
 ## 2026-08-11 - Vendor Bid Decision Notifications
