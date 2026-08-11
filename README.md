@@ -185,7 +185,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Per-request PDF proof packets, per-property PDF history rollups, CSV history
   export, and JSON backup/restore.
 - Email notifications through Resend for invites, status changes, and reminder
-  digest, with log-only fallback when email is not configured.
+  digest, with log-only fallback and owner-facing delivery-health guidance when
+  email is not configured.
 - Public `/api/health` endpoint and protected `/api/health/deep` database check.
 - Global browser security headers configured in `next.config.ts`.
 

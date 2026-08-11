@@ -24,6 +24,11 @@ const ROUTES = [
   { name: "backup", path: "/owner/backup", heading: "Backup & restore", nav: "Backup" },
 ] as const;
 
+const ROUTE_TEXT_CHECKS: Partial<Record<(typeof ROUTES)[number]["path"], string[]>> = {
+  "/owner/dashboard": ["Homeowner value", "What TurnFlow is protecting for this home"],
+  "/owner/notifications": ["Notification health", "Can owners trust outbound alerts?"],
+};
+
 async function login(page: Page) {
   await page.goto(new URL("/login", BASE_URL).toString(), { waitUntil: "networkidle" });
   await page.getByLabel("Email").fill(OWNER_EMAIL);
@@ -85,6 +90,12 @@ async function assertRoute(page: Page, route: (typeof ROUTES)[number]) {
   });
   if (overflow > 2) {
     throw new Error(`${route.path} has ${overflow}px horizontal overflow`);
+  }
+
+  for (const expectedText of ROUTE_TEXT_CHECKS[route.path] ?? []) {
+    if ((await page.getByText(expectedText, { exact: true }).count()) === 0) {
+      throw new Error(`${route.path} is missing route quality text "${expectedText}"`);
+    }
   }
 }
 

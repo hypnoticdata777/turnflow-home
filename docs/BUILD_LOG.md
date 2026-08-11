@@ -2,6 +2,45 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Notification Delivery Health
+
+Scope: make the owner notification log explain delivery reliability and next
+steps.
+
+### Changed
+
+- Added reusable notification guidance for type labels, delivery-health metrics,
+  and per-entry failure/action guidance.
+- Updated `/owner/notifications` with a notification-health snapshot and clearer
+  failed-attempt explanations.
+- Added tests for empty logs, mixed sent/failed attempts, Resend configuration
+  failures, missing-recipient failures, and known notification type labels.
+- Updated owner UX smoke checks to require the notification-health surface.
+- Updated README and UI/UX review docs for owner-facing delivery health.
+
+### Why
+
+For a hosted POC, outbound email may be disabled, misconfigured, or delayed.
+Owners need to understand whether alerts are trustworthy and what fallback to
+use, especially copyable invite links, without reading raw provider errors.
+
+### Validation
+
+- `npm test -- notification-guidance` passed: 6 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 162 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run owner browser smoke against a seeded environment with both sent and failed
+  notification attempts.
+
 ## 2026-08-11 - Owner Dashboard Update Signals
 
 Scope: make shared-request communication health visible from the owner
