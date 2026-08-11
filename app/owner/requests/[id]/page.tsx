@@ -32,6 +32,9 @@ export default async function RequestDetailPage({
       tasks: {
         orderBy: (task, { asc }) => [asc(task.sortOrder), asc(task.createdAt)],
       },
+      closeoutSubmissions: {
+        orderBy: (closeout, { desc }) => desc(closeout.submittedAt),
+      },
     },
   });
 
@@ -75,6 +78,7 @@ export default async function RequestDetailPage({
         comments={request.comments}
         workSessions={request.workSessions}
         tasks={request.tasks}
+        closeoutSubmissions={request.closeoutSubmissions}
         property={request.property}
         userId={session.user.id}
         creationNotice={requestCreatedNotice(created, uploads)}

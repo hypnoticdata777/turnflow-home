@@ -5,6 +5,7 @@ config({ path: ".env.local" });
 
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
+import { eq } from "drizzle-orm";
 import * as schema from "../lib/db/schema";
 
 const sql = neon(process.env.DATABASE_URL!);
@@ -13,6 +14,7 @@ const db = drizzle(sql, { schema });
 async function main() {
   const owner = await db.query.users.findFirst({ where: (u, { eq }) => eq(u.email, "owner@test.com") });
   if (!owner) throw new Error("Run npm run db:seed first");
+  const vendor = await db.query.users.findFirst({ where: (u, { eq }) => eq(u.email, "vendor@test.com") });
 
   const property = await db.query.properties.findFirst({ where: (p, { eq }) => eq(p.ownerId, owner.id) });
   if (!property) throw new Error("No property found");
@@ -45,6 +47,17 @@ async function main() {
   // A real quote row on the HVAC request, for a populated quote-workspace screenshot.
   const hvacRequest = await db.query.requests.findFirst({ where: (req, { eq }) => eq(req.title, "HVAC not cooling upstairs") });
   if (hvacRequest) {
+    if (vendor) {
+      await db
+        .update(schema.requests)
+        .set({
+          assignedVendorId: vendor.id,
+          finalCost: "245.00",
+          status: "Needs Review",
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.requests.id, hvacRequest.id));
+    }
     const existingQuote = await db.query.quotes.findFirst({ where: (q, { eq }) => eq(q.requestId, hvacRequest.id) });
     if (!existingQuote) {
       await db.insert(schema.quotes).values({
@@ -96,6 +109,23 @@ async function main() {
         },
       ]);
       console.log("Added: project tasks for HVAC request");
+    }
+
+    if (vendor) {
+      const existingCloseout = await db.query.closeoutSubmissions.findFirst({
+        where: (closeout, { eq }) => eq(closeout.requestId, hvacRequest.id),
+      });
+      if (!existingCloseout) {
+        await db.insert(schema.closeoutSubmissions).values({
+          requestId: hvacRequest.id,
+          vendorId: vendor.id,
+          completionNotes:
+            "Diagnosed upstairs airflow, confirmed the return path was restricted, and restored cooling performance for owner review.",
+          materialsNotes: "Diagnostic labor and refrigerant top-off receipt are ready for the owner record.",
+          finalAmount: "245.00",
+        });
+        console.log("Added: vendor closeout submission for HVAC request");
+      }
     }
   }
 

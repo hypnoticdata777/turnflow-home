@@ -74,10 +74,14 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 8. Add cost context or a quote.
 9. Add at least one project task with expected proof and estimated cost.
 10. Mark a task done, save a final task cost, and accept it for closeout.
-11. Confirm the setup guide progress changes after property, request, evidence,
+11. As the assigned vendor, submit closeout with completion notes, materials or
+   receipt notes, and final amount.
+12. As the owner, confirm the closeout appears on request detail and the final
+   request cost is updated.
+13. Confirm the setup guide progress changes after property, request, evidence,
    sharing, history, and reminder steps.
-12. Download a proof packet PDF.
-13. Export owner backup data from `/owner/backup`.
+14. Download a proof packet PDF.
+15. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 
@@ -110,6 +114,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
   an explicit waiver reason in the Decision Log.
 - Done project tasks can be accepted by the owner, and changing an accepted
   task away from done clears the acceptance.
+- Vendor closeout submission requires after-photo proof, done project tasks,
+  completion notes, and a positive final amount before owner review.
 - Public screenshots and demo records contain no private addresses, contacts,
   receipts, or real customer data.
 

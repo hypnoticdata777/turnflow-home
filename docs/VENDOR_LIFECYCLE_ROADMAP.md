@@ -37,6 +37,9 @@ The current app supports assigned vendor accounts:
 - Owners can record estimated and final cost per project task, then accept
   done tasks for closeout so billing review is tied to scope instead of one
   loose request total.
+- Vendors can submit a closeout bundle with completion notes, materials/receipt
+  notes, final amount, readiness checks, owner notification, and decision-log
+  history.
 - The vendor portal now shows a per-request lifecycle tracker:
   opportunity received, bid/price context, owner approval, scheduled/ready,
   work in progress, closeout proof, and billing record.
@@ -97,7 +100,8 @@ True bidding and billing will need additional tables or expanded fields:
   work-session task links, estimated/final costs, and owner acceptance. Done for
   assigned requests.
 - Closeout submissions: proof bundle, materials, receipts, invoice amount, and
-  owner review decision.
+  owner review decision. First assigned-vendor closeout submission is done;
+  richer invoice/payment state is still future work.
 - Billing records: final amount, invoice reference, payment status, and export
   metadata.
 
@@ -127,4 +131,7 @@ True bidding and billing will need additional tables or expanded fields:
     closeout. Done.
 12. Add open opportunity notifications before assignment.
 13. Add owner bid comparison and approval tied to assigned vendor selection.
-14. Add closeout submission and richer billing record finalization.
+14. Add closeout submission and owner review before billing record
+    finalization. Done.
+15. Add richer invoice/payment state after owner/vendor closeout behavior is
+    tested.

@@ -240,6 +240,22 @@ export const requestTasks = pgTable("request_tasks", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const closeoutSubmissions = pgTable("closeout_submissions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  requestId: uuid("request_id")
+    .notNull()
+    .references(() => requests.id, { onDelete: "cascade" }),
+  vendorId: uuid("vendor_id")
+    .notNull()
+    .references(() => users.id),
+  completionNotes: text("completion_notes").notNull(),
+  materialsNotes: text("materials_notes"),
+  finalAmount: numeric("final_amount", { precision: 10, scale: 2 }).notNull(),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const vaultDocuments = pgTable("vault_documents", {
   id: uuid("id").defaultRandom().primaryKey(),
   propertyId: uuid("property_id")
@@ -331,6 +347,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   ownedRequests: many(requests, { relationName: "ownerRequests" }),
   vendorProfile: one(vendorProfiles),
   workSessions: many(workSessions),
+  closeoutSubmissions: many(closeoutSubmissions),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -364,6 +381,7 @@ export const requestsRelations = relations(requests, ({ one, many }) => ({
   comments: many(comments),
   workSessions: many(workSessions),
   tasks: many(requestTasks),
+  closeoutSubmissions: many(closeoutSubmissions),
 }));
 
 export const requestPhotosRelations = relations(requestPhotos, ({ one }) => ({
@@ -430,6 +448,17 @@ export const requestTasksRelations = relations(requestTasks, ({ one, many }) => 
   workSessions: many(workSessions),
 }));
 
+export const closeoutSubmissionsRelations = relations(closeoutSubmissions, ({ one }) => ({
+  request: one(requests, {
+    fields: [closeoutSubmissions.requestId],
+    references: [requests.id],
+  }),
+  vendor: one(users, {
+    fields: [closeoutSubmissions.vendorId],
+    references: [users.id],
+  }),
+}));
+
 export const invitesRelations = relations(invites, ({ one }) => ({
   owner: one(users, { fields: [invites.ownerId], references: [users.id] }),
   request: one(requests, {
@@ -473,6 +502,7 @@ export type DecisionLogEntry = typeof decisionLog.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type WorkSession = typeof workSessions.$inferSelect;
 export type RequestTask = typeof requestTasks.$inferSelect;
+export type CloseoutSubmission = typeof closeoutSubmissions.$inferSelect;
 export type Invite = typeof invites.$inferSelect;
 export type VaultDocument = typeof vaultDocuments.$inferSelect;
 export type Reminder = typeof reminders.$inferSelect;

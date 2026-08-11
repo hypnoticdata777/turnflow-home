@@ -193,6 +193,9 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Vendor work-session events for start, pause, resume, and stop, with notes,
   task/area labels, required before/after proof for start/stop, owner-visible
   timeline history, decision-log entries, and owner notifications.
+- Vendor closeout submissions with completion notes, materials/receipt notes,
+  final amount, after-photo/task-completion readiness checks, owner-visible
+  review state, final-cost copy, decision-log history, and owner notification.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
   after-photo gaps, and final-cost gaps before owner review.
 - Owner Account & Sharing Center with profile context, invite activity, access
@@ -247,11 +250,12 @@ Before inviting external users, the remaining launch steps are:
 - No organization/workspace billing model yet.
 - Vendor and collaborator accounts remain invite-driven or seeded for the POC;
   public signup stays homeowner-focused.
-- Open vendor opportunity bidding, automated trade matching, richer billing
-  records, and payments are planned product layers. The current vendor profile,
-  assigned-vendor bid flow, lifecycle tracker, task-level cost/acceptance flow,
-  and work-session timeline make assigned jobs more traceable, but they do not
-  yet create an open vendor marketplace.
+- Open vendor opportunity bidding, automated trade matching, invoice/payment
+  records, and subscriptions are planned product layers. The current vendor
+  profile, assigned-vendor bid flow, lifecycle tracker, task-level
+  cost/acceptance flow, closeout submissions, and work-session timeline make
+  assigned jobs more traceable, but they do not yet create an open vendor
+  marketplace or payment system.
 - Email can run in log-only mode, but real launch testing should verify Resend
   deliverability, sender domain setup, and reminder cron behavior.
 - Privacy/audit history is strong for request decisions and access changes, but

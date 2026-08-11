@@ -24,6 +24,10 @@ import { VendorBidPanel, type VendorBidData } from "@/components/VendorBidPanel"
 import { WorkSessionPanel } from "@/components/WorkSessionPanel";
 import type { WorkSessionData } from "@/components/WorkSessionTimeline";
 import { RequestTaskChecklist, type RequestTaskData } from "@/components/RequestTaskChecklist";
+import {
+  CloseoutSubmissionPanel,
+  type CloseoutSubmissionData,
+} from "@/components/CloseoutSubmissionPanel";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -56,6 +60,7 @@ type VendorRequest = {
   comments: CommentData[];
   workSessions: WorkSessionData[];
   tasks: RequestTaskData[];
+  closeoutSubmissions: CloseoutSubmissionData[];
   vendorBid: VendorBidData | null;
 };
 
@@ -305,6 +310,19 @@ export function VendorPortal({
                     userId={userId}
                     tasks={r.tasks}
                   />
+
+                  <div className="mt-4">
+                    <CloseoutSubmissionPanel
+                      request={{
+                        id: r.id,
+                        finalCost: r.finalCost,
+                        photos: r.photos,
+                        tasks: r.tasks,
+                      }}
+                      submissions={r.closeoutSubmissions}
+                      mode="vendor"
+                    />
+                  </div>
 
                   <label className="mt-4 block text-sm">
                     <span className="font-semibold">Status</span>

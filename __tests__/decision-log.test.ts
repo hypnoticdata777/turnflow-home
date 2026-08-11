@@ -76,6 +76,9 @@ describe("describeLogAction", () => {
     expect(describeLogAction("request_task_accepted", { title: "Demo" })).toBe(
       'Accepted project task "Demo" for closeout.'
     );
+    expect(describeLogAction("closeout_submitted", { finalAmount: "250.00" })).toBe(
+      "Vendor submitted closeout for owner review ($250.00)."
+    );
   });
 
   it("falls back to the action key for unknown log events", () => {

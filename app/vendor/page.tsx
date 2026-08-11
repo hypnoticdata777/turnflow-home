@@ -24,6 +24,9 @@ export default async function VendorPage() {
       tasks: {
         orderBy: (task, { asc }) => [asc(task.sortOrder), asc(task.createdAt)],
       },
+      closeoutSubmissions: {
+        orderBy: (closeout, { desc }) => desc(closeout.submittedAt),
+      },
     },
     columns: {
       id: true,

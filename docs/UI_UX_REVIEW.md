@@ -61,9 +61,10 @@ Review these routes in every POC pass:
   contact preference feel worth the effort.
 - `/owner/requests/[id]`: record-value snapshot, assigned-vendor fit, bid
   review guidance, quote comparison metrics, project task checklist,
-  task-level cost review, owner task acceptance, proof, quote, vendor work
-  timeline, comments, guided update drafts, status handoff guidance, decision
-  log, and sharing controls feel like one repair record.
+  task-level cost review, owner task acceptance, vendor closeout handoff,
+  proof, quote, vendor work timeline, comments, guided update drafts, status
+  handoff guidance, decision log, and sharing controls feel like one repair
+  record.
 - `/owner/account`: sharing boundaries, active access, invite history, and
   profile edits are understandable.
 - `/owner/notifications`: delivery-health snapshot, failed-attempt guidance,
@@ -78,10 +79,10 @@ Review these routes in every POC pass:
 - `/vendor`: scoped access, vendor matching profile, private owner bid form,
   lifecycle tracker, project task checklist, work-session controls, required
   start/stop proof photos, task links, task-level cost visibility, owner
-  acceptance state, bid decision state, bid/price context, closeout snapshot,
-  request readiness, guided owner-handoff drafts, status handoff guidance,
-  updates, proof upload, and completion-waiver path make vendor next actions
-  obvious.
+  acceptance state, closeout submission form, bid decision state, bid/price
+  context, closeout snapshot, request readiness, guided owner-handoff drafts,
+  status handoff guidance, updates, proof upload, and completion-waiver path
+  make vendor next actions obvious.
 - `/collaborator`: scoped access, shared request readiness, and guided update
   thread make helper next actions obvious while unrelated owner data is absent.
 

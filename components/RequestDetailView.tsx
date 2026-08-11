@@ -27,6 +27,10 @@ import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
 import { VendorFitPanel } from "@/components/VendorFitPanel";
 import { WorkSessionTimeline, type WorkSessionData } from "@/components/WorkSessionTimeline";
 import { RequestTaskChecklist, type RequestTaskData } from "@/components/RequestTaskChecklist";
+import {
+  CloseoutSubmissionPanel,
+  type CloseoutSubmissionData,
+} from "@/components/CloseoutSubmissionPanel";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -158,6 +162,7 @@ export function RequestDetailView({
   comments,
   workSessions,
   tasks,
+  closeoutSubmissions,
   property,
   userId,
   creationNotice,
@@ -170,6 +175,7 @@ export function RequestDetailView({
   comments: CommentData[];
   workSessions: WorkSessionData[];
   tasks: RequestTaskData[];
+  closeoutSubmissions: CloseoutSubmissionData[];
   property: Property;
   userId: string;
   creationNotice: RequestCreatedNotice | null;
@@ -549,6 +555,19 @@ export function RequestDetailView({
       <hr className="my-4" />
 
       <RequestTaskChecklist requestId={request.id} tasks={tasks} mode="owner" />
+
+      <hr className="my-4" />
+
+      <CloseoutSubmissionPanel
+        request={{
+          id: request.id,
+          finalCost: request.finalCost,
+          photos,
+          tasks,
+        }}
+        submissions={closeoutSubmissions}
+        mode="owner"
+      />
 
       <hr className="my-4" />
 

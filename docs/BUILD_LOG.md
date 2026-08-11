@@ -2,6 +2,56 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Vendor Closeout Submission Bundle
+
+Scope: let assigned vendors submit a structured closeout handoff for owner
+review.
+
+### Changed
+
+- Added `closeout_submissions` to the Drizzle schema with request/vendor links,
+  completion notes, materials or receipt notes, final amount, and submitted
+  timestamps.
+- Added a vendor-only closeout submission Server Action that verifies assigned
+  vendor access before writing closeout history.
+- Required closeout submissions to include completion notes, a positive final
+  amount, after-photo proof, and completed project tasks.
+- Updated the request final cost and moved active work to `Needs Review` when
+  closeout is submitted.
+- Added an owner/vendor closeout panel: vendors can submit the handoff, owners
+  can review the latest handoff and readiness state on request detail.
+- Added decision-log, proof-packet, notification-label, demo seed, README, QA,
+  user-testing, UI/UX review, and vendor roadmap updates.
+
+### Why
+
+The vendor flow had proof-gated start/stop events and task status tracking, but
+closeout still lived across photos, comments, and status changes. A structured
+closeout submission gives vendors a clear finish line and gives owners a clean
+review artifact before they accept tasks or mark the request complete.
+
+### Validation
+
+- `npm test -- closeout-submissions decision-log notification-guidance` passed:
+  18 tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0008_melted_zemo.sql`.
+- `npm run verify` passed.
+- `npm run lint` passed with no warnings.
+- `npm test` passed: 224 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migration.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run owner/vendor mobile UX against seeded closeout data.
+- Add owner approve/reject state for closeout submissions if user testing shows
+  owners need a stronger decision workflow than task acceptance plus Complete.
+- Add invoice/payment records after closeout handoff behavior is tested.
+
 ## 2026-08-11 - Task Costs And Owner Acceptance
 
 Scope: add task-level closeout review so owners can accept completed work with
