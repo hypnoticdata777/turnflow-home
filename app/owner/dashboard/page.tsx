@@ -6,6 +6,7 @@ import { invites, properties, reminders, requests, vaultDocuments } from "@/lib/
 import {
   ownerDashboardGuidance,
   ownerRequestCardSignal,
+  ownerRequestUpdateSignal,
   ownerSetupProgress,
   ownerSetupSteps,
   ownerValueMetrics,
@@ -34,7 +35,7 @@ export default async function OwnerDashboardPage({
     db.query.requests.findMany({
       where: eq(requests.ownerId, session.user.id),
       orderBy: (r, { desc }) => desc(r.createdAt),
-      with: { property: true, photos: true },
+      with: { property: true, photos: true, comments: true },
     }),
     db.query.properties.findMany({
       where: eq(properties.ownerId, session.user.id),
@@ -129,6 +130,18 @@ export default async function OwnerDashboardPage({
         ? "border-blue-200 bg-blue-50 text-blue-950"
         : "border-amber-200 bg-amber-50 text-amber-950";
   const requestSignalButtonClasses = (tone: ReturnType<typeof ownerRequestCardSignal>["tone"]) =>
+    tone === "ready"
+      ? "bg-emerald-800 hover:bg-emerald-900"
+      : tone === "attention"
+        ? "bg-blue-800 hover:bg-blue-900"
+        : "bg-amber-800 hover:bg-amber-900";
+  const requestUpdateClasses = (tone: ReturnType<typeof ownerRequestUpdateSignal>["tone"]) =>
+    tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : tone === "attention"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : "border-amber-200 bg-amber-50 text-amber-950";
+  const requestUpdateButtonClasses = (tone: ReturnType<typeof ownerRequestUpdateSignal>["tone"]) =>
     tone === "ready"
       ? "bg-emerald-800 hover:bg-emerald-900"
       : tone === "attention"
@@ -255,6 +268,7 @@ export default async function OwnerDashboardPage({
             const cost = costForRequest(r);
             const costLabel = costLabelForRequest(r);
             const signal = ownerRequestCardSignal(r);
+            const updateSignal = ownerRequestUpdateSignal(r);
             const propertyLabel = r.property
               ? r.property.nickname
                 ? `${r.property.nickname} - ${r.property.address}`
@@ -300,6 +314,25 @@ export default async function OwnerDashboardPage({
                     )}`}
                   >
                     {signal.cta}
+                  </Link>
+                </div>
+
+                <div
+                  className={`mt-3 rounded-lg border p-3 sm:flex sm:items-start sm:justify-between sm:gap-4 ${requestUpdateClasses(
+                    updateSignal.tone
+                  )}`}
+                >
+                  <div>
+                    <p className="text-sm font-semibold">{updateSignal.label}</p>
+                    <p className="mt-1 text-sm leading-6">{updateSignal.detail}</p>
+                  </div>
+                  <Link
+                    href={updateSignal.href}
+                    className={`mt-3 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white sm:mt-0 ${requestUpdateButtonClasses(
+                      updateSignal.tone
+                    )}`}
+                  >
+                    {updateSignal.cta}
                   </Link>
                 </div>
 

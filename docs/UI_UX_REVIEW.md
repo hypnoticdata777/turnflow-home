@@ -53,7 +53,7 @@ Review these routes in every POC pass:
   or PMC confusion.
 - `/owner/onboarding`: setup guide feels useful, not like extra admin work.
 - `/owner/dashboard`: homeowner-value snapshot, request-card signals, status
-  filters, counts, and next action are scannable.
+  filters, counts, communication-health signals, and next action are scannable.
 - `/owner/properties`: first property setup, property care signals,
   request/document/reminder counts, history export, and delete boundaries feel
   clear.

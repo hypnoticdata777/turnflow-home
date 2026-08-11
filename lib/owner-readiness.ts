@@ -4,6 +4,7 @@ export type OwnerReadinessRequest = {
   status?: string;
   finalCost?: string | number | null;
   photos?: Array<unknown>;
+  comments?: Array<unknown>;
   assignedVendorId?: string | null;
   collaboratorId?: string | null;
   pendingVendorInviteId?: string | null;
@@ -63,6 +64,14 @@ export type OwnerCareMetric = {
 };
 
 export type OwnerRequestCardSignal = {
+  label: string;
+  detail: string;
+  tone: "attention" | "progress" | "ready";
+  href: string;
+  cta: string;
+};
+
+export type OwnerRequestUpdateSignal = {
   label: string;
   detail: string;
   tone: "attention" | "progress" | "ready";
@@ -573,6 +582,64 @@ export function ownerRequestCardSignal(
     tone: "progress",
     href: requestHref,
     cta: "Open record",
+  };
+}
+
+export function ownerRequestUpdateSignal(
+  request: OwnerReadinessRequest
+): OwnerRequestUpdateSignal {
+  const requestHref = request.id ? `/owner/requests/${request.id}` : "/owner/dashboard";
+  const helpers = requestHelperCount(request);
+  const commentCount = request.comments?.length ?? 0;
+
+  if (helpers === 0) {
+    return {
+      label: "No shared thread yet",
+      detail:
+        "Only the owner can see this request. Invite a vendor or trusted helper when outside help should update the record.",
+      tone: "progress",
+      href: `${requestHref}#sharing`,
+      cta: "Invite help",
+    };
+  }
+
+  if (commentCount === 0) {
+    return {
+      label: "Shared but quiet",
+      detail:
+        "A vendor or helper has scoped access, but no update has been posted yet. Start the handoff so expectations are clear.",
+      tone: "attention",
+      href: `${requestHref}#comments`,
+      cta: "Start thread",
+    };
+  }
+
+  if (request.status === "Needs Review") {
+    return {
+      label: "Review the thread",
+      detail: `${plural(commentCount, "update")} in the shared thread. Review comments before approving closeout.`,
+      tone: "attention",
+      href: `${requestHref}#comments`,
+      cta: "Review updates",
+    };
+  }
+
+  if (request.status === "Complete") {
+    return {
+      label: "Updates preserved",
+      detail: `${plural(commentCount, "update")} saved with this completed repair record.`,
+      tone: "ready",
+      href: `${requestHref}#comments`,
+      cta: "Review thread",
+    };
+  }
+
+  return {
+    label: "Updates active",
+    detail: `${plural(commentCount, "update")} in the shared thread. Keep decisions and next steps in the record.`,
+    tone: "ready",
+    href: `${requestHref}#comments`,
+    cta: "Open thread",
   };
 }
 

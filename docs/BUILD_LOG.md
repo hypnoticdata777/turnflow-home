@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Owner Dashboard Update Signals
+
+Scope: make shared-request communication health visible from the owner
+dashboard.
+
+### Changed
+
+- Added reusable `ownerRequestUpdateSignal` rules for owner-only records, shared
+  but quiet requests, review-stage threads, completed update history, and active
+  shared updates.
+- Loaded request comments into `/owner/dashboard` and added a second per-card
+  signal focused on update-thread health.
+- Extended owner-readiness tests for owner-only, quiet shared, review, and
+  completed update states.
+- Updated README and UI/UX review docs for dashboard communication-health
+  signals.
+
+### Why
+
+After adding guided update drafts, owners still needed a way to see which shared
+requests are quiet without opening every record. The dashboard now surfaces
+handoff risk directly on each request card.
+
+### Validation
+
+- `npm test -- owner-readiness` passed: 31 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 156 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner browser smoke assertions for quiet shared request signals once a
+  deterministic seeded owner dashboard state is available.
+
 ## 2026-08-11 - Status Handoff Guidance
 
 Scope: make owner/vendor status changes explain their meaning and consequences.

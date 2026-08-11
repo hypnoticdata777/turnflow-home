@@ -7,6 +7,7 @@ import {
   ownerPropertyCareSignal,
   ownerReadinessFlags,
   ownerRequestCardSignal,
+  ownerRequestUpdateSignal,
   ownerSetupProgress,
   ownerSetupSummary,
   ownerSetupSteps,
@@ -660,6 +661,75 @@ describe("ownerRequestCardSignal", () => {
       tone: "progress",
       href: "/owner/requests/request-1#cost",
       cta: "Add cost",
+    });
+  });
+});
+
+describe("ownerRequestUpdateSignal", () => {
+  it("points owner-only requests toward scoped sharing", () => {
+    expect(
+      ownerRequestUpdateSignal({
+        id: "request-1",
+        status: "Draft",
+        comments: [],
+      })
+    ).toEqual({
+      label: "No shared thread yet",
+      detail:
+        "Only the owner can see this request. Invite a vendor or trusted helper when outside help should update the record.",
+      tone: "progress",
+      href: "/owner/requests/request-1#sharing",
+      cta: "Invite help",
+    });
+  });
+
+  it("flags shared requests with no updates", () => {
+    expect(
+      ownerRequestUpdateSignal({
+        id: "request-1",
+        status: "Scheduled",
+        assignedVendorId: "vendor-1",
+        comments: [],
+      })
+    ).toMatchObject({
+      label: "Shared but quiet",
+      tone: "attention",
+      href: "/owner/requests/request-1#comments",
+      cta: "Start thread",
+    });
+  });
+
+  it("pushes review-state requests toward update review", () => {
+    expect(
+      ownerRequestUpdateSignal({
+        id: "request-1",
+        status: "Needs Review",
+        assignedVendorId: "vendor-1",
+        comments: [{}, {}],
+      })
+    ).toEqual({
+      label: "Review the thread",
+      detail: "2 updates in the shared thread. Review comments before approving closeout.",
+      tone: "attention",
+      href: "/owner/requests/request-1#comments",
+      cta: "Review updates",
+    });
+  });
+
+  it("marks completed request updates as preserved history", () => {
+    expect(
+      ownerRequestUpdateSignal({
+        id: "request-1",
+        status: "Complete",
+        assignedVendorId: "vendor-1",
+        comments: [{}],
+      })
+    ).toEqual({
+      label: "Updates preserved",
+      detail: "1 update saved with this completed repair record.",
+      tone: "ready",
+      href: "/owner/requests/request-1#comments",
+      cta: "Review thread",
     });
   });
 });

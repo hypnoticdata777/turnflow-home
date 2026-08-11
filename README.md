@@ -151,7 +151,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Homeowner setup guide that tracks first-run progress across property, request,
   evidence, helper sharing, saved history, and recurring care.
 - Owner dashboard with status filters, live counts, homeowner-value metrics, and
-  request-card next actions.
+  request-card next actions plus communication-health signals for quiet shared
+  threads and closeout review updates.
 - Guided request intake with category-specific safety checklist, urgency,
   location, access instructions, contact preference, inline photo upload, and
   quick first-property creation.
