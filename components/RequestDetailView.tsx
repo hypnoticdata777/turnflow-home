@@ -271,6 +271,7 @@ export function RequestDetailView({
       request,
       propertyLabel,
       quotes,
+      billingRecords,
       photos,
       log,
       actorLabel: (actorId) => actorLabel(actorId, userId, request.assignedVendorId),

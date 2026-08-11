@@ -88,7 +88,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 17. Confirm backup JSON and history CSV include billing record data.
 18. Confirm the setup guide progress changes after property, request, evidence,
    sharing, history, and reminder steps.
-19. Download a proof packet PDF.
+19. Download a proof packet PDF and confirm billing records appear as their own
+   table.
 20. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test

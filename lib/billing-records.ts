@@ -35,3 +35,21 @@ export function billingStatusDetail(status: BillingRecordStatus) {
   }
   return "Final charge is recorded in the maintenance history; payment is not processed in TurnFlow.";
 }
+
+export function billingRecordPdfRow(record: {
+  amount: string | number;
+  status: BillingRecordStatus;
+  invoiceReference?: string | null;
+  notes?: string | null;
+  recordedAt: string | Date;
+  paidAt?: string | Date | null;
+}) {
+  return [
+    `$${Number(record.amount || 0).toFixed(2)}`,
+    BILLING_RECORD_STATUS_LABELS[record.status] || record.status,
+    record.invoiceReference || "",
+    new Date(record.recordedAt).toLocaleDateString(),
+    record.paidAt ? new Date(record.paidAt).toLocaleDateString() : "",
+    record.notes || "",
+  ];
+}

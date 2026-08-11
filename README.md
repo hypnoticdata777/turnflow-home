@@ -200,7 +200,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   request complete and accepts remaining done task rows.
 - Billing records generated from approved closeout, with owner-managed status
   for recorded, paid outside TurnFlow, needs review, or voided charges, plus
-  invoice/reference notes and backup/CSV export coverage.
+  invoice/reference notes, proof-packet table output, and backup/CSV export
+  coverage.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
   after-photo gaps, and final-cost gaps before owner review.
 - Owner Account & Sharing Center with profile context, invite activity, access

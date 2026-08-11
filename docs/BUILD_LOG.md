@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Proof Packet Billing Table
+
+Scope: make billing records visible in exported proof packets.
+
+### Changed
+
+- Added billing records to the proof packet PDF export.
+- Added a dedicated Billing Records table with amount, status, invoice/reference,
+  recorded date, paid date, and notes.
+- Passed request billing records into the owner request-detail proof-packet
+  generator.
+- Added a tested billing export-row helper.
+- Updated README, QA checklist, UI/UX review docs, and this build log.
+
+### Why
+
+Owners should not have to infer final-charge history from the decision log.
+After closeout approval and billing-record updates, the downloadable proof
+packet now includes the financial record directly alongside cost, quotes,
+photos, and decisions.
+
+### Validation
+
+- `npm test -- billing-records` passed: 7 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed with no warnings.
+- `npm test` passed: 233 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Manually inspect a generated PDF with demo billing data before refreshing
+  portfolio screenshots.
+- Consider adding closeout submission details as their own proof-packet table
+  if user testing shows owners want that separate from the decision log.
+
 ## 2026-08-11 - Billing Records After Approved Closeout
 
 Scope: preserve final-charge history after owner-approved vendor closeout
@@ -48,8 +88,7 @@ until the workflow is tested.
 
 - Run owner/vendor mobile UX against recorded, paid, disputed, and void billing
   states.
-- Add richer proof-packet billing table if users expect invoice history inside
-  the PDF, not only the decision log and exports.
+- Completed in `2026-08-11 - Proof Packet Billing Table`.
 - Add payment processing only after billing record behavior is tested.
 
 ## 2026-08-11 - Owner Closeout Review Decisions

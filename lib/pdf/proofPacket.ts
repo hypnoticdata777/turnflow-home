@@ -2,6 +2,7 @@
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { billingRecordPdfRow, type BillingRecordStatus } from "@/lib/billing-records";
 import { costForRequest, costLabelForRequest, type CostFields } from "@/lib/utils";
 import type { LogEntryData } from "@/components/DecisionLog";
 
@@ -42,6 +43,7 @@ export function downloadProofPacketPdf({
   request,
   propertyLabel,
   quotes,
+  billingRecords,
   photos,
   log,
   actorLabel,
@@ -49,6 +51,14 @@ export function downloadProofPacketPdf({
   request: ProofPacketRequest;
   propertyLabel: string;
   quotes: { vendorName: string; amount: string; status: string; notes: string | null; availabilityWindow?: string | null }[];
+  billingRecords: {
+    amount: string;
+    status: BillingRecordStatus;
+    invoiceReference: string | null;
+    notes: string | null;
+    recordedAt: string | Date;
+    paidAt: string | Date | null;
+  }[];
   photos: { type: string }[];
   log: LogEntryData[];
   actorLabel: (actorId: string) => string;
@@ -112,6 +122,18 @@ export function downloadProofPacketPdf({
         q.availabilityWindow || "",
         q.notes || "",
       ]),
+    });
+    y = lastAutoTableFinalY(doc) + 6;
+  }
+
+  if (billingRecords.length > 0) {
+    doc.setFontSize(12);
+    doc.text("Billing Records", 14, y);
+    y += 2;
+    autoTable(doc, {
+      startY: y,
+      head: [["Amount", "Status", "Invoice / Ref", "Recorded", "Paid", "Notes"]],
+      body: billingRecords.map((record) => billingRecordPdfRow(record)),
     });
     y = lastAutoTableFinalY(doc) + 6;
   }

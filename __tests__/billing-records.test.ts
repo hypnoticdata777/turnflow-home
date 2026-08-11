@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   BILLING_RECORD_STATUS_LABELS,
+  billingRecordPdfRow,
   billingStatusDetail,
   isBillingRecordStatus,
   normalizeBillingText,
@@ -46,5 +47,27 @@ describe("billingStatusDetail", () => {
   it("explains that TurnFlow does not process payments", () => {
     expect(billingStatusDetail("recorded")).toContain("payment is not processed");
     expect(billingStatusDetail("paid")).toContain("paid outside TurnFlow");
+  });
+});
+
+describe("billingRecordPdfRow", () => {
+  it("formats billing records for proof packet export", () => {
+    expect(
+      billingRecordPdfRow({
+        amount: "245.00",
+        status: "paid",
+        invoiceReference: "INV-245",
+        notes: "Paid by check",
+        recordedAt: "2026-08-11T10:00:00.000Z",
+        paidAt: "2026-08-12T10:00:00.000Z",
+      })
+    ).toEqual([
+      "$245.00",
+      "Paid outside TurnFlow",
+      "INV-245",
+      new Date("2026-08-11T10:00:00.000Z").toLocaleDateString(),
+      new Date("2026-08-12T10:00:00.000Z").toLocaleDateString(),
+      "Paid by check",
+    ]);
   });
 });
