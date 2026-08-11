@@ -58,6 +58,13 @@ export type HelperUploadPrompt = {
   recommendedPhotoTypes: string[];
 };
 
+export type VendorCloseoutMetric = {
+  label: string;
+  value: number;
+  detail: string;
+  tone: "attention" | "progress" | "ready" | "empty";
+};
+
 function hasAfterPhoto(request: HelperWorkspaceRequest) {
   return (request.photos ?? []).some((photo) => photo.type === "after");
 }
@@ -401,6 +408,77 @@ export function vendorUploadPrompt(
       "Photos look ready. Leave an update if the owner needs invoice or final cost details from you.",
     recommendedPhotoTypes,
   };
+}
+
+export function vendorCloseoutMetrics(
+  requests: HelperWorkspaceRequest[]
+): VendorCloseoutMetric[] {
+  const activeRequests = requests.filter((request) => request.status !== "Complete");
+  const contextGapCount = activeRequests.filter(
+    (request) => missingVendorContext(request).length > 0
+  ).length;
+  const afterPhotoGapCount = activeRequests.filter((request) => !hasAfterPhoto(request)).length;
+  const finalCostGapCount = activeRequests.filter((request) => !hasFinalCost(request)).length;
+  const closeoutReadyCount = activeRequests.filter(
+    (request) =>
+      missingVendorContext(request).length === 0 &&
+      missingVendorProof(request).length === 0
+  ).length;
+
+  return [
+    {
+      label: "Ready to close",
+      value: closeoutReadyCount,
+      detail:
+        activeRequests.length === 0
+          ? "No active assigned jobs need closeout right now."
+          : closeoutReadyCount > 0
+            ? `${closeoutReadyCount} active ${closeoutReadyCount === 1 ? "job has" : "jobs have"} context, after-photo proof, and final cost ready.`
+            : "No active job has all closeout pieces ready yet.",
+      tone:
+        activeRequests.length === 0
+          ? "empty"
+          : closeoutReadyCount > 0
+            ? "ready"
+            : "progress",
+    },
+    {
+      label: "Need owner context",
+      value: contextGapCount,
+      detail:
+        contextGapCount > 0
+          ? `${contextGapCount} active ${contextGapCount === 1 ? "job is" : "jobs are"} missing location, access, or contact details.`
+          : activeRequests.length > 0
+            ? "Every active job has the basic context a vendor needs."
+            : "Owner context will appear here when new work is assigned.",
+      tone:
+        contextGapCount > 0 ? "attention" : activeRequests.length > 0 ? "ready" : "empty",
+    },
+    {
+      label: "After photos due",
+      value: afterPhotoGapCount,
+      detail:
+        afterPhotoGapCount > 0
+          ? `${afterPhotoGapCount} active ${afterPhotoGapCount === 1 ? "job needs" : "jobs need"} an after photo before closeout feels trustworthy.`
+          : activeRequests.length > 0
+            ? "After-photo proof is present on every active job."
+            : "After-photo gaps will appear here when work starts.",
+      tone:
+        afterPhotoGapCount > 0 ? "progress" : activeRequests.length > 0 ? "ready" : "empty",
+    },
+    {
+      label: "Final cost needed",
+      value: finalCostGapCount,
+      detail:
+        finalCostGapCount > 0
+          ? `${finalCostGapCount} active ${finalCostGapCount === 1 ? "job still needs" : "jobs still need"} final cost context from the owner or invoice.`
+          : activeRequests.length > 0
+            ? "Final cost context is present on every active job."
+            : "Cost gaps will appear here when assigned work starts.",
+      tone:
+        finalCostGapCount > 0 ? "progress" : activeRequests.length > 0 ? "ready" : "empty",
+    },
+  ];
 }
 
 export function helperInviteExpectations(role: HelperRole): HelperInviteExpectation[] {

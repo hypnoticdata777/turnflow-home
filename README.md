@@ -167,6 +167,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Request comments shared by owner, assigned vendor, and shared collaborator.
 - Vendor and collaborator invite flow with expiring links, copyable invite URLs,
   pending invite management, accepted-access removal, and scoped portals.
+- Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
+  after-photo gaps, and final-cost gaps before owner review.
 - Owner Account & Sharing Center with profile context, invite activity, access
   boundaries, and account-readiness signals.
 - Property vault for receipts, warranties, manuals, invoices, inspection

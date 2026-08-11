@@ -21,6 +21,7 @@ import {
   helperOnboardingItems,
   helperRequestCardState,
   helperWorkspaceGuidance,
+  vendorCloseoutMetrics,
   vendorUploadPrompt,
   type HelperRequestCardState,
 } from "@/lib/helper-workspace";
@@ -60,8 +61,17 @@ export function VendorPortal({
   const [statusError, setStatusError] = useState("");
   const guidance = helperWorkspaceGuidance("vendor", requests);
   const onboardingItems = helperOnboardingItems("vendor", requests);
+  const closeoutMetrics = vendorCloseoutMetrics(requests);
   const selectedRequest = requests.find((r) => r.id === selectedRequestId);
   const uploadPrompt = vendorUploadPrompt(selectedRequest);
+  const closeoutMetricClasses = (tone: (typeof closeoutMetrics)[number]["tone"]) =>
+    tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : tone === "attention"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : tone === "progress"
+          ? "border-amber-200 bg-amber-50 text-amber-950"
+          : "border-gray-200 bg-white text-gray-950";
 
   function focusUploadForRequest(request: VendorRequest) {
     setSelectedRequestId(request.id);
@@ -137,6 +147,37 @@ export function VendorPortal({
           complete: "Complete",
         }}
       />
+
+      <section
+        id="vendor-closeout"
+        className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      >
+        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-blue-700">Closeout snapshot</p>
+            <h2 className="text-xl font-semibold">What needs to happen before owner review</h2>
+          </div>
+          <a
+            href="#helper-upload"
+            className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Upload proof
+          </a>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {closeoutMetrics.map((metric) => (
+            <article
+              key={metric.label}
+              className={`rounded-lg border p-4 ${closeoutMetricClasses(metric.tone)}`}
+            >
+              <p className="text-sm font-semibold">{metric.label}</p>
+              <p className="mt-2 text-3xl font-bold">{metric.value}</p>
+              <p className="mt-2 min-h-20 text-sm leading-6">{metric.detail}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <HelperOnboardingChecklist role="vendor" items={onboardingItems} />
 

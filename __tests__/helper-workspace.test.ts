@@ -5,6 +5,7 @@ import {
   helperRequestCardState,
   helperWorkspaceGuidance,
   helperWorkspaceStats,
+  vendorCloseoutMetrics,
   vendorUploadPrompt,
   type HelperWorkspaceRequest,
 } from "@/lib/helper-workspace";
@@ -271,6 +272,141 @@ describe("vendorUploadPrompt", () => {
         "You can still add receipts or extra context photos if they make the owner's record clearer.",
       recommendedPhotoTypes: ["receipt", "other"],
     });
+  });
+});
+
+describe("vendorCloseoutMetrics", () => {
+  it("keeps an empty vendor workspace calm", () => {
+    expect(vendorCloseoutMetrics([])).toEqual([
+      {
+        label: "Ready to close",
+        value: 0,
+        detail: "No active assigned jobs need closeout right now.",
+        tone: "empty",
+      },
+      {
+        label: "Need owner context",
+        value: 0,
+        detail: "Owner context will appear here when new work is assigned.",
+        tone: "empty",
+      },
+      {
+        label: "After photos due",
+        value: 0,
+        detail: "After-photo gaps will appear here when work starts.",
+        tone: "empty",
+      },
+      {
+        label: "Final cost needed",
+        value: 0,
+        detail: "Cost gaps will appear here when assigned work starts.",
+        tone: "empty",
+      },
+    ]);
+  });
+
+  it("summarizes vendor closeout gaps across active jobs", () => {
+    const metrics = vendorCloseoutMetrics([
+      {
+        status: "Scheduled",
+        location: "",
+        accessInstructions: null,
+        contactMethod: "Phone",
+        finalCost: null,
+        photos: [{ type: "before" }],
+      },
+      {
+        status: "In Progress",
+        location: "Kitchen",
+        accessInstructions: "Side gate",
+        contactMethod: "Text",
+        finalCost: "225",
+        photos: [{ type: "before" }],
+      },
+      {
+        status: "Needs Review",
+        location: "Laundry",
+        accessInstructions: "Owner home",
+        contactMethod: "Email",
+        finalCost: "150",
+        photos: [{ type: "after" }],
+      },
+      {
+        status: "Complete",
+        location: "Garage",
+        accessInstructions: "Code shared",
+        contactMethod: "Text",
+        finalCost: "90",
+        photos: [{ type: "after" }],
+      },
+    ]);
+
+    expect(metrics).toEqual([
+      {
+        label: "Ready to close",
+        value: 1,
+        detail: "1 active job has context, after-photo proof, and final cost ready.",
+        tone: "ready",
+      },
+      {
+        label: "Need owner context",
+        value: 1,
+        detail: "1 active job is missing location, access, or contact details.",
+        tone: "attention",
+      },
+      {
+        label: "After photos due",
+        value: 2,
+        detail: "2 active jobs need an after photo before closeout feels trustworthy.",
+        tone: "progress",
+      },
+      {
+        label: "Final cost needed",
+        value: 1,
+        detail: "1 active job still needs final cost context from the owner or invoice.",
+        tone: "progress",
+      },
+    ]);
+  });
+
+  it("marks active work ready when every closeout requirement is present", () => {
+    expect(
+      vendorCloseoutMetrics([
+        {
+          status: "Needs Review",
+          location: "Bathroom",
+          accessInstructions: "Lockbox",
+          contactMethod: "Phone",
+          finalCost: "325",
+          photos: [{ type: "after" }],
+        },
+      ])
+    ).toEqual([
+      {
+        label: "Ready to close",
+        value: 1,
+        detail: "1 active job has context, after-photo proof, and final cost ready.",
+        tone: "ready",
+      },
+      {
+        label: "Need owner context",
+        value: 0,
+        detail: "Every active job has the basic context a vendor needs.",
+        tone: "ready",
+      },
+      {
+        label: "After photos due",
+        value: 0,
+        detail: "After-photo proof is present on every active job.",
+        tone: "ready",
+      },
+      {
+        label: "Final cost needed",
+        value: 0,
+        detail: "Final cost context is present on every active job.",
+        tone: "ready",
+      },
+    ]);
   });
 });
 

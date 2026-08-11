@@ -73,6 +73,8 @@ async function assertHelperWorkspace(page: Page, pathName: string, role: "vendor
       ? [
           "First run checklist",
           "Work like a trusted vendor.",
+          "Closeout snapshot",
+          "What needs to happen before owner review",
           "What you can see",
           "Upload photos",
           "Select a request to upload proof.",

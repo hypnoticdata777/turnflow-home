@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Vendor Closeout Snapshot
+
+Scope: make vendor work feel more frictionless by summarizing what remains
+before owner review.
+
+### Changed
+
+- Added reusable `vendorCloseoutMetrics` rules for ready-to-close jobs,
+  missing owner context, missing after photos, and missing final cost context.
+- Added a closeout snapshot to `/vendor` above the first-run checklist and
+  request list.
+- Extended helper workspace tests for empty, mixed-gap, and ready vendor
+  closeout states.
+- Updated helper UX smoke expectations so `/vendor` must render the closeout
+  snapshot.
+- Updated README and UI/UX review docs for the vendor closeout surface.
+
+### Why
+
+Vendors should not have to inspect every request card to understand what they
+owe the owner next. A closeout snapshot makes proof, cost, and context gaps
+visible immediately, which supports a calmer owner experience too.
+
+### Validation
+
+- `npm test -- helper-workspace` passed: 24 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 143 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run `npm run ux:helper` against seeded local or hosted auth to verify the
+  closeout snapshot visually at desktop and mobile widths.
+
 ## 2026-08-10 - README Product Positioning Refresh
 
 Scope: bring the public repo README up to date with the homeowner-first SaaS
