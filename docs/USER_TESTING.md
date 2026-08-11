@@ -70,15 +70,17 @@ Ask the tester to complete these tasks without explaining the interface first:
     to happen before marking the request complete.
 12. Request closeout changes with a note, then approve a closeout and confirm
     the request is complete.
-13. Save one related document in the vault.
-14. Set one recurring reminder for that property.
-15. Open Account & Sharing and explain who can see the request.
-16. Resend the invite, copy the fallback link, then cancel a second pending
+13. Review the generated billing record, mark it paid outside TurnFlow, and add
+    an invoice/reference note.
+14. Save one related document in the vault.
+15. Set one recurring reminder for that property.
+16. Open Account & Sharing and explain who can see the request.
+17. Resend the invite, copy the fallback link, then cancel a second pending
     invite if one exists.
-17. After an invite is accepted, remove that active access from Account &
+18. After an invite is accepted, remove that active access from Account &
     Sharing and explain what changed.
-18. Update the Account & Sharing display name.
-19. Return to the setup guide and explain what has been captured.
+19. Update the Account & Sharing display name.
+20. Return to the setup guide and explain what has been captured.
 
 ## Observe
 
@@ -105,6 +107,8 @@ Track these without coaching:
 - Whether the vendor closeout submission gives the owner enough confidence to
   review final cost and proof.
 - Whether approve vs request changes feels like the right final owner decision.
+- Whether the billing record feels useful as history without implying payment
+  processing.
 - Whether the owner trusts the record as evidence after the job is done.
 
 ## Success Signals
@@ -161,6 +165,7 @@ Reminder added?:
 Task accepted?:
 Vendor closeout submitted?:
 Closeout reviewed?:
+Billing record updated?:
 
 Top confusion:
 Top value moment:

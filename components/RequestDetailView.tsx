@@ -31,6 +31,7 @@ import {
   CloseoutSubmissionPanel,
   type CloseoutSubmissionData,
 } from "@/components/CloseoutSubmissionPanel";
+import { BillingRecordPanel, type BillingRecordData } from "@/components/BillingRecordPanel";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -163,6 +164,7 @@ export function RequestDetailView({
   workSessions,
   tasks,
   closeoutSubmissions,
+  billingRecords,
   property,
   userId,
   creationNotice,
@@ -176,6 +178,7 @@ export function RequestDetailView({
   workSessions: WorkSessionData[];
   tasks: RequestTaskData[];
   closeoutSubmissions: CloseoutSubmissionData[];
+  billingRecords: BillingRecordData[];
   property: Property;
   userId: string;
   creationNotice: RequestCreatedNotice | null;
@@ -566,6 +569,14 @@ export function RequestDetailView({
           tasks,
         }}
         submissions={closeoutSubmissions}
+        mode="owner"
+      />
+
+      <hr className="my-4" />
+
+      <BillingRecordPanel
+        requestId={request.id}
+        records={billingRecords}
         mode="owner"
       />
 

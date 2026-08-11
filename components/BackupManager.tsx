@@ -30,11 +30,12 @@ export function BackupManager() {
     setBackingUp(true);
     setStatus(null);
     try {
-      const { properties, requests } = await getBackupDataAction();
+      const { properties, requests, billingRecords } = await getBackupDataAction();
       const exportData = {
         exportedAt: new Date().toISOString(),
         properties,
         requests,
+        billingRecords,
       };
       downloadBlob(
         JSON.stringify(exportData, null, 2),
@@ -44,7 +45,7 @@ export function BackupManager() {
       setStatus({
         text: `Exported ${properties.length} propert${
           properties.length === 1 ? "y" : "ies"
-        } and ${requests.length} request(s).`,
+        }, ${requests.length} request(s), and ${billingRecords.length} billing record(s).`,
         isError: false,
       });
     } catch (err) {
@@ -62,8 +63,11 @@ export function BackupManager() {
     setExportingCsv(true);
     setStatus(null);
     try {
-      const { properties, requests } = await getBackupDataAction();
+      const { properties, requests, billingRecords } = await getBackupDataAction();
       const propertyById = Object.fromEntries(properties.map((p) => [p.id, p]));
+      const billingByRequestId = new Map(
+        billingRecords.map((record) => [record.requestId, record])
+      );
       const propertyLabel = (id: string | null | undefined) => {
         const p = id ? propertyById[id] : undefined;
         if (!p) return "";
@@ -81,10 +85,15 @@ export function BackupManager() {
         "Final Cost",
         "Current Cost",
         "Cost Basis",
+        "Billing Amount",
+        "Billing Status",
+        "Invoice Reference",
+        "Paid Date",
         "Created",
       ]);
-      const rows = requests.map((r) =>
-        toCsvRow([
+      const rows = requests.map((r) => {
+        const billingRecord = billingByRequestId.get(r.id);
+        return toCsvRow([
           propertyLabel(r.propertyId),
           r.title || "",
           r.category || "",
@@ -95,9 +104,15 @@ export function BackupManager() {
           r.finalCost ?? "",
           costForRequest(r).toFixed(2),
           costLabelForRequest(r),
+          billingRecord?.amount ?? "",
+          billingRecord?.status ?? "",
+          billingRecord?.invoiceReference ?? "",
+          billingRecord?.paidAt
+            ? new Date(billingRecord.paidAt).toISOString().slice(0, 10)
+            : "",
           r.createdAt ? new Date(r.createdAt).toISOString().slice(0, 10) : "",
-        ])
-      );
+        ]);
+      });
 
       downloadBlob(
         [header, ...rows].join("\r\n"),

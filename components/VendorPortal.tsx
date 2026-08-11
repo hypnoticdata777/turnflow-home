@@ -28,6 +28,7 @@ import {
   CloseoutSubmissionPanel,
   type CloseoutSubmissionData,
 } from "@/components/CloseoutSubmissionPanel";
+import { BillingRecordPanel, type BillingRecordData } from "@/components/BillingRecordPanel";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -61,6 +62,7 @@ type VendorRequest = {
   workSessions: WorkSessionData[];
   tasks: RequestTaskData[];
   closeoutSubmissions: CloseoutSubmissionData[];
+  billingRecords: BillingRecordData[];
   vendorBid: VendorBidData | null;
 };
 
@@ -320,6 +322,14 @@ export function VendorPortal({
                         tasks: r.tasks,
                       }}
                       submissions={r.closeoutSubmissions}
+                      mode="vendor"
+                    />
+                  </div>
+
+                  <div className="mt-4">
+                    <BillingRecordPanel
+                      requestId={r.id}
+                      records={r.billingRecords}
                       mode="vendor"
                     />
                   </div>

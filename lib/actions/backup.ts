@@ -9,7 +9,7 @@ import { REQUEST_CATEGORIES, REQUEST_URGENCIES, REQUEST_STATUSES } from "@/lib/u
 export async function getBackupDataAction() {
   const session = await requireRole("owner");
 
-  const [ownerProperties, ownerRequests] = await Promise.all([
+  const [ownerProperties, ownerRequests, ownerBillingRecords] = await Promise.all([
     db.query.properties.findMany({
       where: (p, { eq }) => eq(p.ownerId, session.user.id),
       columns: { id: true, address: true, unit: true, nickname: true },
@@ -33,9 +33,26 @@ export async function getBackupDataAction() {
         createdAt: true,
       },
     }),
+    db.query.billingRecords.findMany({
+      where: (record, { eq }) => eq(record.ownerId, session.user.id),
+      columns: {
+        id: true,
+        requestId: true,
+        amount: true,
+        status: true,
+        invoiceReference: true,
+        notes: true,
+        recordedAt: true,
+        paidAt: true,
+      },
+    }),
   ]);
 
-  return { properties: ownerProperties, requests: ownerRequests };
+  return {
+    properties: ownerProperties,
+    requests: ownerRequests,
+    billingRecords: ownerBillingRecords,
+  };
 }
 
 export type BackupProperty = {

@@ -82,10 +82,14 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
    and approve it as the owner.
 14. Confirm approval marks the request complete and accepts remaining done task
    rows.
-15. Confirm the setup guide progress changes after property, request, evidence,
+15. Confirm an approved closeout creates a billing record.
+16. Mark the billing record paid outside TurnFlow and add an invoice/reference
+   note.
+17. Confirm backup JSON and history CSV include billing record data.
+18. Confirm the setup guide progress changes after property, request, evidence,
    sharing, history, and reminder steps.
-16. Download a proof packet PDF.
-17. Export owner backup data from `/owner/backup`.
+19. Download a proof packet PDF.
+20. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 
@@ -124,6 +128,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
   notifies the vendor, and accepts done task rows that were still waiting.
 - Owner closeout change requests require a note and remain visible to the
   vendor.
+- Billing records are owner-managed history only; the app must not imply money
+  is processed inside TurnFlow.
 - Public screenshots and demo records contain no private addresses, contacts,
   receipts, or real customer data.
 

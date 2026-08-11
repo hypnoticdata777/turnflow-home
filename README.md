@@ -198,6 +198,9 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   review state, owner approve/request-changes decisions, final-cost copy,
   decision-log history, and owner/vendor notifications. Approval marks the
   request complete and accepts remaining done task rows.
+- Billing records generated from approved closeout, with owner-managed status
+  for recorded, paid outside TurnFlow, needs review, or voided charges, plus
+  invoice/reference notes and backup/CSV export coverage.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
   after-photo gaps, and final-cost gaps before owner review.
 - Owner Account & Sharing Center with profile context, invite activity, access
@@ -252,12 +255,12 @@ Before inviting external users, the remaining launch steps are:
 - No organization/workspace billing model yet.
 - Vendor and collaborator accounts remain invite-driven or seeded for the POC;
   public signup stays homeowner-focused.
-- Open vendor opportunity bidding, automated trade matching, invoice/payment
-  records, and subscriptions are planned product layers. The current vendor
+- Open vendor opportunity bidding, automated trade matching, payment
+  processing, and subscriptions are planned product layers. The current vendor
   profile, assigned-vendor bid flow, lifecycle tracker, task-level
-  cost/acceptance flow, closeout submissions, and work-session timeline make
-  assigned jobs more traceable, but they do not yet create an open vendor
-  marketplace or payment system.
+  cost/acceptance flow, closeout submissions, billing records, and work-session
+  timeline make assigned jobs more traceable, but they do not yet create an
+  open vendor marketplace or payment system.
 - Email can run in log-only mode, but real launch testing should verify Resend
   deliverability, sender domain setup, and reminder cron behavior.
 - Privacy/audit history is strong for request decisions and access changes, but

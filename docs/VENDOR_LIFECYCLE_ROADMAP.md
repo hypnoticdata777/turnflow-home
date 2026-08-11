@@ -84,7 +84,9 @@ The mature vendor workflow should support these states:
 
 7. Billing record saved
    - Invoice/final cost is preserved in the homeowner's maintenance history.
-   - Future payments or subscriptions can connect here later.
+   - Owner can mark the record paid outside TurnFlow, disputed, void, or simply
+     recorded.
+   - Future payment processing or subscriptions can connect here later.
 
 ## Data Model Needed Later
 
@@ -106,8 +108,9 @@ True bidding and billing will need additional tables or expanded fields:
   owner review decision. Assigned-vendor closeout submission and owner
   approve/request-changes decisions are done; richer invoice/payment state is
   still future work.
-- Billing records: final amount, invoice reference, payment status, and export
-  metadata.
+- Billing records: final amount, invoice reference, paid/disputed/void status,
+  and export metadata. Done for owner recordkeeping; payment processing is
+  still future work.
 
 ## Product Guardrails
 
@@ -138,5 +141,6 @@ True bidding and billing will need additional tables or expanded fields:
 14. Add closeout submission and owner review before billing record
     finalization. Done.
 15. Add owner approve/request-changes decisions for closeout submissions. Done.
-16. Add richer invoice/payment state after owner/vendor closeout behavior is
-    tested.
+16. Add owner billing records after approved closeout, with paid/disputed/void
+    status and export coverage. Done.
+17. Add payment processing only after owner/vendor billing behavior is tested.

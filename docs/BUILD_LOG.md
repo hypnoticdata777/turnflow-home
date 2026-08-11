@@ -2,6 +2,56 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Billing Records After Approved Closeout
+
+Scope: preserve final-charge history after owner-approved vendor closeout
+without adding payment processing.
+
+### Changed
+
+- Added `billing_record_status` and `billing_records` to the Drizzle schema.
+- Created billing records automatically when an owner approves vendor closeout.
+- Added owner-editable billing status for recorded, paid outside TurnFlow,
+  disputed, and voided records.
+- Added invoice/reference and billing notes fields for owner recordkeeping.
+- Added an owner billing record panel on request detail and a read-only vendor
+  billing record view.
+- Added owner-only billing record update action with request ownership checks.
+- Added billing record update events to the decision log and proof packet.
+- Included billing records in JSON backup and history CSV exports.
+- Updated demo seed data, README, QA, user testing, UI/UX review, and vendor
+  lifecycle roadmap.
+
+### Why
+
+Once closeout is approved, homeowners still need a durable financial memory:
+what the final amount was, whether it was paid outside the app, where the
+invoice/reference lives, and whether anything is disputed. This keeps TurnFlow
+useful as a maintenance history tool while avoiding payment-processing scope
+until the workflow is tested.
+
+### Validation
+
+- `npm test -- billing-records decision-log` passed: 13 tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0010_cloudy_ego.sql`.
+- `npm run verify` passed.
+- `npm run lint` passed with no warnings.
+- `npm test` passed: 232 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migration.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run owner/vendor mobile UX against recorded, paid, disputed, and void billing
+  states.
+- Add richer proof-packet billing table if users expect invoice history inside
+  the PDF, not only the decision log and exports.
+- Add payment processing only after billing record behavior is tested.
+
 ## 2026-08-11 - Owner Closeout Review Decisions
 
 Scope: turn vendor closeout submissions into an owner decision loop.
@@ -47,7 +97,7 @@ by accepting completed task rows when the closeout is approved.
 
 - Run owner/vendor mobile UX against both approved and changes-requested
   closeout states.
-- Add invoice/payment records after closeout review behavior is tested.
+- Completed in `2026-08-11 - Billing Records After Approved Closeout`.
 - Consider requiring explicit task-level owner acceptance before approval only
   if user testing shows auto-accept feels too broad.
 

@@ -63,8 +63,8 @@ Review these routes in every POC pass:
   review guidance, quote comparison metrics, project task checklist,
   task-level cost review, owner task acceptance, vendor closeout handoff,
   approve/request-changes review controls, proof, quote, vendor work timeline,
-  comments, guided update drafts, status handoff guidance, decision log, and
-  sharing controls feel like one repair record.
+  billing record, comments, guided update drafts, status handoff guidance,
+  decision log, and sharing controls feel like one repair record.
 - `/owner/account`: sharing boundaries, active access, invite history, and
   profile edits are understandable.
 - `/owner/notifications`: delivery-health snapshot, failed-attempt guidance,
@@ -80,9 +80,10 @@ Review these routes in every POC pass:
   lifecycle tracker, project task checklist, work-session controls, required
   start/stop proof photos, task links, task-level cost visibility, owner
   acceptance state, closeout submission form, closeout review outcome, bid
-  decision state, bid/price context, closeout snapshot, request readiness,
-  guided owner-handoff drafts, status handoff guidance, updates, proof upload,
-  and completion-waiver path make vendor next actions obvious.
+  decision state, bid/price context, read-only billing record, closeout
+  snapshot, request readiness, guided owner-handoff drafts, status handoff
+  guidance, updates, proof upload, and completion-waiver path make vendor next
+  actions obvious.
 - `/collaborator`: scoped access, shared request readiness, and guided update
   thread make helper next actions obvious while unrelated owner data is absent.
 

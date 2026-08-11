@@ -35,6 +35,9 @@ export default async function RequestDetailPage({
       closeoutSubmissions: {
         orderBy: (closeout, { desc }) => desc(closeout.submittedAt),
       },
+      billingRecords: {
+        orderBy: (record, { desc }) => desc(record.recordedAt),
+      },
     },
   });
 
@@ -79,6 +82,7 @@ export default async function RequestDetailPage({
         workSessions={request.workSessions}
         tasks={request.tasks}
         closeoutSubmissions={request.closeoutSubmissions}
+        billingRecords={request.billingRecords}
         property={request.property}
         userId={session.user.id}
         creationNotice={requestCreatedNotice(created, uploads)}

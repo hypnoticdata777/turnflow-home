@@ -27,6 +27,9 @@ export default async function VendorPage() {
       closeoutSubmissions: {
         orderBy: (closeout, { desc }) => desc(closeout.submittedAt),
       },
+      billingRecords: {
+        orderBy: (record, { desc }) => desc(record.recordedAt),
+      },
     },
     columns: {
       id: true,

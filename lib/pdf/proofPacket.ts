@@ -21,6 +21,7 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
   closeout_submitted: (d) => `Vendor submitted closeout for owner review ($${Number(d.finalAmount || 0).toFixed(2)}).`,
   closeout_approved: (d) => `Owner approved vendor closeout ($${Number(d.finalAmount || 0).toFixed(2)}).`,
   closeout_changes_requested: (d) => `Owner requested closeout changes${d.reviewNotes ? `: ${d.reviewNotes}` : "."}`,
+  billing_record_updated: (d) => `Updated billing record from ${d.from || "unknown"} to ${d.to || "unknown"} ($${Number(d.amount || 0).toFixed(2)}).`,
 };
 
 function lastAutoTableFinalY(doc: jsPDF): number {

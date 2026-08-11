@@ -87,6 +87,13 @@ describe("describeLogAction", () => {
         reviewNotes: "Please add the receipt photo.",
       })
     ).toBe("Owner requested closeout changes: Please add the receipt photo.");
+    expect(
+      describeLogAction("billing_record_updated", {
+        from: "recorded",
+        to: "paid",
+        amount: "250.00",
+      })
+    ).toBe("Updated billing record from recorded to paid ($250.00).");
   });
 
   it("falls back to the action key for unknown log events", () => {

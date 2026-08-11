@@ -53,7 +53,7 @@ async function main() {
         .set({
           assignedVendorId: vendor.id,
           finalCost: "245.00",
-          status: "Needs Review",
+          status: "Complete",
           updatedAt: new Date(),
         })
         .where(eq(schema.requests.id, hvacRequest.id));
@@ -101,8 +101,11 @@ async function main() {
           requestId: hvacRequest.id,
           title: "Complete refrigerant top-off",
           description: "Record final readings and after proof for owner review.",
-          status: "in_progress",
+          status: "done",
           estimatedCost: "150.00",
+          finalCost: "150.00",
+          acceptedById: owner.id,
+          acceptedAt: new Date(),
           sortOrder: 1,
           requiredPhotoTypes: ["after", "receipt"],
           createdById: owner.id,
@@ -115,16 +118,53 @@ async function main() {
       const existingCloseout = await db.query.closeoutSubmissions.findFirst({
         where: (closeout, { eq }) => eq(closeout.requestId, hvacRequest.id),
       });
+      const reviewedAt = new Date();
+      const closeout = existingCloseout
+        ? (
+            await db
+              .update(schema.closeoutSubmissions)
+              .set({
+                status: "approved",
+                reviewedById: owner.id,
+                reviewedAt,
+                updatedAt: reviewedAt,
+              })
+              .where(eq(schema.closeoutSubmissions.id, existingCloseout.id))
+              .returning()
+          )[0]
+        : (
+            await db.insert(schema.closeoutSubmissions).values({
+              requestId: hvacRequest.id,
+              vendorId: vendor.id,
+              completionNotes:
+                "Diagnosed upstairs airflow, confirmed the return path was restricted, and restored cooling performance for owner review.",
+              materialsNotes: "Diagnostic labor and refrigerant top-off receipt are ready for the owner record.",
+              finalAmount: "245.00",
+              status: "approved",
+              reviewedById: owner.id,
+              reviewedAt,
+            }).returning()
+          )[0];
       if (!existingCloseout) {
-        await db.insert(schema.closeoutSubmissions).values({
-          requestId: hvacRequest.id,
-          vendorId: vendor.id,
-          completionNotes:
-            "Diagnosed upstairs airflow, confirmed the return path was restricted, and restored cooling performance for owner review.",
-          materialsNotes: "Diagnostic labor and refrigerant top-off receipt are ready for the owner record.",
-          finalAmount: "245.00",
-        });
         console.log("Added: vendor closeout submission for HVAC request");
+      }
+
+      const existingBillingRecord = await db.query.billingRecords.findFirst({
+        where: (record, { eq }) => eq(record.requestId, hvacRequest.id),
+      });
+      if (!existingBillingRecord) {
+        await db.insert(schema.billingRecords).values({
+          requestId: hvacRequest.id,
+          ownerId: owner.id,
+          vendorId: vendor.id,
+          closeoutSubmissionId: closeout.id,
+          amount: "245.00",
+          status: "paid",
+          invoiceReference: "DEMO-HVAC-245",
+          notes: "Demo billing record marked paid outside TurnFlow.",
+          paidAt: reviewedAt,
+        });
+        console.log("Added: billing record for HVAC request");
       }
     }
   }

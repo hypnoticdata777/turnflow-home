@@ -77,6 +77,12 @@ export const closeoutSubmissionStatusEnum = pgEnum("closeout_submission_status",
   "approved",
   "changes_requested",
 ]);
+export const billingRecordStatusEnum = pgEnum("billing_record_status", [
+  "recorded",
+  "paid",
+  "disputed",
+  "void",
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -265,6 +271,28 @@ export const closeoutSubmissions = pgTable("closeout_submissions", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const billingRecords = pgTable("billing_records", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  requestId: uuid("request_id")
+    .notNull()
+    .references(() => requests.id, { onDelete: "cascade" }),
+  ownerId: uuid("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  vendorId: uuid("vendor_id").references(() => users.id),
+  closeoutSubmissionId: uuid("closeout_submission_id")
+    .references(() => closeoutSubmissions.id, { onDelete: "set null" })
+    .unique(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  status: billingRecordStatusEnum("status").default("recorded").notNull(),
+  invoiceReference: varchar("invoice_reference", { length: 120 }),
+  notes: text("notes"),
+  recordedAt: timestamp("recorded_at").defaultNow().notNull(),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const vaultDocuments = pgTable("vault_documents", {
   id: uuid("id").defaultRandom().primaryKey(),
   propertyId: uuid("property_id")
@@ -357,6 +385,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   vendorProfile: one(vendorProfiles),
   workSessions: many(workSessions),
   closeoutSubmissions: many(closeoutSubmissions),
+  billingRecords: many(billingRecords),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -391,6 +420,7 @@ export const requestsRelations = relations(requests, ({ one, many }) => ({
   workSessions: many(workSessions),
   tasks: many(requestTasks),
   closeoutSubmissions: many(closeoutSubmissions),
+  billingRecords: many(billingRecords),
 }));
 
 export const requestPhotosRelations = relations(requestPhotos, ({ one }) => ({
@@ -470,6 +500,26 @@ export const closeoutSubmissionsRelations = relations(closeoutSubmissions, ({ on
     fields: [closeoutSubmissions.reviewedById],
     references: [users.id],
   }),
+  billingRecord: one(billingRecords),
+}));
+
+export const billingRecordsRelations = relations(billingRecords, ({ one }) => ({
+  request: one(requests, {
+    fields: [billingRecords.requestId],
+    references: [requests.id],
+  }),
+  owner: one(users, {
+    fields: [billingRecords.ownerId],
+    references: [users.id],
+  }),
+  vendor: one(users, {
+    fields: [billingRecords.vendorId],
+    references: [users.id],
+  }),
+  closeoutSubmission: one(closeoutSubmissions, {
+    fields: [billingRecords.closeoutSubmissionId],
+    references: [closeoutSubmissions.id],
+  }),
 }));
 
 export const invitesRelations = relations(invites, ({ one }) => ({
@@ -516,6 +566,7 @@ export type Comment = typeof comments.$inferSelect;
 export type WorkSession = typeof workSessions.$inferSelect;
 export type RequestTask = typeof requestTasks.$inferSelect;
 export type CloseoutSubmission = typeof closeoutSubmissions.$inferSelect;
+export type BillingRecord = typeof billingRecords.$inferSelect;
 export type Invite = typeof invites.$inferSelect;
 export type VaultDocument = typeof vaultDocuments.$inferSelect;
 export type Reminder = typeof reminders.$inferSelect;

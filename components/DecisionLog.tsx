@@ -26,6 +26,8 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
     `Owner approved vendor closeout ($${Number(d.finalAmount || 0).toFixed(2)}).`,
   closeout_changes_requested: (d) =>
     `Owner requested closeout changes${d.reviewNotes ? `: ${d.reviewNotes}` : "."}`,
+  billing_record_updated: (d) =>
+    `Updated billing record from ${d.from || "unknown"} to ${d.to || "unknown"} ($${Number(d.amount || 0).toFixed(2)}).`,
   shared_access_removed: (d) => {
     const role = d.role === "collaborator" ? "collaborator" : "vendor";
     return d.removedUserEmail

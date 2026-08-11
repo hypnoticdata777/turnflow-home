@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import {
+  billingRecords,
   closeoutSubmissions,
   decisionLog,
   requests,
@@ -180,6 +181,20 @@ export async function reviewCloseoutSubmissionAction(
           isNull(requestTasks.acceptedAt)
         )
       );
+    const existingBillingRecord = await db.query.billingRecords.findFirst({
+      where: (record, { eq }) => eq(record.closeoutSubmissionId, closeout.id),
+      columns: { id: true },
+    });
+    if (!existingBillingRecord) {
+      await db.insert(billingRecords).values({
+        requestId,
+        ownerId: req.ownerId,
+        vendorId: closeout.vendorId,
+        closeoutSubmissionId: closeout.id,
+        amount: closeout.finalAmount,
+        notes: "Generated from approved vendor closeout.",
+      });
+    }
   }
 
   await db.insert(decisionLog).values({
