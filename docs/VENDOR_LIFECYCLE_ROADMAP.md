@@ -1,0 +1,93 @@
+# Vendor Lifecycle Roadmap
+
+TurnFlow Home should treat vendors as a serious user group, not just invited
+photo uploaders. The long-term vendor experience should trace a job from
+matching and notification through bid, approval, work, closeout, billing, and
+saved homeowner history.
+
+## Current Foundation
+
+The current app supports assigned vendor accounts:
+
+- Owners invite or assign a vendor to a specific request.
+- Vendors only see the requests shared with their account.
+- Vendors can review property/job context, change status, post updates, and
+  upload before, after, receipt, or other proof photos.
+- Owners manage quotes privately so vendor pricing is not leaked.
+- The vendor portal now shows a per-request lifecycle tracker:
+  opportunity received, bid/price context, owner approval, scheduled/ready,
+  work in progress, closeout proof, and billing record.
+
+This is a good POC-safe foundation because it makes the assigned-job workflow
+traceable without opening competitive bidding or payment risks too early.
+
+## Target Lifecycle
+
+The mature vendor workflow should support these states:
+
+1. Opportunity available
+   - Vendor receives a job notification based on trade, service area,
+     availability, urgency, and owner preferences.
+   - Vendor can review limited scope details before bidding.
+
+2. Bid submitted
+   - Vendor submits amount, notes, availability window, terms, attachments, and
+     optional expiration date.
+   - Owner sees vendor bids in a private comparison workspace.
+
+3. Owner approval
+   - Owner approves one bid or asks follow-up questions.
+   - Declined vendors see a clear outcome without seeing competitors' prices.
+
+4. Project scheduled
+   - Approved vendor confirms date, arrival window, access needs, and contact
+     preference.
+   - Owner gets a clean pre-work checklist.
+
+5. Work started and paused/stopped
+   - Vendor records start, pause, resume, and stop events.
+   - Each event can include notes, photos, and reason codes.
+
+6. Closeout submitted
+   - Vendor submits after photos, receipts, materials, completion notes, and
+     final amount.
+   - Owner reviews proof before marking the request complete.
+
+7. Billing record saved
+   - Invoice/final cost is preserved in the homeowner's maintenance history.
+   - Future payments or subscriptions can connect here later.
+
+## Data Model Needed Later
+
+The current schema can support assigned-job tracking, but true bidding and
+billing will need new tables or expanded fields:
+
+- Vendor profiles: trade categories, service area, license/insurance metadata,
+  contact preferences, availability, and active status.
+- Job opportunities: request, trade match, visibility window, invite source,
+  and opportunity status.
+- Vendor bids: vendor ID, amount, notes, available dates, attachments,
+  expiration, and owner decision state.
+- Work sessions: start, pause, resume, stop, timestamps, notes, and actor.
+- Closeout submissions: proof bundle, materials, receipts, invoice amount, and
+  owner review decision.
+- Billing records: final amount, invoice reference, payment status, and export
+  metadata.
+
+## Product Guardrails
+
+- Keep homeowner control central. Owners approve access, bids, work completion,
+  and final records.
+- Do not expose one vendor's pricing to another vendor.
+- Keep early vendor notifications opt-in and trade-specific.
+- Make every major transition visible in the request history.
+- Delay payments until the workflow is tested manually with real users.
+
+## Suggested Build Order
+
+1. Add vendor lifecycle tracking for assigned jobs. Done.
+2. Add vendor profiles with trades, service areas, and availability.
+3. Add vendor bid submission for assigned/invited quote requests.
+4. Add owner bid comparison and approval tied to assigned vendor selection.
+5. Add work session events for start, pause, resume, stop, and notes.
+6. Add closeout submission and owner review before billing record finalization.

@@ -2,6 +2,57 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Vendor Lifecycle Tracker
+
+Scope: make assigned vendor work traceable from opportunity through billing
+context.
+
+### Changed
+
+- Added reusable vendor lifecycle guidance for opportunity received, bid/price
+  context, owner approval, scheduled/ready, work in progress, closeout proof,
+  and billing record stages.
+- Updated `/vendor` request cards with a per-request lifecycle tracker and
+  next-action summary.
+- Passed quoted-cost context into the vendor portal without exposing the
+  owner-only quote workspace or competing vendor pricing.
+- Added unit tests for needs-quote, blocked scheduled work, active closeout
+  gaps, complete lifecycle records, and summary prioritization.
+- Added `docs/VENDOR_LIFECYCLE_ROADMAP.md` for the larger trade matching,
+  vendor bidding, work-session, closeout, and billing build path.
+- Updated README, helper smoke checks, and UI/UX review docs for the vendor
+  lifecycle surface.
+
+### Why
+
+The vendor portal was useful for scoped assignments, status updates, comments,
+and proof uploads, but it did not yet feel like a mature job pipeline. Vendors
+need a clear trace from notification/assignment to bid context, approval,
+scheduled work, active work, closeout proof, and billing history. This slice
+adds that structure now while keeping the future open bidding system behind a
+proper data model.
+
+### Validation
+
+- `npm test -- vendor-lifecycle` passed: 6 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 168 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add vendor profiles for trades, service areas, availability, and notification
+  preferences.
+- Add vendor-submitted bids tied to owner approval without exposing competitor
+  pricing.
+- Add work-session events for start, pause, resume, stop, notes, and billing
+  handoff.
+
 ## 2026-08-11 - Notification Delivery Health
 
 Scope: make the owner notification log explain delivery reliability and next

@@ -18,6 +18,7 @@ import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklis
 import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
 import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
+import { VendorLifecycleTracker } from "@/components/VendorLifecycleTracker";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -43,6 +44,7 @@ type VendorRequest = {
   accessInstructions: string | null;
   contactMethod: string | null;
   assignedVendorId: string | null;
+  quotedCost: string | null;
   finalCost: string | null;
   property: { address: string; nickname: string | null } | null;
   photos: { type: string }[];
@@ -266,6 +268,8 @@ export function VendorPortal({
                     state={readiness}
                     onAction={() => handleReadinessAction(r, readiness)}
                   />
+
+                  <VendorLifecycleTracker request={r} />
 
                   <label className="mt-4 block text-sm">
                     <span className="font-semibold">Status</span>

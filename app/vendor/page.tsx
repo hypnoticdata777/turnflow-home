@@ -24,6 +24,7 @@ export default async function VendorPage() {
       accessInstructions: true,
       contactMethod: true,
       assignedVendorId: true,
+      quotedCost: true,
       finalCost: true,
     },
   });
