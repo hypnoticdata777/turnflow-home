@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  acceptRequestTaskAction,
   createRequestTaskAction,
   deleteRequestTaskAction,
+  updateRequestTaskCostAction,
   updateRequestTaskStatusAction,
 } from "@/lib/actions/request-tasks";
 import {
@@ -19,6 +21,9 @@ export type RequestTaskData = {
   title: string;
   description: string | null;
   status: RequestTaskStatus;
+  estimatedCost: string | null;
+  finalCost: string | null;
+  acceptedAt: string | Date | null;
   requiredPhotoTypes: string[];
 };
 
@@ -49,6 +54,8 @@ export function RequestTaskChecklist({
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [estimatedCost, setEstimatedCost] = useState("");
+  const [finalCost, setFinalCost] = useState("");
   const [selectedProof, setSelectedProof] = useState<string[]>(["before", "after"]);
   const [status, setStatus] = useState("");
   const [actingId, setActingId] = useState<string | null>(null);
@@ -61,6 +68,8 @@ export function RequestTaskChecklist({
     const formData = new FormData();
     formData.set("title", title);
     formData.set("description", description);
+    formData.set("estimatedCost", estimatedCost);
+    formData.set("finalCost", finalCost);
     for (const proofType of selectedProof) {
       formData.set(`proof_${proofType}`, "on");
     }
@@ -72,6 +81,8 @@ export function RequestTaskChecklist({
     }
     setTitle("");
     setDescription("");
+    setEstimatedCost("");
+    setFinalCost("");
     setSelectedProof(["before", "after"]);
     setStatus("Task added.");
     router.refresh();
@@ -87,6 +98,34 @@ export function RequestTaskChecklist({
       return;
     }
     setStatus("Task updated.");
+    setActingId(null);
+    router.refresh();
+  }
+
+  async function updateCost(taskId: string, formData: FormData) {
+    setActingId(taskId);
+    setStatus("Saving task costs...");
+    const result = await updateRequestTaskCostAction(requestId, taskId, formData);
+    if ("error" in result) {
+      setStatus(result.error);
+      setActingId(null);
+      return;
+    }
+    setStatus("Task costs saved.");
+    setActingId(null);
+    router.refresh();
+  }
+
+  async function acceptTask(taskId: string) {
+    setActingId(taskId);
+    setStatus("Accepting task...");
+    const result = await acceptRequestTaskAction(requestId, taskId);
+    if ("error" in result) {
+      setStatus(result.error);
+      setActingId(null);
+      return;
+    }
+    setStatus("Task accepted for closeout.");
     setActingId(null);
     router.refresh();
   }
@@ -112,6 +151,12 @@ export function RequestTaskChecklist({
     setSelectedProof((prev) =>
       prev.includes(type) ? prev.filter((item) => item !== type) : [...prev, type]
     );
+  }
+
+  function formatCost(value: string | null) {
+    if (value == null) return null;
+    const amount = Number(value);
+    return Number.isFinite(amount) ? `$${amount.toFixed(2)}` : null;
   }
 
   return (
@@ -164,6 +209,21 @@ export function RequestTaskChecklist({
               </div>
 
               <div className="mt-2 flex flex-wrap gap-2">
+                {formatCost(task.estimatedCost) && (
+                  <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-800">
+                    Est. {formatCost(task.estimatedCost)}
+                  </span>
+                )}
+                {formatCost(task.finalCost) && (
+                  <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800">
+                    Final {formatCost(task.finalCost)}
+                  </span>
+                )}
+                {task.acceptedAt && (
+                  <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800">
+                    Owner accepted
+                  </span>
+                )}
                 {task.requiredPhotoTypes.length > 0 ? (
                   task.requiredPhotoTypes.map((type) => (
                     <span
@@ -197,16 +257,65 @@ export function RequestTaskChecklist({
                   </select>
                 </label>
                 {canEditScope && (
-                  <button
-                    type="button"
-                    disabled={actingId === task.id}
-                    onClick={() => deleteTask(task.id)}
-                    className="inline-flex w-fit items-center justify-center rounded border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-                  >
-                    Delete task
-                  </button>
+                  <>
+                    {task.status === "done" && !task.acceptedAt && (
+                      <button
+                        type="button"
+                        disabled={actingId === task.id}
+                        onClick={() => acceptTask(task.id)}
+                        className="inline-flex w-fit items-center justify-center rounded bg-emerald-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+                      >
+                        Accept task
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={actingId === task.id}
+                      onClick={() => deleteTask(task.id)}
+                      className="inline-flex w-fit items-center justify-center rounded border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      Delete task
+                    </button>
+                  </>
                 )}
               </div>
+
+              {canEditScope && (
+                <form
+                  action={(formData) => updateCost(task.id, formData)}
+                  className="mt-3 grid gap-2 rounded-md border border-gray-100 bg-gray-50 p-2 sm:grid-cols-[1fr_1fr_auto]"
+                >
+                  <label className="text-sm font-medium">
+                    Estimated
+                    <input
+                      name="estimatedCost"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      defaultValue={task.estimatedCost ?? ""}
+                      className="mt-1 w-full rounded border bg-white p-2 text-sm"
+                    />
+                  </label>
+                  <label className="text-sm font-medium">
+                    Final
+                    <input
+                      name="finalCost"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      defaultValue={task.finalCost ?? ""}
+                      className="mt-1 w-full rounded border bg-white p-2 text-sm"
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    disabled={actingId === task.id}
+                    className="self-end rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    Save costs
+                  </button>
+                </form>
+              )}
             </article>
           ))}
         </div>
@@ -236,6 +345,32 @@ export function RequestTaskChecklist({
               className="mt-1 w-full rounded border p-2 text-sm"
             />
           </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-sm font-medium">
+              Estimated cost
+              <input
+                value={estimatedCost}
+                onChange={(event) => setEstimatedCost(event.target.value)}
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                className="mt-1 w-full rounded border p-2 text-sm"
+              />
+            </label>
+            <label className="block text-sm font-medium">
+              Final cost
+              <input
+                value={finalCost}
+                onChange={(event) => setFinalCost(event.target.value)}
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Optional after work is done"
+                className="mt-1 w-full rounded border p-2 text-sm"
+              />
+            </label>
+          </div>
           <fieldset>
             <legend className="text-sm font-medium">Expected proof</legend>
             <div className="mt-2 flex flex-wrap gap-3">

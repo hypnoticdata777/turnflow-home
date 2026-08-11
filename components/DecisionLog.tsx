@@ -16,6 +16,10 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
   request_task_deleted: (d) => `Deleted project task "${d.title || "Untitled task"}".`,
   request_task_status_changed: (d) =>
     `Changed project task "${d.title || "Untitled task"}" from ${d.from || "unknown"} to ${d.to || "unknown"}.`,
+  request_task_cost_updated: (d) =>
+    `Updated project task "${d.title || "Untitled task"}" costs: estimated $${Number(d.estimatedCost || 0).toFixed(2)}, final $${Number(d.finalCost || 0).toFixed(2)}.`,
+  request_task_accepted: (d) =>
+    `Accepted project task "${d.title || "Untitled task"}" for closeout.`,
   shared_access_removed: (d) => {
     const role = d.role === "collaborator" ? "collaborator" : "vendor";
     return d.removedUserEmail

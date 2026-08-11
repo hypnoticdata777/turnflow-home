@@ -61,15 +61,18 @@ Ask the tester to complete these tasks without explaining the interface first:
 5. Attach one photo, receipt, or proof item.
 6. Invite a vendor or trusted helper and copy the generated invite link.
 7. Record or review expected cost context.
-8. Save one related document in the vault.
-9. Set one recurring reminder for that property.
-10. Open Account & Sharing and explain who can see the request.
-11. Resend the invite, copy the fallback link, then cancel a second pending
+8. Add a project task with expected proof and an estimated cost.
+9. After a task is marked done, review the final cost and accept it for
+   closeout.
+10. Save one related document in the vault.
+11. Set one recurring reminder for that property.
+12. Open Account & Sharing and explain who can see the request.
+13. Resend the invite, copy the fallback link, then cancel a second pending
     invite if one exists.
-12. After an invite is accepted, remove that active access from Account &
+14. After an invite is accepted, remove that active access from Account &
     Sharing and explain what changed.
-13. Update the Account & Sharing display name.
-14. Return to the setup guide and explain what has been captured.
+15. Update the Account & Sharing display name.
+16. Return to the setup guide and explain what has been captured.
 
 ## Observe
 
@@ -91,6 +94,8 @@ Track these without coaching:
 - Whether the request decision log helps the owner understand whose access was
   removed and when.
 - Whether Account & Sharing answers the tester's trust/privacy questions.
+- Whether task-level estimate/final cost and owner acceptance make closeout
+  feel clearer.
 - Whether the owner trusts the record as evidence after the job is done.
 
 ## Success Signals
@@ -144,6 +149,7 @@ Evidence attached?:
 Helper invited?:
 Vault document added?:
 Reminder added?:
+Task accepted?:
 
 Top confusion:
 Top value moment:

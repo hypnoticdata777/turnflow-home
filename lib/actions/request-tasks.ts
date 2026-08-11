@@ -43,6 +43,13 @@ function parseRequiredPhotoTypes(formData: FormData) {
   return PHOTO_TYPES.filter((type) => formData.get(`proof_${type}`) === "on");
 }
 
+function parseMoney(value: FormDataEntryValue | null) {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed) return null;
+  const amount = Number.parseFloat(trimmed);
+  return Number.isFinite(amount) && amount >= 0 ? amount.toFixed(2) : null;
+}
+
 export async function createRequestTaskAction(
   requestId: string,
   formData: FormData
@@ -52,6 +59,8 @@ export async function createRequestTaskAction(
 
   const title = normalizeRequestTaskTitle(String(formData.get("title") ?? ""));
   const description = String(formData.get("description") ?? "").trim().slice(0, 500);
+  const estimatedCost = parseMoney(formData.get("estimatedCost"));
+  const finalCost = parseMoney(formData.get("finalCost"));
   if (!title) {
     return { error: "Task title is required." };
   }
@@ -66,6 +75,8 @@ export async function createRequestTaskAction(
       requestId,
       title,
       description: description || null,
+      estimatedCost,
+      finalCost,
       requiredPhotoTypes: parseRequiredPhotoTypes(formData),
       sortOrder: existingCount.length,
       createdById: session.user.id,
@@ -105,7 +116,12 @@ export async function updateRequestTaskStatusAction(
   const nextStatus = status as RequestTaskStatus;
   await db
     .update(requestTasks)
-    .set({ status: nextStatus, updatedAt: new Date() })
+    .set({
+      status: nextStatus,
+      acceptedAt: nextStatus === "done" ? task.acceptedAt : null,
+      acceptedById: nextStatus === "done" ? task.acceptedById : null,
+      updatedAt: new Date(),
+    })
     .where(and(eq(requestTasks.id, taskId), eq(requestTasks.requestId, requestId)));
 
   await db.insert(decisionLog).values({
@@ -117,6 +133,78 @@ export async function updateRequestTaskStatusAction(
       from: REQUEST_TASK_STATUS_LABELS[task.status],
       to: REQUEST_TASK_STATUS_LABELS[nextStatus],
     },
+  });
+
+  revalidatePath(`/owner/requests/${requestId}`);
+  revalidatePath("/vendor");
+  return { ok: true };
+}
+
+export async function updateRequestTaskCostAction(
+  requestId: string,
+  taskId: string,
+  formData: FormData
+): Promise<UpdateRequestTaskResult> {
+  const session = await requireRole("owner");
+  await requireOwnedRequest(requestId, session.user.id);
+
+  const task = await db.query.requestTasks.findFirst({
+    where: (t, { eq }) => eq(t.id, taskId),
+  });
+  if (!task || task.requestId !== requestId) {
+    return { error: "Task not found." };
+  }
+
+  const estimatedCost = parseMoney(formData.get("estimatedCost"));
+  const finalCost = parseMoney(formData.get("finalCost"));
+  await db
+    .update(requestTasks)
+    .set({ estimatedCost, finalCost, updatedAt: new Date() })
+    .where(and(eq(requestTasks.id, taskId), eq(requestTasks.requestId, requestId)));
+
+  await db.insert(decisionLog).values({
+    requestId,
+    actorId: session.user.id,
+    action: "request_task_cost_updated",
+    details: { title: task.title, estimatedCost, finalCost },
+  });
+
+  revalidatePath(`/owner/requests/${requestId}`);
+  revalidatePath("/vendor");
+  return { ok: true };
+}
+
+export async function acceptRequestTaskAction(
+  requestId: string,
+  taskId: string
+): Promise<UpdateRequestTaskResult> {
+  const session = await requireRole("owner");
+  await requireOwnedRequest(requestId, session.user.id);
+
+  const task = await db.query.requestTasks.findFirst({
+    where: (t, { eq }) => eq(t.id, taskId),
+  });
+  if (!task || task.requestId !== requestId) {
+    return { error: "Task not found." };
+  }
+  if (task.status !== "done") {
+    return { error: "Only done tasks can be accepted for closeout." };
+  }
+
+  await db
+    .update(requestTasks)
+    .set({
+      acceptedAt: new Date(),
+      acceptedById: session.user.id,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(requestTasks.id, taskId), eq(requestTasks.requestId, requestId)));
+
+  await db.insert(decisionLog).values({
+    requestId,
+    actorId: session.user.id,
+    action: "request_task_accepted",
+    details: { title: task.title, finalCost: task.finalCost },
   });
 
   revalidatePath(`/owner/requests/${requestId}`);

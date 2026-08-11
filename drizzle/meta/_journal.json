@@ -50,6 +50,13 @@
       "when": 1786479485610,
       "tag": "0006_luxuriant_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786480578894,
+      "tag": "0007_breezy_nightcrawler",
+      "breakpoints": true
     }
   ]
 }

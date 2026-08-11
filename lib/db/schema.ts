@@ -229,6 +229,10 @@ export const requestTasks = pgTable("request_tasks", {
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   status: requestTaskStatusEnum("status").default("todo").notNull(),
+  estimatedCost: numeric("estimated_cost", { precision: 10, scale: 2 }),
+  finalCost: numeric("final_cost", { precision: 10, scale: 2 }),
+  acceptedById: uuid("accepted_by_id").references(() => users.id),
+  acceptedAt: timestamp("accepted_at"),
   sortOrder: integer("sort_order").default(0).notNull(),
   requiredPhotoTypes: jsonb("required_photo_types").$type<string[]>().default([]).notNull(),
   createdById: uuid("created_by_id").references(() => users.id),
@@ -422,6 +426,7 @@ export const requestTasksRelations = relations(requestTasks, ({ one, many }) => 
     references: [requests.id],
   }),
   createdBy: one(users, { fields: [requestTasks.createdById], references: [users.id] }),
+  acceptedBy: one(users, { fields: [requestTasks.acceptedById], references: [users.id] }),
   workSessions: many(workSessions),
 }));
 

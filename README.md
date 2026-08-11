@@ -172,7 +172,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Vendor bid decision notifications for owner-approved or owner-declined
   vendor-submitted bids.
 - Structured project task checklist with owner-created scope rows, expected
-  proof types, owner/vendor task status updates, and work-session task links.
+  proof types, estimated/final task costs, owner/vendor task status updates,
+  owner acceptance for done tasks, and work-session task links.
 - Append-only decision log for status changes, waivers, quote decisions, and
   access changes.
 - Completion gating that requires final cost, after-photo proof, and assigned
@@ -248,9 +249,9 @@ Before inviting external users, the remaining launch steps are:
   public signup stays homeowner-focused.
 - Open vendor opportunity bidding, automated trade matching, richer billing
   records, and payments are planned product layers. The current vendor profile,
-  assigned-vendor bid flow, lifecycle tracker, and work-session timeline make
-  assigned jobs more traceable, but they do not yet create an open vendor
-  marketplace.
+  assigned-vendor bid flow, lifecycle tracker, task-level cost/acceptance flow,
+  and work-session timeline make assigned jobs more traceable, but they do not
+  yet create an open vendor marketplace.
 - Email can run in log-only mode, but real launch testing should verify Resend
   deliverability, sender domain setup, and reminder cron behavior.
 - Privacy/audit history is strong for request decisions and access changes, but

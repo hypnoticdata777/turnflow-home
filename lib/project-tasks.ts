@@ -7,6 +7,9 @@ export type RequestTaskInput = {
   title: string;
   description?: string | null;
   status: RequestTaskStatus;
+  estimatedCost?: string | number | null;
+  finalCost?: string | number | null;
+  acceptedAt?: string | Date | null;
   requiredPhotoTypes?: string[] | null;
 };
 
@@ -32,12 +35,25 @@ export function normalizeRequestTaskTitle(value: string) {
   return value.trim().slice(0, 120);
 }
 
+function costValue(value: string | number | null | undefined) {
+  const amount = Number(value ?? 0);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+function money(value: number) {
+  return `$${value.toFixed(2)}`;
+}
+
 export function requestTaskMetrics(tasks: RequestTaskInput[]): RequestTaskMetric[] {
   const total = tasks.length;
   const done = tasks.filter((task) => task.status === "done").length;
+  const accepted = tasks.filter((task) => task.acceptedAt).length;
   const blocked = tasks.filter((task) => task.status === "blocked").length;
-  const inProgress = tasks.filter((task) => task.status === "in_progress").length;
-  const proofReady = tasks.filter((task) => (task.requiredPhotoTypes ?? []).length > 0).length;
+  const estimatedTotal = tasks.reduce(
+    (sum, task) => sum + costValue(task.estimatedCost),
+    0
+  );
+  const finalTotal = tasks.reduce((sum, task) => sum + costValue(task.finalCost), 0);
 
   if (total === 0) {
     return [
@@ -55,17 +71,17 @@ export function requestTaskMetrics(tasks: RequestTaskInput[]): RequestTaskMetric
     {
       label: "Project tasks",
       value: `${done}/${total}`,
-      detail: `${done} of ${total} tasks are marked done.`,
-      tone: done === total ? "ready" : "progress",
+      detail: `${done} of ${total} tasks are marked done; ${accepted} accepted by owner.`,
+      tone: accepted === total ? "ready" : done > accepted ? "attention" : "progress",
     },
     {
-      label: "In motion",
-      value: String(inProgress),
+      label: "Accepted",
+      value: `${accepted}/${total}`,
       detail:
-        inProgress > 0
-          ? `${inProgress} task ${inProgress === 1 ? "is" : "are"} currently in progress.`
-          : "No task is actively in progress right now.",
-      tone: inProgress > 0 ? "progress" : "attention",
+        accepted === total
+          ? "All tasks are owner-accepted for closeout."
+          : `${total - accepted} ${total - accepted === 1 ? "task still needs" : "tasks still need"} owner acceptance before final billing.`,
+      tone: accepted === total ? "ready" : "attention",
     },
     {
       label: "Blocked",
@@ -77,13 +93,15 @@ export function requestTaskMetrics(tasks: RequestTaskInput[]): RequestTaskMetric
       tone: blocked > 0 ? "attention" : "ready",
     },
     {
-      label: "Proof planned",
-      value: `${proofReady}/${total}`,
+      label: "Task costs",
+      value: money(finalTotal || estimatedTotal),
       detail:
-        proofReady > 0
-          ? "Some tasks already name expected proof types."
-          : "Add expected proof types when a task needs before, after, receipt, or other evidence.",
-      tone: proofReady > 0 ? "ready" : "attention",
+        finalTotal > 0
+          ? `${money(finalTotal)} final task cost recorded against ${money(estimatedTotal)} estimated.`
+          : estimatedTotal > 0
+            ? `${money(estimatedTotal)} estimated across task scope; final task costs still need review.`
+            : "Add estimated or final costs to make task-level billing review easier.",
+      tone: finalTotal > 0 ? "ready" : estimatedTotal > 0 ? "progress" : "attention",
     },
   ];
 }

@@ -34,6 +34,9 @@ The current app supports assigned vendor accounts:
 - Owners can create structured project tasks with expected proof types, and
   vendors can update each task while tying work-session proof to the selected
   task.
+- Owners can record estimated and final cost per project task, then accept
+  done tasks for closeout so billing review is tied to scope instead of one
+  loose request total.
 - The vendor portal now shows a per-request lifecycle tracker:
   opportunity received, bid/price context, owner approval, scheduled/ready,
   work in progress, closeout proof, and billing record.
@@ -91,8 +94,8 @@ True bidding and billing will need additional tables or expanded fields:
 - Work sessions: start, pause, resume, stop, timestamps, notes, task/area label,
   proof photo link, and actor. Done for assigned vendors.
 - Project tasks: reusable task checklist, per-task status, proof requirements,
-  and work-session task links. Done for assigned requests. Per-task estimates,
-  final cost, and closeout review are still future layers.
+  work-session task links, estimated/final costs, and owner acceptance. Done for
+  assigned requests.
 - Closeout submissions: proof bundle, materials, receipts, invoice amount, and
   owner review decision.
 - Billing records: final amount, invoice reference, payment status, and export
@@ -120,6 +123,8 @@ True bidding and billing will need additional tables or expanded fields:
 9. Tie start/stop work-session events to required proof photos and task labels.
    Done.
 10. Add structured project task checklist with per-task proof and timing. Done.
-11. Add open opportunity notifications before assignment.
-12. Add owner bid comparison and approval tied to assigned vendor selection.
-13. Add closeout submission and owner review before billing record finalization.
+11. Add per-task estimate/final cost fields and owner acceptance before
+    closeout. Done.
+12. Add open opportunity notifications before assignment.
+13. Add owner bid comparison and approval tied to assigned vendor selection.
+14. Add closeout submission and richer billing record finalization.

@@ -35,18 +35,43 @@ describe("requestTaskMetrics", () => {
     ]);
   });
 
-  it("summarizes completion, active, blocked, and proof-planned tasks", () => {
+  it("summarizes completion, owner acceptance, blocked tasks, and task costs", () => {
     expect(
       requestTaskMetrics([
-        { title: "Demo", status: "done", requiredPhotoTypes: ["before", "after"] },
-        { title: "Install", status: "in_progress" },
+        {
+          title: "Demo",
+          status: "done",
+          estimatedCost: "100.00",
+          finalCost: "125.00",
+          requiredPhotoTypes: ["before", "after"],
+        },
+        { title: "Install", status: "in_progress", estimatedCost: "200.00" },
         { title: "Paint", status: "blocked" },
       ])
     ).toMatchObject([
-      { label: "Project tasks", value: "1/3", tone: "progress" },
-      { label: "In motion", value: "1", tone: "progress" },
+      { label: "Project tasks", value: "1/3", tone: "attention" },
+      { label: "Accepted", value: "0/3", tone: "attention" },
       { label: "Blocked", value: "1", tone: "attention" },
-      { label: "Proof planned", value: "1/3", tone: "ready" },
+      { label: "Task costs", value: "$125.00", tone: "ready" },
+    ]);
+  });
+
+  it("marks task metrics ready when every task is owner-accepted", () => {
+    expect(
+      requestTaskMetrics([
+        {
+          title: "Demo",
+          status: "done",
+          estimatedCost: "95.00",
+          finalCost: "95.00",
+          acceptedAt: "2026-08-11T10:00:00.000Z",
+        },
+      ])
+    ).toMatchObject([
+      { label: "Project tasks", value: "1/1", tone: "ready" },
+      { label: "Accepted", value: "1/1", tone: "ready" },
+      { label: "Blocked", value: "0", tone: "ready" },
+      { label: "Task costs", value: "$95.00", tone: "ready" },
     ]);
   });
 });

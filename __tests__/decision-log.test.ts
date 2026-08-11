@@ -66,6 +66,16 @@ describe("describeLogAction", () => {
         to: "Done",
       })
     ).toBe('Changed project task "Demo" from To do to Done.');
+    expect(
+      describeLogAction("request_task_cost_updated", {
+        title: "Demo",
+        estimatedCost: "95.00",
+        finalCost: "110.00",
+      })
+    ).toBe('Updated project task "Demo" costs: estimated $95.00, final $110.00.');
+    expect(describeLogAction("request_task_accepted", { title: "Demo" })).toBe(
+      'Accepted project task "Demo" for closeout.'
+    );
   });
 
   it("falls back to the action key for unknown log events", () => {

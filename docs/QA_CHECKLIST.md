@@ -72,10 +72,12 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
    and preferred contact method.
 7. Upload at least one before photo or public-safe proof file.
 8. Add cost context or a quote.
-9. Confirm the setup guide progress changes after property, request, evidence,
+9. Add at least one project task with expected proof and estimated cost.
+10. Mark a task done, save a final task cost, and accept it for closeout.
+11. Confirm the setup guide progress changes after property, request, evidence,
    sharing, history, and reminder steps.
-10. Download a proof packet PDF.
-11. Export owner backup data from `/owner/backup`.
+12. Download a proof packet PDF.
+13. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 
@@ -106,6 +108,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 - Notification attempts are logged even when outbound email is not configured.
 - Completion still requires final cost, an after photo, and assigned vendor, or
   an explicit waiver reason in the Decision Log.
+- Done project tasks can be accepted by the owner, and changing an accepted
+  task away from done clears the acceptance.
 - Public screenshots and demo records contain no private addresses, contacts,
   receipts, or real customer data.
 

@@ -2,6 +2,57 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Task Costs And Owner Acceptance
+
+Scope: add task-level closeout review so owners can accept completed work with
+cost context.
+
+### Changed
+
+- Added estimated cost, final cost, owner accepted-by, and owner accepted-at
+  fields to project tasks.
+- Added owner-only task cost saving and owner-only task acceptance actions.
+- Preserved task acceptance while a task stays done, and cleared acceptance if
+  the task is moved away from done.
+- Updated the project task checklist so owners can save estimated/final cost,
+  accept done tasks, and see acceptance state; vendors can see the same cost
+  and acceptance context without editing owner-only fields.
+- Updated task metrics to track done tasks, accepted tasks, blocked tasks, and
+  task-level costs.
+- Added decision-log and proof-packet copy for task cost updates and owner
+  acceptance.
+- Updated demo seed data, README, QA checklist, user testing protocol, UI/UX
+  review process, and vendor lifecycle roadmap.
+
+### Why
+
+The previous checklist let owners define scope and vendors update task status,
+but closeout still lacked an owner review moment per task. Task-level estimated
+cost, final cost, and owner acceptance make bigger jobs easier to audit: each
+phase can move from planned work to done work to owner-accepted closeout before
+the request is treated as billing-ready.
+
+### Validation
+
+- `npm test -- project-tasks decision-log` passed: 12 tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0007_breezy_nightcrawler.sql`.
+- `npm run verify` passed.
+- `npm run lint` passed with no warnings.
+- `npm test` passed: 219 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migration.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run a manual mobile UX pass for the owner task cost form and accept button.
+- Add a richer vendor closeout submission bundle before final billing records.
+- Add future invoice/payment state after closeout behavior is tested with
+  owners and vendors.
+
 ## 2026-08-11 - Structured Project Task Checklist
 
 Scope: promote project phases from free-form labels into owner/vendor task rows.
