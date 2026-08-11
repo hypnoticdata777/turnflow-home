@@ -23,6 +23,7 @@ import { VendorProfilePanel } from "@/components/VendorProfilePanel";
 import { VendorBidPanel, type VendorBidData } from "@/components/VendorBidPanel";
 import { WorkSessionPanel } from "@/components/WorkSessionPanel";
 import type { WorkSessionData } from "@/components/WorkSessionTimeline";
+import { RequestTaskChecklist, type RequestTaskData } from "@/components/RequestTaskChecklist";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -54,6 +55,7 @@ type VendorRequest = {
   photos: { type: string }[];
   comments: CommentData[];
   workSessions: WorkSessionData[];
+  tasks: RequestTaskData[];
   vendorBid: VendorBidData | null;
 };
 
@@ -292,11 +294,16 @@ export function VendorPortal({
 
                   <VendorBidPanel requestId={r.id} request={r} bid={r.vendorBid} />
 
+                  <div className="mt-4">
+                    <RequestTaskChecklist requestId={r.id} tasks={r.tasks} mode="vendor" />
+                  </div>
+
                   <WorkSessionPanel
                     requestId={r.id}
                     requestStatus={r.status}
                     events={r.workSessions}
                     userId={userId}
+                    tasks={r.tasks}
                   />
 
                   <label className="mt-4 block text-sm">

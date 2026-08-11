@@ -171,6 +171,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   spread, vendor-submitted ratio, and per-quote price position.
 - Vendor bid decision notifications for owner-approved or owner-declined
   vendor-submitted bids.
+- Structured project task checklist with owner-created scope rows, expected
+  proof types, owner/vendor task status updates, and work-session task links.
 - Append-only decision log for status changes, waivers, quote decisions, and
   access changes.
 - Completion gating that requires final cost, after-photo proof, and assigned

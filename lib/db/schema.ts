@@ -66,6 +66,12 @@ export const workSessionEventEnum = pgEnum("work_session_event", [
   "resumed",
   "stopped",
 ]);
+export const requestTaskStatusEnum = pgEnum("request_task_status", [
+  "todo",
+  "in_progress",
+  "blocked",
+  "done",
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -206,10 +212,28 @@ export const workSessions = pgTable("work_sessions", {
   proofPhotoId: uuid("proof_photo_id").references(() => requestPhotos.id, {
     onDelete: "set null",
   }),
+  requestTaskId: uuid("request_task_id").references(() => requestTasks.id, {
+    onDelete: "set null",
+  }),
   taskLabel: varchar("task_label", { length: 255 }),
   event: workSessionEventEnum("event").notNull(),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const requestTasks = pgTable("request_tasks", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  requestId: uuid("request_id")
+    .notNull()
+    .references(() => requests.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  status: requestTaskStatusEnum("status").default("todo").notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  requiredPhotoTypes: jsonb("required_photo_types").$type<string[]>().default([]).notNull(),
+  createdById: uuid("created_by_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const vaultDocuments = pgTable("vault_documents", {
@@ -335,6 +359,7 @@ export const requestsRelations = relations(requests, ({ one, many }) => ({
   log: many(decisionLog),
   comments: many(comments),
   workSessions: many(workSessions),
+  tasks: many(requestTasks),
 }));
 
 export const requestPhotosRelations = relations(requestPhotos, ({ one }) => ({
@@ -385,6 +410,19 @@ export const workSessionsRelations = relations(workSessions, ({ one }) => ({
     fields: [workSessions.proofPhotoId],
     references: [requestPhotos.id],
   }),
+  requestTask: one(requestTasks, {
+    fields: [workSessions.requestTaskId],
+    references: [requestTasks.id],
+  }),
+}));
+
+export const requestTasksRelations = relations(requestTasks, ({ one, many }) => ({
+  request: one(requests, {
+    fields: [requestTasks.requestId],
+    references: [requests.id],
+  }),
+  createdBy: one(users, { fields: [requestTasks.createdById], references: [users.id] }),
+  workSessions: many(workSessions),
 }));
 
 export const invitesRelations = relations(invites, ({ one }) => ({
@@ -429,6 +467,7 @@ export type Quote = typeof quotes.$inferSelect;
 export type DecisionLogEntry = typeof decisionLog.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type WorkSession = typeof workSessions.$inferSelect;
+export type RequestTask = typeof requestTasks.$inferSelect;
 export type Invite = typeof invites.$inferSelect;
 export type VaultDocument = typeof vaultDocuments.$inferSelect;
 export type Reminder = typeof reminders.$inferSelect;

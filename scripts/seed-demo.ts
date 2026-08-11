@@ -67,6 +67,31 @@ async function main() {
       });
       console.log("Added: quotes for HVAC request");
     }
+
+    const existingTask = await db.query.requestTasks.findFirst({ where: (task, { eq }) => eq(task.requestId, hvacRequest.id) });
+    if (!existingTask) {
+      await db.insert(schema.requestTasks).values([
+        {
+          requestId: hvacRequest.id,
+          title: "Diagnose upstairs airflow",
+          description: "Capture before proof at the upstairs vent and condenser before work starts.",
+          status: "done",
+          sortOrder: 0,
+          requiredPhotoTypes: ["before", "after"],
+          createdById: owner.id,
+        },
+        {
+          requestId: hvacRequest.id,
+          title: "Complete refrigerant top-off",
+          description: "Record final readings and after proof for owner review.",
+          status: "in_progress",
+          sortOrder: 1,
+          requiredPhotoTypes: ["after", "receipt"],
+          createdById: owner.id,
+        },
+      ]);
+      console.log("Added: project tasks for HVAC request");
+    }
   }
 
   // A vault document, for a populated vault screenshot.

@@ -13,6 +13,9 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
   vendor_bid_submitted: (d) => `Vendor bid submitted by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   vendor_bid_updated: (d) => `Vendor bid updated by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   work_session_event: (d) => `${d.label || "Work session updated"}${d.taskLabel ? ` (${d.taskLabel})` : ""}${d.notes ? `: ${d.notes}` : "."}`,
+  request_task_created: (d) => `Added project task "${d.title || "Untitled task"}".`,
+  request_task_deleted: (d) => `Deleted project task "${d.title || "Untitled task"}".`,
+  request_task_status_changed: (d) => `Changed project task "${d.title || "Untitled task"}" from ${d.from || "unknown"} to ${d.to || "unknown"}.`,
 };
 
 function lastAutoTableFinalY(doc: jsPDF): number {

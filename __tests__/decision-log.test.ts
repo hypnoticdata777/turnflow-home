@@ -55,6 +55,19 @@ describe("describeLogAction", () => {
     ).toBe("Paused work (Plumbing rough-in): Waiting for access to the shutoff valve");
   });
 
+  it("describes project task lifecycle events", () => {
+    expect(describeLogAction("request_task_created", { title: "Demo" })).toBe(
+      'Added project task "Demo".'
+    );
+    expect(
+      describeLogAction("request_task_status_changed", {
+        title: "Demo",
+        from: "To do",
+        to: "Done",
+      })
+    ).toBe('Changed project task "Demo" from To do to Done.');
+  });
+
   it("falls back to the action key for unknown log events", () => {
     expect(describeLogAction("unknown_event", null)).toBe("unknown_event");
   });

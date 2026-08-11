@@ -2,6 +2,51 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Structured Project Task Checklist
+
+Scope: promote project phases from free-form labels into owner/vendor task rows.
+
+### Changed
+
+- Added `request_task_status` and `request_tasks` to the Drizzle schema.
+- Linked work-session events to an optional `request_task_id`.
+- Added an owner-visible and vendor-visible project task checklist.
+- Let owners create/delete tasks with expected proof types.
+- Let owners and assigned vendors update task status across to-do, in-progress,
+  blocked, and done.
+- Updated work-session recording so vendors can select a project task instead
+  of retyping the task/area.
+- Updated decision-log and proof-packet copy for project task lifecycle events.
+- Added project task metrics, focused tests, demo seed data, smoke checks,
+  README, UI/UX review docs, and vendor lifecycle roadmap updates.
+
+### Why
+
+The previous task label solved simple proof traceability, but a real SaaS
+workflow needs reusable task rows for multi-step jobs. Owners can now define the
+scope once, vendors can update each task, and work sessions can attach time and
+proof to the selected phase without guessing.
+
+### Validation
+
+- `npm test -- project-tasks work-sessions decision-log` passed: 23 tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0006_luxuriant_ender_wiggin.sql`.
+- `npm run lint` passed with no warnings.
+- `npm run verify` passed.
+- `npm test` passed: 218 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migration.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add per-task estimate/final cost fields and closeout acceptance.
+- Add owner review for completed project tasks before final billing.
+- Add mobile UX pass for task creation and vendor task selection.
+
 ## 2026-08-11 - Work Session Proof Gates And Task Labels
 
 Scope: tie vendor work-session events to proof photos and lightweight project
@@ -49,8 +94,7 @@ one-task repairs.
 
 ### Follow-Up
 
-- Add structured project task checklist with per-task status, proof, timing,
-  and closeout.
+- Add per-task estimate/final cost fields and closeout acceptance.
 - Add closeout submission and owner review before billing record finalization.
 - Add manual UX pass for proof-gated work sessions on mobile vendor flow.
 

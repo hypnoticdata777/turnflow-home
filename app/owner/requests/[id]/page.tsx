@@ -29,6 +29,9 @@ export default async function RequestDetailPage({
           proofPhoto: { columns: { type: true, url: true } },
         },
       },
+      tasks: {
+        orderBy: (task, { asc }) => [asc(task.sortOrder), asc(task.createdAt)],
+      },
     },
   });
 
@@ -71,6 +74,7 @@ export default async function RequestDetailPage({
         log={request.log}
         comments={request.comments}
         workSessions={request.workSessions}
+        tasks={request.tasks}
         property={request.property}
         userId={session.user.id}
         creationNotice={requestCreatedNotice(created, uploads)}

@@ -21,6 +21,9 @@ export default async function VendorPage() {
           proofPhoto: { columns: { type: true, url: true } },
         },
       },
+      tasks: {
+        orderBy: (task, { asc }) => [asc(task.sortOrder), asc(task.createdAt)],
+      },
     },
     columns: {
       id: true,

@@ -3,7 +3,7 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { decisionLog, requests, workSessions } from "@/lib/db/schema";
+import { decisionLog, requestTasks, requests, workSessions } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
 import {
   WORK_SESSION_EVENT_LABELS,
@@ -34,7 +34,8 @@ export async function recordWorkSessionEventAction(
   event: string,
   notes: string,
   taskLabel: string,
-  proofPhotoId?: string | null
+  proofPhotoId?: string | null,
+  requestTaskId?: string | null
 ): Promise<RecordWorkSessionEventResult> {
   const session = await requireRole("vendor");
   if (!isWorkSessionEvent(event)) {
@@ -49,7 +50,16 @@ export async function recordWorkSessionEventAction(
   }
 
   const trimmedNotes = notes.trim().slice(0, 500);
-  const normalizedTaskLabel = normalizeWorkSessionTaskLabel(taskLabel);
+  const requestTask = requestTaskId
+    ? await db.query.requestTasks.findFirst({
+        where: (task, { eq }) => eq(task.id, requestTaskId),
+      })
+    : null;
+  if (requestTaskId && (!requestTask || requestTask.requestId !== requestId)) {
+    return { error: "Choose a valid project task for this request." };
+  }
+
+  const normalizedTaskLabel = normalizeWorkSessionTaskLabel(requestTask?.title ?? taskLabel);
   const proofRequirement = workSessionProofRequirement(event);
   const proofPhoto = proofPhotoId
     ? await db.query.requestPhotos.findFirst({
@@ -81,6 +91,7 @@ export async function recordWorkSessionEventAction(
     requestId,
     vendorId: session.user.id,
     proofPhotoId: proofPhoto?.id ?? null,
+    requestTaskId: requestTask?.id ?? null,
     taskLabel: normalizedTaskLabel,
     event,
     notes: trimmedNotes || null,
@@ -93,6 +104,19 @@ export async function recordWorkSessionEventAction(
       .where(eq(requests.id, requestId));
   }
 
+  if (requestTask) {
+    const taskStatus =
+      event === "stopped"
+        ? "done"
+        : event === "paused"
+          ? "blocked"
+          : "in_progress";
+    await db
+      .update(requestTasks)
+      .set({ status: taskStatus, updatedAt: new Date() })
+      .where(eq(requestTasks.id, requestTask.id));
+  }
+
   await db.insert(decisionLog).values({
     requestId,
     actorId: session.user.id,
@@ -101,6 +125,7 @@ export async function recordWorkSessionEventAction(
       event,
       label: WORK_SESSION_EVENT_LABELS[event],
       taskLabel: normalizedTaskLabel,
+      requestTaskId: requestTask?.id ?? null,
       notes: trimmedNotes || null,
       proofPhotoId: proofPhoto?.id ?? null,
       proofPhotoType: proofPhoto?.type ?? null,

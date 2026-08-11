@@ -14,6 +14,7 @@ import {
   type WorkSessionEvent,
 } from "@/lib/work-sessions";
 import { WorkSessionTimeline, type WorkSessionData } from "@/components/WorkSessionTimeline";
+import type { RequestTaskData } from "@/components/RequestTaskChecklist";
 
 const GUIDANCE_CLASSES = {
   attention: "border-blue-200 bg-blue-50 text-blue-950",
@@ -26,15 +27,18 @@ export function WorkSessionPanel({
   requestStatus,
   events,
   userId,
+  tasks,
 }: {
   requestId: string;
   requestStatus: string;
   events: WorkSessionData[];
   userId: string;
+  tasks: RequestTaskData[];
 }) {
   const router = useRouter();
   const guidance = workSessionGuidance(events, requestStatus);
   const [taskLabel, setTaskLabel] = useState("Main repair");
+  const [taskId, setTaskId] = useState(tasks[0]?.id ?? "");
   const [notes, setNotes] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [savingEvent, setSavingEvent] = useState<WorkSessionEvent | null>(null);
@@ -74,7 +78,8 @@ export function WorkSessionPanel({
         event,
         notes,
         taskLabel,
-        proofPhotoId
+        proofPhotoId,
+        taskId || null
       );
       if ("error" in result) {
         setStatus(result.error);
@@ -112,17 +117,38 @@ export function WorkSessionPanel({
         </div>
       </div>
 
-      <label className="block text-sm font-medium">
-        Task or area
-        <input
-          type="text"
-          value={taskLabel}
-          onChange={(event) => setTaskLabel(event.target.value)}
-          maxLength={80}
-          placeholder="Main repair, demo, plumbing, paint touch-up..."
-          className="mt-1 mb-3 w-full rounded border p-2 text-sm"
-        />
-      </label>
+      {tasks.length > 0 ? (
+        <label className="block text-sm font-medium">
+          Project task
+          <select
+            value={taskId}
+            onChange={(event) => {
+              setTaskId(event.target.value);
+              const selectedTask = tasks.find((task) => task.id === event.target.value);
+              setTaskLabel(selectedTask?.title ?? "Main repair");
+            }}
+            className="mt-1 mb-3 w-full rounded border bg-white p-2 text-sm"
+          >
+            {tasks.map((task) => (
+              <option key={task.id} value={task.id}>
+                {task.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <label className="block text-sm font-medium">
+          Task or area
+          <input
+            type="text"
+            value={taskLabel}
+            onChange={(event) => setTaskLabel(event.target.value)}
+            maxLength={80}
+            placeholder="Main repair, demo, plumbing, paint touch-up..."
+            className="mt-1 mb-3 w-full rounded border p-2 text-sm"
+          />
+        </label>
+      )}
 
       <label className="block text-sm font-medium">
         Session note

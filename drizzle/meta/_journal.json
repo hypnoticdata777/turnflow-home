@@ -43,6 +43,13 @@
       "when": 1786477608514,
       "tag": "0005_tired_fabian_cortez",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786479485610,
+      "tag": "0006_luxuriant_ender_wiggin",
+      "breakpoints": true
     }
   ]
 }

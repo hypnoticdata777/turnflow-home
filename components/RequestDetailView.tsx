@@ -26,6 +26,7 @@ import { RequestCreatedNoticeBanner } from "@/components/RequestCreatedNoticeBan
 import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
 import { VendorFitPanel } from "@/components/VendorFitPanel";
 import { WorkSessionTimeline, type WorkSessionData } from "@/components/WorkSessionTimeline";
+import { RequestTaskChecklist, type RequestTaskData } from "@/components/RequestTaskChecklist";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -156,6 +157,7 @@ export function RequestDetailView({
   log,
   comments,
   workSessions,
+  tasks,
   property,
   userId,
   creationNotice,
@@ -167,6 +169,7 @@ export function RequestDetailView({
   log: LogEntryData[];
   comments: CommentData[];
   workSessions: WorkSessionData[];
+  tasks: RequestTaskData[];
   property: Property;
   userId: string;
   creationNotice: RequestCreatedNotice | null;
@@ -542,6 +545,10 @@ export function RequestDetailView({
       <section id="decision-log" className="scroll-mt-6">
         <DecisionLog entries={log} userId={userId} assignedVendorId={request.assignedVendorId} />
       </section>
+
+      <hr className="my-4" />
+
+      <RequestTaskChecklist requestId={request.id} tasks={tasks} mode="owner" />
 
       <hr className="my-4" />
 
