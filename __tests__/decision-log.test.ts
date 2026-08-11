@@ -30,6 +30,21 @@ describe("describeLogAction", () => {
     );
   });
 
+  it("describes vendor bid submissions and updates", () => {
+    expect(
+      describeLogAction("vendor_bid_submitted", {
+        vendorName: "Brightside Home Services",
+        amount: "325.00",
+      })
+    ).toBe("Vendor bid submitted by Brightside Home Services ($325.00).");
+    expect(
+      describeLogAction("vendor_bid_updated", {
+        vendorName: "Brightside Home Services",
+        amount: "350.00",
+      })
+    ).toBe("Vendor bid updated by Brightside Home Services ($350.00).");
+  });
+
   it("falls back to the action key for unknown log events", () => {
     expect(describeLogAction("unknown_event", null)).toBe("unknown_event");
   });

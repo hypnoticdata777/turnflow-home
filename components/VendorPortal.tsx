@@ -20,6 +20,7 @@ import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
 import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
 import { VendorLifecycleTracker } from "@/components/VendorLifecycleTracker";
 import { VendorProfilePanel } from "@/components/VendorProfilePanel";
+import { VendorBidPanel, type VendorBidData } from "@/components/VendorBidPanel";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -50,6 +51,7 @@ type VendorRequest = {
   property: { address: string; nickname: string | null } | null;
   photos: { type: string }[];
   comments: CommentData[];
+  vendorBid: VendorBidData | null;
 };
 
 type VendorProfileData = {
@@ -284,6 +286,8 @@ export function VendorPortal({
                   />
 
                   <VendorLifecycleTracker request={r} />
+
+                  <VendorBidPanel requestId={r.id} request={r} bid={r.vendorBid} />
 
                   <label className="mt-4 block text-sm">
                     <span className="font-semibold">Status</span>

@@ -6,6 +6,10 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
     `Approved quote from ${d.vendorName || "a vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   quote_declined: (d) =>
     `Declined quote from ${d.vendorName || "a vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
+  vendor_bid_submitted: (d) =>
+    `Vendor bid submitted by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
+  vendor_bid_updated: (d) =>
+    `Vendor bid updated by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   shared_access_removed: (d) => {
     const role = d.role === "collaborator" ? "collaborator" : "vendor";
     return d.removedUserEmail

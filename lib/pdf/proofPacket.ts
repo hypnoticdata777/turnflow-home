@@ -10,6 +10,8 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
   completion_waived: (d) => `Marked Complete without full proof on record — waived: "${d.reason}"`,
   quote_approved: (d) => `Approved quote from ${d.vendorName || "a vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
   quote_declined: (d) => `Declined quote from ${d.vendorName || "a vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
+  vendor_bid_submitted: (d) => `Vendor bid submitted by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
+  vendor_bid_updated: (d) => `Vendor bid updated by ${d.vendorName || "assigned vendor"} ($${Number(d.amount || 0).toFixed(2)}).`,
 };
 
 function lastAutoTableFinalY(doc: jsPDF): number {
@@ -36,7 +38,7 @@ export function downloadProofPacketPdf({
 }: {
   request: ProofPacketRequest;
   propertyLabel: string;
-  quotes: { vendorName: string; amount: string; status: string; notes: string | null }[];
+  quotes: { vendorName: string; amount: string; status: string; notes: string | null; availabilityWindow?: string | null }[];
   photos: { type: string }[];
   log: LogEntryData[];
   actorLabel: (actorId: string) => string;
@@ -92,11 +94,12 @@ export function downloadProofPacketPdf({
     y += 2;
     autoTable(doc, {
       startY: y,
-      head: [["Vendor", "Amount", "Status", "Notes"]],
+      head: [["Vendor", "Amount", "Status", "Availability", "Notes"]],
       body: quotes.map((q) => [
         q.vendorName || "",
         `$${Number(q.amount || 0).toFixed(2)}`,
         q.status || "pending",
+        q.availabilityWindow || "",
         q.notes || "",
       ]),
     });

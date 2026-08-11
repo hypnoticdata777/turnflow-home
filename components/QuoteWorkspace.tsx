@@ -22,8 +22,10 @@ export type QuoteData = {
   vendorName: string;
   vendorContact: string | null;
   amount: string;
+  availabilityWindow: string | null;
   notes: string | null;
   attachmentUrl: string | null;
+  submittedByVendorId: string | null;
   status: string;
 };
 
@@ -164,17 +166,36 @@ export function QuoteWorkspace({
               className={`rounded border p-3 ${q.status === "approved" ? "border-green-400" : ""}`}
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <h3 className="font-medium">{q.vendorName || "Unnamed vendor"}</h3>
-                <span
-                  className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${
-                    QUOTE_STATUS_CLASSES[q.status] || QUOTE_STATUS_CLASSES.pending
-                  }`}
-                >
-                  {q.status}
-                </span>
+                <div>
+                  <h3 className="font-medium">{q.vendorName || "Unnamed vendor"}</h3>
+                  {q.submittedByVendorId && (
+                    <p className="mt-1 text-xs font-medium text-blue-700">
+                      Submitted by assigned vendor
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {q.submittedByVendorId && (
+                    <span className="w-fit rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+                      vendor bid
+                    </span>
+                  )}
+                  <span
+                    className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${
+                      QUOTE_STATUS_CLASSES[q.status] || QUOTE_STATUS_CLASSES.pending
+                    }`}
+                  >
+                    {q.status}
+                  </span>
+                </div>
               </div>
               {q.vendorContact && <p className="text-sm text-gray-600">{q.vendorContact}</p>}
               <p className="mt-1 text-lg font-semibold">${Number(q.amount).toFixed(2)}</p>
+              {q.availabilityWindow && (
+                <p className="mt-1 text-sm text-gray-600">
+                  Availability: {q.availabilityWindow}
+                </p>
+              )}
               {q.notes && <p className="mt-1 text-sm text-gray-600">{q.notes}</p>}
               {q.attachmentUrl && (
                 <p className="mt-1 text-sm">

@@ -1,7 +1,9 @@
 import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
+import { and, inArray, eq } from "drizzle-orm";
 import { HelperPortalShell } from "@/components/HelperPortalShell";
 import { VendorPortal } from "@/components/VendorPortal";
+import { quotes } from "@/lib/db/schema";
 
 export default async function VendorPage() {
   const session = await requireRole("vendor");
@@ -39,6 +41,30 @@ export default async function VendorPage() {
       licenseInsuranceNotes: true,
     },
   });
+  const requestIds = assignedRequests.map((request) => request.id);
+  const vendorBids = requestIds.length
+    ? await db.query.quotes.findMany({
+        where: and(
+          inArray(quotes.requestId, requestIds),
+          eq(quotes.submittedByVendorId, session.user.id)
+        ),
+        columns: {
+          id: true,
+          requestId: true,
+          amount: true,
+          status: true,
+          availabilityWindow: true,
+          notes: true,
+        },
+      })
+    : [];
+  const vendorBidByRequestId = new Map(
+    vendorBids.map((bid) => [bid.requestId, bid])
+  );
+  const assignedRequestsWithBids = assignedRequests.map((request) => ({
+    ...request,
+    vendorBid: vendorBidByRequestId.get(request.id) ?? null,
+  }));
 
   return (
     <HelperPortalShell
@@ -47,7 +73,7 @@ export default async function VendorPage() {
       description="Review the repair details the owner shared with you, update status, and add proof photos for the assigned work."
     >
       <VendorPortal
-        requests={assignedRequests}
+        requests={assignedRequestsWithBids}
         userId={session.user.id}
         profile={profile ?? null}
       />

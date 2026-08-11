@@ -2,6 +2,57 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Assigned Vendor Bid Submission
+
+Scope: let assigned vendors submit private bids for owner review without
+exposing competing quote data.
+
+### Changed
+
+- Extended `quotes` with `submitted_by_vendor_id` and `availability_window`.
+- Added a vendor-only bid submission action that verifies the signed-in vendor
+  is assigned to the request.
+- Added an editable `/vendor` private owner bid panel for bid amount,
+  availability window, and scope notes.
+- Reset vendor-edited bids to `pending` so owners must re-approve changed
+  pricing.
+- Cleared the copied request `quotedCost` when an approved vendor bid is
+  revised.
+- Loaded only the signed-in vendor's own bids into the vendor portal.
+- Labeled vendor-submitted bids in the owner quote workspace and proof packet.
+- Added decision-log text for vendor bid submissions and updates.
+- Added focused tests for vendor bid guidance and decision-log bid entries.
+- Updated helper smoke checks, README, UI/UX review docs, and vendor lifecycle
+  roadmap.
+
+### Why
+
+Vendor profiles and fit cues made the assignment smarter, but vendors still
+needed a structured way to provide price, availability, and scope details. This
+adds the first real bid loop while preserving the privacy boundary: owners can
+compare quotes, vendors only see their own bid state.
+
+### Validation
+
+- `npm test -- vendor-bid decision-log` passed: 9 tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0002_icy_xavin.sql`.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 187 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migration.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner notification/log guidance when a vendor submits or updates a bid.
+- Add owner-side bid approval handoff copy that distinguishes owner-entered
+  quotes from vendor-submitted bids.
+- Build open opportunity notifications after assigned-bid behavior is tested.
+
 ## 2026-08-11 - Owner Vendor Fit Cues
 
 Scope: help owners judge whether an assigned vendor fits the repair before

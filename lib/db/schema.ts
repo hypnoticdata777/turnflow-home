@@ -149,9 +149,11 @@ export const quotes = pgTable("quotes", {
   requestId: uuid("request_id")
     .notNull()
     .references(() => requests.id, { onDelete: "cascade" }),
+  submittedByVendorId: uuid("submitted_by_vendor_id").references(() => users.id),
   vendorName: varchar("vendor_name", { length: 255 }).notNull(),
   vendorContact: varchar("vendor_contact", { length: 255 }),
   amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  availabilityWindow: text("availability_window"),
   notes: text("notes"),
   attachmentUrl: text("attachment_url"),
   attachmentBlobPath: text("attachment_blob_path"),
@@ -325,6 +327,10 @@ export const quotesRelations = relations(quotes, ({ one }) => ({
   request: one(requests, {
     fields: [quotes.requestId],
     references: [requests.id],
+  }),
+  submittedByVendor: one(users, {
+    fields: [quotes.submittedByVendorId],
+    references: [users.id],
   }),
 }));
 

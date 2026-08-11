@@ -163,6 +163,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Before, after, receipt, and other photo uploads per request.
 - Quote workspace with competing vendor quotes, attachments, approve/decline,
   and cost-copy actions.
+- Vendor-submitted bid flow for assigned vendors, with private owner review,
+  availability windows, scope notes, and decision-log history.
 - Append-only decision log for status changes, waivers, quote decisions, and
   access changes.
 - Completion gating that requires final cost, after-photo proof, and assigned
@@ -232,10 +234,10 @@ Before inviting external users, the remaining launch steps are:
 - No organization/workspace billing model yet.
 - Vendor and collaborator accounts remain invite-driven or seeded for the POC;
   public signup stays homeowner-focused.
-- True vendor bidding, automated trade matching, work-session tracking, and
-  billing records are planned product layers. The current vendor profile and
-  lifecycle tracker make assigned jobs more traceable, but they do not yet
-  create an open vendor marketplace or collect vendor-submitted bids.
+- Open vendor opportunity bidding, automated trade matching, work-session
+  tracking, and billing records are planned product layers. The current vendor
+  profile, assigned-vendor bid flow, and lifecycle tracker make assigned jobs
+  more traceable, but they do not yet create an open vendor marketplace.
 - Email can run in log-only mode, but real launch testing should verify Resend
   deliverability, sender domain setup, and reminder cron behavior.
 - Privacy/audit history is strong for request decisions and access changes, but

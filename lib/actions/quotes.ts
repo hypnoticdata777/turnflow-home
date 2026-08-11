@@ -1,15 +1,15 @@
 "use server";
 
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { quotes, requests, decisionLog } from "@/lib/db/schema";
+import { decisionLog, quotes, requests } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
 
-// Quotes are owner-only, both read and write — showing one vendor's price
-// to another vendor (or to the assigned vendor at all) would leak
-// competitive pricing, so unlike photos this is never scoped to vendor.
+// Quote comparison remains owner-only. Assigned vendors can submit or update
+// their own bid through lib/actions/vendor-bids.ts, but they never receive the
+// full quote list or other vendors' pricing.
 
 async function requireOwnedRequest(requestId: string, ownerId: string) {
   const req = await db.query.requests.findFirst({
@@ -59,7 +59,6 @@ export async function createQuoteAction(
   return { quoteId: created.id };
 }
 
-/** Approves a quote and copies its amount onto the request's quotedCost — the direct replacement for the Firebase build's two-step approveQuote() + updateRequest() call. */
 export async function approveQuoteAction(requestId: string, quoteId: string) {
   const session = await requireRole("owner");
   await requireOwnedRequest(requestId, session.user.id);
@@ -73,7 +72,12 @@ export async function approveQuoteAction(requestId: string, quoteId: string) {
 
   await db
     .update(quotes)
-    .set({ status: "approved", approvedById: session.user.id, approvedAt: new Date(), updatedAt: new Date() })
+    .set({
+      status: "approved",
+      approvedById: session.user.id,
+      approvedAt: new Date(),
+      updatedAt: new Date(),
+    })
     .where(eq(quotes.id, quoteId));
 
   await db
