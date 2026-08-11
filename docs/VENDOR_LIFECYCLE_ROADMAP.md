@@ -13,6 +13,9 @@ The current app supports assigned vendor accounts:
 - Vendors only see the requests shared with their account.
 - Vendors can review property/job context, change status, post updates, and
   upload before, after, receipt, or other proof photos.
+- Vendors can maintain a matching profile with business name, trade categories,
+  service area, availability, notification preference, and license/insurance
+  notes.
 - Owners manage quotes privately so vendor pricing is not leaked.
 - The vendor portal now shows a per-request lifecycle tracker:
   opportunity received, bid/price context, owner approval, scheduled/ready,
@@ -59,11 +62,11 @@ The mature vendor workflow should support these states:
 
 ## Data Model Needed Later
 
-The current schema can support assigned-job tracking, but true bidding and
-billing will need new tables or expanded fields:
+The current schema supports assigned-job tracking and a first vendor profile.
+True bidding and billing will need additional tables or expanded fields:
 
-- Vendor profiles: trade categories, service area, license/insurance metadata,
-  contact preferences, availability, and active status.
+- Vendor profiles: active status, public-facing service description, richer
+  credentials, and optional approval/verification state.
 - Job opportunities: request, trade match, visibility window, invite source,
   and opportunity status.
 - Vendor bids: vendor ID, amount, notes, available dates, attachments,
@@ -86,7 +89,7 @@ billing will need new tables or expanded fields:
 ## Suggested Build Order
 
 1. Add vendor lifecycle tracking for assigned jobs. Done.
-2. Add vendor profiles with trades, service areas, and availability.
+2. Add vendor profiles with trades, service areas, and availability. Done.
 3. Add vendor bid submission for assigned/invited quote requests.
 4. Add owner bid comparison and approval tied to assigned vendor selection.
 5. Add work session events for start, pause, resume, stop, and notes.

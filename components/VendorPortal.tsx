@@ -19,6 +19,7 @@ import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
 import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
 import { VendorLifecycleTracker } from "@/components/VendorLifecycleTracker";
+import { VendorProfilePanel } from "@/components/VendorProfilePanel";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -51,12 +52,23 @@ type VendorRequest = {
   comments: CommentData[];
 };
 
+type VendorProfileData = {
+  businessName: string | null;
+  trades: string[];
+  serviceArea: string | null;
+  availability: string | null;
+  notificationPreference: string | null;
+  licenseInsuranceNotes: string | null;
+};
+
 export function VendorPortal({
   requests,
   userId,
+  profile,
 }: {
   requests: VendorRequest[];
   userId: string;
+  profile: VendorProfileData | null;
 }) {
   const router = useRouter();
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -152,6 +164,8 @@ export function VendorPortal({
           complete: "Complete",
         }}
       />
+
+      <VendorProfilePanel profile={profile} />
 
       <section
         id="vendor-closeout"

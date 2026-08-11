@@ -256,10 +256,27 @@ export const notificationLog = pgTable("notification_log", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const vendorProfiles = pgTable("vendor_profiles", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  businessName: varchar("business_name", { length: 255 }),
+  trades: jsonb("trades").$type<string[]>().default([]).notNull(),
+  serviceArea: text("service_area"),
+  availability: text("availability"),
+  notificationPreference: varchar("notification_preference", { length: 50 }),
+  licenseInsuranceNotes: text("license_insurance_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // ── Relations (for db.query.* relational API) ──────────────────────────
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   properties: many(properties),
   ownedRequests: many(requests, { relationName: "ownerRequests" }),
+  vendorProfile: one(vendorProfiles),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -357,6 +374,10 @@ export const contactsRelations = relations(contacts, ({ one }) => ({
   owner: one(users, { fields: [contacts.ownerId], references: [users.id] }),
 }));
 
+export const vendorProfilesRelations = relations(vendorProfiles, ({ one }) => ({
+  user: one(users, { fields: [vendorProfiles.userId], references: [users.id] }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type Property = typeof properties.$inferSelect;
 export type Request = typeof requests.$inferSelect;
@@ -369,3 +390,4 @@ export type VaultDocument = typeof vaultDocuments.$inferSelect;
 export type Reminder = typeof reminders.$inferSelect;
 export type Contact = typeof contacts.$inferSelect;
 export type NotificationLogEntry = typeof notificationLog.$inferSelect;
+export type VendorProfile = typeof vendorProfiles.$inferSelect;

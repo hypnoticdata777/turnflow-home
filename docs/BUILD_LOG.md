@@ -2,6 +2,54 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Vendor Matching Profiles
+
+Scope: give vendor accounts durable profile data for future trade matching,
+notifications, bidding, and owner approvals.
+
+### Changed
+
+- Added a `vendor_profiles` table with one profile per vendor account.
+- Added vendor profile fields for business name, trade categories, service
+  area, availability, notification preference, and license/insurance notes.
+- Added a vendor-only profile upsert action with profile normalization and
+  trade validation.
+- Added a `/vendor` matching profile panel with readiness guidance and editable
+  fields.
+- Seeded the demo vendor profile for local QA and screenshot readiness.
+- Added tests for trade normalization, profile normalization, readiness states,
+  and unsupported preferences.
+- Updated helper smoke checks, README, UI/UX review docs, and vendor lifecycle
+  roadmap.
+
+### Why
+
+The vendor lifecycle tracker made assigned jobs traceable, but the product
+still needed a durable way to understand which vendors fit which kinds of work.
+Profiles are the first database-backed foundation for trade-specific
+notifications and future vendor-submitted bids without exposing private quote
+comparison data.
+
+### Validation
+
+- `npm test -- vendor-profile` passed: 6 tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0001_blue_purple_man.sql`.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 174 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migration.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner-visible vendor fit cues when inviting or assigning vendors.
+- Add vendor-submitted bid records tied to profile identity and request scope.
+- Add opt-in opportunity notifications by trade and service area.
+
 ## 2026-08-11 - Vendor Lifecycle Tracker
 
 Scope: make assigned vendor work traceable from opportunity through billing

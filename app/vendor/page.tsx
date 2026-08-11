@@ -28,6 +28,17 @@ export default async function VendorPage() {
       finalCost: true,
     },
   });
+  const profile = await db.query.vendorProfiles.findFirst({
+    where: (p, { eq }) => eq(p.userId, session.user.id),
+    columns: {
+      businessName: true,
+      trades: true,
+      serviceArea: true,
+      availability: true,
+      notificationPreference: true,
+      licenseInsuranceNotes: true,
+    },
+  });
 
   return (
     <HelperPortalShell
@@ -35,7 +46,11 @@ export default async function VendorPage() {
       title="Assigned requests"
       description="Review the repair details the owner shared with you, update status, and add proof photos for the assigned work."
     >
-      <VendorPortal requests={assignedRequests} userId={session.user.id} />
+      <VendorPortal
+        requests={assignedRequests}
+        userId={session.user.id}
+        profile={profile ?? null}
+      />
     </HelperPortalShell>
   );
 }

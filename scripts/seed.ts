@@ -128,6 +128,34 @@ async function upsertDemoRequest({
   return request;
 }
 
+async function upsertDemoVendorProfile(vendorId: string) {
+  const values = {
+    businessName: "Brightside Home Services",
+    trades: ["Plumbing", "Appliance", "Handyman"],
+    serviceArea: "Demo City and nearby neighborhoods",
+    availability: "Weekdays 8 AM-5 PM, urgent leaks by owner request",
+    notificationPreference: "Email",
+    licenseInsuranceNotes: "Demo credential notes for screenshot and QA only.",
+    updatedAt: new Date(),
+  };
+  const existing = await db.query.vendorProfiles.findFirst({
+    where: (p, { eq }) => eq(p.userId, vendorId),
+  });
+
+  if (existing) {
+    await db
+      .update(schema.vendorProfiles)
+      .set(values)
+      .where(eq(schema.vendorProfiles.id, existing.id));
+    return;
+  }
+
+  await db.insert(schema.vendorProfiles).values({
+    userId: vendorId,
+    ...values,
+  });
+}
+
 async function main() {
   console.log("Seeding TurnFlow Home dev data...");
 
@@ -146,6 +174,7 @@ async function main() {
     vendorId: vendor.id,
     collaboratorId: collaborator.id,
   });
+  await upsertDemoVendorProfile(vendor.id);
 
   console.log("Done. Seeded accounts reset to password: %s", SEED_PASSWORD);
   console.log(`  owner:         ${owner.email}`);
