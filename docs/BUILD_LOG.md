@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Owner Quote Comparison Metrics
+
+Scope: make multi-quote owner decisions easier to compare without turning the
+workspace into a vendor marketplace.
+
+### Changed
+
+- Added reusable quote comparison metrics for active option count, lowest active
+  price, price spread, and vendor-submitted ratio.
+- Added per-quote comparison cues for lowest, middle, highest, selected, tied,
+  and historical declined prices.
+- Added a `Quote comparison` panel to the owner quote workspace, including an
+  empty state until at least two active options exist.
+- Updated owner smoke checks, README, UI/UX review docs, and vendor lifecycle
+  roadmap.
+
+### Why
+
+Homeowners should not have to scan several prices and mentally calculate the
+difference before approving work. The comparison panel keeps the owner in
+control while reminding them that price is only one decision factor: scope,
+availability, and confidence still matter.
+
+### Validation
+
+- `npm test -- bid-review` passed: 11 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 200 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add open opportunity notifications before assignment.
+- Add work-session events for start, pause, resume, stop, and billing prep.
+- Add manual UX pass for quote comparison on desktop and mobile demo data.
+
 ## 2026-08-11 - Vendor Bid Decision Notifications
 
 Scope: close the assigned-vendor bid loop after owner approval or decline.
@@ -38,7 +79,6 @@ history plus notification log preserve that handoff for POC testing.
 
 ### Follow-Up
 
-- Add owner-facing quote comparison metrics once multiple vendor bids exist.
 - Add open opportunity notifications after assigned-bid review is tested.
 - Add work-session events for start, pause, resume, stop, and billing prep.
 

@@ -24,6 +24,8 @@ The current app supports assigned vendor accounts:
 - Owners receive logged notification attempts for vendor bid submissions and
   updates, and the quote workspace explains approve/decline impact before a
   decision is made.
+- Owners can compare active quote options by count, lowest price, spread,
+  vendor-submitted ratio, and per-quote price position.
 - Vendors receive logged notification attempts when an owner approves or
   declines their submitted bid, keeping the bid loop visible on both sides.
 - The vendor portal now shows a per-request lifecycle tracker:
@@ -103,7 +105,8 @@ True bidding and billing will need additional tables or expanded fields:
 4. Add vendor bid submission for assigned quote requests. Done.
 5. Add owner bid review guidance. Done.
 6. Add vendor bid decision notifications after owner approval/decline. Done.
-7. Add open opportunity notifications before assignment.
-8. Add owner bid comparison and approval tied to assigned vendor selection.
-9. Add work session events for start, pause, resume, stop, and notes.
-10. Add closeout submission and owner review before billing record finalization.
+7. Add owner bid comparison metrics for active quotes. Done.
+8. Add open opportunity notifications before assignment.
+9. Add owner bid comparison and approval tied to assigned vendor selection.
+10. Add work session events for start, pause, resume, stop, and notes.
+11. Add closeout submission and owner review before billing record finalization.

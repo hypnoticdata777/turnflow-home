@@ -11,9 +11,12 @@ import {
 } from "@/lib/actions/quotes";
 import { requestPhotoPath } from "@/lib/blob-paths";
 import {
+  quoteComparisonCue,
+  quoteComparisonMetrics,
   quoteDecisionGuidance,
   quoteReviewSummary,
   type BidReviewGuidance,
+  type QuoteComparisonMetric,
 } from "@/lib/bid-review";
 
 const QUOTE_STATUS_CLASSES: Record<string, string> = {
@@ -25,6 +28,12 @@ const QUOTE_STATUS_CLASSES: Record<string, string> = {
 const REVIEW_GUIDANCE_CLASSES: Record<BidReviewGuidance["tone"], string> = {
   attention: "border-blue-200 bg-blue-50 text-blue-950",
   progress: "border-amber-200 bg-amber-50 text-amber-950",
+  ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
+};
+
+const COMPARISON_METRIC_CLASSES: Record<QuoteComparisonMetric["tone"], string> = {
+  attention: "border-rose-200 bg-rose-50 text-rose-950",
+  progress: "border-sky-200 bg-sky-50 text-sky-950",
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 
@@ -46,14 +55,17 @@ function QuoteCard({
   onApprove,
   onDecline,
   onDelete,
+  comparisonQuotes,
 }: {
   quote: QuoteData;
   actingId: string | null;
   onApprove: (quoteId: string) => void;
   onDecline: (quoteId: string) => void;
   onDelete: (quoteId: string) => void;
+  comparisonQuotes: QuoteData[];
 }) {
   const decisionGuidance = quoteDecisionGuidance(quote);
+  const comparisonCue = quoteComparisonCue(quote, comparisonQuotes);
 
   return (
     <article
@@ -85,6 +97,12 @@ function QuoteCard({
       </div>
       {quote.vendorContact && <p className="text-sm text-gray-600">{quote.vendorContact}</p>}
       <p className="mt-1 text-lg font-semibold">${Number(quote.amount).toFixed(2)}</p>
+      <div
+        className={`mt-2 rounded border px-3 py-2 text-sm ${REVIEW_GUIDANCE_CLASSES[comparisonCue.tone]}`}
+      >
+        <p className="font-semibold">{comparisonCue.label}</p>
+        <p className="mt-1 leading-6">{comparisonCue.detail}</p>
+      </div>
       {quote.availabilityWindow && (
         <p className="mt-1 text-sm text-gray-600">
           Availability: {quote.availabilityWindow}
@@ -165,6 +183,7 @@ export function QuoteWorkspace({
     [initialQuotes, deletedQuoteIds]
   );
   const reviewSummary = quoteReviewSummary(quotes);
+  const comparisonMetrics = quoteComparisonMetrics(quotes);
   const [vendorName, setVendorName] = useState("");
   const [vendorContact, setVendorContact] = useState("");
   const [amount, setAmount] = useState("");
@@ -282,6 +301,39 @@ export function QuoteWorkspace({
         </div>
       </div>
 
+      <div className="mb-4">
+        <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">Quote comparison</p>
+            <p className="text-sm text-gray-600">
+              Compare active options before approving a price for the record.
+            </p>
+          </div>
+        </div>
+        {comparisonMetrics.length > 0 ? (
+          <div className="grid gap-2 md:grid-cols-4">
+            {comparisonMetrics.map((metric) => (
+              <div
+                key={metric.label}
+                className={`rounded-lg border p-3 ${COMPARISON_METRIC_CLASSES[metric.tone]}`}
+              >
+                <p className="text-xs font-semibold uppercase">{metric.label}</p>
+                <p className="mt-1 text-lg font-semibold">{metric.value}</p>
+                <p className="mt-1 text-sm leading-6">{metric.detail}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+            <p className="font-semibold">More price context needed</p>
+            <p className="mt-1 leading-6">
+              Add another active quote or vendor bid to compare price spread,
+              lowest option, and vendor-submitted coverage.
+            </p>
+          </div>
+        )}
+      </div>
+
       <div className="mb-4 space-y-3">
         {quotes.length === 0 ? (
           <p className="text-sm text-gray-500">No quotes recorded yet.</p>
@@ -294,6 +346,7 @@ export function QuoteWorkspace({
               onApprove={handleApprove}
               onDecline={handleDecline}
               onDelete={handleDelete}
+              comparisonQuotes={quotes}
             />
           ))
         )}

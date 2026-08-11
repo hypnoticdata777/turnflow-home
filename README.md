@@ -162,11 +162,13 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   trades and profile context against the repair category before approval/work.
 - Before, after, receipt, and other photo uploads per request.
 - Quote workspace with competing vendor quotes, attachments, approve/decline,
-  and cost-copy actions.
+  cost-copy actions, and homeowner-friendly comparison metrics.
 - Vendor-submitted bid flow for assigned vendors, with private owner review,
   availability windows, scope notes, and decision-log history.
 - Owner bid-review guidance that explains pending vendor bids, approve/decline
   impact, copied quoted cost, and revised pricing before owner decisions.
+- Quote comparison cues for active option count, lowest active price, price
+  spread, vendor-submitted ratio, and per-quote price position.
 - Vendor bid decision notifications for owner-approved or owner-declined
   vendor-submitted bids.
 - Append-only decision log for status changes, waivers, quote decisions, and

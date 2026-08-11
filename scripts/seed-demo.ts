@@ -61,7 +61,9 @@ async function main() {
         requestId: hvacRequest.id,
         vendorName: "Budget Home Comfort",
         amount: "310.00",
-        status: "declined",
+        availabilityWindow: "Tomorrow afternoon",
+        notes: "Includes diagnostic and basic filter check.",
+        status: "pending",
       });
       console.log("Added: quotes for HVAC request");
     }

@@ -1,4 +1,5 @@
 export type OwnerQuoteReviewInput = {
+  vendorName?: string | null;
   amount: string | number;
   status: string;
   submittedByVendorId?: string | null;
@@ -13,9 +14,31 @@ export type BidReviewGuidance = {
   nextAction: string;
 };
 
+export type QuoteComparisonMetric = {
+  label: string;
+  value: string;
+  detail: string;
+  tone: "attention" | "progress" | "ready";
+};
+
+export type QuoteComparisonCue = {
+  label: string;
+  detail: string;
+  tone: "attention" | "progress" | "ready";
+};
+
 function money(value: string | number | null | undefined) {
   const amount = Number(value ?? 0);
   return Number.isFinite(amount) ? `$${amount.toFixed(2)}` : "$0.00";
+}
+
+function amountValue(quote: OwnerQuoteReviewInput) {
+  const amount = Number(quote.amount);
+  return Number.isFinite(amount) ? amount : null;
+}
+
+function activeQuotes(quotes: OwnerQuoteReviewInput[]) {
+  return quotes.filter((quote) => quote.status !== "declined" && amountValue(quote) !== null);
 }
 
 export function quoteReviewSummary(
@@ -112,5 +135,119 @@ export function quoteDecisionGuidance(
     detail: `Approving this ${money(quote.amount)} quote copies it to quoted cost for the request.`,
     tone: "progress",
     nextAction: "Compare before approving",
+  };
+}
+
+export function quoteComparisonMetrics(
+  quotes: OwnerQuoteReviewInput[]
+): QuoteComparisonMetric[] {
+  const active = activeQuotes(quotes);
+  if (active.length < 2) return [];
+
+  const sorted = [...active].sort((a, b) => Number(a.amount) - Number(b.amount));
+  const lowest = sorted[0];
+  const highest = sorted[sorted.length - 1];
+  const spread = Number(highest.amount) - Number(lowest.amount);
+  const pendingCount = active.filter((quote) => quote.status === "pending").length;
+  const approvedCount = active.filter((quote) => quote.status === "approved").length;
+  const vendorBidCount = active.filter((quote) => quote.submittedByVendorId).length;
+
+  return [
+    {
+      label: "Active options",
+      value: String(active.length),
+      detail: `${pendingCount} pending and ${approvedCount} approved. Declined quotes stay in history but do not drive the current decision.`,
+      tone: pendingCount > 0 ? "progress" : "ready",
+    },
+    {
+      label: "Lowest active price",
+      value: money(lowest.amount),
+      detail: `${lowest.vendorName || "The lowest option"} is currently lowest. Compare scope, timing, and trust before approving.`,
+      tone: "progress",
+    },
+    {
+      label: "Price spread",
+      value: money(spread),
+      detail:
+        spread > 0
+          ? `The highest active quote is ${money(spread)} above the lowest.`
+          : "Active quotes are tied on price, so compare availability and scope.",
+      tone: spread > 0 ? "attention" : "ready",
+    },
+    {
+      label: "Vendor-submitted",
+      value: `${vendorBidCount}/${active.length}`,
+      detail:
+        vendorBidCount > 0
+          ? "Vendor-submitted bids came directly from assigned vendors; owner-entered quotes may need manual confirmation."
+          : "No active vendor-submitted bids yet. Confirm owner-entered quotes before scheduling.",
+      tone: vendorBidCount > 0 ? "ready" : "attention",
+    },
+  ];
+}
+
+export function quoteComparisonCue(
+  quote: OwnerQuoteReviewInput,
+  quotes: OwnerQuoteReviewInput[]
+): QuoteComparisonCue {
+  const active = activeQuotes(quotes);
+  const amount = amountValue(quote);
+
+  if (quote.status === "declined") {
+    return {
+      label: "Historical price",
+      detail: "This declined quote stays in the record but is excluded from the active comparison.",
+      tone: "attention",
+    };
+  }
+
+  if (quote.status === "approved") {
+    return {
+      label: "Selected quote",
+      detail: "This is the approved quoted cost for the request.",
+      tone: "ready",
+    };
+  }
+
+  if (active.length < 2 || amount === null) {
+    return {
+      label: "Needs comparison",
+      detail: "Add another quote or vendor bid if the owner wants price context before approving.",
+      tone: "progress",
+    };
+  }
+
+  const values = active.map((item) => Number(item.amount));
+  const lowest = Math.min(...values);
+  const highest = Math.max(...values);
+
+  if (amount === lowest && amount === highest) {
+    return {
+      label: "Price tied",
+      detail: "Active quotes are tied on price. Compare timing, scope, and confidence next.",
+      tone: "progress",
+    };
+  }
+
+  if (amount === lowest) {
+    return {
+      label: "Lowest active price",
+      detail: "This is the lowest active option. Confirm the scope and availability still fit.",
+      tone: "ready",
+    };
+  }
+
+  if (amount === highest) {
+    return {
+      label: "Highest active price",
+      detail: "Approve this only if scope, timing, or vendor confidence justifies the difference.",
+      tone: "attention",
+    };
+  }
+
+  return {
+    label: "Middle price",
+    detail: "This sits between the lowest and highest active options.",
+    tone: "progress",
   };
 }
