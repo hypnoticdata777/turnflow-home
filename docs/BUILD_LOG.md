@@ -2,6 +2,46 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Vendor Bid Decision Notifications
+
+Scope: close the assigned-vendor bid loop after owner approval or decline.
+
+### Changed
+
+- Added reusable vendor bid decision notification copy for approved and declined
+  bids.
+- Sent/logged vendor notifications when an owner approves or declines a
+  vendor-submitted bid.
+- Revalidated the vendor portal after owner bid decisions so vendors see the
+  latest bid state.
+- Added notification labels for vendor bid approved/declined attempts.
+- Updated README, UI/UX review docs, and vendor lifecycle roadmap.
+
+### Why
+
+Vendors should not have to infer whether their bid was accepted by repeatedly
+checking the portal. A mature owner/vendor workflow needs a clear loop:
+vendor submits price, owner decides, vendor gets the outcome, and the request
+history plus notification log preserve that handoff for POC testing.
+
+### Validation
+
+- `npm test -- vendor-bid-notification notification-guidance` passed: 8 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 195 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner-facing quote comparison metrics once multiple vendor bids exist.
+- Add open opportunity notifications after assigned-bid review is tested.
+- Add work-session events for start, pause, resume, stop, and billing prep.
+
 ## 2026-08-11 - Owner Bid Review Guidance
 
 Scope: make owner decisions on vendor-submitted bids clearer and more
@@ -42,8 +82,6 @@ show up in notification health so failed delivery is visible during POC testing.
 ### Follow-Up
 
 - Add owner-facing quote comparison metrics once multiple vendor bids exist.
-- Add explicit vendor notification when the owner approves or declines a
-  vendor-submitted bid.
 - Add open opportunity notifications after assigned-bid review is tested.
 
 ## 2026-08-11 - Assigned Vendor Bid Submission

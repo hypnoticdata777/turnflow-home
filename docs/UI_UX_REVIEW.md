@@ -65,8 +65,8 @@ Review these routes in every POC pass:
 - `/owner/account`: sharing boundaries, active access, invite history, and
   profile edits are understandable.
 - `/owner/notifications`: delivery-health snapshot, failed-attempt guidance,
-  vendor bid update labels, and empty notification state make email reliability
-  understandable.
+  vendor bid update/decision labels, and empty notification state make email
+  reliability understandable.
 - `/owner/vault`: property-history snapshot, document coverage, repair-linked
   docs, categories, upload flow, and delete states feel like a useful home
   record rather than hidden storage.
@@ -74,9 +74,10 @@ Review these routes in every POC pass:
   property coverage, reminder creation, calendar export, and mark-done flow
   feel useful for homeowners, not just operators.
 - `/vendor`: scoped access, vendor matching profile, private owner bid form,
-  lifecycle tracker, bid/price context, closeout snapshot, request readiness,
-  guided owner-handoff drafts, status handoff guidance, updates, proof upload,
-  and completion-waiver path make vendor next actions obvious.
+  lifecycle tracker, bid decision state, bid/price context, closeout snapshot,
+  request readiness, guided owner-handoff drafts, status handoff guidance,
+  updates, proof upload, and completion-waiver path make vendor next actions
+  obvious.
 - `/collaborator`: scoped access, shared request readiness, and guided update
   thread make helper next actions obvious while unrelated owner data is absent.
 

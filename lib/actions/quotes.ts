@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { decisionLog, quotes, requests } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
+import { sendNotification } from "@/lib/email";
+import { vendorBidDecisionNotification } from "@/lib/vendor-bid-notification";
 
 // Quote comparison remains owner-only. Assigned vendors can submit or update
 // their own bid through lib/actions/vendor-bids.ts, but they never receive the
@@ -61,7 +63,7 @@ export async function createQuoteAction(
 
 export async function approveQuoteAction(requestId: string, quoteId: string) {
   const session = await requireRole("owner");
-  await requireOwnedRequest(requestId, session.user.id);
+  const req = await requireOwnedRequest(requestId, session.user.id);
 
   const quote = await db.query.quotes.findFirst({
     where: (q, { eq }) => eq(q.id, quoteId),
@@ -92,12 +94,21 @@ export async function approveQuoteAction(requestId: string, quoteId: string) {
     details: { vendorName: quote.vendorName, amount: quote.amount },
   });
 
+  await notifyVendorBidDecision({
+    ownerId: req.ownerId,
+    requestId,
+    requestTitle: req.title,
+    quote,
+    decision: "approved",
+  });
+
   revalidatePath(`/owner/requests/${requestId}`);
+  revalidatePath("/vendor");
 }
 
 export async function declineQuoteAction(requestId: string, quoteId: string) {
   const session = await requireRole("owner");
-  await requireOwnedRequest(requestId, session.user.id);
+  const req = await requireOwnedRequest(requestId, session.user.id);
 
   const quote = await db.query.quotes.findFirst({
     where: (q, { eq }) => eq(q.id, quoteId),
@@ -118,7 +129,16 @@ export async function declineQuoteAction(requestId: string, quoteId: string) {
     details: { vendorName: quote.vendorName, amount: quote.amount },
   });
 
+  await notifyVendorBidDecision({
+    ownerId: req.ownerId,
+    requestId,
+    requestTitle: req.title,
+    quote,
+    decision: "declined",
+  });
+
   revalidatePath(`/owner/requests/${requestId}`);
+  revalidatePath("/vendor");
 }
 
 export async function deleteQuoteAction(requestId: string, quoteId: string) {
@@ -138,4 +158,40 @@ export async function deleteQuoteAction(requestId: string, quoteId: string) {
 
   await db.delete(quotes).where(eq(quotes.id, quoteId));
   revalidatePath(`/owner/requests/${requestId}`);
+}
+
+async function notifyVendorBidDecision({
+  ownerId,
+  requestId,
+  requestTitle,
+  quote,
+  decision,
+}: {
+  ownerId: string;
+  requestId: string;
+  requestTitle: string;
+  quote: typeof quotes.$inferSelect;
+  decision: "approved" | "declined";
+}) {
+  if (!quote.submittedByVendorId) return;
+
+  const vendor = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.id, quote.submittedByVendorId!),
+    columns: { email: true, name: true },
+  });
+  const message = vendorBidDecisionNotification({
+    decision,
+    requestTitle,
+    vendorName: vendor?.name || quote.vendorName,
+    amount: quote.amount,
+  });
+
+  await sendNotification({
+    ownerId,
+    requestId,
+    type: message.type,
+    recipientEmail: vendor?.email ?? quote.vendorContact,
+    subject: message.subject,
+    text: message.text,
+  });
 }

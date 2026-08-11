@@ -167,6 +167,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   availability windows, scope notes, and decision-log history.
 - Owner bid-review guidance that explains pending vendor bids, approve/decline
   impact, copied quoted cost, and revised pricing before owner decisions.
+- Vendor bid decision notifications for owner-approved or owner-declined
+  vendor-submitted bids.
 - Append-only decision log for status changes, waivers, quote decisions, and
   access changes.
 - Completion gating that requires final cost, after-photo proof, and assigned
@@ -196,8 +198,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Per-request PDF proof packets, per-property PDF history rollups, CSV history
   export, and JSON backup/restore.
 - Email notifications through Resend for invites, status changes, vendor bid
-  updates, and reminder digests, with log-only fallback and owner-facing
-  delivery-health guidance when email is not configured.
+  updates, vendor bid decisions, and reminder digests, with log-only fallback
+  and owner-facing delivery-health guidance when email is not configured.
 - Public `/api/health` endpoint and protected `/api/health/deep` database check.
 - Global browser security headers configured in `next.config.ts`.
 
