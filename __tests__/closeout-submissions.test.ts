@@ -1,9 +1,25 @@
 import { describe, expect, it } from "vitest";
 import {
+  CLOSEOUT_STATUS_LABELS,
   closeoutReadiness,
+  isCloseoutReviewDecision,
   normalizeCloseoutNotes,
   parseCloseoutAmount,
 } from "@/lib/closeout-submissions";
+
+describe("isCloseoutReviewDecision", () => {
+  it("accepts owner review decisions", () => {
+    expect(isCloseoutReviewDecision("approved")).toBe(true);
+    expect(isCloseoutReviewDecision("changes_requested")).toBe(true);
+    expect(isCloseoutReviewDecision("pending")).toBe(false);
+  });
+
+  it("labels closeout submission statuses", () => {
+    expect(CLOSEOUT_STATUS_LABELS.pending).toBe("Pending owner review");
+    expect(CLOSEOUT_STATUS_LABELS.approved).toBe("Approved");
+    expect(CLOSEOUT_STATUS_LABELS.changes_requested).toBe("Changes requested");
+  });
+});
 
 describe("parseCloseoutAmount", () => {
   it("normalizes positive final amounts", () => {

@@ -2,8 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { submitCloseoutAction } from "@/lib/actions/closeout-submissions";
-import { closeoutReadiness } from "@/lib/closeout-submissions";
+import {
+  reviewCloseoutSubmissionAction,
+  submitCloseoutAction,
+} from "@/lib/actions/closeout-submissions";
+import {
+  CLOSEOUT_STATUS_LABELS,
+  closeoutReadiness,
+  type CloseoutReviewDecision,
+  type CloseoutSubmissionStatus,
+} from "@/lib/closeout-submissions";
 
 export type CloseoutSubmissionData = {
   id: string;
@@ -11,6 +19,9 @@ export type CloseoutSubmissionData = {
   completionNotes: string;
   materialsNotes: string | null;
   finalAmount: string;
+  status: CloseoutSubmissionStatus;
+  reviewNotes: string | null;
+  reviewedAt: string | Date | null;
   submittedAt: string | Date;
 };
 
@@ -45,8 +56,10 @@ export function CloseoutSubmissionPanel({
   const [completionNotes, setCompletionNotes] = useState("");
   const [materialsNotes, setMaterialsNotes] = useState("");
   const [finalAmount, setFinalAmount] = useState(request.finalCost ?? "");
+  const [reviewNotes, setReviewNotes] = useState("");
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [reviewing, setReviewing] = useState<CloseoutReviewDecision | null>(null);
   const readiness = closeoutReadiness({
     photos: request.photos,
     tasks: request.tasks,
@@ -75,6 +88,35 @@ export function CloseoutSubmissionPanel({
     setMaterialsNotes("");
     setStatus("Closeout submitted for owner review.");
     setSubmitting(false);
+    router.refresh();
+  }
+
+  async function reviewCloseout(decision: CloseoutReviewDecision) {
+    if (!latest) return;
+    setReviewing(decision);
+    setStatus(
+      decision === "approved" ? "Approving closeout..." : "Requesting changes..."
+    );
+    const formData = new FormData();
+    formData.set("reviewNotes", reviewNotes);
+    const result = await reviewCloseoutSubmissionAction(
+      request.id,
+      latest.id,
+      decision,
+      formData
+    );
+    if ("error" in result) {
+      setStatus(result.error);
+      setReviewing(null);
+      return;
+    }
+    setReviewNotes("");
+    setStatus(
+      decision === "approved"
+        ? "Closeout approved and request marked complete."
+        : "Closeout changes requested."
+    );
+    setReviewing(null);
     router.refresh();
   }
 
@@ -109,7 +151,7 @@ export function CloseoutSubmissionPanel({
               </p>
             </div>
             <span className="w-fit rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">
-              {money(latest.finalAmount)}
+              {CLOSEOUT_STATUS_LABELS[latest.status]} - {money(latest.finalAmount)}
             </span>
           </div>
           {latest.materialsNotes && (
@@ -120,10 +162,56 @@ export function CloseoutSubmissionPanel({
           <p className="mt-2 text-xs text-gray-500">
             Submitted {new Date(latest.submittedAt).toLocaleString()}
           </p>
+          {latest.reviewedAt && (
+            <p className="mt-1 text-xs text-gray-500">
+              Reviewed {new Date(latest.reviewedAt).toLocaleString()}
+            </p>
+          )}
+          {latest.reviewNotes && (
+            <p className="mt-2 rounded-md border border-gray-200 bg-gray-50 p-2 text-sm leading-6 text-gray-700">
+              Owner note: {latest.reviewNotes}
+            </p>
+          )}
         </article>
       ) : (
         <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
           No vendor closeout has been submitted yet.
+        </div>
+      )}
+
+      {mode === "owner" && latest?.status === "pending" && (
+        <div className="mt-3 space-y-3 rounded-lg border p-3">
+          <label className="block text-sm font-medium">
+            Owner review note
+            <textarea
+              value={reviewNotes}
+              onChange={(event) => setReviewNotes(event.target.value)}
+              maxLength={800}
+              rows={2}
+              placeholder="Optional for approval. Required when requesting changes."
+              className="mt-1 w-full rounded border p-2 text-sm"
+            />
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              disabled={reviewing !== null}
+              onClick={() => reviewCloseout("approved")}
+              className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+            >
+              {reviewing === "approved" ? "Approving..." : "Approve closeout"}
+            </button>
+            <button
+              type="button"
+              disabled={reviewing !== null}
+              onClick={() => reviewCloseout("changes_requested")}
+              className="rounded border border-amber-300 bg-white px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-50 disabled:opacity-50"
+            >
+              {reviewing === "changes_requested"
+                ? "Sending..."
+                : "Request changes"}
+            </button>
+          </div>
         </div>
       )}
 

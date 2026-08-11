@@ -22,6 +22,10 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
     `Accepted project task "${d.title || "Untitled task"}" for closeout.`,
   closeout_submitted: (d) =>
     `Vendor submitted closeout for owner review ($${Number(d.finalAmount || 0).toFixed(2)}).`,
+  closeout_approved: (d) =>
+    `Owner approved vendor closeout ($${Number(d.finalAmount || 0).toFixed(2)}).`,
+  closeout_changes_requested: (d) =>
+    `Owner requested closeout changes${d.reviewNotes ? `: ${d.reviewNotes}` : "."}`,
   shared_access_removed: (d) => {
     const role = d.role === "collaborator" ? "collaborator" : "vendor";
     return d.removedUserEmail

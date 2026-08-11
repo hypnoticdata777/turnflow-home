@@ -72,6 +72,11 @@ export const requestTaskStatusEnum = pgEnum("request_task_status", [
   "blocked",
   "done",
 ]);
+export const closeoutSubmissionStatusEnum = pgEnum("closeout_submission_status", [
+  "pending",
+  "approved",
+  "changes_requested",
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -251,6 +256,10 @@ export const closeoutSubmissions = pgTable("closeout_submissions", {
   completionNotes: text("completion_notes").notNull(),
   materialsNotes: text("materials_notes"),
   finalAmount: numeric("final_amount", { precision: 10, scale: 2 }).notNull(),
+  status: closeoutSubmissionStatusEnum("status").default("pending").notNull(),
+  reviewNotes: text("review_notes"),
+  reviewedById: uuid("reviewed_by_id").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -455,6 +464,10 @@ export const closeoutSubmissionsRelations = relations(closeoutSubmissions, ({ on
   }),
   vendor: one(users, {
     fields: [closeoutSubmissions.vendorId],
+    references: [users.id],
+  }),
+  reviewedBy: one(users, {
+    fields: [closeoutSubmissions.reviewedById],
     references: [users.id],
   }),
 }));

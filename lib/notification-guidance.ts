@@ -33,6 +33,8 @@ const TYPE_LABELS: Record<string, string> = {
   vendor_bid_declined: "Vendor bid declined",
   work_session_event: "Work session event",
   closeout_submitted: "Closeout submitted",
+  closeout_approved: "Closeout approved",
+  closeout_changes_requested: "Closeout changes requested",
   reminder_due: "Maintenance reminder",
 };
 
@@ -62,8 +64,8 @@ export function notificationDeliveryMetrics(
       value: String(entries.length),
       detail:
         entries.length > 0
-          ? "Every invite, status, vendor bid update, bid decision, work session, closeout, and reminder email attempt is preserved here."
-          : "Notification attempts will appear here after invites, status changes, vendor bids, bid decisions, work sessions, closeouts, or reminder digests.",
+          ? "Every invite, status, vendor bid update, bid decision, work session, closeout review, and reminder email attempt is preserved here."
+          : "Notification attempts will appear here after invites, status changes, vendor bids, bid decisions, work sessions, closeout reviews, or reminder digests.",
       tone: entries.length > 0 ? "ready" : "empty",
     },
     {

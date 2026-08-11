@@ -79,6 +79,14 @@ describe("describeLogAction", () => {
     expect(describeLogAction("closeout_submitted", { finalAmount: "250.00" })).toBe(
       "Vendor submitted closeout for owner review ($250.00)."
     );
+    expect(describeLogAction("closeout_approved", { finalAmount: "250.00" })).toBe(
+      "Owner approved vendor closeout ($250.00)."
+    );
+    expect(
+      describeLogAction("closeout_changes_requested", {
+        reviewNotes: "Please add the receipt photo.",
+      })
+    ).toBe("Owner requested closeout changes: Please add the receipt photo.");
   });
 
   it("falls back to the action key for unknown log events", () => {

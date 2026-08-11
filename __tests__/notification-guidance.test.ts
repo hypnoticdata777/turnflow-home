@@ -16,6 +16,10 @@ describe("notificationTypeLabel", () => {
     expect(notificationTypeLabel("vendor_bid_declined")).toBe("Vendor bid declined");
     expect(notificationTypeLabel("work_session_event")).toBe("Work session event");
     expect(notificationTypeLabel("closeout_submitted")).toBe("Closeout submitted");
+    expect(notificationTypeLabel("closeout_approved")).toBe("Closeout approved");
+    expect(notificationTypeLabel("closeout_changes_requested")).toBe(
+      "Closeout changes requested"
+    );
     expect(notificationTypeLabel("unknown_type")).toBe("unknown_type");
   });
 });
@@ -27,7 +31,7 @@ describe("notificationDeliveryMetrics", () => {
         label: "Logged attempts",
         value: "0",
         detail:
-          "Notification attempts will appear here after invites, status changes, vendor bids, bid decisions, work sessions, closeouts, or reminder digests.",
+          "Notification attempts will appear here after invites, status changes, vendor bids, bid decisions, work sessions, closeout reviews, or reminder digests.",
         tone: "empty",
       },
       {
@@ -71,7 +75,7 @@ describe("notificationDeliveryMetrics", () => {
         label: "Logged attempts",
         value: "3",
         detail:
-          "Every invite, status, vendor bid update, bid decision, work session, closeout, and reminder email attempt is preserved here.",
+          "Every invite, status, vendor bid update, bid decision, work session, closeout review, and reminder email attempt is preserved here.",
         tone: "ready",
       },
       {

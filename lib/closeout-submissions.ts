@@ -4,12 +4,26 @@ export type CloseoutReadinessInput = {
   finalAmount?: string | number | null;
 };
 
+export const CLOSEOUT_REVIEW_DECISIONS = ["approved", "changes_requested"] as const;
+export type CloseoutReviewDecision = (typeof CLOSEOUT_REVIEW_DECISIONS)[number];
+export type CloseoutSubmissionStatus = "pending" | CloseoutReviewDecision;
+
+export const CLOSEOUT_STATUS_LABELS: Record<CloseoutSubmissionStatus, string> = {
+  pending: "Pending owner review",
+  approved: "Approved",
+  changes_requested: "Changes requested",
+};
+
 export type CloseoutReadiness = {
   ready: boolean;
   missing: string[];
   detail: string;
   tone: "attention" | "progress" | "ready";
 };
+
+export function isCloseoutReviewDecision(value: string): value is CloseoutReviewDecision {
+  return (CLOSEOUT_REVIEW_DECISIONS as readonly string[]).includes(value);
+}
 
 export function normalizeCloseoutNotes(value: string, maxLength = 1000) {
   return value.trim().slice(0, maxLength);

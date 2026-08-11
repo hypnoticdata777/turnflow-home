@@ -68,15 +68,17 @@ Ask the tester to complete these tasks without explaining the interface first:
     materials or receipt notes, and final amount.
 11. In the owner account, review the vendor closeout and explain what still has
     to happen before marking the request complete.
-12. Save one related document in the vault.
-13. Set one recurring reminder for that property.
-14. Open Account & Sharing and explain who can see the request.
-15. Resend the invite, copy the fallback link, then cancel a second pending
+12. Request closeout changes with a note, then approve a closeout and confirm
+    the request is complete.
+13. Save one related document in the vault.
+14. Set one recurring reminder for that property.
+15. Open Account & Sharing and explain who can see the request.
+16. Resend the invite, copy the fallback link, then cancel a second pending
     invite if one exists.
-16. After an invite is accepted, remove that active access from Account &
+17. After an invite is accepted, remove that active access from Account &
     Sharing and explain what changed.
-17. Update the Account & Sharing display name.
-18. Return to the setup guide and explain what has been captured.
+18. Update the Account & Sharing display name.
+19. Return to the setup guide and explain what has been captured.
 
 ## Observe
 
@@ -102,6 +104,7 @@ Track these without coaching:
   feel clearer.
 - Whether the vendor closeout submission gives the owner enough confidence to
   review final cost and proof.
+- Whether approve vs request changes feels like the right final owner decision.
 - Whether the owner trusts the record as evidence after the job is done.
 
 ## Success Signals
@@ -157,6 +160,7 @@ Vault document added?:
 Reminder added?:
 Task accepted?:
 Vendor closeout submitted?:
+Closeout reviewed?:
 
 Top confusion:
 Top value moment:

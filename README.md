@@ -195,7 +195,9 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   timeline history, decision-log entries, and owner notifications.
 - Vendor closeout submissions with completion notes, materials/receipt notes,
   final amount, after-photo/task-completion readiness checks, owner-visible
-  review state, final-cost copy, decision-log history, and owner notification.
+  review state, owner approve/request-changes decisions, final-cost copy,
+  decision-log history, and owner/vendor notifications. Approval marks the
+  request complete and accepts remaining done task rows.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
   after-photo gaps, and final-cost gaps before owner review.
 - Owner Account & Sharing Center with profile context, invite activity, access

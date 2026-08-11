@@ -2,6 +2,55 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Owner Closeout Review Decisions
+
+Scope: turn vendor closeout submissions into an owner decision loop.
+
+### Changed
+
+- Added `closeout_submission_status` plus review notes, reviewed-by, and
+  reviewed-at fields to closeout submissions.
+- Added owner-only closeout review action for approve or request changes.
+- Approval now marks the request `Complete`, copies the closeout final amount
+  into request final cost, and accepts any done task rows that were still
+  waiting for owner acceptance.
+- Change requests require an owner note and keep the closeout visible to the
+  vendor for correction/resubmission.
+- Updated the closeout panel with owner approve/request-changes controls and
+  vendor-visible review status.
+- Added decision-log, proof-packet, notification-label, README, QA,
+  user-testing, UI/UX review, and vendor roadmap updates.
+
+### Why
+
+Submitting closeout is only half the workflow. Owners need a clear final
+decision that either completes the record or tells the vendor exactly what is
+missing. This keeps homeowner control central while reducing duplicate clicks
+by accepting completed task rows when the closeout is approved.
+
+### Validation
+
+- `npm test -- closeout-submissions decision-log notification-guidance` passed:
+  20 tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0009_blushing_odin.sql`.
+- `npm run verify` passed.
+- `npm run lint` passed with no warnings.
+- `npm test` passed: 226 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migration.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run owner/vendor mobile UX against both approved and changes-requested
+  closeout states.
+- Add invoice/payment records after closeout review behavior is tested.
+- Consider requiring explicit task-level owner acceptance before approval only
+  if user testing shows auto-accept feels too broad.
+
 ## 2026-08-11 - Vendor Closeout Submission Bundle
 
 Scope: let assigned vendors submit a structured closeout handoff for owner
@@ -48,8 +97,7 @@ review artifact before they accept tasks or mark the request complete.
 ### Follow-Up
 
 - Run owner/vendor mobile UX against seeded closeout data.
-- Add owner approve/reject state for closeout submissions if user testing shows
-  owners need a stronger decision workflow than task acceptance plus Complete.
+- Completed in `2026-08-11 - Owner Closeout Review Decisions`.
 - Add invoice/payment records after closeout handoff behavior is tested.
 
 ## 2026-08-11 - Task Costs And Owner Acceptance

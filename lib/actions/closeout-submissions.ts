@@ -1,18 +1,26 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { closeoutSubmissions, decisionLog, requests } from "@/lib/db/schema";
+import {
+  closeoutSubmissions,
+  decisionLog,
+  requests,
+  requestTasks,
+} from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
 import {
   closeoutReadiness,
+  isCloseoutReviewDecision,
   normalizeCloseoutNotes,
   parseCloseoutAmount,
+  type CloseoutReviewDecision,
 } from "@/lib/closeout-submissions";
 import { sendNotification } from "@/lib/email";
 
 export type SubmitCloseoutResult = { ok: true; closeoutId: string } | { error: string };
+export type ReviewCloseoutResult = { ok: true; decision: CloseoutReviewDecision } | { error: string };
 
 export async function submitCloseoutAction(
   requestId: string,
@@ -105,4 +113,112 @@ export async function submitCloseoutAction(
   revalidatePath(`/owner/requests/${requestId}`);
   revalidatePath("/owner/dashboard");
   return { ok: true, closeoutId: created.id };
+}
+
+export async function reviewCloseoutSubmissionAction(
+  requestId: string,
+  closeoutId: string,
+  decision: string,
+  formData: FormData
+): Promise<ReviewCloseoutResult> {
+  const session = await requireRole("owner");
+  if (!isCloseoutReviewDecision(decision)) {
+    return { error: "Choose a valid closeout decision." };
+  }
+
+  const req = await db.query.requests.findFirst({
+    where: (r, { eq }) => eq(r.id, requestId),
+  });
+  if (!req || req.ownerId !== session.user.id) {
+    return { error: "Only the owner can review this closeout." };
+  }
+
+  const closeout = await db.query.closeoutSubmissions.findFirst({
+    where: (submission, { eq }) => eq(submission.id, closeoutId),
+  });
+  if (!closeout || closeout.requestId !== requestId) {
+    return { error: "Closeout submission not found." };
+  }
+
+  const reviewNotes = normalizeCloseoutNotes(String(formData.get("reviewNotes") ?? ""), 800);
+  if (decision === "changes_requested" && !reviewNotes) {
+    return { error: "Add a note explaining what needs to change." };
+  }
+
+  const reviewedAt = new Date();
+  await db
+    .update(closeoutSubmissions)
+    .set({
+      status: decision,
+      reviewNotes: reviewNotes || null,
+      reviewedById: session.user.id,
+      reviewedAt,
+      updatedAt: reviewedAt,
+    })
+    .where(and(eq(closeoutSubmissions.id, closeoutId), eq(closeoutSubmissions.requestId, requestId)));
+
+  if (decision === "approved") {
+    await db
+      .update(requests)
+      .set({
+        finalCost: closeout.finalAmount,
+        status: "Complete",
+        updatedAt: reviewedAt,
+      })
+      .where(eq(requests.id, requestId));
+    await db
+      .update(requestTasks)
+      .set({
+        acceptedById: session.user.id,
+        acceptedAt: reviewedAt,
+        updatedAt: reviewedAt,
+      })
+      .where(
+        and(
+          eq(requestTasks.requestId, requestId),
+          eq(requestTasks.status, "done"),
+          isNull(requestTasks.acceptedAt)
+        )
+      );
+  }
+
+  await db.insert(decisionLog).values({
+    requestId,
+    actorId: session.user.id,
+    action:
+      decision === "approved"
+        ? "closeout_approved"
+        : "closeout_changes_requested",
+    details: {
+      closeoutId,
+      finalAmount: closeout.finalAmount,
+      reviewNotes: reviewNotes || null,
+    },
+  });
+
+  const vendor = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.id, closeout.vendorId),
+    columns: { email: true },
+  });
+  await sendNotification({
+    ownerId: req.ownerId,
+    requestId,
+    type: decision === "approved" ? "closeout_approved" : "closeout_changes_requested",
+    recipientEmail: vendor?.email ?? null,
+    subject:
+      decision === "approved"
+        ? `TurnFlow Home: closeout approved for "${req.title}"`
+        : `TurnFlow Home: closeout changes requested for "${req.title}"`,
+    text:
+      decision === "approved"
+        ? `The owner approved closeout for "${req.title}" and marked the request complete.`
+        : `The owner requested closeout changes for "${req.title}"${
+            reviewNotes ? `: ${reviewNotes}` : "."
+          }`,
+  });
+
+  revalidatePath("/vendor");
+  revalidatePath(`/owner/requests/${requestId}`);
+  revalidatePath("/owner/dashboard");
+  return { ok: true, decision };
 }

@@ -19,6 +19,8 @@ const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = 
   request_task_cost_updated: (d) => `Updated project task "${d.title || "Untitled task"}" costs: estimated $${Number(d.estimatedCost || 0).toFixed(2)}, final $${Number(d.finalCost || 0).toFixed(2)}.`,
   request_task_accepted: (d) => `Accepted project task "${d.title || "Untitled task"}" for closeout.`,
   closeout_submitted: (d) => `Vendor submitted closeout for owner review ($${Number(d.finalAmount || 0).toFixed(2)}).`,
+  closeout_approved: (d) => `Owner approved vendor closeout ($${Number(d.finalAmount || 0).toFixed(2)}).`,
+  closeout_changes_requested: (d) => `Owner requested closeout changes${d.reviewNotes ? `: ${d.reviewNotes}` : "."}`,
 };
 
 function lastAutoTableFinalY(doc: jsPDF): number {

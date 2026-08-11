@@ -78,10 +78,14 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
    receipt notes, and final amount.
 12. As the owner, confirm the closeout appears on request detail and the final
    request cost is updated.
-13. Confirm the setup guide progress changes after property, request, evidence,
+13. Request closeout changes once with a note, then submit a revised closeout
+   and approve it as the owner.
+14. Confirm approval marks the request complete and accepts remaining done task
+   rows.
+15. Confirm the setup guide progress changes after property, request, evidence,
    sharing, history, and reminder steps.
-14. Download a proof packet PDF.
-15. Export owner backup data from `/owner/backup`.
+16. Download a proof packet PDF.
+17. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 
@@ -116,6 +120,10 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
   task away from done clears the acceptance.
 - Vendor closeout submission requires after-photo proof, done project tasks,
   completion notes, and a positive final amount before owner review.
+- Owner closeout approval marks the request complete, logs the decision,
+  notifies the vendor, and accepts done task rows that were still waiting.
+- Owner closeout change requests require a note and remain visible to the
+  vendor.
 - Public screenshots and demo records contain no private addresses, contacts,
   receipts, or real customer data.
 
