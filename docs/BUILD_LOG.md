@@ -2,6 +2,44 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Endpoint Experience Map
+
+Scope: document each route's user job, trust boundary, next handoff, and POC
+readiness score.
+
+### Changed
+
+- Added `docs/ENDPOINT_EXPERIENCE_MAP.md` with public, owner, vendor,
+  collaborator, and operational endpoint contracts.
+- Scored each route for hosted POC readiness and called out the next hardening
+  queue.
+- Linked the endpoint map from the README documentation list.
+- Updated the UI/UX review process to start from the endpoint map when choosing
+  routes to review.
+
+### Why
+
+The product now has enough surface area that route maturity needs a shared map.
+This keeps owner and vendor UX hardening tied to concrete user jobs instead of
+loosely polishing screens one at a time.
+
+### Validation
+
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed with no warnings.
+- `npm test` passed: 233 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Harden `/owner/requests/[id]` around section navigation and route handoffs.
+- Harden `/vendor` around the next-action model from bid through billing
+  record visibility.
+
 ## 2026-08-11 - Proof Packet Billing Table
 
 Scope: make billing records visible in exported proof packets.

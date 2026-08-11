@@ -47,6 +47,10 @@ hurt homeowner trust or only add polish/friction debt.
 
 ## Route Checklist
 
+Start with `docs/ENDPOINT_EXPERIENCE_MAP.md` when choosing what to review. The
+map defines the user goal, trust boundary, next handoff, and current POC score
+for each public, owner, vendor, collaborator, and operational endpoint.
+
 Review these routes in every POC pass:
 
 - `/signup`: owner-focused positioning, clear password expectations, no vendor

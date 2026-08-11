@@ -228,6 +228,7 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - [POC QA checklist](docs/QA_CHECKLIST.md)
 - [Homeowner user testing protocol](docs/USER_TESTING.md)
 - [Vendor lifecycle roadmap](docs/VENDOR_LIFECYCLE_ROADMAP.md)
+- [Endpoint experience map](docs/ENDPOINT_EXPERIENCE_MAP.md)
 - [UI/UX review process](docs/UI_UX_REVIEW.md)
 - [UI/UX findings register](docs/UI_UX_FINDINGS.md)
 
