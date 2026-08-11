@@ -60,8 +60,8 @@ Review these routes in every POC pass:
 - `/owner/requests/new`: intake length, safety checklist, access notes, and
   contact preference feel worth the effort.
 - `/owner/requests/[id]`: record-value snapshot, proof, quote, comments,
-  guided update drafts, decision log, and sharing controls feel like one repair
-  record.
+  guided update drafts, status handoff guidance, decision log, and sharing
+  controls feel like one repair record.
 - `/owner/account`: sharing boundaries, active access, invite history, and
   profile edits are understandable.
 - `/owner/vault`: property-history snapshot, document coverage, repair-linked
@@ -71,8 +71,8 @@ Review these routes in every POC pass:
   property coverage, reminder creation, calendar export, and mark-done flow
   feel useful for homeowners, not just operators.
 - `/vendor`: scoped access, closeout snapshot, request readiness, guided
-  owner-handoff drafts, updates, proof upload, and completion-waiver path make
-  vendor next actions obvious.
+  owner-handoff drafts, status handoff guidance, updates, proof upload, and
+  completion-waiver path make vendor next actions obvious.
 - `/collaborator`: scoped access, shared request readiness, and guided update
   thread make helper next actions obvious while unrelated owner data is absent.
 

@@ -23,7 +23,9 @@ import { InviteSection } from "@/components/InviteSection";
 import { CommentThread, type CommentData } from "@/components/CommentThread";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { RequestCreatedNoticeBanner } from "@/components/RequestCreatedNoticeBanner";
+import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
+import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
   missingCompletionProof,
   requestGuidance,
@@ -171,6 +173,11 @@ export function RequestDetailView({
     quotes,
     log,
     comments,
+  });
+  const statusGuidance = statusHandoffGuidance("owner", {
+    ...request,
+    status,
+    photos,
   });
   const guidanceClasses =
     guidance.tone === "ready"
@@ -409,6 +416,7 @@ export function RequestDetailView({
             </select>
           </label>
         </div>
+        <StatusHandoffGuidance guidance={statusGuidance} />
         {statusError && <p className="mt-2 text-sm font-medium text-red-700">{statusError}</p>}
       </section>
 

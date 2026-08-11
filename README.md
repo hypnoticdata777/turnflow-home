@@ -167,6 +167,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Guided request updates shared by owner, assigned vendor, and shared
   collaborator, with role-aware draft prompts for missing context, closeout
   proof, and useful helper notes.
+- Status handoff guidance for owners and vendors so status changes explain
+  decision-log impact, owner notification, and missing closeout proof.
 - Vendor and collaborator invite flow with expiring links, copyable invite URLs,
   pending invite management, accepted-access removal, and scoped portals.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,

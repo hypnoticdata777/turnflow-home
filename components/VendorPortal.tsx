@@ -17,7 +17,9 @@ import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
 import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
+import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
+import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
   helperOnboardingItems,
   helperRequestCardState,
@@ -280,6 +282,9 @@ export function VendorPortal({
                       ))}
                     </select>
                   </label>
+                  <StatusHandoffGuidance
+                    guidance={statusHandoffGuidance("vendor", r)}
+                  />
                   {statusError && savingId === null && completionReviewRequestId === r.id && (
                     <p className="mt-2 text-sm font-medium text-red-700">{statusError}</p>
                   )}

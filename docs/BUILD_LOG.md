@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Status Handoff Guidance
+
+Scope: make owner/vendor status changes explain their meaning and consequences.
+
+### Changed
+
+- Added reusable `statusHandoffGuidance` rules for owner and vendor status
+  decisions across Draft, Needs Quote, Waiting, Scheduled, In Progress, Needs
+  Review, Complete, and Archived.
+- Added a shared `StatusHandoffGuidance` component under owner and vendor status
+  controls.
+- Status guidance now reminds users that status changes are decision-log events,
+  vendor changes notify the owner, and clean completion needs final cost,
+  after-photo proof, and assigned vendor context.
+- Added focused tests for owner draft guidance, vendor scheduled guidance, clean
+  Needs Review state, and Complete-with-proof-gaps state.
+- Updated helper UX smoke expectations, README, and UI/UX review docs.
+
+### Why
+
+Status changes are high-trust moments. The app should not present them as a
+plain dropdown when they affect the owner record, notifications, decision log,
+and closeout proof quality.
+
+### Validation
+
+- `npm test -- status-handoff` passed: 4 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 152 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner request-detail browser smoke coverage for status handoff guidance
+  once seeded owner auth can open a deterministic request detail route.
+
 ## 2026-08-11 - Guided Owner/Vendor Updates
 
 Scope: make shared request comments feel like a guided handoff instead of a
