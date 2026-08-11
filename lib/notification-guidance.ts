@@ -27,6 +27,8 @@ const TYPE_LABELS: Record<string, string> = {
   collaborator_invite: "Collaborator invite",
   vendor_invite_resend: "Vendor invite resend",
   collaborator_invite_resend: "Collaborator invite resend",
+  vendor_bid_submitted: "Vendor bid submitted",
+  vendor_bid_updated: "Vendor bid updated",
   reminder_due: "Maintenance reminder",
 };
 
@@ -56,8 +58,8 @@ export function notificationDeliveryMetrics(
       value: String(entries.length),
       detail:
         entries.length > 0
-          ? "Every invite, status, and reminder email attempt is preserved here."
-          : "Notification attempts will appear here after invites, status changes, or reminder digests.",
+          ? "Every invite, status, vendor bid, and reminder email attempt is preserved here."
+          : "Notification attempts will appear here after invites, status changes, vendor bids, or reminder digests.",
       tone: entries.length > 0 ? "ready" : "empty",
     },
     {

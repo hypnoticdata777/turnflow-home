@@ -21,6 +21,9 @@ The current app supports assigned vendor accounts:
   area, availability, notification preference, and credential notes.
 - Assigned vendors can submit a private bid with amount, availability, and scope
   notes for owner review in the quote workspace.
+- Owners receive logged notification attempts for vendor bid submissions and
+  updates, and the quote workspace explains approve/decline impact before a
+  decision is made.
 - The vendor portal now shows a per-request lifecycle tracker:
   opportunity received, bid/price context, owner approval, scheduled/ready,
   work in progress, closeout proof, and billing record.
@@ -96,7 +99,8 @@ True bidding and billing will need additional tables or expanded fields:
 2. Add vendor profiles with trades, service areas, and availability. Done.
 3. Add owner-visible assigned-vendor fit cues. Done.
 4. Add vendor bid submission for assigned quote requests. Done.
-5. Add open opportunity notifications before assignment.
-6. Add owner bid comparison and approval tied to assigned vendor selection.
-7. Add work session events for start, pause, resume, stop, and notes.
-8. Add closeout submission and owner review before billing record finalization.
+5. Add owner bid review guidance and vendor bid notifications. Done.
+6. Add open opportunity notifications before assignment.
+7. Add owner bid comparison and approval tied to assigned vendor selection.
+8. Add work session events for start, pause, resume, stop, and notes.
+9. Add closeout submission and owner review before billing record finalization.

@@ -107,7 +107,7 @@ async function assertFirstRequestDetail(page: Page) {
   await firstRequestLink.click();
   await page.waitForLoadState("networkidle");
 
-  for (const expectedText of ["Assigned vendor fit", "Vendor"]) {
+  for (const expectedText of ["Assigned vendor fit", "Bid review", "Vendor"]) {
     if ((await page.getByText(expectedText, { exact: true }).count()) === 0) {
       throw new Error(`/owner/requests/[id] is missing request detail text "${expectedText}"`);
     }

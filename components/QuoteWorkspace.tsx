@@ -10,11 +10,22 @@ import {
   deleteQuoteAction,
 } from "@/lib/actions/quotes";
 import { requestPhotoPath } from "@/lib/blob-paths";
+import {
+  quoteDecisionGuidance,
+  quoteReviewSummary,
+  type BidReviewGuidance,
+} from "@/lib/bid-review";
 
 const QUOTE_STATUS_CLASSES: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
   approved: "bg-green-100 text-green-700",
   declined: "bg-red-100 text-red-700",
+};
+
+const REVIEW_GUIDANCE_CLASSES: Record<BidReviewGuidance["tone"], string> = {
+  attention: "border-blue-200 bg-blue-50 text-blue-950",
+  progress: "border-amber-200 bg-amber-50 text-amber-950",
+  ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 
 export type QuoteData = {
@@ -28,6 +39,107 @@ export type QuoteData = {
   submittedByVendorId: string | null;
   status: string;
 };
+
+function QuoteCard({
+  quote,
+  actingId,
+  onApprove,
+  onDecline,
+  onDelete,
+}: {
+  quote: QuoteData;
+  actingId: string | null;
+  onApprove: (quoteId: string) => void;
+  onDecline: (quoteId: string) => void;
+  onDelete: (quoteId: string) => void;
+}) {
+  const decisionGuidance = quoteDecisionGuidance(quote);
+
+  return (
+    <article
+      className={`rounded border p-3 ${quote.status === "approved" ? "border-green-400" : ""}`}
+    >
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3 className="font-medium">{quote.vendorName || "Unnamed vendor"}</h3>
+          {quote.submittedByVendorId && (
+            <p className="mt-1 text-xs font-medium text-blue-700">
+              Submitted by assigned vendor
+            </p>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {quote.submittedByVendorId && (
+            <span className="w-fit rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+              vendor bid
+            </span>
+          )}
+          <span
+            className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${
+              QUOTE_STATUS_CLASSES[quote.status] || QUOTE_STATUS_CLASSES.pending
+            }`}
+          >
+            {quote.status}
+          </span>
+        </div>
+      </div>
+      {quote.vendorContact && <p className="text-sm text-gray-600">{quote.vendorContact}</p>}
+      <p className="mt-1 text-lg font-semibold">${Number(quote.amount).toFixed(2)}</p>
+      {quote.availabilityWindow && (
+        <p className="mt-1 text-sm text-gray-600">
+          Availability: {quote.availabilityWindow}
+        </p>
+      )}
+      {quote.notes && <p className="mt-1 text-sm text-gray-600">{quote.notes}</p>}
+      {quote.attachmentUrl && (
+        <p className="mt-1 text-sm">
+          <a
+            href={quote.attachmentUrl}
+            target="_blank"
+            rel="noopener"
+            className="text-blue-600 underline"
+          >
+            View attachment
+          </a>
+        </p>
+      )}
+      <div
+        className={`mt-3 rounded-lg border p-3 ${REVIEW_GUIDANCE_CLASSES[decisionGuidance.tone]}`}
+      >
+        <p className="text-sm font-semibold">{decisionGuidance.label}</p>
+        <p className="mt-1 text-sm leading-6">{decisionGuidance.detail}</p>
+        <p className="mt-1 text-xs font-semibold">{decisionGuidance.nextAction}</p>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2 text-sm">
+        {quote.status !== "approved" && (
+          <button
+            onClick={() => onApprove(quote.id)}
+            disabled={actingId === quote.id}
+            className="rounded bg-green-600 px-2 py-1 text-white disabled:opacity-50"
+          >
+            Approve
+          </button>
+        )}
+        {quote.status !== "declined" && (
+          <button
+            onClick={() => onDecline(quote.id)}
+            disabled={actingId === quote.id}
+            className="rounded bg-gray-500 px-2 py-1 text-white disabled:opacity-50"
+          >
+            Decline
+          </button>
+        )}
+        <button
+          onClick={() => onDelete(quote.id)}
+          disabled={actingId === quote.id}
+          className="rounded bg-red-600 px-2 py-1 text-white disabled:opacity-50"
+        >
+          Delete
+        </button>
+      </div>
+    </article>
+  );
+}
 
 export function QuoteWorkspace({
   requestId,
@@ -52,6 +164,7 @@ export function QuoteWorkspace({
         .sort((a, b) => Number(a.amount) - Number(b.amount)),
     [initialQuotes, deletedQuoteIds]
   );
+  const reviewSummary = quoteReviewSummary(quotes);
   const [vendorName, setVendorName] = useState("");
   const [vendorContact, setVendorContact] = useState("");
   const [amount, setAmount] = useState("");
@@ -156,87 +269,32 @@ export function QuoteWorkspace({
     <section>
       <h2 className="mb-3 text-xl font-semibold">Quotes</h2>
 
+      <div className={`mb-4 rounded-lg border p-3 ${REVIEW_GUIDANCE_CLASSES[reviewSummary.tone]}`}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold">Bid review</p>
+            <h3 className="mt-1 text-base font-semibold">{reviewSummary.label}</h3>
+            <p className="mt-1 text-sm leading-6">{reviewSummary.detail}</p>
+          </div>
+          <span className="w-fit rounded border border-current/30 bg-white/70 px-3 py-2 text-sm font-semibold">
+            {reviewSummary.nextAction}
+          </span>
+        </div>
+      </div>
+
       <div className="mb-4 space-y-3">
         {quotes.length === 0 ? (
           <p className="text-sm text-gray-500">No quotes recorded yet.</p>
         ) : (
-          quotes.map((q) => (
-            <article
-              key={q.id}
-              className={`rounded border p-3 ${q.status === "approved" ? "border-green-400" : ""}`}
-            >
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <h3 className="font-medium">{q.vendorName || "Unnamed vendor"}</h3>
-                  {q.submittedByVendorId && (
-                    <p className="mt-1 text-xs font-medium text-blue-700">
-                      Submitted by assigned vendor
-                    </p>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {q.submittedByVendorId && (
-                    <span className="w-fit rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
-                      vendor bid
-                    </span>
-                  )}
-                  <span
-                    className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${
-                      QUOTE_STATUS_CLASSES[q.status] || QUOTE_STATUS_CLASSES.pending
-                    }`}
-                  >
-                    {q.status}
-                  </span>
-                </div>
-              </div>
-              {q.vendorContact && <p className="text-sm text-gray-600">{q.vendorContact}</p>}
-              <p className="mt-1 text-lg font-semibold">${Number(q.amount).toFixed(2)}</p>
-              {q.availabilityWindow && (
-                <p className="mt-1 text-sm text-gray-600">
-                  Availability: {q.availabilityWindow}
-                </p>
-              )}
-              {q.notes && <p className="mt-1 text-sm text-gray-600">{q.notes}</p>}
-              {q.attachmentUrl && (
-                <p className="mt-1 text-sm">
-                  <a
-                    href={q.attachmentUrl}
-                    target="_blank"
-                    rel="noopener"
-                    className="text-blue-600 underline"
-                  >
-                    View attachment
-                  </a>
-                </p>
-              )}
-              <div className="mt-2 flex flex-wrap gap-2 text-sm">
-                {q.status !== "approved" && (
-                  <button
-                    onClick={() => handleApprove(q.id)}
-                    disabled={actingId === q.id}
-                    className="rounded bg-green-600 px-2 py-1 text-white disabled:opacity-50"
-                  >
-                    Approve
-                  </button>
-                )}
-                {q.status !== "declined" && (
-                  <button
-                    onClick={() => handleDecline(q.id)}
-                    disabled={actingId === q.id}
-                    className="rounded bg-gray-500 px-2 py-1 text-white disabled:opacity-50"
-                  >
-                    Decline
-                  </button>
-                )}
-                <button
-                  onClick={() => handleDelete(q.id)}
-                  disabled={actingId === q.id}
-                  className="rounded bg-red-600 px-2 py-1 text-white disabled:opacity-50"
-                >
-                  Delete
-                </button>
-              </div>
-            </article>
+          quotes.map((quote) => (
+            <QuoteCard
+              key={quote.id}
+              quote={quote}
+              actingId={actingId}
+              onApprove={handleApprove}
+              onDecline={handleDecline}
+              onDelete={handleDelete}
+            />
           ))
         )}
       </div>

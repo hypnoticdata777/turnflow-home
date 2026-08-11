@@ -59,13 +59,14 @@ Review these routes in every POC pass:
   clear.
 - `/owner/requests/new`: intake length, safety checklist, access notes, and
   contact preference feel worth the effort.
-- `/owner/requests/[id]`: record-value snapshot, assigned-vendor fit, proof,
-  quote, comments, guided update drafts, status handoff guidance, decision log,
-  and sharing controls feel like one repair record.
+- `/owner/requests/[id]`: record-value snapshot, assigned-vendor fit, bid
+  review guidance, proof, quote, comments, guided update drafts, status handoff
+  guidance, decision log, and sharing controls feel like one repair record.
 - `/owner/account`: sharing boundaries, active access, invite history, and
   profile edits are understandable.
 - `/owner/notifications`: delivery-health snapshot, failed-attempt guidance,
-  and empty notification state make email reliability understandable.
+  vendor bid update labels, and empty notification state make email reliability
+  understandable.
 - `/owner/vault`: property-history snapshot, document coverage, repair-linked
   docs, categories, upload flow, and delete states feel like a useful home
   record rather than hidden storage.

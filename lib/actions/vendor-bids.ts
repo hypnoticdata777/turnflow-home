@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { decisionLog, quotes, requests } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
+import { sendNotification } from "@/lib/email";
 
 export type SubmitVendorBidResult =
   | { ok: true; quoteId: string }
@@ -97,6 +98,22 @@ export async function submitVendorBidAction(
       .set({ quotedCost: null, updatedAt: new Date() })
       .where(eq(requests.id, requestId));
   }
+
+  const owner = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.id, req.ownerId),
+    columns: { email: true },
+  });
+  const notificationType = existingBid
+    ? "vendor_bid_updated"
+    : "vendor_bid_submitted";
+  await sendNotification({
+    ownerId: req.ownerId,
+    requestId,
+    type: notificationType,
+    recipientEmail: owner?.email ?? null,
+    subject: `TurnFlow Home: vendor bid ${existingBid ? "updated" : "submitted"} for "${req.title}"`,
+    text: `${vendorName} ${existingBid ? "updated" : "submitted"} a $${amount.toFixed(2)} bid for "${req.title}". Review the private bid in the request quote workspace.`,
+  });
 
   revalidatePath("/vendor");
   revalidatePath(`/owner/requests/${requestId}`);

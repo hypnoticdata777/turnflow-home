@@ -2,6 +2,50 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Owner Bid Review Guidance
+
+Scope: make owner decisions on vendor-submitted bids clearer and more
+traceable.
+
+### Changed
+
+- Added reusable bid-review guidance for empty quote workspaces, pending vendor
+  bids, pending owner-entered quotes, approved quotes, declined bids, and
+  inactive quote sets.
+- Added a `Bid review` summary to the owner quote workspace.
+- Added per-quote decision guidance that explains what approving or declining a
+  vendor bid does before the owner clicks.
+- Sent/logged owner notifications when a vendor submits or updates a bid.
+- Added notification labels for vendor bid submitted/updated attempts.
+- Updated owner smoke checks, README, UI/UX review docs, and vendor lifecycle
+  roadmap.
+
+### Why
+
+Vendor-submitted bids only feel mature if the owner can understand the decision
+without guessing. Owners now see which bids need action, what approving will
+copy into quoted cost, and what declining preserves in history. Bid emails also
+show up in notification health so failed delivery is visible during POC testing.
+
+### Validation
+
+- `npm test -- bid-review notification-guidance` passed: 12 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 193 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add owner-facing quote comparison metrics once multiple vendor bids exist.
+- Add explicit vendor notification when the owner approves or declines a
+  vendor-submitted bid.
+- Add open opportunity notifications after assigned-bid review is tested.
+
 ## 2026-08-11 - Assigned Vendor Bid Submission
 
 Scope: let assigned vendors submit private bids for owner review without
