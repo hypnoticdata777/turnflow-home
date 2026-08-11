@@ -2,6 +2,50 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Owner Vendor Fit Cues
+
+Scope: help owners judge whether an assigned vendor fits the repair before
+approval or work start.
+
+### Changed
+
+- Added reusable vendor-fit guidance for request category, assigned vendor
+  state, pending vendor invites, profile completeness, and trade compatibility.
+- Added an owner-facing assigned-vendor fit panel to request detail sharing.
+- Loaded the assigned vendor's name, email, and matching profile after owner
+  authorization on `/owner/requests/[id]`.
+- Added tests for exact trade matching, compatible trade matching, no vendor,
+  pending invites, missing profile, ready profile, partial profile, and mismatch
+  states.
+- Updated owner smoke checks, README, UI/UX review docs, and the vendor
+  lifecycle roadmap.
+
+### Why
+
+Vendor profiles are more valuable when owners can actually use them during the
+repair decision. This slice starts turning vendor metadata into owner trust:
+does this vendor handle the trade, do they cover the area, are they available,
+and is there enough context to proceed confidently?
+
+### Validation
+
+- `npm test -- vendor-fit` passed: 8 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 182 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Surface vendor fit in owner invite/assignment flows before an invite is sent.
+- Add vendor-submitted bids once assigned-vendor fit and profile identity are
+  stable.
+- Add owner-side comparison once multiple vendor bids exist.
+
 ## 2026-08-11 - Vendor Matching Profiles
 
 Scope: give vendor accounts durable profile data for future trade matching,

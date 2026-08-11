@@ -99,6 +99,21 @@ async function assertRoute(page: Page, route: (typeof ROUTES)[number]) {
   }
 }
 
+async function assertFirstRequestDetail(page: Page) {
+  await page.goto(new URL("/owner/dashboard", BASE_URL).toString(), { waitUntil: "networkidle" });
+  const firstRequestLink = page.getByRole("link", { name: "Open full record" }).first();
+  if ((await firstRequestLink.count()) === 0) return;
+
+  await firstRequestLink.click();
+  await page.waitForLoadState("networkidle");
+
+  for (const expectedText of ["Assigned vendor fit", "Vendor"]) {
+    if ((await page.getByText(expectedText, { exact: true }).count()) === 0) {
+      throw new Error(`/owner/requests/[id] is missing request detail text "${expectedText}"`);
+    }
+  }
+}
+
 async function hideDevOverlays(page: Page) {
   await page.evaluate(() => {
     document
@@ -126,6 +141,8 @@ async function main() {
         await page.screenshot({ path: screenshotPath, fullPage: true });
         console.log(`Checked ${route.path} at ${viewport.name}: ${screenshotPath}`);
       }
+
+      await assertFirstRequestDetail(page);
 
       await context.close();
     }

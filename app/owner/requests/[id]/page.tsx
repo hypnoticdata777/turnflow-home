@@ -24,6 +24,32 @@ export default async function RequestDetailPage({
     notFound();
   }
 
+  const assignedVendorRow = request.assignedVendorId
+    ? await db.query.users.findFirst({
+        where: (u, { eq }) => eq(u.id, request.assignedVendorId!),
+        columns: { name: true, email: true },
+        with: {
+          vendorProfile: {
+            columns: {
+              businessName: true,
+              trades: true,
+              serviceArea: true,
+              availability: true,
+              notificationPreference: true,
+              licenseInsuranceNotes: true,
+            },
+          },
+        },
+      })
+    : null;
+  const assignedVendor = assignedVendorRow
+    ? {
+        name: assignedVendorRow.name,
+        email: assignedVendorRow.email,
+        profile: assignedVendorRow.vendorProfile,
+      }
+    : null;
+
   return (
     <main>
       <RequestDetailView
@@ -35,6 +61,7 @@ export default async function RequestDetailPage({
         property={request.property}
         userId={session.user.id}
         creationNotice={requestCreatedNotice(created, uploads)}
+        assignedVendor={assignedVendor ?? null}
       />
     </main>
   );

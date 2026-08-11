@@ -24,6 +24,7 @@ import { CommentThread, type CommentData } from "@/components/CommentThread";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { RequestCreatedNoticeBanner } from "@/components/RequestCreatedNoticeBanner";
 import { StatusHandoffGuidance } from "@/components/StatusHandoffGuidance";
+import { VendorFitPanel } from "@/components/VendorFitPanel";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import { statusHandoffGuidance } from "@/lib/status-handoff";
 import {
@@ -56,6 +57,18 @@ type RequestData = {
 };
 type Photo = { id: string; type: string; url: string };
 type Property = { address: string; nickname: string | null } | null;
+type AssignedVendor = {
+  name: string | null;
+  email: string;
+  profile: {
+    businessName: string | null;
+    trades: string[];
+    serviceArea: string | null;
+    availability: string | null;
+    notificationPreference: string | null;
+    licenseInsuranceNotes: string | null;
+  } | null;
+} | null;
 
 function CostEditor({ request }: { request: RequestData }) {
   const router = useRouter();
@@ -144,6 +157,7 @@ export function RequestDetailView({
   property,
   userId,
   creationNotice,
+  assignedVendor,
 }: {
   request: RequestData;
   photos: Photo[];
@@ -153,6 +167,7 @@ export function RequestDetailView({
   property: Property;
   userId: string;
   creationNotice: RequestCreatedNotice | null;
+  assignedVendor: AssignedVendor;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(request.status);
@@ -458,6 +473,7 @@ export function RequestDetailView({
       <hr className="my-4" />
 
       <section id="sharing" className="scroll-mt-6">
+        <VendorFitPanel request={request} assignedVendor={assignedVendor} />
         <InviteSection
           requestId={request.id}
           label="Vendor"
