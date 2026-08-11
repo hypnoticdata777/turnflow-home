@@ -49,9 +49,10 @@ describe("describeLogAction", () => {
     expect(
       describeLogAction("work_session_event", {
         label: "Paused work",
+        taskLabel: "Plumbing rough-in",
         notes: "Waiting for access to the shutoff valve",
       })
-    ).toBe("Paused work: Waiting for access to the shutoff valve");
+    ).toBe("Paused work (Plumbing rough-in): Waiting for access to the shutoff valve");
   });
 
   it("falls back to the action key for unknown log events", () => {

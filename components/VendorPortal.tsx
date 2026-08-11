@@ -296,6 +296,7 @@ export function VendorPortal({
                     requestId={r.id}
                     requestStatus={r.status}
                     events={r.workSessions}
+                    userId={userId}
                   />
 
                   <label className="mt-4 block text-sm">

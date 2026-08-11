@@ -98,16 +98,20 @@ export async function recordRequestPhotoAction(
     throw new Error("Not authorized to add a photo to this request");
   }
 
-  await db.insert(requestPhotos).values({
-    requestId,
-    type,
-    url,
-    blobPath,
-    uploadedById: session.user.id,
-  });
+  const [created] = await db
+    .insert(requestPhotos)
+    .values({
+      requestId,
+      type,
+      url,
+      blobPath,
+      uploadedById: session.user.id,
+    })
+    .returning({ id: requestPhotos.id });
 
   revalidatePath(`/owner/requests/${requestId}`);
   revalidatePath("/vendor");
+  return { photoId: created.id };
 }
 
 export type UpdateRequestState = { error?: string } | undefined;

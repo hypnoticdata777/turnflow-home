@@ -8,6 +8,8 @@ import { requireRole } from "@/lib/auth/dal";
 import {
   WORK_SESSION_EVENT_LABELS,
   isWorkSessionEvent,
+  normalizeWorkSessionTaskLabel,
+  workSessionProofRequirement,
   type WorkSessionEvent,
 } from "@/lib/work-sessions";
 import { sendNotification } from "@/lib/email";
@@ -30,7 +32,9 @@ function nextStatusForEvent(
 export async function recordWorkSessionEventAction(
   requestId: string,
   event: string,
-  notes: string
+  notes: string,
+  taskLabel: string,
+  proofPhotoId?: string | null
 ): Promise<RecordWorkSessionEventResult> {
   const session = await requireRole("vendor");
   if (!isWorkSessionEvent(event)) {
@@ -45,11 +49,39 @@ export async function recordWorkSessionEventAction(
   }
 
   const trimmedNotes = notes.trim().slice(0, 500);
+  const normalizedTaskLabel = normalizeWorkSessionTaskLabel(taskLabel);
+  const proofRequirement = workSessionProofRequirement(event);
+  const proofPhoto = proofPhotoId
+    ? await db.query.requestPhotos.findFirst({
+        where: (photo, { eq }) => eq(photo.id, proofPhotoId),
+      })
+    : null;
+
+  if (proofRequirement.required && !proofPhoto) {
+    return { error: `${proofRequirement.label}. Upload the required proof photo first.` };
+  }
+
+  if (proofPhoto) {
+    if (
+      proofPhoto.requestId !== requestId ||
+      proofPhoto.uploadedById !== session.user.id ||
+      (proofRequirement.photoType && proofPhoto.type !== proofRequirement.photoType)
+    ) {
+      return {
+        error: proofRequirement.photoType
+          ? `Use a ${proofRequirement.photoType} photo captured for this work event.`
+          : "Use a photo captured for this request.",
+      };
+    }
+  }
+
   const nextStatus = nextStatusForEvent(event, req.status);
 
   await db.insert(workSessions).values({
     requestId,
     vendorId: session.user.id,
+    proofPhotoId: proofPhoto?.id ?? null,
+    taskLabel: normalizedTaskLabel,
     event,
     notes: trimmedNotes || null,
   });
@@ -68,7 +100,10 @@ export async function recordWorkSessionEventAction(
     details: {
       event,
       label: WORK_SESSION_EVENT_LABELS[event],
+      taskLabel: normalizedTaskLabel,
       notes: trimmedNotes || null,
+      proofPhotoId: proofPhoto?.id ?? null,
+      proofPhotoType: proofPhoto?.type ?? null,
       from: req.status,
       to: nextStatus,
     },
@@ -84,7 +119,7 @@ export async function recordWorkSessionEventAction(
     type: "work_session_event",
     recipientEmail: owner?.email ?? null,
     subject: `TurnFlow Home: ${WORK_SESSION_EVENT_LABELS[event].toLowerCase()} for "${req.title}"`,
-    text: `${WORK_SESSION_EVENT_LABELS[event]} for "${req.title}"${
+    text: `${WORK_SESSION_EVENT_LABELS[event]} for "${req.title}" (${normalizedTaskLabel})${
       trimmedNotes ? `: ${trimmedNotes}` : "."
     }`,
   });

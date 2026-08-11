@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   describeWorkSessionEvent,
   isWorkSessionEvent,
+  normalizeWorkSessionTaskLabel,
   workSessionCounts,
   workSessionGuidance,
+  workSessionProofRequirement,
 } from "@/lib/work-sessions";
 
 describe("isWorkSessionEvent", () => {
@@ -11,6 +13,17 @@ describe("isWorkSessionEvent", () => {
     expect(isWorkSessionEvent("started")).toBe(true);
     expect(isWorkSessionEvent("paused")).toBe(true);
     expect(isWorkSessionEvent("unknown")).toBe(false);
+  });
+});
+
+describe("normalizeWorkSessionTaskLabel", () => {
+  it("defaults simple repairs to one main task", () => {
+    expect(normalizeWorkSessionTaskLabel(" ")).toBe("Main repair");
+  });
+
+  it("keeps project task labels concise", () => {
+    expect(normalizeWorkSessionTaskLabel("Kitchen demo")).toBe("Kitchen demo");
+    expect(normalizeWorkSessionTaskLabel("x".repeat(100))).toHaveLength(80);
   });
 });
 
@@ -78,5 +91,34 @@ describe("workSessionCounts", () => {
       { event: "resumed", count: 1 },
       { event: "stopped", count: 2 },
     ]);
+  });
+});
+
+describe("workSessionProofRequirement", () => {
+  it("requires before proof before work starts", () => {
+    expect(workSessionProofRequirement("started")).toMatchObject({
+      required: true,
+      photoType: "before",
+      label: "Before photo required",
+    });
+  });
+
+  it("requires after proof when work stops for owner review", () => {
+    expect(workSessionProofRequirement("stopped")).toMatchObject({
+      required: true,
+      photoType: "after",
+      label: "Completion photo required",
+    });
+  });
+
+  it("keeps pause and resume proof optional", () => {
+    expect(workSessionProofRequirement("paused")).toMatchObject({
+      required: false,
+      photoType: null,
+    });
+    expect(workSessionProofRequirement("resumed")).toMatchObject({
+      required: false,
+      photoType: null,
+    });
   });
 });

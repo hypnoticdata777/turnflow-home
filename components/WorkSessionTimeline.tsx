@@ -8,8 +8,10 @@ import {
 export type WorkSessionData = WorkSessionInput & {
   id: string;
   event: WorkSessionEvent;
+  taskLabel: string | null;
   notes: string | null;
   createdAt: string | Date;
+  proofPhoto: { type: string; url: string } | null;
 };
 
 const EVENT_CLASSES: Record<WorkSessionEvent, string> = {
@@ -68,9 +70,25 @@ export function WorkSessionTimeline({
                   {new Date(event.createdAt).toLocaleString()}
                 </time>
               </div>
+              <p className="mt-1 text-xs font-semibold text-current">
+                Task: {event.taskLabel || "Main repair"}
+              </p>
               <p className="mt-1 text-sm leading-6">
                 {event.notes || "No notes recorded for this event."}
               </p>
+              {event.proofPhoto && (
+                <figure className="mt-3 max-w-48">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={event.proofPhoto.url}
+                    alt={`${event.proofPhoto.type} work-session proof`}
+                    className="h-28 w-full rounded border object-cover"
+                  />
+                  <figcaption className="mt-1 text-xs font-medium capitalize">
+                    {event.proofPhoto.type} proof attached
+                  </figcaption>
+                </figure>
+              )}
             </article>
           ))}
         </div>

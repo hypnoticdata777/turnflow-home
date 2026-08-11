@@ -203,6 +203,10 @@ export const workSessions = pgTable("work_sessions", {
   vendorId: uuid("vendor_id")
     .notNull()
     .references(() => users.id),
+  proofPhotoId: uuid("proof_photo_id").references(() => requestPhotos.id, {
+    onDelete: "set null",
+  }),
+  taskLabel: varchar("task_label", { length: 255 }),
   event: workSessionEventEnum("event").notNull(),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -377,6 +381,10 @@ export const workSessionsRelations = relations(workSessions, ({ one }) => ({
     references: [requests.id],
   }),
   vendor: one(users, { fields: [workSessions.vendorId], references: [users.id] }),
+  proofPhoto: one(requestPhotos, {
+    fields: [workSessions.proofPhotoId],
+    references: [requestPhotos.id],
+  }),
 }));
 
 export const invitesRelations = relations(invites, ({ one }) => ({

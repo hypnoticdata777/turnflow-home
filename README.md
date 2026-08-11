@@ -188,7 +188,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   context, owner approval, scheduled/ready, work in progress, closeout proof,
   and billing record stages.
 - Vendor work-session events for start, pause, resume, and stop, with notes,
-  owner-visible timeline history, decision-log entries, and owner notifications.
+  task/area labels, required before/after proof for start/stop, owner-visible
+  timeline history, decision-log entries, and owner notifications.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
   after-photo gaps, and final-cost gaps before owner review.
 - Owner Account & Sharing Center with profile context, invite activity, access

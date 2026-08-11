@@ -75,10 +75,11 @@ Review these routes in every POC pass:
   property coverage, reminder creation, calendar export, and mark-done flow
   feel useful for homeowners, not just operators.
 - `/vendor`: scoped access, vendor matching profile, private owner bid form,
-  lifecycle tracker, work-session controls, bid decision state, bid/price
-  context, closeout snapshot, request readiness, guided owner-handoff drafts,
-  status handoff guidance, updates, proof upload, and completion-waiver path
-  make vendor next actions obvious.
+  lifecycle tracker, work-session controls, required start/stop proof photos,
+  task/area labels, bid decision state, bid/price context, closeout snapshot,
+  request readiness, guided owner-handoff drafts, status handoff guidance,
+  updates, proof upload, and completion-waiver path make vendor next actions
+  obvious.
 - `/collaborator`: scoped access, shared request readiness, and guided update
   thread make helper next actions obvious while unrelated owner data is absent.
 

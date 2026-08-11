@@ -2,6 +2,58 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Work Session Proof Gates And Task Labels
+
+Scope: tie vendor work-session events to proof photos and lightweight project
+task tracking.
+
+### Changed
+
+- Added `proof_photo_id` and `task_label` to `work_sessions`.
+- Updated vendor session recording so `Start work` requires a fresh before
+  photo and `Stop work` requires a fresh after photo.
+- Uploaded the required proof photo inside the work-session flow and linked it
+  directly to the saved event.
+- Added task/area labels so single repairs can use `Main repair` while larger
+  projects can track phases like demo, plumbing, paint, or install work.
+- Displayed linked proof photos and task labels on the owner/vendor work
+  timeline.
+- Added task-label context to decision-log and proof-packet work-session text.
+- Updated README, UI/UX review docs, and vendor lifecycle roadmap.
+
+### Why
+
+Starting or stopping work should not be a blind button press. The vendor now has
+to capture the visual proof that explains what began and what changed. For
+larger jobs, task labels give the product a practical bridge toward project
+task tracking without forcing a full project-management layer into simple
+one-task repairs.
+
+### Validation
+
+- `npm test -- work-sessions` passed: 10 tests.
+- `npm test -- work-sessions decision-log` passed: 18 tests.
+- `npm test -- work-sessions decision-log notification-guidance` passed: 24
+  tests.
+- `npm run typecheck` passed.
+- `npm run db:generate` created `drizzle/0004_abnormal_microbe.sql` and
+  `drizzle/0005_tired_fabian_cortez.sql`.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 213 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no additional schema changes.
+- `git diff --exit-code -- drizzle` passed after staging the intended
+  migrations.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add structured project task checklist with per-task status, proof, timing,
+  and closeout.
+- Add closeout submission and owner review before billing record finalization.
+- Add manual UX pass for proof-gated work sessions on mobile vendor flow.
+
 ## 2026-08-11 - Vendor Work Session Events
 
 Scope: make vendor work activity traceable from start through pause, resume, and

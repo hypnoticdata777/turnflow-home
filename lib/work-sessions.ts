@@ -4,8 +4,17 @@ export type WorkSessionEvent = (typeof WORK_SESSION_EVENTS)[number];
 
 export type WorkSessionInput = {
   event: WorkSessionEvent;
+  taskLabel?: string | null;
   notes?: string | null;
   createdAt?: string | Date | null;
+  proofPhotoId?: string | null;
+};
+
+export type WorkSessionProofRequirement = {
+  required: boolean;
+  photoType: "before" | "after" | null;
+  label: string;
+  detail: string;
 };
 
 export type WorkSessionGuidance = {
@@ -31,6 +40,43 @@ export function describeWorkSessionEvent(event: WorkSessionEvent, notes?: string
   const base = WORK_SESSION_EVENT_LABELS[event];
   const trimmed = notes?.trim();
   return trimmed ? `${base}: ${trimmed}` : `${base}.`;
+}
+
+export function normalizeWorkSessionTaskLabel(value: string) {
+  const trimmed = value.trim();
+  return trimmed ? trimmed.slice(0, 80) : "Main repair";
+}
+
+export function workSessionProofRequirement(
+  event: WorkSessionEvent
+): WorkSessionProofRequirement {
+  if (event === "started") {
+    return {
+      required: true,
+      photoType: "before",
+      label: "Before photo required",
+      detail:
+        "Take a photo of the repair or replacement area before starting so the owner record shows what work began.",
+    };
+  }
+
+  if (event === "stopped") {
+    return {
+      required: true,
+      photoType: "after",
+      label: "Completion photo required",
+      detail:
+        "Take an after photo before stopping work so the owner can review what changed.",
+    };
+  }
+
+  return {
+    required: false,
+    photoType: null,
+    label: "Photo optional",
+    detail:
+      "Add a note for this event. Use the proof uploader if the owner needs a visual update.",
+  };
 }
 
 function latestWorkSession(events: WorkSessionInput[]) {

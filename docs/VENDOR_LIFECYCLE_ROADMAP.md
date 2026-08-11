@@ -29,7 +29,8 @@ The current app supports assigned vendor accounts:
 - Vendors receive logged notification attempts when an owner approves or
   declines their submitted bid, keeping the bid loop visible on both sides.
 - Vendors can record start, pause, resume, and stop work-session events with
-  notes; owners can see the resulting work timeline on the request record.
+  notes, task/area labels, and required start/stop proof photos; owners can see
+  the resulting work timeline on the request record.
 - The vendor portal now shows a per-request lifecycle tracker:
   opportunity received, bid/price context, owner approval, scheduled/ready,
   work in progress, closeout proof, and billing record.
@@ -84,8 +85,11 @@ True bidding and billing will need additional tables or expanded fields:
   and opportunity status.
 - Vendor bids: vendor ID, amount, notes, available dates, attachments,
   expiration, and owner decision state.
-- Work sessions: start, pause, resume, stop, timestamps, notes, and actor. Done
-  for assigned vendors.
+- Work sessions: start, pause, resume, stop, timestamps, notes, task/area label,
+  proof photo link, and actor. Done for assigned vendors.
+- Project tasks: reusable task checklist, per-task status, estimate/final cost,
+  proof requirements, and closeout review. Future layer; current work sessions
+  support lightweight task labels for project traceability.
 - Closeout submissions: proof bundle, materials, receipts, invoice amount, and
   owner review decision.
 - Billing records: final amount, invoice reference, payment status, and export
@@ -110,6 +114,9 @@ True bidding and billing will need additional tables or expanded fields:
 6. Add vendor bid decision notifications after owner approval/decline. Done.
 7. Add owner bid comparison metrics for active quotes. Done.
 8. Add work session events for start, pause, resume, stop, and notes. Done.
-9. Add open opportunity notifications before assignment.
-10. Add owner bid comparison and approval tied to assigned vendor selection.
-11. Add closeout submission and owner review before billing record finalization.
+9. Tie start/stop work-session events to required proof photos and task labels.
+   Done.
+10. Add structured project task checklist with per-task proof and timing.
+11. Add open opportunity notifications before assignment.
+12. Add owner bid comparison and approval tied to assigned vendor selection.
+13. Add closeout submission and owner review before billing record finalization.

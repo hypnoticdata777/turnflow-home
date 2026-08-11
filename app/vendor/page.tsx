@@ -17,6 +17,9 @@ export default async function VendorPage() {
       comments: true,
       workSessions: {
         orderBy: (w, { desc }) => desc(w.createdAt),
+        with: {
+          proofPhoto: { columns: { type: true, url: true } },
+        },
       },
     },
     columns: {
