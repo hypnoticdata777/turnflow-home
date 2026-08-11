@@ -164,7 +164,9 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   access changes.
 - Completion gating that requires final cost, after-photo proof, and assigned
   vendor, unless the owner records an explicit waiver reason.
-- Request comments shared by owner, assigned vendor, and shared collaborator.
+- Guided request updates shared by owner, assigned vendor, and shared
+  collaborator, with role-aware draft prompts for missing context, closeout
+  proof, and useful helper notes.
 - Vendor and collaborator invite flow with expiring links, copyable invite URLs,
   pending invite management, accepted-access removal, and scoped portals.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,

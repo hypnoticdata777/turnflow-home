@@ -17,6 +17,7 @@ import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
 import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
+import { commentThreadGuidance } from "@/lib/comment-guidance";
 import {
   helperOnboardingItems,
   helperRequestCardState,
@@ -304,6 +305,7 @@ export function VendorPortal({
                       comments={r.comments}
                       userId={userId}
                       assignedVendorId={r.assignedVendorId}
+                      guidance={commentThreadGuidance("vendor", r)}
                     />
                   </div>
                 </article>

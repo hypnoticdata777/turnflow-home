@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createCommentAction } from "@/lib/actions/comments";
+import type { CommentThreadGuidance } from "@/lib/comment-guidance";
 
 export type CommentData = {
   id: string;
@@ -17,12 +18,14 @@ export function CommentThread({
   userId,
   assignedVendorId,
   collaboratorId,
+  guidance,
 }: {
   requestId: string;
   comments: CommentData[];
   userId: string;
   assignedVendorId?: string | null;
   collaboratorId?: string | null;
+  guidance?: CommentThreadGuidance;
 }) {
   const router = useRouter();
   const [text, setText] = useState("");
@@ -57,10 +60,32 @@ export function CommentThread({
 
   return (
     <div>
+      {guidance && (
+        <div className="mb-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-blue-950">
+          <p className="text-xs font-semibold uppercase">{guidance.eyebrow}</p>
+          <p className="mt-1 text-sm font-semibold">{guidance.title}</p>
+          <p className="mt-1 text-sm leading-6">{guidance.detail}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {guidance.suggestions.map((suggestion, index) => (
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => setText(suggestion)}
+                className="max-w-full rounded border border-blue-200 bg-white px-3 py-2 text-left text-xs font-medium leading-5 text-blue-900 hover:bg-blue-100"
+              >
+                Draft {index + 1}: {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <p className="mb-2 text-sm font-medium">Updates</p>
       <div className="mb-3 space-y-2">
         {sorted.length === 0 ? (
-          <p className="text-sm text-gray-500">No updates yet.</p>
+          <p className="text-sm text-gray-500">
+            {guidance?.emptyState ?? "No updates yet."}
+          </p>
         ) : (
           sorted.map((c) => (
             <article key={c.id} className="rounded border border-gray-100 bg-gray-50 p-2">
@@ -77,7 +102,7 @@ export function CommentThread({
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Post an update..."
+          placeholder={guidance?.placeholder ?? "Post an update..."}
           className="flex-1 rounded border p-2 text-sm"
         />
         <button

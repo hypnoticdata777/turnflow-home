@@ -5,6 +5,7 @@ import { HelperPortalShell } from "@/components/HelperPortalShell";
 import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
 import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
+import { commentThreadGuidance } from "@/lib/comment-guidance";
 import {
   helperOnboardingItems,
   helperRequestCardState,
@@ -116,6 +117,7 @@ export default async function CollaboratorPage() {
                       userId={session.user.id}
                       assignedVendorId={r.assignedVendorId}
                       collaboratorId={r.collaboratorId}
+                      guidance={commentThreadGuidance("collaborator", r)}
                     />
                   </div>
                 </section>

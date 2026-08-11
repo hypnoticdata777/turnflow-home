@@ -2,6 +2,48 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-11 - Guided Owner/Vendor Updates
+
+Scope: make shared request comments feel like a guided handoff instead of a
+blank text box.
+
+### Changed
+
+- Added reusable `commentThreadGuidance` rules for owner, vendor, and
+  collaborator update threads.
+- Updated `CommentThread` with role-aware handoff guidance, empty-state copy,
+  placeholders, and one-click draft starters.
+- Wired guided updates into owner request detail, vendor request cards, and
+  collaborator shared request cards.
+- Fixed comment revalidation so vendor workspaces refresh after posting updates.
+- Added focused tests for missing-context, closeout, owner-note, owner-response,
+  and collaborator update guidance.
+- Updated README and UI/UX review docs for guided request updates.
+
+### Why
+
+The owner/vendor handoff lives in the update thread. A blank comment box adds
+friction and leaves vendors guessing how to ask for missing context. Guided
+drafts help each role post the next useful update while keeping the answer
+attached to the repair record.
+
+### Validation
+
+- `npm test -- comment-guidance` passed: 5 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm run lint` passed.
+- `npm test` passed: 148 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Add browser smoke assertions for guided update drafts once seeded owner/helper
+  auth is available locally or in preview.
+
 ## 2026-08-11 - Vendor Closeout Snapshot
 
 Scope: make vendor work feel more frictionless by summarizing what remains

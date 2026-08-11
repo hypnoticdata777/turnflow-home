@@ -29,5 +29,6 @@ export async function createCommentAction(requestId: string, text: string) {
   });
 
   revalidatePath(`/owner/requests/${requestId}`);
+  revalidatePath("/vendor");
   revalidatePath("/collaborator");
 }

@@ -23,6 +23,7 @@ import { InviteSection } from "@/components/InviteSection";
 import { CommentThread, type CommentData } from "@/components/CommentThread";
 import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { RequestCreatedNoticeBanner } from "@/components/RequestCreatedNoticeBanner";
+import { commentThreadGuidance } from "@/lib/comment-guidance";
 import {
   missingCompletionProof,
   requestGuidance,
@@ -524,6 +525,11 @@ export function RequestDetailView({
           userId={userId}
           assignedVendorId={request.assignedVendorId}
           collaboratorId={request.collaboratorId}
+          guidance={commentThreadGuidance("owner", {
+            ...request,
+            photos,
+            comments,
+          })}
         />
       </section>
 
