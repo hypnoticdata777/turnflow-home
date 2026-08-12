@@ -89,8 +89,8 @@ Review these routes in every POC pass:
 - `/owner/backup`: JSON vs CSV purpose, file preview, invalid-file feedback,
   add-only restore behavior, duplicate-risk warning, billing-record restore, and
   success/error states make data portability trustworthy.
-- `/vendor`: scoped access, vendor matching profile, private owner bid form,
-  per-job next-action panel, lifecycle tracker, project task checklist,
+- `/vendor`: scoped access, vendor work queue, vendor matching profile, private
+  owner bid form, per-job next-action panel, lifecycle tracker, project task checklist,
   work-session controls, required
   start/stop proof photos, task links, task-level cost visibility, owner
   acceptance state, closeout submission form, closeout review outcome, bid

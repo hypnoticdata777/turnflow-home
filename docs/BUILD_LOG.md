@@ -2,6 +2,45 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Vendor Work Queue Snapshot
+
+Scope: make `/vendor` easier to triage before vendors open each assigned job.
+
+### Changed
+
+- Added `vendorWorkQueueMetrics` in `lib/vendor-lifecycle.ts` to summarize bid
+  queue, work start/stop needs, closeout handoffs, and owner review waits from
+  the same next-action logic used by per-job cards.
+- Added focused unit coverage for empty queues, mixed vendor states, and settled
+  assigned jobs.
+- Added a Vendor Work Queue section to the top of `VendorPortal`.
+- Expanded helper smoke expectations so `/vendor` must render the work queue
+  section.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, and this build
+  log.
+
+### Why
+
+The vendor portal had strong per-job guidance, but vendors still had to scan
+every card to know where the day stood. The work queue gives a quick operational
+view of which jobs need bids, proof-backed work events, closeout handoffs, or
+owner decisions.
+
+### Validation
+
+- `npm test -- vendor-lifecycle` passed: 15 tests.
+- `npm run typecheck` passed.
+- `npm run lint` passed with no warnings.
+- `npm run verify` passed: lint, typecheck, 257 tests, production audit, Drizzle
+  generation, schema drift check, and production build.
+
+### Follow-Up
+
+- Run `npm run db:seed` and `npm run ux:helper` in a configured local or preview
+  environment with `DATABASE_URL`.
+- Validate the full vendor path with a tester: invite/assignment, bid, start
+  proof, stop proof, closeout, owner review, and billing record visibility.
+
 ## 2026-08-12 - Account Sharing Boundary Snapshot
 
 Scope: make `/owner/account` clearer as the homeowner trust center for who can

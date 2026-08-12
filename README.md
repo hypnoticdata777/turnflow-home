@@ -200,6 +200,8 @@ and `screenshots/ux-helper/`.
 - Vendor lifecycle tracker for assigned jobs, covering opportunity, bid/price
   context, owner approval, scheduled/ready, work in progress, closeout proof,
   and billing record stages.
+- Vendor work queue snapshot that summarizes bid queue, work start/stop needs,
+  closeout handoffs, and owner review waits before vendors open each job.
 - Vendor next-action panel on each assigned job, pointing vendors to the right
   control for bid submission, owner approval waiting, job context, start/stop
   proof, task progress, closeout submission, requested changes, billing context,

@@ -3,6 +3,7 @@ import {
   vendorLifecycleStages,
   vendorLifecycleSummary,
   vendorNextAction,
+  vendorWorkQueueMetrics,
 } from "@/lib/vendor-lifecycle";
 
 describe("vendorLifecycleStages", () => {
@@ -245,5 +246,125 @@ describe("vendorNextAction", () => {
       href: "#vendor-billing-request-1",
       tone: "ready",
     });
+  });
+});
+
+describe("vendorWorkQueueMetrics", () => {
+  it("keeps an empty vendor queue calm and scoped", () => {
+    expect(vendorWorkQueueMetrics([])).toEqual([
+      {
+        label: "Bid queue",
+        value: 0,
+        detail: "Assigned jobs that need a bid will appear here.",
+        tone: "empty",
+      },
+      {
+        label: "Work starts/stops",
+        value: 0,
+        detail: "Scheduled and active work will appear here.",
+        tone: "empty",
+      },
+      {
+        label: "Closeout handoffs",
+        value: 0,
+        detail: "Jobs ready for closeout will appear here.",
+        tone: "empty",
+      },
+      {
+        label: "Owner waits",
+        value: 0,
+        detail: "Owner review states will appear here once work is assigned.",
+        tone: "empty",
+      },
+    ]);
+  });
+
+  it("summarizes bid, work, closeout, and owner-wait states across assigned jobs", () => {
+    const metrics = vendorWorkQueueMetrics([
+      {
+        id: "request-1",
+        status: "Needs Quote",
+        vendorBid: null,
+        location: "Kitchen",
+        accessInstructions: "Side gate",
+        contactMethod: "Text",
+        photos: [],
+      },
+      {
+        id: "request-2",
+        status: "Scheduled",
+        vendorBid: { status: "approved", amount: "450" },
+        location: "Kitchen",
+        accessInstructions: "Side gate",
+        contactMethod: "Text",
+        photos: [],
+        workSessions: [],
+      },
+      {
+        id: "request-3",
+        status: "In Progress",
+        location: "Hall bath",
+        accessInstructions: "Lockbox",
+        contactMethod: "Phone",
+        finalCost: "600",
+        photos: [{ type: "after" }],
+        workSessions: [{ event: "stopped", createdAt: "2026-08-12T12:00:00.000Z" }],
+      },
+      {
+        id: "request-4",
+        status: "Waiting",
+        vendorBid: { status: "pending", amount: "250" },
+        location: "Laundry",
+        accessInstructions: "Front desk",
+        contactMethod: "Email",
+        photos: [],
+      },
+    ]);
+
+    expect(metrics).toMatchObject([
+      {
+        label: "Bid queue",
+        value: 1,
+        tone: "attention",
+      },
+      {
+        label: "Work starts/stops",
+        value: 1,
+        tone: "attention",
+      },
+      {
+        label: "Closeout handoffs",
+        value: 1,
+        tone: "attention",
+      },
+      {
+        label: "Owner waits",
+        value: 1,
+        tone: "progress",
+      },
+    ]);
+  });
+
+  it("marks a fully settled assigned queue as ready", () => {
+    const metrics = vendorWorkQueueMetrics([
+      {
+        id: "request-1",
+        status: "Complete",
+        location: "Kitchen",
+        accessInstructions: "Side gate",
+        contactMethod: "Text",
+        finalCost: "450",
+        photos: [{ type: "after" }],
+        closeoutSubmissions: [
+          { status: "approved", submittedAt: "2026-08-12T10:00:00.000Z" },
+        ],
+        billingRecords: [
+          { status: "recorded", recordedAt: "2026-08-12T11:00:00.000Z" },
+        ],
+      },
+    ]);
+
+    expect(metrics.every((metric) => metric.tone === "ready")).toBe(true);
+    expect(metrics.map((metric) => metric.value)).toEqual([0, 0, 0, 0]);
   });
 });

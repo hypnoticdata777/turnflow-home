@@ -75,6 +75,8 @@ async function assertHelperWorkspace(page: Page, pathName: string, role: "vendor
           "Work like a trusted vendor.",
           "Vendor matching profile",
           "Tell TurnFlow what work fits you",
+          "Vendor work queue",
+          "Where assigned jobs need attention",
           "Closeout snapshot",
           "What needs to happen before owner review",
           "Vendor lifecycle",

@@ -44,6 +44,13 @@ export type VendorNextAction = {
   tone: "attention" | "progress" | "ready";
 };
 
+export type VendorWorkQueueMetric = {
+  label: string;
+  value: number;
+  detail: string;
+  tone: "attention" | "progress" | "ready" | "empty";
+};
+
 const startedStatuses = new Set(["Scheduled", "In Progress", "Needs Review", "Complete"]);
 const activeStatuses = new Set(["In Progress", "Needs Review"]);
 
@@ -433,4 +440,79 @@ export function vendorNextAction(request: VendorNextActionRequest): VendorNextAc
     href: anchor(request, "vendor-closeout"),
     tone: "ready",
   };
+}
+
+export function vendorWorkQueueMetrics(
+  requests: VendorNextActionRequest[]
+): VendorWorkQueueMetric[] {
+  const nextActions = requests.map((request) => vendorNextAction(request));
+  const countByLabel = (labels: string[]) =>
+    nextActions.filter((action) => labels.includes(action.label)).length;
+  const bidCount = countByLabel(["Bid requested", "Bid needs revision"]);
+  const workCount = countByLabel([
+    "Resolve blocked scope",
+    "Start with proof",
+    "Resume or close the visit",
+    "Stop with completion proof",
+    "Update task progress",
+  ]);
+  const closeoutCount = countByLabel([
+    "Add after photo",
+    "Share final cost context",
+    "Closeout changes requested",
+    "Submit closeout",
+    "Billing needs context",
+  ]);
+  const ownerWaitCount = countByLabel([
+    "Waiting on owner approval",
+    "Closeout under owner review",
+    "Waiting on task acceptance",
+  ]);
+
+  return [
+    {
+      label: "Bid queue",
+      value: bidCount,
+      detail:
+        bidCount > 0
+          ? `${bidCount} ${bidCount === 1 ? "job needs" : "jobs need"} price, scope, or availability before the owner can decide.`
+          : requests.length > 0
+            ? "No assigned job is waiting on a vendor bid right now."
+            : "Assigned jobs that need a bid will appear here.",
+      tone: bidCount > 0 ? "attention" : requests.length > 0 ? "ready" : "empty",
+    },
+    {
+      label: "Work starts/stops",
+      value: workCount,
+      detail:
+        workCount > 0
+          ? `${workCount} ${workCount === 1 ? "job needs" : "jobs need"} start proof, stop proof, or task progress before closeout.`
+          : requests.length > 0
+            ? "No job is waiting on start, stop, or task progress right now."
+            : "Scheduled and active work will appear here.",
+      tone: workCount > 0 ? "attention" : requests.length > 0 ? "ready" : "empty",
+    },
+    {
+      label: "Closeout handoffs",
+      value: closeoutCount,
+      detail:
+        closeoutCount > 0
+          ? `${closeoutCount} ${closeoutCount === 1 ? "job needs" : "jobs need"} proof, final cost, or a revised handoff before owner approval.`
+          : requests.length > 0
+            ? "No job is waiting on vendor closeout right now."
+            : "Jobs ready for closeout will appear here.",
+      tone: closeoutCount > 0 ? "attention" : requests.length > 0 ? "ready" : "empty",
+    },
+    {
+      label: "Owner waits",
+      value: ownerWaitCount,
+      detail:
+        ownerWaitCount > 0
+          ? `${ownerWaitCount} ${ownerWaitCount === 1 ? "job is" : "jobs are"} waiting on owner approval, review, or task acceptance.`
+          : requests.length > 0
+            ? "No current job is blocked on an owner decision."
+            : "Owner review states will appear here once work is assigned.",
+      tone: ownerWaitCount > 0 ? "progress" : requests.length > 0 ? "ready" : "empty",
+    },
+  ];
 }

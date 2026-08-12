@@ -60,7 +60,7 @@ coaching.
 
 | Endpoint | Role | User Goal | Primary Action | Success State | Empty/Error States | Trust/Privacy Cues | Next Handoff | POC Score |
 |---|---|---|---|---|---|---|---|---|
-| `/vendor` | Vendor | Understand assigned jobs and move each one through bid, approval, work session, closeout, and billing review. | Follow the per-job next-action panel, update profile, submit bid, add updates, upload proof, start/pause/resume/stop work sessions, complete tasks, submit closeout. | Vendor can tell exactly what the owner is waiting on. | No-assigned-work state should explain that jobs appear by owner invite/assignment. Blocked actions must say what proof, task, cost, or owner decision is missing. | Copy must make scoped access clear and avoid implying vendor sees owner-wide data or receives payment in-app. | Owner review on `/owner/requests/[id]` | `3` |
+| `/vendor` | Vendor | Understand assigned jobs and move each one through bid, approval, work session, closeout, and billing review. | Use the work queue snapshot, follow the per-job next-action panel, update profile, submit bid, add updates, upload proof, start/pause/resume/stop work sessions, complete tasks, submit closeout. | Vendor can tell exactly what the owner is waiting on and which jobs need bid, work, closeout, or owner review attention. | No-assigned-work state should explain that jobs appear by owner invite/assignment. Blocked actions must say what proof, task, cost, or owner decision is missing. | Copy must make scoped access clear and avoid implying vendor sees owner-wide data or receives payment in-app. | Owner review on `/owner/requests/[id]` | `3` |
 
 ## Collaborator Workspace Routes
 
@@ -81,7 +81,8 @@ coaching.
 ## Priority Hardening Queue
 
 1. `/vendor`: run a vendor task from invite to bid, start proof, stop proof,
-   closeout, and owner billing review with a real tester.
+   closeout, and owner billing review with a real tester in a seeded
+   environment.
 2. `/owner/requests/new`: run moderated mobile homeowner testing once a seeded
    POC environment is available.
 3. `/owner/account`: run moderated sharing-boundary testing once seeded account
