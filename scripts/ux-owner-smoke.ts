@@ -26,6 +26,7 @@ const ROUTES = [
 
 const ROUTE_TEXT_CHECKS: Partial<Record<(typeof ROUTES)[number]["path"], string[]>> = {
   "/owner/dashboard": ["Homeowner value", "What TurnFlow is protecting for this home"],
+  "/owner/requests/new": ["Owner-controlled draft", "Vendor handoff readiness"],
   "/owner/notifications": ["Notification health", "Can owners trust outbound alerts?"],
 };
 

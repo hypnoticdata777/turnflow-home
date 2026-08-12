@@ -16,6 +16,8 @@ import {
 import { createProperty } from "@/lib/actions/properties";
 import { requestPhotoPath } from "@/lib/blob-paths";
 import {
+  requestIntakeHandoffChecks,
+  requestIntakeHandoffSummary,
   requestIntakeNextStep,
   requestIntakeProgress,
   requestIntakeSteps,
@@ -52,6 +54,10 @@ export function NewRequestForm({
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [urgency, setUrgency] = useState("");
+  const [location, setLocation] = useState("");
+  const [contactMethod, setContactMethod] = useState("");
+  const [accessInstructions, setAccessInstructions] = useState("");
+  const [notes, setNotes] = useState("");
   const [queuedPhotos, setQueuedPhotos] = useState<Record<PhotoType, File | null>>({
     before: null,
     after: null,
@@ -132,11 +138,28 @@ export function NewRequestForm({
     title,
     category,
     urgency,
+    location,
+    contactMethod,
+    accessInstructions,
+    notes,
     photoCount: queuedPhotoCount,
   });
   const intakeSummary = requestIntakeSummary(intakeSteps);
   const nextStep = requestIntakeNextStep(intakeSteps);
   const { completedCount, totalCount, progress } = requestIntakeProgress(intakeSteps);
+  const handoffChecks = requestIntakeHandoffChecks({
+    propertyId: selectedPropertyId,
+    title,
+    category,
+    urgency,
+    location,
+    contactMethod,
+    accessInstructions,
+    notes,
+    photoCount: queuedPhotoCount,
+  });
+  const handoffSummary = requestIntakeHandoffSummary(handoffChecks);
+  const handoffCompleteCount = handoffChecks.filter((check) => check.complete).length;
   const summaryClasses =
     intakeSummary.tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -149,60 +172,71 @@ export function NewRequestForm({
       : intakeSummary.tone === "empty"
         ? "bg-blue-800"
         : "bg-amber-800";
+  const handoffClasses =
+    handoffSummary.tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : handoffSummary.tone === "empty"
+        ? "border-gray-200 bg-white text-gray-900"
+        : "border-blue-200 bg-blue-50 text-blue-950";
 
   return (
-    <div className="max-w-2xl rounded-xl bg-white p-6 shadow">
-      {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
-
-      {properties.length === 0 && (
-        <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3">
-          <p className="mb-2 text-sm font-medium">
-            Let&apos;s add your first property before your first request. It only
-            takes a second.
+    <div className="grid max-w-6xl gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] lg:items-start">
+      <div className="rounded-xl bg-white p-4 shadow sm:p-6">
+        {error && (
+          <p className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {error}
           </p>
-          <div className="flex flex-col gap-2 md:flex-row">
-            <div className="flex-1">
-              <label htmlFor={quickAddressId} className="mb-1 block text-xs font-medium">
-                Address
-              </label>
-              <input
-                id={quickAddressId}
-                type="text"
-                placeholder="123 Main St"
-                value={quickAddress}
-                onChange={(e) => setQuickAddress(e.target.value)}
-                className="w-full rounded border p-2 text-sm"
-              />
-            </div>
-            <div className="flex-1">
-              <label htmlFor={quickNicknameId} className="mb-1 block text-xs font-medium">
-                Nickname
-              </label>
-              <input
-                id={quickNicknameId}
-                type="text"
-                placeholder="Optional"
-                value={quickNickname}
-                onChange={(e) => setQuickNickname(e.target.value)}
-                className="w-full rounded border p-2 text-sm"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleQuickAddProperty}
-              disabled={quickAddPending}
-              className="rounded bg-blue-600 px-4 py-2 text-sm text-white whitespace-nowrap disabled:opacity-50 md:self-end"
-            >
-              {quickAddPending ? "Saving..." : "Add property"}
-            </button>
-          </div>
-          {quickAddError && (
-            <p className="mt-1 text-xs text-red-600">{quickAddError}</p>
-          )}
-        </div>
-      )}
+        )}
 
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+        {properties.length === 0 && (
+          <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3">
+            <p className="mb-2 text-sm font-medium">
+              Let&apos;s add your first property before your first request. It only
+              takes a second.
+            </p>
+            <div className="flex flex-col gap-2 md:flex-row">
+              <div className="flex-1">
+                <label htmlFor={quickAddressId} className="mb-1 block text-xs font-medium">
+                  Address
+                </label>
+                <input
+                  id={quickAddressId}
+                  type="text"
+                  placeholder="123 Main St"
+                  value={quickAddress}
+                  onChange={(e) => setQuickAddress(e.target.value)}
+                  className="w-full rounded border p-2 text-sm"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor={quickNicknameId} className="mb-1 block text-xs font-medium">
+                  Nickname
+                </label>
+                <input
+                  id={quickNicknameId}
+                  type="text"
+                  placeholder="Optional"
+                  value={quickNickname}
+                  onChange={(e) => setQuickNickname(e.target.value)}
+                  className="w-full rounded border p-2 text-sm"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleQuickAddProperty}
+                disabled={quickAddPending}
+                className="rounded bg-blue-600 px-4 py-2 text-sm text-white whitespace-nowrap disabled:opacity-50 md:self-end"
+              >
+                {quickAddPending ? "Saving..." : "Add property"}
+              </button>
+            </div>
+            {quickAddError && (
+              <p className="mt-1 text-xs text-red-600">{quickAddError}</p>
+            )}
+          </div>
+        )}
+
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
         <section className={`rounded-lg border p-4 ${summaryClasses}`}>
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
@@ -349,6 +383,8 @@ export function NewRequestForm({
             id={locationId}
             name="location"
             type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
             placeholder="e.g. Kitchen, 2nd floor bathroom"
             className="w-full rounded border p-2"
           />
@@ -361,6 +397,8 @@ export function NewRequestForm({
           <select
             id={contactMethodId}
             name="contactMethod"
+            value={contactMethod}
+            onChange={(e) => setContactMethod(e.target.value)}
             className="w-full rounded border bg-white p-2"
           >
             <option value="">Preferred contact method</option>
@@ -380,6 +418,8 @@ export function NewRequestForm({
             id={accessInstructionsId}
             name="accessInstructions"
             rows={2}
+            value={accessInstructions}
+            onChange={(e) => setAccessInstructions(e.target.value)}
             placeholder="e.g. Lockbox code, gate access, pets on site"
             className="w-full rounded border p-2"
           />
@@ -393,6 +433,8 @@ export function NewRequestForm({
             id={notesId}
             name="notes"
             rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
             placeholder="Describe the issue"
             className="w-full rounded border p-2"
           />
@@ -430,9 +472,9 @@ export function NewRequestForm({
           <button
             type="submit"
             disabled={saving}
-            className="rounded bg-green-600 px-6 py-2 text-white disabled:opacity-50"
+            className="rounded bg-green-700 px-6 py-2 text-white disabled:opacity-50"
           >
-            {saving ? "Saving..." : "Save request"}
+            {saving ? "Saving..." : "Save draft request"}
           </button>
           <a
             href="/owner/dashboard"
@@ -441,7 +483,55 @@ export function NewRequestForm({
             Cancel
           </a>
         </div>
-      </form>
+        </form>
+      </div>
+
+      <aside className="space-y-4 lg:sticky lg:top-6">
+        <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-normal text-emerald-800">
+            What gets saved
+          </p>
+          <h2 className="mt-2 text-xl font-semibold text-gray-950">Owner-controlled draft</h2>
+          <p className="mt-2 text-sm leading-6 text-gray-600">
+            Saving creates a private owner record first. Vendors or helpers only
+            see this request after you invite or assign them.
+          </p>
+          <div className="mt-4 grid gap-2 text-sm">
+            <p className="rounded border border-gray-200 bg-gray-50 p-3">
+              <strong>Required:</strong> property, short title, category, and
+              urgency.
+            </p>
+            <p className="rounded border border-gray-200 bg-gray-50 p-3">
+              <strong>Helpful:</strong> location, contact path, access notes,
+              issue history, and first photos.
+            </p>
+          </div>
+        </section>
+
+        <section className={`rounded-lg border p-4 shadow-sm ${handoffClasses}`}>
+          <p className="text-sm font-semibold uppercase tracking-normal">
+            Vendor handoff readiness
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">{handoffSummary.headline}</h2>
+          <p className="mt-2 text-sm leading-6">{handoffSummary.detail}</p>
+          <p className="mt-3 text-sm font-semibold">
+            {handoffCompleteCount} of {handoffChecks.length} optional details ready
+          </p>
+          <div className="mt-3 space-y-2">
+            {handoffChecks.map((check) => (
+              <div key={check.label} className="rounded border border-current/20 bg-white/70 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold">{check.label}</p>
+                  <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold">
+                    {check.complete ? "Ready" : "Optional"}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs leading-5">{check.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </aside>
     </div>
   );
 }

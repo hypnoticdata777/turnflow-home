@@ -160,8 +160,9 @@ and `screenshots/ux-helper/`.
   request-card next actions plus communication-health signals for quiet shared
   threads and closeout review updates.
 - Guided request intake with category-specific safety checklist, urgency,
-  location, access instructions, contact preference, inline photo upload, and
-  quick first-property creation.
+  location, access instructions, contact preference, inline photo upload, quick
+  first-property creation, owner-controlled draft copy, and vendor handoff
+  readiness signals.
 - Request detail value snapshot for proof packet, cost clarity, scoped
   coordination, and decision history.
 - Owner request-detail workflow rail that links intake, scope, cost, bids,

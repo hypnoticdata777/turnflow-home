@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  requestIntakeHandoffChecks,
+  requestIntakeHandoffSummary,
   requestIntakeNextStep,
   requestIntakeProgress,
   requestIntakeSteps,
@@ -12,6 +14,10 @@ const emptyInput: RequestIntakeInput = {
   title: "",
   category: "",
   urgency: "",
+  location: "",
+  contactMethod: "",
+  accessInstructions: "",
+  notes: "",
   photoCount: 0,
 };
 
@@ -45,6 +51,53 @@ describe("requestIntakeSteps", () => {
 
     expect(steps.map((step) => step.complete)).toEqual([true, false, true, true, true]);
     expect(requestIntakeProgress(steps)).toMatchObject({ completedCount: 4, progress: 80 });
+  });
+});
+
+describe("requestIntakeHandoffSummary", () => {
+  it("keeps optional vendor handoff readiness separate from required save fields", () => {
+    const checks = requestIntakeHandoffChecks({
+      ...emptyInput,
+      propertyId: "property-1",
+      title: "Kitchen sink leak",
+      category: "Plumbing",
+      urgency: "High",
+    });
+
+    expect(checks.map((check) => check.complete)).toEqual([false, false, false, false]);
+    expect(requestIntakeHandoffSummary(checks)).toMatchObject({
+      headline: "Vendor handoff is still light.",
+      tone: "empty",
+    });
+  });
+
+  it("summarizes partial homeowner context without blocking draft save", () => {
+    const checks = requestIntakeHandoffChecks({
+      ...emptyInput,
+      location: "Kitchen",
+      contactMethod: "Text",
+      notes: "Started after the dishwasher cycle.",
+    });
+
+    expect(requestIntakeHandoffSummary(checks)).toMatchObject({
+      headline: "3 of 4 handoff details are ready.",
+      tone: "progress",
+    });
+  });
+
+  it("marks vendor handoff ready when practical visit context is present", () => {
+    const checks = requestIntakeHandoffChecks({
+      ...emptyInput,
+      location: "Kitchen",
+      contactMethod: "Phone",
+      accessInstructions: "Use side gate, dog is inside.",
+      notes: "Leak is intermittent but worse at night.",
+    });
+
+    expect(requestIntakeHandoffSummary(checks)).toMatchObject({
+      headline: "Vendor handoff looks ready.",
+      tone: "ready",
+    });
   });
 });
 
@@ -84,6 +137,7 @@ describe("requestIntakeSummary", () => {
 
   it("marks a request draft ready when every intake signal is present", () => {
     const steps = requestIntakeSteps({
+      ...emptyInput,
       propertyId: "property-1",
       title: "Kitchen sink leak",
       category: "Plumbing",

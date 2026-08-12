@@ -63,8 +63,9 @@ Review these routes in every POC pass:
 - `/owner/properties`: first property setup, property care signals,
   request/document/reminder counts, history export, and delete boundaries feel
   clear.
-- `/owner/requests/new`: intake length, safety checklist, access notes, and
-  contact preference feel worth the effort.
+- `/owner/requests/new`: intake length, owner-controlled draft trust copy,
+  vendor handoff readiness, safety checklist, access notes, and contact
+  preference feel worth the effort.
 - `/owner/requests/[id]`: record-value snapshot, assigned-vendor fit, bid
   review guidance, quote comparison metrics, record-workflow rail,
   project task checklist,

@@ -12,8 +12,20 @@ export default async function NewRequestPage() {
   });
 
   return (
-    <main>
-      <h1 className="mb-6 text-3xl font-bold">New maintenance request</h1>
+    <main className="space-y-6">
+      <header className="max-w-4xl">
+        <p className="text-sm font-semibold uppercase tracking-normal text-emerald-800">
+          Owner intake
+        </p>
+        <h1 className="mt-2 text-3xl font-bold text-gray-950">
+          New maintenance request
+        </h1>
+        <p className="mt-3 text-base leading-7 text-gray-600">
+          Save the repair as a private owner record first, then add enough
+          location, access, contact, notes, and photo context to make vendor
+          handoff smoother when you are ready to share it.
+        </p>
+      </header>
       <NewRequestForm properties={ownerProperties} userId={session.user.id} />
     </main>
   );

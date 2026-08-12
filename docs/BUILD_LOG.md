@@ -2,6 +2,55 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Owner Intake Handoff Readiness
+
+Scope: make `/owner/requests/new` feel clearer and less intimidating for
+homeowners while still encouraging the details that make vendor handoff smoother.
+
+### Changed
+
+- Added optional vendor handoff readiness helpers in `lib/request-intake.ts`.
+- Added unit coverage for empty, partial, and ready handoff states while keeping
+  required draft-save progress separate.
+- Updated `NewRequestForm` with an owner-controlled draft panel that explains
+  the request stays private until sharing or assignment.
+- Added a live vendor handoff readiness panel for location, contact path, access
+  context, and issue history.
+- Made optional fields controlled so the handoff readiness panel responds as the
+  homeowner types.
+- Updated `/owner/requests/new` route intro copy to frame the flow as private
+  owner record first, smoother handoff later.
+- Expanded owner UX smoke text checks for the new intake trust panels.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, and this build
+  log.
+
+### Why
+
+Request intake is a high-friction moment. Homeowners should know which fields
+are required to save the record and which details are optional but useful for a
+clean quote or site visit. The route now explains the trust boundary and gives
+practical handoff guidance without blocking draft creation.
+
+### Validation
+
+- `npm test -- request-intake` passed: 8 tests.
+- `npm run typecheck` passed.
+- `npm run lint` passed with no warnings.
+- `npm run verify` passed: lint, typecheck, 251 tests, production audit, Drizzle
+  generation, schema drift check, and production build.
+- `npm run ux:owner` could not complete locally because `DATABASE_URL` is not
+  set, so `npm run db:seed` cannot create the demo owner account in this
+  environment.
+
+### Follow-Up
+
+- Run `npm run db:seed` and `npm run ux:owner` in a configured local or preview
+  environment.
+- Capture updated owner intake desktop/mobile screenshots after seeded smoke
+  passes.
+- Use moderated homeowner testing to confirm the optional handoff guidance feels
+  helpful rather than like extra homework.
+
 ## 2026-08-12 - Public Homepage Positioning
 
 Scope: make `/` a real public POC entry route for homeowner-first positioning

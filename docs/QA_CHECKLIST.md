@@ -89,36 +89,38 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 5. Add a property with public-safe address data.
 6. Create a maintenance request with category, urgency, notes, access context,
    and preferred contact method.
-7. Upload at least one before photo or public-safe proof file.
-8. Add cost context or a quote.
-9. Add at least one project task with expected proof and estimated cost.
-10. Mark a task done, save a final task cost, and accept it for closeout.
-11. As the assigned vendor, submit closeout with completion notes, materials or
+7. Confirm `/owner/requests/new` shows owner-controlled draft copy and vendor
+   handoff readiness without blocking draft save.
+8. Upload at least one before photo or public-safe proof file.
+9. Add cost context or a quote.
+10. Add at least one project task with expected proof and estimated cost.
+11. Mark a task done, save a final task cost, and accept it for closeout.
+12. As the assigned vendor, submit closeout with completion notes, materials or
    receipt notes, and final amount.
-12. As the owner, confirm the closeout appears on request detail and the final
+13. As the owner, confirm the closeout appears on request detail and the final
     request cost is updated.
-13. Confirm the request-detail workflow rail points to scope, proof, closeout,
+14. Confirm the request-detail workflow rail points to scope, proof, closeout,
     billing, updates, and decision history without losing the owner in the page.
-14. Request closeout changes once with a note, then submit a revised closeout
+15. Request closeout changes once with a note, then submit a revised closeout
     and approve it as the owner.
-15. Confirm approval marks the request complete and accepts remaining done task
+16. Confirm approval marks the request complete and accepts remaining done task
     rows.
-16. Confirm an approved closeout creates a billing record.
-17. Mark the billing record paid outside TurnFlow and add an invoice/reference
+17. Confirm an approved closeout creates a billing record.
+18. Mark the billing record paid outside TurnFlow and add an invoice/reference
     note.
-18. Confirm backup JSON and history CSV include billing record data.
-19. On `/owner/backup`, select the downloaded JSON and confirm the restore
+19. Confirm backup JSON and history CSV include billing record data.
+20. On `/owner/backup`, select the downloaded JSON and confirm the restore
     preview shows properties, requests, and billing records before restoring.
-20. Restore the JSON into a test owner account and confirm properties,
+21. Restore the JSON into a test owner account and confirm properties,
     requests, and billing records are added as new records without overwriting
     existing data.
-21. Select an invalid JSON file and confirm the restore action is disabled with
+22. Select an invalid JSON file and confirm the restore action is disabled with
     clear file feedback.
-22. Confirm the setup guide progress changes after property, request, evidence,
+23. Confirm the setup guide progress changes after property, request, evidence,
     sharing, history, and reminder steps.
-23. Download a proof packet PDF and confirm billing records appear as their own
+24. Download a proof packet PDF and confirm billing records appear as their own
     table.
-24. Export owner backup data from `/owner/backup`.
+25. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 
@@ -144,6 +146,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 - The public homepage shows actual product UI, not a broken image, blank hero,
   or PMC-positioned placeholder.
 - `npm run ux:owner` passes for signed-in owner routes before a moderated test.
+- The owner intake screen separates required save fields from optional handoff
+  details so homeowners can save a draft without feeling trapped by polish work.
 - `npm run ux:helper` passes for vendor/collaborator routes before testing
   shared access.
 - Deep health is protected and does not expose database errors publicly.
