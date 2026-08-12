@@ -79,7 +79,9 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
    owner approval or requested changes.
 9. For a changes-requested closeout, confirm the next action points to closeout
    revision.
-10. For approved closeout with a billing record, confirm the next action points
+10. Confirm closeout submit is disabled until after-photo proof, done task
+    scope, final amount, and completion notes are ready.
+11. For approved closeout with a billing record, confirm the next action points
    to read-only billing visibility and does not imply TurnFlow processes
    payment.
 
@@ -167,6 +169,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
   can triage without opening every card.
 - Vendor start/stop work-session controls must be gated by selected proof photo
   on the client and rechecked by server actions.
+- Vendor closeout submission must show per-item readiness and block submission
+  until owner-review handoff requirements are complete.
 - Notification attempts are logged even when outbound email is not configured.
 - Completion still requires final cost, an after photo, and assigned vendor, or
   an explicit waiver reason in the Decision Log.

@@ -43,9 +43,6 @@ export async function submitCloseoutAction(
     800
   );
   const finalAmount = parseCloseoutAmount(formData.get("finalAmount"));
-  if (!completionNotes) {
-    return { error: "Add completion notes before submitting closeout." };
-  }
 
   const photos = await db.query.requestPhotos.findMany({
     where: (photo, { eq }) => eq(photo.requestId, requestId),
@@ -55,7 +52,7 @@ export async function submitCloseoutAction(
     where: (task, { eq }) => eq(task.requestId, requestId),
     columns: { status: true },
   });
-  const readiness = closeoutReadiness({ photos, tasks, finalAmount });
+  const readiness = closeoutReadiness({ photos, tasks, finalAmount, completionNotes });
   if (!finalAmount || !readiness.ready) {
     return { error: readiness.detail };
   }

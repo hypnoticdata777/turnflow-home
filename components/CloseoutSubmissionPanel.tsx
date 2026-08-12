@@ -9,6 +9,7 @@ import {
 import {
   CLOSEOUT_STATUS_LABELS,
   closeoutReadiness,
+  closeoutReadinessChecks,
   type CloseoutReviewDecision,
   type CloseoutSubmissionStatus,
 } from "@/lib/closeout-submissions";
@@ -66,6 +67,13 @@ export function CloseoutSubmissionPanel({
     photos: request.photos,
     tasks: request.tasks,
     finalAmount,
+    completionNotes,
+  });
+  const readinessChecks = closeoutReadinessChecks({
+    photos: request.photos,
+    tasks: request.tasks,
+    finalAmount,
+    completionNotes,
   });
   const sortedSubmissions = [...submissions].sort(
     (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
@@ -142,6 +150,29 @@ export function CloseoutSubmissionPanel({
         </p>
         <p className="mt-1 text-sm leading-6">{readiness.detail}</p>
       </div>
+
+      {mode === "vendor" && (
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {readinessChecks.map((check) => (
+            <article
+              key={check.label}
+              className={`rounded-lg border p-3 ${
+                check.complete
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+                  : "border-amber-200 bg-amber-50 text-amber-950"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold">{check.label}</p>
+                <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold">
+                  {check.complete ? "Ready" : "Needed"}
+                </span>
+              </div>
+              <p className="mt-2 text-sm leading-6">{check.detail}</p>
+            </article>
+          ))}
+        </div>
+      )}
 
       {latest ? (
         <article className="mt-3 rounded-lg border border-gray-200 bg-white p-3">
@@ -255,8 +286,9 @@ export function CloseoutSubmissionPanel({
           </label>
           <button
             type="submit"
-            disabled={submitting}
-            className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+            disabled={submitting || !readiness.ready}
+            title={!readiness.ready ? readiness.detail : undefined}
+            className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Submitting..." : "Submit closeout"}
           </button>

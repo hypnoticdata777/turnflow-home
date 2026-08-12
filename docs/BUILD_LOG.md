@@ -2,6 +2,48 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Vendor Closeout Readiness Gate
+
+Scope: make vendor closeout submission harder to send before the owner-review
+handoff has the required proof, task, cost, and note context.
+
+### Changed
+
+- Added `closeoutReadinessChecks` in `lib/closeout-submissions.ts` for
+  after-photo proof, task scope, final amount, and completion notes.
+- Updated `closeoutReadiness` so completion notes are part of the same readiness
+  model used by the UI and server action.
+- Updated `submitCloseoutAction` to use the unified readiness model.
+- Added a vendor-facing closeout readiness checklist in
+  `CloseoutSubmissionPanel`.
+- Disabled vendor closeout submit until all readiness checks pass.
+- Expanded helper smoke expectations so `/vendor` must render closeout checklist
+  labels.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, and this build
+  log.
+
+### Why
+
+Closeout is the vendor-to-owner decision handoff. Vendors should know before
+submission whether the owner will receive proof, completed scope, final cost,
+and completion notes, instead of learning through a failed submit or an owner
+change request.
+
+### Validation
+
+- `npm test -- closeout-submissions` passed: 9 tests.
+- `npm run typecheck` passed.
+- `npm run lint` passed with no warnings.
+- `npm run verify` passed: lint, typecheck, 262 tests, production audit, Drizzle
+  generation, schema drift check, and production build.
+
+### Follow-Up
+
+- Run `npm run ux:helper` in a configured database environment to capture the
+  updated closeout checklist at desktop and mobile widths.
+- In vendor testing, confirm the disabled submit state feels helpful and not
+  mysterious when one closeout requirement is missing.
+
 ## 2026-08-12 - Vendor Work Session Proof Gate
 
 Scope: make vendor start/stop work-session recording harder to misuse by

@@ -2,6 +2,7 @@ export type CloseoutReadinessInput = {
   photos?: Array<{ type: string }> | null;
   tasks?: Array<{ status: string }> | null;
   finalAmount?: string | number | null;
+  completionNotes?: string | null;
 };
 
 export const CLOSEOUT_REVIEW_DECISIONS = ["approved", "changes_requested"] as const;
@@ -19,6 +20,13 @@ export type CloseoutReadiness = {
   missing: string[];
   detail: string;
   tone: "attention" | "progress" | "ready";
+};
+
+export type CloseoutReadinessCheck = {
+  label: string;
+  missingLabel: string;
+  detail: string;
+  complete: boolean;
 };
 
 export function isCloseoutReviewDecision(value: string): value is CloseoutReviewDecision {
@@ -45,18 +53,67 @@ function allTasksDone(input: CloseoutReadinessInput) {
   return tasks.length === 0 || tasks.every((task) => task.status === "done");
 }
 
+export function closeoutReadinessChecks(
+  input: CloseoutReadinessInput
+): CloseoutReadinessCheck[] {
+  const tasks = input.tasks ?? [];
+  const doneTaskCount = tasks.filter((task) => task.status === "done").length;
+  const afterPhotoReady = hasAfterPhoto(input);
+  const tasksReady = allTasksDone(input);
+  const finalAmountReady = Boolean(parseCloseoutAmount(input.finalAmount ?? null));
+  const completionNotesReady = normalizeCloseoutNotes(input.completionNotes ?? "").length > 0;
+
+  return [
+    {
+      label: "After-photo proof",
+      missingLabel: "after photo",
+      complete: afterPhotoReady,
+      detail: afterPhotoReady
+        ? "Completion proof is attached for owner review."
+        : "Upload an after photo before submitting closeout.",
+    },
+    {
+      label: "Task scope",
+      missingLabel: "done tasks",
+      complete: tasksReady,
+      detail:
+        tasks.length === 0
+          ? "No project tasks were created, so closeout can use the main request scope."
+          : tasksReady
+            ? `${doneTaskCount} of ${tasks.length} project tasks are marked done.`
+            : `${doneTaskCount} of ${tasks.length} project tasks are marked done.`,
+    },
+    {
+      label: "Final amount",
+      missingLabel: "final amount",
+      complete: finalAmountReady,
+      detail: finalAmountReady
+        ? "A positive final amount is ready for the owner record."
+        : "Enter the final amount or invoice total before submitting.",
+    },
+    {
+      label: "Completion notes",
+      missingLabel: "completion notes",
+      complete: completionNotesReady,
+      detail: completionNotesReady
+        ? "Completion notes are ready for the owner handoff."
+        : "Summarize what was completed and what the owner should review.",
+    },
+  ];
+}
+
 export function closeoutReadiness(input: CloseoutReadinessInput): CloseoutReadiness {
-  const missing = [];
-  if (!hasAfterPhoto(input)) missing.push("after photo");
-  if (!allTasksDone(input)) missing.push("done tasks");
-  if (!parseCloseoutAmount(input.finalAmount ?? null)) missing.push("final amount");
+  const checks = closeoutReadinessChecks(input);
+  const missing = checks
+    .filter((check) => !check.complete)
+    .map((check) => check.missingLabel);
 
   if (missing.length === 0) {
     return {
       ready: true,
       missing,
       detail:
-        "After-photo proof, completed task scope, and final amount are ready for owner review.",
+        "After-photo proof, completed task scope, final amount, and completion notes are ready for owner review.",
       tone: "ready",
     };
   }
