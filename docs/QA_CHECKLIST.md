@@ -105,28 +105,30 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
    receipt notes, and final amount.
 13. As the owner, confirm the closeout appears on request detail and the final
     request cost is updated.
-14. Confirm the request-detail workflow rail points to scope, proof, closeout,
+14. Confirm the owner closeout decision panel explains approval impact and that
+    Request changes is disabled until a review note is entered.
+15. Confirm the request-detail workflow rail points to scope, proof, closeout,
     billing, updates, and decision history without losing the owner in the page.
-15. Request closeout changes once with a note, then submit a revised closeout
+16. Request closeout changes once with a note, then submit a revised closeout
     and approve it as the owner.
-16. Confirm approval marks the request complete and accepts remaining done task
+17. Confirm approval marks the request complete and accepts remaining done task
     rows.
-17. Confirm an approved closeout creates a billing record.
-18. Mark the billing record paid outside TurnFlow and add an invoice/reference
+18. Confirm an approved closeout creates a billing record.
+19. Mark the billing record paid outside TurnFlow and add an invoice/reference
     note.
-19. Confirm backup JSON and history CSV include billing record data.
-20. On `/owner/backup`, select the downloaded JSON and confirm the restore
+20. Confirm backup JSON and history CSV include billing record data.
+21. On `/owner/backup`, select the downloaded JSON and confirm the restore
     preview shows properties, requests, and billing records before restoring.
-21. Restore the JSON into a test owner account and confirm properties,
+22. Restore the JSON into a test owner account and confirm properties,
     requests, and billing records are added as new records without overwriting
     existing data.
-22. Select an invalid JSON file and confirm the restore action is disabled with
+23. Select an invalid JSON file and confirm the restore action is disabled with
     clear file feedback.
-23. Confirm the setup guide progress changes after property, request, evidence,
+24. Confirm the setup guide progress changes after property, request, evidence,
     sharing, history, and reminder steps.
-24. Download a proof packet PDF and confirm billing records appear as their own
+25. Download a proof packet PDF and confirm billing records appear as their own
     table.
-25. Export owner backup data from `/owner/backup`.
+26. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 
@@ -182,6 +184,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
   notifies the vendor, and accepts done task rows that were still waiting.
 - Owner closeout change requests require a note and remain visible to the
   vendor.
+- Owner closeout review must show the review packet checklist and explain that
+  approval marks the request complete and creates billing history.
 - Billing records are owner-managed history only; the app must not imply money
   is processed inside TurnFlow.
 - Restore from backup must clearly say it creates new records and can duplicate

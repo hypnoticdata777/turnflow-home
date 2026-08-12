@@ -10,6 +10,7 @@ import {
   CLOSEOUT_STATUS_LABELS,
   closeoutReadiness,
   closeoutReadinessChecks,
+  closeoutReviewGuidance,
   type CloseoutReviewDecision,
   type CloseoutSubmissionStatus,
 } from "@/lib/closeout-submissions";
@@ -63,22 +64,33 @@ export function CloseoutSubmissionPanel({
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [reviewing, setReviewing] = useState<CloseoutReviewDecision | null>(null);
-  const readiness = closeoutReadiness({
-    photos: request.photos,
-    tasks: request.tasks,
-    finalAmount,
-    completionNotes,
-  });
-  const readinessChecks = closeoutReadinessChecks({
-    photos: request.photos,
-    tasks: request.tasks,
-    finalAmount,
-    completionNotes,
-  });
   const sortedSubmissions = [...submissions].sort(
     (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
   const latest = sortedSubmissions[0];
+  const readinessInput =
+    mode === "vendor"
+      ? {
+          photos: request.photos,
+          tasks: request.tasks,
+          finalAmount,
+          completionNotes,
+        }
+      : {
+          photos: request.photos,
+          tasks: request.tasks,
+          finalAmount: latest?.finalAmount ?? request.finalCost,
+          completionNotes: latest?.completionNotes ?? "",
+        };
+  const readiness = closeoutReadiness(readinessInput);
+  const readinessChecks = closeoutReadinessChecks(readinessInput);
+  const reviewGuidance = closeoutReviewGuidance({ latest });
+  const reviewGuidanceClasses =
+    reviewGuidance.tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : reviewGuidance.tone === "attention"
+        ? "border-amber-200 bg-amber-50 text-amber-950"
+        : "border-blue-200 bg-blue-50 text-blue-950";
 
   async function submitCloseout(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -146,12 +158,18 @@ export function CloseoutSubmissionPanel({
 
       <div className={`rounded-lg border p-3 ${TONE_CLASSES[readiness.tone]}`}>
         <p className="text-sm font-semibold">
-          {readiness.ready ? "Ready for closeout submission" : "Closeout needs work"}
+          {mode === "vendor"
+            ? readiness.ready
+              ? "Ready for closeout submission"
+              : "Closeout needs work"
+            : readiness.ready
+              ? "Owner review packet is complete"
+              : "Owner review packet has gaps"}
         </p>
         <p className="mt-1 text-sm leading-6">{readiness.detail}</p>
       </div>
 
-      {mode === "vendor" && (
+      {(mode === "vendor" || latest) && (
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {readinessChecks.map((check) => (
             <article
@@ -171,6 +189,14 @@ export function CloseoutSubmissionPanel({
               <p className="mt-2 text-sm leading-6">{check.detail}</p>
             </article>
           ))}
+        </div>
+      )}
+
+      {mode === "owner" && (
+        <div className={`mt-3 rounded-lg border p-3 ${reviewGuidanceClasses}`}>
+          <p className="text-sm font-semibold">Owner closeout decision</p>
+          <h3 className="mt-1 text-base font-semibold">{reviewGuidance.label}</h3>
+          <p className="mt-1 text-sm leading-6">{reviewGuidance.detail}</p>
         </div>
       )}
 
@@ -232,17 +258,18 @@ export function CloseoutSubmissionPanel({
               onClick={() => reviewCloseout("approved")}
               className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
             >
-              {reviewing === "approved" ? "Approving..." : "Approve closeout"}
+              {reviewing === "approved" ? "Approving..." : reviewGuidance.approveCta}
             </button>
             <button
               type="button"
-              disabled={reviewing !== null}
+              disabled={reviewing !== null || !reviewNotes.trim()}
               onClick={() => reviewCloseout("changes_requested")}
-              className="rounded border border-amber-300 bg-white px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-50 disabled:opacity-50"
+              title={!reviewNotes.trim() ? "Add a note explaining what needs to change." : undefined}
+              className="rounded border border-amber-300 bg-white px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {reviewing === "changes_requested"
                 ? "Sending..."
-                : "Request changes"}
+                : reviewGuidance.changesCta}
             </button>
           </div>
         </div>

@@ -212,9 +212,10 @@ and `screenshots/ux-helper/`.
 - Vendor closeout submissions with completion notes, materials/receipt notes,
   final amount, after-photo/task-completion/final-amount/completion-note
   readiness checks, disabled submit until handoff is ready, owner-visible review
-  state, owner approve/request-changes decisions, final-cost copy, decision-log
-  history, and owner/vendor notifications. Approval marks the request complete
-  and accepts remaining done task rows.
+  packet, owner closeout decision guidance, note-required change requests,
+  owner approve/request-changes decisions, final-cost copy, decision-log history,
+  and owner/vendor notifications. Approval marks the request complete and
+  accepts remaining done task rows.
 - Billing records generated from approved closeout, with owner-managed status
   for recorded, paid outside TurnFlow, needs review, or voided charges, plus
   invoice/reference notes, proof-packet table output, and backup/CSV export

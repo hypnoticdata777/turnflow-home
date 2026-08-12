@@ -29,6 +29,24 @@ export type CloseoutReadinessCheck = {
   complete: boolean;
 };
 
+export type CloseoutReviewInput = {
+  latest?: {
+    status: CloseoutSubmissionStatus;
+    finalAmount: string | number | null;
+    completionNotes: string | null;
+    reviewNotes?: string | null;
+  } | null;
+};
+
+export type CloseoutReviewGuidance = {
+  label: string;
+  detail: string;
+  approveCta: string;
+  changesCta: string;
+  tone: "attention" | "progress" | "ready";
+  canApprove: boolean;
+};
+
 export function isCloseoutReviewDecision(value: string): value is CloseoutReviewDecision {
   return (CLOSEOUT_REVIEW_DECISIONS as readonly string[]).includes(value);
 }
@@ -123,5 +141,55 @@ export function closeoutReadiness(input: CloseoutReadinessInput): CloseoutReadin
     missing,
     detail: `Closeout needs ${missing.join(", ")} before it is ready for owner review.`,
     tone: missing.length > 1 ? "attention" : "progress",
+  };
+}
+
+export function closeoutReviewGuidance({
+  latest,
+}: CloseoutReviewInput): CloseoutReviewGuidance {
+  if (!latest) {
+    return {
+      label: "No vendor handoff yet",
+      detail:
+        "The owner can review closeout after the assigned vendor submits completion notes, proof, and final amount.",
+      approveCta: "Approve closeout",
+      changesCta: "Request changes",
+      tone: "progress",
+      canApprove: false,
+    };
+  }
+
+  if (latest.status === "approved") {
+    return {
+      label: "Closeout approved",
+      detail:
+        "This vendor handoff has already been approved and preserved in the repair history.",
+      approveCta: "Approved",
+      changesCta: "Request changes",
+      tone: "ready",
+      canApprove: false,
+    };
+  }
+
+  if (latest.status === "changes_requested") {
+    return {
+      label: "Changes requested",
+      detail:
+        "The vendor needs to revise the handoff before the owner approves closeout.",
+      approveCta: "Approve revised closeout",
+      changesCta: "Changes requested",
+      tone: "attention",
+      canApprove: false,
+    };
+  }
+
+  return {
+    label: "Ready for owner decision",
+    detail:
+      "Review the completion notes, final amount, proof, and task scope. Approving marks the request complete and creates the billing record.",
+    approveCta: "Approve closeout",
+    changesCta: "Request changes",
+    tone: "progress",
+    canApprove: true,
   };
 }

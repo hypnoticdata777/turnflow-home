@@ -2,6 +2,47 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Owner Closeout Review Guidance
+
+Scope: make owner review of vendor closeout handoffs clearer before approval or
+change request.
+
+### Changed
+
+- Added `closeoutReviewGuidance` in `lib/closeout-submissions.ts` for no
+  handoff, pending owner decision, approved, and changes-requested states.
+- Added focused unit coverage for closeout review guidance.
+- Updated `CloseoutSubmissionPanel` so owner mode evaluates the latest vendor
+  submission instead of blank vendor form state.
+- Added owner-facing review packet checklist and Owner Closeout Decision panel.
+- Disabled Request changes until the owner enters a review note.
+- Expanded owner smoke expectations so request detail must render owner closeout
+  decision guidance.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, and this build
+  log.
+
+### Why
+
+Vendor closeout is only useful if the owner can confidently decide what happens
+next. The owner now sees what is included in the review packet, what approval
+does, and why a change request needs a written note for the vendor and decision
+history.
+
+### Validation
+
+- `npm test -- closeout-submissions` passed: 12 tests.
+- `npm run typecheck` passed.
+- `npm run lint` passed with no warnings.
+- `npm run verify` passed: lint, typecheck, 265 tests, production audit, Drizzle
+  generation, schema drift check, and production build.
+
+### Follow-Up
+
+- Run `npm run ux:owner` in a configured database environment to capture the
+  updated owner closeout review state.
+- In homeowner testing, confirm owners understand that approval completes the
+  request and creates the billing record.
+
 ## 2026-08-12 - Vendor Closeout Readiness Gate
 
 Scope: make vendor closeout submission harder to send before the owner-review

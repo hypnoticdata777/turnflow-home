@@ -114,6 +114,7 @@ async function assertFirstRequestDetail(page: Page) {
     "Bid review",
     "Quote comparison",
     "Project tasks",
+    "Owner closeout decision",
     "Work timeline",
     "Vendor",
   ]) {

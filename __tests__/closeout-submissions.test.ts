@@ -3,6 +3,7 @@ import {
   CLOSEOUT_STATUS_LABELS,
   closeoutReadiness,
   closeoutReadinessChecks,
+  closeoutReviewGuidance,
   isCloseoutReviewDecision,
   normalizeCloseoutNotes,
   parseCloseoutAmount,
@@ -117,6 +118,67 @@ describe("closeoutReadinessChecks", () => {
     expect(checks.find((check) => check.label === "Task scope")).toMatchObject({
       complete: true,
       detail: "No project tasks were created, so closeout can use the main request scope.",
+    });
+  });
+});
+
+describe("closeoutReviewGuidance", () => {
+  it("keeps owner review waiting when no vendor handoff exists", () => {
+    expect(closeoutReviewGuidance({ latest: null })).toMatchObject({
+      label: "No vendor handoff yet",
+      tone: "progress",
+      canApprove: false,
+    });
+  });
+
+  it("explains the pending owner decision impact", () => {
+    expect(
+      closeoutReviewGuidance({
+        latest: {
+          status: "pending",
+          finalAmount: "250.00",
+          completionNotes: "Replaced valve and tested.",
+        },
+      })
+    ).toMatchObject({
+      label: "Ready for owner decision",
+      detail:
+        "Review the completion notes, final amount, proof, and task scope. Approving marks the request complete and creates the billing record.",
+      approveCta: "Approve closeout",
+      changesCta: "Request changes",
+      tone: "progress",
+      canApprove: true,
+    });
+  });
+
+  it("does not offer approval for already reviewed closeouts", () => {
+    expect(
+      closeoutReviewGuidance({
+        latest: {
+          status: "approved",
+          finalAmount: "250.00",
+          completionNotes: "Done.",
+        },
+      })
+    ).toMatchObject({
+      label: "Closeout approved",
+      tone: "ready",
+      canApprove: false,
+    });
+
+    expect(
+      closeoutReviewGuidance({
+        latest: {
+          status: "changes_requested",
+          finalAmount: "250.00",
+          completionNotes: "Done.",
+          reviewNotes: "Please add the receipt.",
+        },
+      })
+    ).toMatchObject({
+      label: "Changes requested",
+      tone: "attention",
+      canApprove: false,
     });
   });
 });
