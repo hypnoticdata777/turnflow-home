@@ -11,10 +11,16 @@ export type OwnerReadinessRequest = {
   pendingCollaboratorInviteId?: string | null;
 };
 
+export type OwnerReadinessInvite = {
+  status?: string | null;
+  role?: string | null;
+  expiresAt?: Date | string | null;
+};
+
 export type OwnerReadinessInput = {
   properties: Array<unknown>;
   requests: OwnerReadinessRequest[];
-  invites: Array<unknown>;
+  invites: OwnerReadinessInvite[];
   vaultDocuments: Array<unknown>;
   reminders: Array<unknown>;
 };
@@ -31,6 +37,13 @@ export type OwnerReadinessItem = {
   label: string;
   detail: string;
   complete: boolean;
+};
+
+export type OwnerSharingMetric = {
+  label: string;
+  value: number;
+  detail: string;
+  tone: "attention" | "progress" | "ready" | "empty";
 };
 
 export type OwnerSetupSummary = {
@@ -141,6 +154,15 @@ function requestHelperCount(request: OwnerReadinessRequest) {
   ].filter(Boolean).length;
 }
 
+function isPendingInvite(invite: OwnerReadinessInvite) {
+  return invite.status === "pending";
+}
+
+function isExpiredInvite(invite: OwnerReadinessInvite, now: Date) {
+  if (!isPendingInvite(invite) || !invite.expiresAt) return false;
+  return new Date(invite.expiresAt).getTime() < now.getTime();
+}
+
 export function ownerReadinessFlags(input: OwnerReadinessInput) {
   return {
     hasProperty: input.properties.length > 0,
@@ -159,6 +181,69 @@ export function ownerReadinessFlags(input: OwnerReadinessInput) {
         request.pendingCollaboratorInviteId
     ).length,
   };
+}
+
+export function ownerSharingMetrics(
+  input: OwnerReadinessInput,
+  now = new Date()
+): OwnerSharingMetric[] {
+  const requestCount = input.requests.length;
+  const activeAccessCount = input.requests.reduce((count, request) => {
+    return count + (request.assignedVendorId ? 1 : 0) + (request.collaboratorId ? 1 : 0);
+  }, 0);
+  const sharedRequestCount = ownerReadinessFlags(input).sharedRequestCount;
+  const privateRequestCount = input.requests.filter((request) => requestHelperCount(request) === 0)
+    .length;
+  const pendingInviteCount = input.invites.filter(isPendingInvite).length;
+  const expiredPendingInviteCount = input.invites.filter((invite) =>
+    isExpiredInvite(invite, now)
+  ).length;
+
+  return [
+    {
+      label: "Owner-only records",
+      value: privateRequestCount,
+      detail:
+        requestCount > 0
+          ? `${plural(privateRequestCount, "request")} currently ${privateRequestCount === 1 ? "has" : "have"} no vendor, helper, or pending invite access.`
+          : "New requests start private until you invite or assign someone.",
+      tone: requestCount === 0 ? "empty" : privateRequestCount > 0 ? "ready" : "progress",
+    },
+    {
+      label: "Active people with access",
+      value: activeAccessCount,
+      detail:
+        activeAccessCount > 0
+          ? `${plural(activeAccessCount, "person", "people")} can currently open a scoped request.`
+          : "No vendor or collaborator has accepted access right now.",
+      tone: activeAccessCount > 0 ? "progress" : "ready",
+    },
+    {
+      label: "Open invite links",
+      value: pendingInviteCount,
+      detail:
+        pendingInviteCount > 0
+          ? expiredPendingInviteCount > 0
+            ? `${plural(expiredPendingInviteCount, "pending invite")} ${expiredPendingInviteCount === 1 ? "appears" : "appear"} expired and should be canceled or resent.`
+            : `${plural(pendingInviteCount, "pending invite")} can still be claimed by the matching email and role.`
+          : "No pending invite links are open.",
+      tone:
+        expiredPendingInviteCount > 0
+          ? "attention"
+          : pendingInviteCount > 0
+            ? "progress"
+            : "ready",
+    },
+    {
+      label: "Shared request footprint",
+      value: sharedRequestCount,
+      detail:
+        sharedRequestCount > 0
+          ? `${plural(sharedRequestCount, "request")} include active or pending scoped access.`
+          : "No request is shared or waiting on an invite claim.",
+      tone: sharedRequestCount > 0 ? "progress" : requestCount > 0 ? "ready" : "empty",
+    },
+  ];
 }
 
 export function ownerValueMetrics(input: OwnerReadinessInput): OwnerValueMetric[] {

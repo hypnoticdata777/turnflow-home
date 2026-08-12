@@ -133,6 +133,10 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 6. Remove accepted access from Account & Sharing.
 7. Confirm the removed role can no longer see the request.
 8. Confirm the request Decision Log names the removed account email.
+9. Confirm Account & Sharing shows owner-only records, active people with
+   access, open invite links, and shared request footprint correctly.
+10. Confirm expired pending invite links are called out as needing cancel or
+    resend.
 
 ## Trust And Data Checks
 
@@ -148,6 +152,9 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 - `npm run ux:owner` passes for signed-in owner routes before a moderated test.
 - The owner intake screen separates required save fields from optional handoff
   details so homeowners can save a draft without feeling trapped by polish work.
+- Account & Sharing must make current visibility understandable before the owner
+  opens the invite tables: owner-only records, active access, pending links, and
+  shared request footprint.
 - `npm run ux:helper` passes for vendor/collaborator routes before testing
   shared access.
 - Deep health is protected and does not expose database errors publicly.

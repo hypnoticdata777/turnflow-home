@@ -52,7 +52,7 @@ coaching.
 | `/owner/properties` | Owner | Maintain home/property records and understand property-level care health. | Add/update property, review request/document/reminder coverage, export history. | Owner sees which properties have useful history and recurring care. | First-property state should quickly lead into request creation. | Delete/export boundaries explain what is saved or removed. | `/owner/requests/new`, `/owner/vault`, `/owner/calendar` | `3` |
 | `/owner/vault` | Owner | Store warranties, receipts, manuals, invoices, and property documents. | Upload or review documents by property/category/request link. | Owner sees the vault as durable home memory, not generic file storage. | No-document state suggests first useful record types. | Upload/delete copy clarifies owner-only storage and request links. | `/owner/properties`, `/owner/requests/[id]` | `3` |
 | `/owner/calendar` | Owner | Prevent recurring maintenance from becoming repairs. | Add reminders, mark done, export `.ics`. | Owner sees overdue, due-soon, and covered properties. | No-reminder state suggests common homeowner reminders. | Calendar export explains what leaves TurnFlow. | `/owner/properties`, `/owner/dashboard` | `3` |
-| `/owner/account` | Owner | Manage profile, pending invites, and accepted scoped access. | Resend/cancel invites, remove accepted access, update profile. | Owner can explain who has access and what changed. | Empty invite/access states explain that sharing is optional. | Strongest trust route: who can see what, what can be removed, and what remains logged. | `/owner/requests/[id]`, `/owner/dashboard` | `3` |
+| `/owner/account` | Owner | Manage profile, pending invites, and accepted scoped access. | Resend/cancel invites, remove accepted access, update profile. | Owner can explain who has access, which invite links remain open, and what changed. | Empty invite/access states explain that sharing is optional and requests start owner-only. | Strongest trust route: who can see what, what can be removed, what stays owner-only, and what remains logged. | `/owner/requests/[id]`, `/owner/dashboard` | `3` |
 | `/owner/notifications` | Owner | Audit email/send attempts and delivery health. | Review notification attempts and delivery guidance. | Owner understands whether email is live or log-only. | Empty notification state should reassure new accounts. | Explains notification limits and failed-send recovery. | `/owner/dashboard`, `/owner/account` | `3` |
 | `/owner/backup` | Owner | Export or restore owner data. | Export JSON backup, preview a restore file, restore as new records, export history CSV. | Owner trusts that the record is portable and understands restore duplication risk. | Invalid JSON, missing backup arrays, old backups without billing records, and successful restores are explained before/after action. | Copy explains JSON vs CSV, add-only restore behavior, duplicate risk, and billing record history without implying payment processing. | `/owner/properties`, `/owner/vault` | `3` |
 
@@ -80,12 +80,12 @@ coaching.
 
 ## Priority Hardening Queue
 
-1. `/owner/account`: use testing to confirm sharing/access boundaries are
-   understood without facilitator explanation.
-2. `/vendor`: run a vendor task from invite to bid, start proof, stop proof,
+1. `/vendor`: run a vendor task from invite to bid, start proof, stop proof,
    closeout, and owner billing review with a real tester.
-3. `/owner/requests/new`: run moderated mobile homeowner testing once a seeded
+2. `/owner/requests/new`: run moderated mobile homeowner testing once a seeded
    POC environment is available.
+3. `/owner/account`: run moderated sharing-boundary testing once seeded account
+   access states are available.
 
 ## Per-Endpoint UX Pass Template
 

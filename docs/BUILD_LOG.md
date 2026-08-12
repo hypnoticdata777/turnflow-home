@@ -2,6 +2,48 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Account Sharing Boundary Snapshot
+
+Scope: make `/owner/account` clearer as the homeowner trust center for who can
+see owner records, which invite links are open, and which requests remain
+owner-only.
+
+### Changed
+
+- Added `ownerSharingMetrics` in `lib/owner-readiness.ts` for owner-only
+  records, active people with access, open invite links, and shared request
+  footprint.
+- Added unit coverage for brand-new owners, active vendor/collaborator access,
+  private requests, and expired pending invite links.
+- Added a Sharing Boundary Snapshot section to `/owner/account` before the
+  detailed access and invite tables.
+- Added owner smoke text expectations for the new account trust section.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, and this build
+  log.
+
+### Why
+
+Account & Sharing is the route where homeowners decide whether they trust the
+product with outside access. The page now answers "who can see what right now?"
+before asking the owner to interpret invite rows or accepted access tables.
+
+### Validation
+
+- `npm test -- owner-readiness` passed: 34 tests.
+- `npm run typecheck` passed.
+- `npm run verify` passed: lint, typecheck, 254 tests, production audit, Drizzle
+  generation, schema drift check, and production build.
+- `npm run ux:owner` still requires a configured `DATABASE_URL` and seeded demo
+  account before signed-in screenshots can run in this local environment.
+
+### Follow-Up
+
+- Run `npm run db:seed` and `npm run ux:owner` in a configured local or preview
+  environment.
+- Capture updated account desktop/mobile screenshots once seeded smoke passes.
+- Test whether homeowners understand the difference between open invite links,
+  accepted access, and owner-only records without facilitator explanation.
+
 ## 2026-08-12 - Owner Intake Handoff Readiness
 
 Scope: make `/owner/requests/new` feel clearer and less intimidating for

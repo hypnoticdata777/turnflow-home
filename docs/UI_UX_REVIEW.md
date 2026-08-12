@@ -74,8 +74,9 @@ Review these routes in every POC pass:
   billing record, proof-packet billing table, comments, guided update drafts,
   status handoff guidance, decision log, and sharing controls feel like one
   repair record.
-- `/owner/account`: sharing boundaries, active access, invite history, and
-  profile edits are understandable.
+- `/owner/account`: sharing boundary snapshot, owner-only records, active
+  access, open invite links, expired invite cues, invite history, removal
+  controls, and profile edits are understandable.
 - `/owner/notifications`: delivery-health snapshot, failed-attempt guidance,
   vendor bid update/decision labels, work-session labels, and empty
   notification state make email reliability understandable.

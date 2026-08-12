@@ -218,8 +218,9 @@ and `screenshots/ux-helper/`.
   coverage.
 - Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
   after-photo gaps, and final-cost gaps before owner review.
-- Owner Account & Sharing Center with profile context, invite activity, access
-  boundaries, and account-readiness signals.
+- Owner Account & Sharing Center with profile context, invite activity, sharing
+  boundary snapshot, active access controls, pending-link signals, and
+  account-readiness guidance.
 - Property vault for receipts, warranties, manuals, invoices, inspection
   reports, and other documents.
 - Vault value snapshot for saved records, property document coverage,

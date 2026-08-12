@@ -10,6 +10,7 @@ import {
   ownerAccountReadinessItems,
   ownerNextSetupStep,
   ownerReadinessFlags,
+  ownerSharingMetrics,
   ownerSetupProgress,
   ownerSetupSteps,
   ownerSetupSummary,
@@ -22,6 +23,19 @@ function formatDate(date: Date | null) {
     day: "numeric",
     year: "numeric",
   }).format(date);
+}
+
+function sharingMetricClasses(tone: "attention" | "progress" | "ready" | "empty") {
+  switch (tone) {
+    case "attention":
+      return "border-amber-200 bg-amber-50 text-amber-950";
+    case "progress":
+      return "border-blue-200 bg-blue-50 text-blue-950";
+    case "ready":
+      return "border-emerald-200 bg-emerald-50 text-emerald-950";
+    default:
+      return "border-gray-200 bg-white text-gray-900";
+  }
 }
 
 export default async function OwnerAccountPage() {
@@ -95,6 +109,7 @@ export default async function OwnerAccountPage() {
   const setupSummary = ownerSetupSummary(setupSteps);
   const nextStep = ownerNextSetupStep(setupSteps);
   const { completedCount, totalCount, progress } = ownerSetupProgress(setupSteps);
+  const sharingMetrics = ownerSharingMetrics(readinessInput);
   const summaryClasses =
     setupSummary.tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -201,6 +216,32 @@ export default async function OwnerAccountPage() {
                 <p className="text-sm text-gray-600">{item.detail}</p>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="mb-4">
+          <p className="text-sm font-semibold uppercase tracking-normal text-emerald-800">
+            Sharing boundary snapshot
+          </p>
+          <h2 className="mt-1 text-xl font-semibold">Who can see owner records?</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Requests start owner-only. Vendors and collaborators only enter a
+            specific repair after an invite is accepted or access is assigned,
+            and removing access is recorded in the request decision log.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {sharingMetrics.map((metric) => (
+            <article
+              key={metric.label}
+              className={`rounded-lg border p-4 ${sharingMetricClasses(metric.tone)}`}
+            >
+              <p className="text-sm font-semibold">{metric.label}</p>
+              <p className="mt-2 text-3xl font-bold">{metric.value}</p>
+              <p className="mt-2 text-sm leading-6">{metric.detail}</p>
+            </article>
           ))}
         </div>
       </section>

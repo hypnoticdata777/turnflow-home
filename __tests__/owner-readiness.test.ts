@@ -11,6 +11,7 @@ import {
   ownerSetupProgress,
   ownerSetupSummary,
   ownerSetupSteps,
+  ownerSharingMetrics,
   ownerVaultValueMetrics,
   ownerValueMetrics,
   type OwnerReadinessInput,
@@ -314,6 +315,105 @@ describe("ownerValueMetrics", () => {
       tone: "progress",
       href: "/owner/onboarding",
       cta: "Add reminder",
+    });
+  });
+});
+
+describe("ownerSharingMetrics", () => {
+  it("keeps a brand-new owner focused on private-by-default sharing", () => {
+    expect(ownerSharingMetrics(emptyInput, new Date("2026-08-12T12:00:00.000Z"))).toEqual([
+      {
+        label: "Owner-only records",
+        value: 0,
+        detail: "New requests start private until you invite or assign someone.",
+        tone: "empty",
+      },
+      {
+        label: "Active people with access",
+        value: 0,
+        detail: "No vendor or collaborator has accepted access right now.",
+        tone: "ready",
+      },
+      {
+        label: "Open invite links",
+        value: 0,
+        detail: "No pending invite links are open.",
+        tone: "ready",
+      },
+      {
+        label: "Shared request footprint",
+        value: 0,
+        detail: "No request is shared or waiting on an invite claim.",
+        tone: "empty",
+      },
+    ]);
+  });
+
+  it("summarizes active access and private records separately", () => {
+    const metrics = ownerSharingMetrics(
+      {
+        ...emptyInput,
+        requests: [
+          { id: "request-1", assignedVendorId: "vendor-1" },
+          { id: "request-2", collaboratorId: "helper-1" },
+          { id: "request-3" },
+        ],
+        invites: [{ status: "accepted" }],
+      },
+      new Date("2026-08-12T12:00:00.000Z")
+    );
+
+    expect(metrics).toMatchObject([
+      {
+        label: "Owner-only records",
+        value: 1,
+        tone: "ready",
+      },
+      {
+        label: "Active people with access",
+        value: 2,
+        detail: "2 people can currently open a scoped request.",
+        tone: "progress",
+      },
+      {
+        label: "Open invite links",
+        value: 0,
+        tone: "ready",
+      },
+      {
+        label: "Shared request footprint",
+        value: 2,
+        tone: "progress",
+      },
+    ]);
+  });
+
+  it("flags expired pending invite links as attention-worthy", () => {
+    const metrics = ownerSharingMetrics(
+      {
+        ...emptyInput,
+        requests: [
+          {
+            id: "request-1",
+            pendingVendorInviteId: "invite-1",
+          },
+        ],
+        invites: [
+          {
+            status: "pending",
+            role: "vendor",
+            expiresAt: "2026-08-01T12:00:00.000Z",
+          },
+        ],
+      },
+      new Date("2026-08-12T12:00:00.000Z")
+    );
+
+    expect(metrics[2]).toMatchObject({
+      label: "Open invite links",
+      value: 1,
+      detail: "1 pending invite appears expired and should be canceled or resent.",
+      tone: "attention",
     });
   });
 });
