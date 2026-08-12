@@ -64,7 +64,8 @@ Review these routes in every POC pass:
 - `/owner/requests/new`: intake length, safety checklist, access notes, and
   contact preference feel worth the effort.
 - `/owner/requests/[id]`: record-value snapshot, assigned-vendor fit, bid
-  review guidance, quote comparison metrics, project task checklist,
+  review guidance, quote comparison metrics, record-workflow rail,
+  project task checklist,
   task-level cost review, owner task acceptance, vendor closeout handoff,
   approve/request-changes review controls, proof, quote, vendor work timeline,
   billing record, proof-packet billing table, comments, guided update drafts,

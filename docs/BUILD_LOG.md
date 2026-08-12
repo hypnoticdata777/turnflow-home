@@ -2,6 +2,49 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Owner Request Workflow Rail
+
+Scope: make the owner request detail route easier to navigate as one mature
+repair record.
+
+### Changed
+
+- Added `lib/request-workflow.ts` to summarize request-detail checkpoints for
+  intake, scope, cost, bids, help, proof, work sessions, closeout, billing, and
+  updates/history.
+- Added unit coverage for new, pending-closeout, and mature paid-record states.
+- Added a record-workflow rail near the top of owner request detail with anchor
+  links into the existing sections.
+- Added stable anchors for the record summary and work-session timeline.
+- Updated README, QA checklist, UI/UX review docs, and endpoint map.
+
+### Why
+
+The request detail page now carries the full owner record: proof, tasks, bids,
+vendor access, work sessions, closeout, billing, updates, and decisions. A
+visible workflow rail helps owners understand where they are, what is missing,
+and which section to use next without treating the page like a long scroll.
+
+### Validation
+
+- `npm test -- request-workflow` passed: 3 tests.
+- `npm run lint` passed with no warnings.
+- `npm run typecheck` passed.
+- `npm run verify` passed.
+- `npm test` passed: 236 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run mobile owner smoke testing against a seeded request with pending closeout
+  and billing states.
+- Apply the same next-action clarity to `/vendor` so vendors always see whether
+  they should bid, start work, stop with proof, submit closeout, revise changes,
+  or wait for owner review.
+
 ## 2026-08-11 - Endpoint Experience Map
 
 Scope: document each route's user job, trust boundary, next handoff, and POC

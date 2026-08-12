@@ -158,6 +158,9 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
   quick first-property creation.
 - Request detail value snapshot for proof packet, cost clarity, scoped
   coordination, and decision history.
+- Owner request-detail workflow rail that links intake, scope, cost, bids,
+  help, proof, work sessions, closeout, billing, updates, and decision history
+  so the repair record has a visible path instead of a long scroll.
 - Owner-visible vendor fit panel on request detail, comparing assigned vendor
   trades and profile context against the repair category before approval/work.
 - Before, after, receipt, and other photo uploads per request.

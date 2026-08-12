@@ -48,7 +48,7 @@ coaching.
 | `/owner/onboarding` | Owner | Finish first-run setup and understand the product shape. | Add property, create request, attach evidence, share access, preserve history, set reminder. | Owner sees progress and knows the next best setup task. | Zero-data states should feel encouraging, not like missing configuration. | Explains setup builds a private owner record first. | `/owner/properties`, `/owner/requests/new`, `/owner/vault`, `/owner/calendar` | `3` |
 | `/owner/dashboard` | Owner | Triage active repair records across properties. | Filter status and open the next request needing attention. | Owner can tell which record needs action and why. | Empty dashboard points to creating a property/request. | Communication and closeout signals explain when vendor/helper attention is needed. | `/owner/requests/[id]` or `/owner/requests/new` | `3` |
 | `/owner/requests/new` | Owner | Capture a repair with enough context to act on it later. | Create request with property, category, urgency, notes, access, contact preference, and proof. | Request is created with a clear next step. | No-property state offers inline property creation. Upload failures are recoverable. | Safety checklist and access copy explain why the details matter. | `/owner/requests/[id]` | `3` |
-| `/owner/requests/[id]` | Owner | Run one complete repair record from intake through proof, closeout, billing, and history. | Review or update quote, tasks, proof, vendor access, closeout, billing, comments, and status. | Owner knows what is done, what is missing, and what will be preserved. | Missing proof, missing cost, missing vendor, and pending closeout states are visible before completion. | Must explain scoped access, irreversible/completion decisions, closeout review impact, and billing-is-recordkeeping-only. | `/owner/dashboard`, proof packet export, `/owner/vault`, `/owner/calendar` | `2` |
+| `/owner/requests/[id]` | Owner | Run one complete repair record from intake through proof, closeout, billing, and history. | Review or update quote, tasks, proof, vendor access, closeout, billing, comments, and status. | Owner knows what is done, what is missing, and what will be preserved. | Missing proof, missing cost, missing vendor, and pending closeout states are visible before completion. | Must explain scoped access, irreversible/completion decisions, closeout review impact, and billing-is-recordkeeping-only. | `/owner/dashboard`, proof packet export, `/owner/vault`, `/owner/calendar` | `3` |
 | `/owner/properties` | Owner | Maintain home/property records and understand property-level care health. | Add/update property, review request/document/reminder coverage, export history. | Owner sees which properties have useful history and recurring care. | First-property state should quickly lead into request creation. | Delete/export boundaries explain what is saved or removed. | `/owner/requests/new`, `/owner/vault`, `/owner/calendar` | `3` |
 | `/owner/vault` | Owner | Store warranties, receipts, manuals, invoices, and property documents. | Upload or review documents by property/category/request link. | Owner sees the vault as durable home memory, not generic file storage. | No-document state suggests first useful record types. | Upload/delete copy clarifies owner-only storage and request links. | `/owner/properties`, `/owner/requests/[id]` | `3` |
 | `/owner/calendar` | Owner | Prevent recurring maintenance from becoming repairs. | Add reminders, mark done, export `.ics`. | Owner sees overdue, due-soon, and covered properties. | No-reminder state suggests common homeowner reminders. | Calendar export explains what leaves TurnFlow. | `/owner/properties`, `/owner/dashboard` | `3` |
@@ -80,18 +80,15 @@ coaching.
 
 ## Priority Hardening Queue
 
-1. `/owner/requests/[id]`: add a stronger section relationship model so owners
-   can move through Intake, Scope, Quotes, Proof, Work Sessions, Closeout,
-   Billing, Updates, Decision Log, and Sharing without feeling buried.
-2. `/vendor`: sharpen the vendor "next action" model across bid, owner
+1. `/vendor`: sharpen the vendor "next action" model across bid, owner
    approval, ready-to-start, active work, stop proof, closeout, changes
    requested, approved, and billing-record visibility.
-3. `/owner/backup`: make export/restore risk and success states more
+2. `/owner/backup`: make export/restore risk and success states more
    homeowner-friendly before hosted POC testing.
-4. `/`: refresh public positioning and screenshots after the product UI settles.
-5. `/owner/requests/new`: run mobile homeowner testing to confirm the guided
+3. `/`: refresh public positioning and screenshots after the product UI settles.
+4. `/owner/requests/new`: run mobile homeowner testing to confirm the guided
    intake feels worth the effort before adding more fields.
-6. `/owner/account`: use testing to confirm sharing/access boundaries are
+5. `/owner/account`: use testing to confirm sharing/access boundaries are
    understood without facilitator explanation.
 
 ## Per-Endpoint UX Pass Template

@@ -77,20 +77,22 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 11. As the assigned vendor, submit closeout with completion notes, materials or
    receipt notes, and final amount.
 12. As the owner, confirm the closeout appears on request detail and the final
-   request cost is updated.
-13. Request closeout changes once with a note, then submit a revised closeout
-   and approve it as the owner.
-14. Confirm approval marks the request complete and accepts remaining done task
-   rows.
-15. Confirm an approved closeout creates a billing record.
-16. Mark the billing record paid outside TurnFlow and add an invoice/reference
-   note.
-17. Confirm backup JSON and history CSV include billing record data.
-18. Confirm the setup guide progress changes after property, request, evidence,
-   sharing, history, and reminder steps.
-19. Download a proof packet PDF and confirm billing records appear as their own
-   table.
-20. Export owner backup data from `/owner/backup`.
+    request cost is updated.
+13. Confirm the request-detail workflow rail points to scope, proof, closeout,
+    billing, updates, and decision history without losing the owner in the page.
+14. Request closeout changes once with a note, then submit a revised closeout
+    and approve it as the owner.
+15. Confirm approval marks the request complete and accepts remaining done task
+    rows.
+16. Confirm an approved closeout creates a billing record.
+17. Mark the billing record paid outside TurnFlow and add an invoice/reference
+    note.
+18. Confirm backup JSON and history CSV include billing record data.
+19. Confirm the setup guide progress changes after property, request, evidence,
+    sharing, history, and reminder steps.
+20. Download a proof packet PDF and confirm billing records appear as their own
+    table.
+21. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 

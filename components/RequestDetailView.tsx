@@ -39,6 +39,11 @@ import {
   requestGuidance,
   requestRecordValueMetrics,
 } from "@/lib/request-guidance";
+import {
+  requestWorkflowSteps,
+  type RequestWorkflowStep,
+  type RequestWorkflowTone,
+} from "@/lib/request-workflow";
 import type { RequestCreatedNotice } from "@/lib/request-submit";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
@@ -76,6 +81,45 @@ type AssignedVendor = {
     licenseInsuranceNotes: string | null;
   } | null;
 } | null;
+
+const WORKFLOW_TONE_CLASSES: Record<RequestWorkflowTone, string> = {
+  attention: "border-rose-200 bg-rose-50 text-rose-950",
+  progress: "border-sky-200 bg-sky-50 text-sky-950",
+  ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
+};
+
+function RequestWorkflowRail({ steps }: { steps: RequestWorkflowStep[] }) {
+  return (
+    <section className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-blue-700">Record workflow</p>
+          <h2 className="text-xl font-semibold text-gray-950">Move this repair without guessing</h2>
+        </div>
+        <p className="text-sm font-medium text-gray-700">{steps.length} checkpoints</p>
+      </div>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        {steps.map((step) => (
+          <a
+            key={step.id}
+            href={step.href}
+            className={`block min-h-36 rounded-lg border p-3 transition hover:-translate-y-0.5 hover:shadow-sm ${WORKFLOW_TONE_CLASSES[step.tone]}`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm font-semibold">{step.label}</p>
+              <span className="rounded-full border border-current/20 bg-white/70 px-2 py-1 text-xs font-semibold">
+                {step.state}
+              </span>
+            </div>
+            <p className="mt-2 text-sm leading-6">{step.detail}</p>
+            <p className="mt-3 text-xs font-semibold">{step.cta}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function CostEditor({ request }: { request: RequestData }) {
   const router = useRouter();
@@ -204,6 +248,17 @@ export function RequestDetailView({
     log,
     comments,
   });
+  const workflowSteps = requestWorkflowSteps({
+    ...request,
+    photos,
+    quotes,
+    tasks,
+    closeoutSubmissions,
+    billingRecords,
+    workSessions,
+    comments,
+    log,
+  });
   const statusGuidance = statusHandoffGuidance("owner", {
     ...request,
     status,
@@ -300,7 +355,7 @@ export function RequestDetailView({
     <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow">
       {creationNotice && <RequestCreatedNoticeBanner notice={creationNotice} />}
 
-      <section className="mb-6">
+      <section id="record-summary" className="mb-6 scroll-mt-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-blue-700">Repair record</p>
@@ -453,6 +508,10 @@ export function RequestDetailView({
 
       <hr className="my-4" />
 
+      <RequestWorkflowRail steps={workflowSteps} />
+
+      <hr className="my-4" />
+
       {showCompletionReview && (
         <>
           <CompletionWaiverReview
@@ -583,7 +642,9 @@ export function RequestDetailView({
 
       <hr className="my-4" />
 
-      <WorkSessionTimeline events={workSessions} />
+      <section id="work-sessions" className="scroll-mt-6">
+        <WorkSessionTimeline events={workSessions} />
+      </section>
 
       <hr className="my-4" />
 
