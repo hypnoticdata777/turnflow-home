@@ -107,11 +107,18 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 17. Mark the billing record paid outside TurnFlow and add an invoice/reference
     note.
 18. Confirm backup JSON and history CSV include billing record data.
-19. Confirm the setup guide progress changes after property, request, evidence,
+19. On `/owner/backup`, select the downloaded JSON and confirm the restore
+    preview shows properties, requests, and billing records before restoring.
+20. Restore the JSON into a test owner account and confirm properties,
+    requests, and billing records are added as new records without overwriting
+    existing data.
+21. Select an invalid JSON file and confirm the restore action is disabled with
+    clear file feedback.
+22. Confirm the setup guide progress changes after property, request, evidence,
     sharing, history, and reminder steps.
-20. Download a proof packet PDF and confirm billing records appear as their own
+23. Download a proof packet PDF and confirm billing records appear as their own
     table.
-21. Export owner backup data from `/owner/backup`.
+24. Export owner backup data from `/owner/backup`.
 
 ## Sharing Smoke Test
 
@@ -152,6 +159,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
   vendor.
 - Billing records are owner-managed history only; the app must not imply money
   is processed inside TurnFlow.
+- Restore from backup must clearly say it creates new records and can duplicate
+  data if the same file is restored twice.
 - Public screenshots and demo records contain no private addresses, contacts,
   receipts, or real customer data.
 

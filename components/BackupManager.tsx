@@ -4,9 +4,11 @@ import { useState } from "react";
 import {
   getBackupDataAction,
   restoreBackupAction,
+  type BackupBillingRecord,
   type BackupProperty,
   type BackupRequest,
 } from "@/lib/actions/backup";
+import { backupPreview, backupScopeItems, type BackupPreview } from "@/lib/backup-guidance";
 import { costForRequest, costLabelForRequest, toCsvRow } from "@/lib/utils";
 
 function downloadBlob(content: string, filename: string, type: string) {
@@ -24,7 +26,9 @@ export function BackupManager() {
   const [exportingCsv, setExportingCsv] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<BackupPreview | null>(null);
   const [status, setStatus] = useState<{ text: string; isError: boolean } | null>(null);
+  const scopeItems = backupScopeItems(preview);
 
   async function handleBackup() {
     setBackingUp(true);
@@ -141,7 +145,11 @@ export function BackupManager() {
     setStatus(null);
     try {
       const text = await file.text();
-      let data: { properties?: BackupProperty[]; requests?: BackupRequest[] };
+      let data: {
+        properties?: BackupProperty[];
+        requests?: BackupRequest[];
+        billingRecords?: BackupBillingRecord[];
+      };
       try {
         data = JSON.parse(text);
       } catch {
@@ -157,23 +165,36 @@ export function BackupManager() {
         return;
       }
 
+      const checked = backupPreview(data);
+      if (!checked.valid) {
+        setPreview(checked);
+        setStatus({ text: checked.errors.join(" "), isError: true });
+        return;
+      }
+
       const result = await restoreBackupAction({
         properties: data.properties,
         requests: data.requests,
+        billingRecords: data.billingRecords,
       });
       setFile(null);
+      setPreview(null);
       if (result.errors.length === 0) {
         setStatus({
           text: `Restored ${result.importedProperties} propert${
             result.importedProperties === 1 ? "y" : "ies"
-          } and ${result.importedRequests} request(s).`,
+          }, ${result.importedRequests} request(s), and ${
+            result.importedBillingRecords
+          } billing record(s).`,
           isError: false,
         });
       } else {
         setStatus({
           text: `Restored ${result.importedProperties} propert(ies) and ${
             result.importedRequests
-          } request(s). Failed: ${result.errors.join(", ")}`,
+          } request(s), plus ${
+            result.importedBillingRecords
+          } billing record(s). Failed: ${result.errors.join(", ")}`,
           isError: true,
         });
       }
@@ -188,51 +209,142 @@ export function BackupManager() {
     }
   }
 
+  async function handleFileSelect(nextFile: File | undefined) {
+    setFile(nextFile ?? null);
+    setPreview(null);
+    setStatus(null);
+    if (!nextFile) return;
+
+    try {
+      const text = await nextFile.text();
+      const data = JSON.parse(text);
+      setPreview(backupPreview(data));
+    } catch {
+      setPreview({
+        valid: false,
+        propertyCount: 0,
+        requestCount: 0,
+        billingRecordCount: 0,
+        errors: ["Invalid JSON file."],
+        warnings: [],
+      });
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-lg rounded-xl bg-white p-6 shadow">
-      <h1 className="mb-2 text-2xl font-bold">Backup &amp; restore</h1>
-      <p className="mb-6 text-sm text-gray-500">
-        Exports and imports your properties and maintenance requests, so
-        you&apos;re never locked into this tool.
-      </p>
+    <div className="mx-auto max-w-3xl rounded-xl bg-white p-6 shadow">
+      <section className="mb-6">
+        <p className="text-sm font-semibold text-blue-700">Owner data portability</p>
+        <h1 className="mt-1 text-2xl font-bold">Backup &amp; restore</h1>
+        <p className="mt-2 text-sm leading-6 text-gray-600">
+          Export your homeowner record whenever you need it. JSON backups are
+          meant for restoring into TurnFlow; CSV history is meant for review in
+          a spreadsheet.
+        </p>
+      </section>
 
-      <button
-        onClick={handleBackup}
-        disabled={backingUp}
-        className="mb-2 w-full rounded bg-blue-500 px-4 py-2 text-white disabled:opacity-50"
-      >
-        {backingUp ? "Preparing..." : "Download backup (JSON)"}
-      </button>
-      <button
-        onClick={handleCsvExport}
-        disabled={exportingCsv}
-        className="mb-6 w-full rounded bg-blue-400 px-4 py-2 text-white disabled:opacity-50"
-      >
-        {exportingCsv ? "Preparing..." : "Download history (CSV)"}
-      </button>
+      <section className="mb-6 grid gap-3 md:grid-cols-3">
+        {scopeItems.map((item) => (
+          <article key={item.label} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <p className="text-sm font-semibold text-gray-900">{item.label}</p>
+            <p className="mt-1 text-2xl font-bold text-gray-950">{item.value}</p>
+            <p className="mt-1 text-sm leading-6 text-gray-600">{item.detail}</p>
+          </article>
+        ))}
+      </section>
 
-      <h2 className="mb-2 text-xl font-semibold">Restore from backup</h2>
-      <p className="mb-3 text-sm text-gray-500">
-        Importing will <strong>add</strong> the properties and requests from the
-        file as new entries, owned by whoever is currently signed in; existing
-        records are not overwritten.
-      </p>
-      <input
-        type="file"
-        accept=".json"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-        className="mb-4 w-full"
-      />
-      <button
-        onClick={handleRestore}
-        disabled={restoring}
-        className="w-full rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
-      >
-        {restoring ? "Restoring..." : "Restore backup"}
-      </button>
+      <section className="mb-6 rounded-lg border border-gray-200 p-4">
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">Export owner record</h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            JSON includes properties, requests, cost fields, and billing
+            records for restore. CSV gives you a readable maintenance-history
+            table for review outside the app.
+          </p>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          <button
+            onClick={handleBackup}
+            disabled={backingUp}
+            className="rounded bg-blue-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          >
+            {backingUp ? "Preparing..." : "Download JSON backup"}
+          </button>
+          <button
+            onClick={handleCsvExport}
+            disabled={exportingCsv}
+            className="rounded border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-800 disabled:opacity-50"
+          >
+            {exportingCsv ? "Preparing..." : "Download CSV history"}
+          </button>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-gray-200 p-4">
+        <h2 className="text-xl font-semibold">Restore from backup</h2>
+        <p className="mt-1 text-sm leading-6 text-gray-600">
+          Restore adds new copies owned by the currently signed-in homeowner.
+          Existing records are not overwritten or deleted.
+        </p>
+        <p className="mt-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
+          Restore is best for recovering or moving data. If you restore the same
+          file twice, TurnFlow will create duplicate properties, requests, and
+          billing records.
+        </p>
+
+        <label className="mt-4 block text-sm font-medium">
+          JSON backup file
+          <input
+            type="file"
+            accept=".json,application/json"
+            onChange={(e) => handleFileSelect(e.target.files?.[0])}
+            className="mt-1 w-full rounded border border-gray-300 p-2 text-sm"
+          />
+        </label>
+
+        {preview && (
+          <div
+            className={`mt-4 rounded-lg border p-3 ${
+              preview.valid
+                ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+                : "border-rose-200 bg-rose-50 text-rose-950"
+            }`}
+          >
+            <p className="text-sm font-semibold">
+              {preview.valid ? "Backup file looks restorable" : "Backup file needs attention"}
+            </p>
+            <p className="mt-1 text-sm leading-6">
+              {preview.propertyCount} properties, {preview.requestCount} requests, and{" "}
+              {preview.billingRecordCount} billing records found.
+            </p>
+            {preview.errors.length > 0 && (
+              <p className="mt-2 text-sm font-medium">{preview.errors.join(" ")}</p>
+            )}
+            {preview.warnings.length > 0 && (
+              <p className="mt-2 text-sm leading-6">{preview.warnings.join(" ")}</p>
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={handleRestore}
+          disabled={restoring || !file || preview?.valid === false}
+          className="mt-4 w-full rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        >
+          {restoring ? "Restoring..." : "Restore as new records"}
+        </button>
+      </section>
 
       {status && (
-        <p className={`mt-4 ${status.isError ? "text-red-500" : "text-gray-700"}`}>
+        <p
+          className={`mt-4 rounded-lg border p-3 text-sm font-medium ${
+            status.isError
+              ? "border-rose-200 bg-rose-50 text-rose-800"
+              : "border-emerald-200 bg-emerald-50 text-emerald-800"
+          }`}
+          role="status"
+        >
           {status.text}
         </p>
       )}

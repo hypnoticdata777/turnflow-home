@@ -82,6 +82,9 @@ Review these routes in every POC pass:
 - `/owner/calendar`: preventive-care snapshot, overdue/due-soon signals,
   property coverage, reminder creation, calendar export, and mark-done flow
   feel useful for homeowners, not just operators.
+- `/owner/backup`: JSON vs CSV purpose, file preview, invalid-file feedback,
+  add-only restore behavior, duplicate-risk warning, billing-record restore, and
+  success/error states make data portability trustworthy.
 - `/vendor`: scoped access, vendor matching profile, private owner bid form,
   per-job next-action panel, lifecycle tracker, project task checklist,
   work-session controls, required

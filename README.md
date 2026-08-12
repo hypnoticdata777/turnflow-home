@@ -220,7 +220,8 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Maintenance calendar with overdue/due-soon signals, property coverage,
   recurring cadence metrics, mark-done actions, and `.ics` export.
 - Per-request PDF proof packets, per-property PDF history rollups, CSV history
-  export, and JSON backup/restore.
+  export, and JSON backup/restore with pre-restore file preview plus billing
+  record restore.
 - Email notifications through Resend for invites, status changes, vendor bid
   updates, vendor bid decisions, work-session events, and reminder digests, with
   log-only fallback and owner-facing delivery-health guidance when email is not

@@ -2,6 +2,51 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Backup Restore Trust UX
+
+Scope: make `/owner/backup` clearer and more trustworthy for hosted POC data
+portability testing.
+
+### Changed
+
+- Added `lib/backup-guidance.ts` with backup-file preview validation and scope
+  summary helpers.
+- Added unit tests for invalid backups, current backup counts, older backups
+  without billing records, and UI scope summaries.
+- Updated backup restore so billing records from JSON backups are restored and
+  re-linked to the newly restored request records.
+- Reworked `BackupManager` with separate export and restore panels, JSON vs CSV
+  purpose copy, file preview, invalid-file feedback, add-only restore warning,
+  duplicate-risk warning, and richer success/error messages.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, and this build
+  log.
+
+### Why
+
+Backup and restore is a trust route. Owners need to know what leaves TurnFlow,
+what will come back, what will not be overwritten, and whether financial history
+is preserved. The route now previews restore files before action and restores
+billing records alongside properties and requests.
+
+### Validation
+
+- `npm test -- backup-guidance` passed: 6 tests.
+- `npm run typecheck` passed.
+- `npm run lint` passed with no warnings.
+- `npm run verify` passed.
+- `npm test` passed: 248 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Manually restore a public-safe JSON backup into a fresh test database during
+  hosted POC rehearsal.
+- Refresh public screenshots and homepage positioning after the route hardening
+  pass settles.
+
 ## 2026-08-12 - Vendor Next Action Panel
 
 Scope: make the vendor portal route tell vendors exactly what to do next on
