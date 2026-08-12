@@ -31,9 +31,9 @@ run:
 npm run ux:public
 ```
 
-This captures `/login` and `/signup` at desktop and mobile widths and fails on
-missing accessible labels, missing primary actions, visible encoding artifacts,
-or horizontal overflow.
+This captures `/`, `/login`, and `/signup` at desktop and mobile widths and
+fails on missing accessible labels, missing primary actions, visible encoding
+artifacts, broken public-media routing, or horizontal overflow.
 
 After `AUTH_SECRET` and `DATABASE_URL` are configured and demo accounts are
 seeded, run:
@@ -141,6 +141,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 - Browser responses include baseline security headers: nosniff, frame denial,
   strict referrer policy, permissions policy, and HSTS.
 - `npm run ux:public` passes for public entry routes before sharing screenshots.
+- The public homepage shows actual product UI, not a broken image, blank hero,
+  or PMC-positioned placeholder.
 - `npm run ux:owner` passes for signed-in owner routes before a moderated test.
 - `npm run ux:helper` passes for vendor/collaborator routes before testing
   shared access.

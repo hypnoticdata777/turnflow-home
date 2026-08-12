@@ -16,9 +16,10 @@ with them.
 > and Vercel Blob. Core homeowner, vendor, and collaborator workflows are in
 > place, automated verification passes, and the owner UI now includes
 > readiness/value guidance across setup, dashboard, request detail, properties,
-> vault, calendar, and account sharing. A real hosted POC still needs production
-> environment configuration, seeded demo data, refreshed screenshots, and manual
-> user testing before inviting external users.
+> vault, calendar, account sharing, backup, and the public homepage. A real
+> hosted POC still needs production environment configuration, seeded demo data,
+> refreshed signed-in screenshots, and manual user testing before inviting
+> external users.
 
 ## Product Direction
 
@@ -36,8 +37,10 @@ company reporting. The value is calmer ownership:
 ## Screenshots
 
 These screenshots show the current route coverage pattern. Refresh them before
-using the repo for a public case study or hosted POC, because the owner UI has
-recently gained more value snapshots and care signals.
+using the repo for a public case study or hosted POC, because signed-in owner
+and helper routes have recently gained more value snapshots and care signals.
+The public UX smoke script also captures the homepage, login, and signup screens
+under `screenshots/ux-public/`.
 
 | | |
 |---|---|
@@ -136,14 +139,17 @@ npm run ux:owner
 npm run ux:helper
 ```
 
-The smoke scripts check responsive route behavior, active navigation, visible
-encoding artifacts, horizontal overflow, and key route-specific cues. Screenshots
-are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
-`screenshots/ux-helper/`.
+The public smoke check covers `/`, `/login`, and `/signup` at desktop and mobile
+widths. The smoke scripts check responsive route behavior, active navigation,
+visible encoding artifacts, horizontal overflow, and key route-specific cues.
+Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
+and `screenshots/ux-helper/`.
 
 ## Core Features
 
 - Homeowner public signup and email/password login.
+- Public homepage that positions TurnFlow Home as a homeowner maintenance
+  record, shows current product UI, and sends visitors to signup or login.
 - Role-based owner, vendor, and collaborator portals.
 - Property records for multiple homes per owner.
 - Property care signals that summarize active work, history gaps, reminder gaps,
@@ -249,7 +255,8 @@ The codebase is in good shape for the next hosted POC preparation pass:
   POC readiness, utilities, exports, and submission helpers.
 - Database schema generation reports no drift.
 - Production dependency audit reports no vulnerabilities.
-- Browser smoke scripts exist for public, owner, and helper routes.
+- Browser smoke scripts exist for the public homepage/auth entry points, owner
+  routes, and helper routes.
 
 Before inviting external users, the remaining launch steps are:
 

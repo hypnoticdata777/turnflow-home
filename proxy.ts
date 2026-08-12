@@ -15,6 +15,7 @@ export default auth((req) => {
   const role = session?.user?.role;
 
   const isPublicRoute =
+    nextUrl.pathname === "/" ||
     nextUrl.pathname === "/login" ||
     nextUrl.pathname === "/signup" ||
     nextUrl.pathname.startsWith("/accept-invite");
@@ -26,6 +27,10 @@ export default auth((req) => {
   }
 
   if (isLoggedIn && role) {
+    if (nextUrl.pathname === "/") {
+      return NextResponse.redirect(new URL(roleHome(role), nextUrl));
+    }
+
     if (nextUrl.pathname === "/login" || nextUrl.pathname === "/signup") {
       return NextResponse.redirect(new URL(roleHome(role), nextUrl));
     }
@@ -47,5 +52,7 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg)$).*)",
+  ],
 };

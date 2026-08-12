@@ -36,7 +36,7 @@ coaching.
 
 | Endpoint | Role | User Goal | Primary Action | Success State | Empty/Error States | Trust/Privacy Cues | Next Handoff | POC Score |
 |---|---|---|---|---|---|---|---|---|
-| `/` | Visitor | Understand TurnFlow Home as a homeowner repair-record product. | Choose signup or login. | Visitor understands this is for self-managed home maintenance. | CTA stays clear even if screenshots or demo media are not fresh. | Product language avoids implying PMC-managed operations or payment processing. | `/signup` or `/login` | `2` |
+| `/` | Visitor | Understand TurnFlow Home as a homeowner repair-record product. | Choose signup or login. | Visitor understands this is for self-managed home maintenance. | CTA stays clear even if screenshots or demo media are not fresh. | Product language avoids implying PMC-managed operations or payment processing. | `/signup` or `/login` | `3` |
 | `/signup` | New homeowner | Create an owner account. | Submit name, email, and password. | Owner lands in onboarding with setup guidance. | Password and duplicate-account errors are field-adjacent and recoverable. | Explains this creates an owner workspace, not vendor access. | `/owner/onboarding` | `3` |
 | `/login` | Returning user | Reach the right role workspace. | Sign in. | Owner, vendor, or collaborator lands in their portal. | Invalid credentials are clear without leaking account existence details. | Role routing reinforces that scoped users only see shared work. | `/owner/dashboard`, `/vendor`, or `/collaborator` | `3` |
 | `/accept-invite` | Invited vendor/collaborator | Accept scoped access from an owner. | Accept invite while authenticated. | Shared request becomes visible in the right portal. | Expired, used, mismatched, or missing invite states are understandable. | Copy explains the invite grants request-level access, not owner-wide access. | `/vendor` or `/collaborator` | `3` |
@@ -80,11 +80,12 @@ coaching.
 
 ## Priority Hardening Queue
 
-1. `/`: refresh public positioning and screenshots after the product UI settles.
-2. `/owner/requests/new`: run mobile homeowner testing to confirm the guided
+1. `/owner/requests/new`: run mobile homeowner testing to confirm the guided
    intake feels worth the effort before adding more fields.
-3. `/owner/account`: use testing to confirm sharing/access boundaries are
+2. `/owner/account`: use testing to confirm sharing/access boundaries are
    understood without facilitator explanation.
+3. `/vendor`: run a vendor task from invite to bid, start proof, stop proof,
+   closeout, and owner billing review with a real tester.
 
 ## Per-Endpoint UX Pass Template
 

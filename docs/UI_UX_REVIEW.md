@@ -53,6 +53,8 @@ for each public, owner, vendor, collaborator, and operational endpoint.
 
 Review these routes in every POC pass:
 
+- `/`: homeowner positioning, current product screenshot, signup/login CTAs,
+  responsive hero, and no PMC or payment-processing confusion.
 - `/signup`: owner-focused positioning, clear password expectations, no vendor
   or PMC confusion.
 - `/owner/onboarding`: setup guide feels useful, not like extra admin work.

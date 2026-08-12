@@ -12,6 +12,13 @@ const VIEWPORTS = [
 
 const ROUTES = [
   {
+    name: "home",
+    path: "/",
+    heading: "TurnFlow Home",
+    labels: [],
+    button: "Start owner workspace",
+  },
+  {
     name: "login",
     path: "/login",
     heading: "Welcome back",
@@ -44,8 +51,9 @@ async function assertRoute(page: Page, route: (typeof ROUTES)[number]) {
   }
 
   const buttonCount = await page.getByRole("button", { name: route.button }).count();
-  if (buttonCount === 0) {
-    throw new Error(`${route.path} is missing button "${route.button}"`);
+  const linkCount = await page.getByRole("link", { name: route.button }).count();
+  if (buttonCount === 0 && linkCount === 0) {
+    throw new Error(`${route.path} is missing primary action "${route.button}"`);
   }
 
   const hasEncodingArtifact = await page.locator("body").evaluate((body) => {

@@ -2,6 +2,54 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Public Homepage Positioning
+
+Scope: make `/` a real public POC entry route for homeowner-first positioning
+instead of an unauthenticated redirect-only shell.
+
+### Changed
+
+- Replaced the public root route with a homeowner-facing homepage that explains
+  TurnFlow Home as a repair record, shows current product UI, and routes
+  visitors to signup or login.
+- Updated the auth proxy so `/` remains public for visitors while logged-in
+  users still redirect to their role workspace.
+- Excluded common public image assets from the proxy matcher so screenshot media
+  is served as static files instead of routed through auth.
+- Expanded `npm run ux:public` to cover `/`, `/login`, and `/signup` at desktop
+  and mobile widths.
+- Added homepage desktop and mobile smoke screenshots under
+  `screenshots/ux-public/`.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, and this build
+  log.
+
+### Why
+
+The product needed a public first impression that matched the SaaS direction:
+homeowners should understand the value before login, see that the tool already
+has a real owner workspace, and know that TurnFlow Home is for self-managed
+maintenance records rather than a PMC command center.
+
+### Validation
+
+- `npm run typecheck` passed.
+- `npm run lint` passed with no warnings.
+- `npm run build` passed.
+- `npm run ux:public` passed for `/`, `/login`, and `/signup` at desktop and
+  mobile widths.
+- `npm run verify` passed: lint, typecheck, 248 tests, production audit, Drizzle
+  generation, schema drift check, and production build.
+- Visual review passed for `screenshots/ux-public/home-desktop.png` and
+  `screenshots/ux-public/home-mobile.png`: product media rendered, CTAs were
+  visible, and no mobile overlap was observed.
+
+### Follow-Up
+
+- Refresh signed-in owner/helper screenshots after the next routed UX hardening
+  pass.
+- Run moderated homeowner testing on `/owner/requests/new` and `/owner/account`
+  to confirm intake effort and sharing boundaries without facilitator coaching.
+
 ## 2026-08-12 - Backup Restore Trust UX
 
 Scope: make `/owner/backup` clearer and more trustworthy for hosted POC data
