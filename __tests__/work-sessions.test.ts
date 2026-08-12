@@ -4,6 +4,7 @@ import {
   isWorkSessionEvent,
   normalizeWorkSessionTaskLabel,
   workSessionCounts,
+  workSessionEventReadiness,
   workSessionGuidance,
   workSessionProofRequirement,
 } from "@/lib/work-sessions";
@@ -119,6 +120,41 @@ describe("workSessionProofRequirement", () => {
     expect(workSessionProofRequirement("resumed")).toMatchObject({
       required: false,
       photoType: null,
+    });
+  });
+});
+
+describe("workSessionEventReadiness", () => {
+  it("blocks start until a before photo is selected", () => {
+    expect(workSessionEventReadiness({ event: "started", hasProofFile: false })).toMatchObject({
+      event: "started",
+      label: "Started work",
+      blocked: true,
+      requiredPhotoType: "before",
+      detail: "Before photo required. Select a before photo before recording this event.",
+    });
+  });
+
+  it("allows stop once a completion photo is selected", () => {
+    expect(workSessionEventReadiness({ event: "stopped", hasProofFile: true })).toMatchObject({
+      event: "stopped",
+      label: "Stopped work",
+      blocked: false,
+      requiredPhotoType: "after",
+      detail: "Completion photo required. The selected photo will be saved as after proof.",
+    });
+  });
+
+  it("keeps pause and resume unblocked without proof", () => {
+    expect(workSessionEventReadiness({ event: "paused", hasProofFile: false })).toMatchObject({
+      event: "paused",
+      blocked: false,
+      requiredPhotoType: null,
+    });
+    expect(workSessionEventReadiness({ event: "resumed", hasProofFile: false })).toMatchObject({
+      event: "resumed",
+      blocked: false,
+      requiredPhotoType: null,
     });
   });
 });

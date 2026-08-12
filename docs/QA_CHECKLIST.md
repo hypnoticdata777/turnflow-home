@@ -71,13 +71,15 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
    bid form.
 5. For a scheduled or in-progress job, confirm the next action points to the
    work-session panel and start/stop proof requirements are visible.
-6. For a job with missing location, access, or preferred contact, confirm the
+6. Confirm Start work and Stop work are disabled until a proof photo is selected
+   and that the per-event copy names before/after proof requirements.
+7. For a job with missing location, access, or preferred contact, confirm the
    next action points to the owner update thread instead of work controls.
-7. For a pending closeout, confirm the next action tells the vendor to wait for
+8. For a pending closeout, confirm the next action tells the vendor to wait for
    owner approval or requested changes.
-8. For a changes-requested closeout, confirm the next action points to closeout
+9. For a changes-requested closeout, confirm the next action points to closeout
    revision.
-9. For approved closeout with a billing record, confirm the next action points
+10. For approved closeout with a billing record, confirm the next action points
    to read-only billing visibility and does not imply TurnFlow processes
    payment.
 
@@ -163,6 +165,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 - Vendor and collaborator portals do not expose unrelated requests.
 - Vendor work queue metrics must match the per-job next-action states so vendors
   can triage without opening every card.
+- Vendor start/stop work-session controls must be gated by selected proof photo
+  on the client and rechecked by server actions.
 - Notification attempts are logged even when outbound email is not configured.
 - Completion still requires final cost, an after photo, and assigned vendor, or
   an explicit waiver reason in the Decision Log.

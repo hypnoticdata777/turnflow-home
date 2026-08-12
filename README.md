@@ -207,8 +207,8 @@ and `screenshots/ux-helper/`.
   proof, task progress, closeout submission, requested changes, billing context,
   or settled history.
 - Vendor work-session events for start, pause, resume, and stop, with notes,
-  task/area labels, required before/after proof for start/stop, owner-visible
-  timeline history, decision-log entries, and owner notifications.
+  task/area labels, client and server gated before/after proof for start/stop,
+  owner-visible timeline history, decision-log entries, and owner notifications.
 - Vendor closeout submissions with completion notes, materials/receipt notes,
   final amount, after-photo/task-completion readiness checks, owner-visible
   review state, owner approve/request-changes decisions, final-cost copy,

@@ -9,6 +9,7 @@ import { requestPhotoPath } from "@/lib/blob-paths";
 import {
   WORK_SESSION_EVENT_LABELS,
   WORK_SESSION_EVENTS,
+  workSessionEventReadiness,
   workSessionProofRequirement,
   workSessionGuidance,
   type WorkSessionEvent,
@@ -45,6 +46,12 @@ export function WorkSessionPanel({
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [savingEvent, setSavingEvent] = useState<WorkSessionEvent | null>(null);
   const [status, setStatus] = useState("");
+  const eventReadiness = WORK_SESSION_EVENTS.map((event) =>
+    workSessionEventReadiness({ event, hasProofFile: Boolean(proofFile) })
+  );
+  const primaryReadiness = eventReadiness.find(
+    (item) => item.event === guidance.primaryEvent
+  );
 
   async function recordEvent(event: WorkSessionEvent) {
     const proofRequirement = workSessionProofRequirement(event);
@@ -110,9 +117,10 @@ export function WorkSessionPanel({
           </div>
           <button
             type="button"
-            disabled={savingEvent !== null}
+            disabled={savingEvent !== null || primaryReadiness?.blocked}
             onClick={() => recordEvent(guidance.primaryEvent)}
-            className="inline-flex w-fit items-center justify-center rounded bg-gray-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+            title={primaryReadiness?.blocked ? primaryReadiness.detail : undefined}
+            className="inline-flex w-fit items-center justify-center rounded bg-gray-900 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             {guidance.primaryAction}
           </button>
@@ -178,18 +186,29 @@ export function WorkSessionPanel({
         Starting work requires a before photo. Stopping work requires an after
         photo. Pause and resume notes can include a photo when useful.
       </p>
+      <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+        <p className="text-sm font-semibold text-gray-950">Proof gate</p>
+        <p className="mt-1 text-sm leading-6 text-gray-600">
+          {proofFile
+            ? `Selected proof: ${proofFile.name}. Start will save it as before proof; stop will save it as after proof.`
+            : "Select a proof photo before using Start work or Stop work. Pause and resume can be recorded with notes only."}
+        </p>
+      </div>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-4">
-        {WORK_SESSION_EVENTS.map((event) => (
-          <button
-            key={event}
-            type="button"
-            disabled={savingEvent !== null}
-            onClick={() => recordEvent(event)}
-            className="rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-          >
-            {savingEvent === event ? "Recording..." : WORK_SESSION_EVENT_LABELS[event]}
-          </button>
+        {eventReadiness.map((readiness) => (
+          <div key={readiness.event} className="rounded border border-gray-200 bg-white p-2">
+            <button
+              type="button"
+              disabled={savingEvent !== null || readiness.blocked}
+              onClick={() => recordEvent(readiness.event)}
+              title={readiness.blocked ? readiness.detail : undefined}
+              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {savingEvent === readiness.event ? "Recording..." : readiness.label}
+            </button>
+            <p className="mt-2 text-xs leading-5 text-gray-600">{readiness.detail}</p>
+          </div>
         ))}
       </div>
 

@@ -2,6 +2,48 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Vendor Work Session Proof Gate
+
+Scope: make vendor start/stop work-session recording harder to misuse by
+surfacing proof requirements before the vendor clicks the event button.
+
+### Changed
+
+- Added `workSessionEventReadiness` in `lib/work-sessions.ts` to explain whether
+  a work-session event is blocked by missing proof and which proof type is
+  required.
+- Added unit coverage for blocked start, allowed stop with proof, and optional
+  pause/resume proof states.
+- Updated `WorkSessionPanel` so Start work and Stop work controls are disabled
+  until a proof photo is selected.
+- Added per-event readiness copy and a Proof Gate panel explaining that start
+  saves before proof and stop saves after proof.
+- Expanded helper smoke expectations so `/vendor` must render Proof Gate.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, and this build
+  log.
+
+### Why
+
+The server already enforced required before/after proof, but vendors should not
+learn that rule only after a failed click. This pass makes proof requirements
+visible in the workflow itself so work sessions produce better owner records and
+less re-guessing later.
+
+### Validation
+
+- `npm test -- work-sessions` passed: 15 tests.
+- `npm run typecheck` passed.
+- `npm run lint` passed with no warnings.
+- `npm run verify` passed: lint, typecheck, 260 tests, production audit, Drizzle
+  generation, schema drift check, and production build.
+
+### Follow-Up
+
+- Run `npm run ux:helper` in a configured database environment to capture the
+  updated vendor proof gate at desktop and mobile widths.
+- In moderated vendor testing, confirm vendors understand they need a fresh
+  before photo to start and an after photo to stop each visit.
+
 ## 2026-08-12 - Vendor Work Queue Snapshot
 
 Scope: make `/vendor` easier to triage before vendors open each assigned job.

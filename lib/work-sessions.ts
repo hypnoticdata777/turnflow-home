@@ -25,6 +25,14 @@ export type WorkSessionGuidance = {
   primaryAction: string;
 };
 
+export type WorkSessionEventReadiness = {
+  event: WorkSessionEvent;
+  label: string;
+  blocked: boolean;
+  detail: string;
+  requiredPhotoType: "before" | "after" | null;
+};
+
 export const WORK_SESSION_EVENT_LABELS: Record<WorkSessionEvent, string> = {
   started: "Started work",
   paused: "Paused work",
@@ -146,4 +154,27 @@ export function workSessionCounts(events: WorkSessionInput[]) {
     label: WORK_SESSION_EVENT_LABELS[event],
     count: events.filter((item) => item.event === event).length,
   }));
+}
+
+export function workSessionEventReadiness({
+  event,
+  hasProofFile,
+}: {
+  event: WorkSessionEvent;
+  hasProofFile: boolean;
+}): WorkSessionEventReadiness {
+  const proofRequirement = workSessionProofRequirement(event);
+  const blocked = proofRequirement.required && !hasProofFile;
+
+  return {
+    event,
+    label: WORK_SESSION_EVENT_LABELS[event],
+    blocked,
+    requiredPhotoType: proofRequirement.photoType,
+    detail: blocked
+      ? `${proofRequirement.label}. Select a ${proofRequirement.photoType} photo before recording this event.`
+      : proofRequirement.required
+        ? `${proofRequirement.label}. The selected photo will be saved as ${proofRequirement.photoType} proof.`
+        : proofRequirement.detail,
+  };
 }
