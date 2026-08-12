@@ -83,7 +83,8 @@ Review these routes in every POC pass:
   property coverage, reminder creation, calendar export, and mark-done flow
   feel useful for homeowners, not just operators.
 - `/vendor`: scoped access, vendor matching profile, private owner bid form,
-  lifecycle tracker, project task checklist, work-session controls, required
+  per-job next-action panel, lifecycle tracker, project task checklist,
+  work-session controls, required
   start/stop proof photos, task links, task-level cost visibility, owner
   acceptance state, closeout submission form, closeout review outcome, bid
   decision state, bid/price context, read-only billing record, closeout

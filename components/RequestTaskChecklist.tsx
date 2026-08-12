@@ -46,10 +46,12 @@ export function RequestTaskChecklist({
   requestId,
   tasks,
   mode,
+  id = "project-tasks",
 }: {
   requestId: string;
   tasks: RequestTaskData[];
   mode: "owner" | "vendor";
+  id?: string;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -160,7 +162,7 @@ export function RequestTaskChecklist({
   }
 
   return (
-    <section id="project-tasks" className="scroll-mt-6">
+    <section id={id} className="scroll-mt-6">
       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-blue-700">Project tasks</p>

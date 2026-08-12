@@ -60,6 +60,25 @@ assigned to the demo vendor and shared with the demo collaborator, checks each
 scoped workspace at desktop and mobile widths, and saves screenshots under
 `screenshots/ux-helper/`.
 
+## Vendor Smoke Test
+
+1. Sign in as the demo vendor and open `/vendor`.
+2. Confirm each assigned request has a next-action panel above lifecycle,
+   bidding, tasks, work sessions, closeout, billing, and updates.
+3. For a `Needs Quote` job, confirm the next action points to the private owner
+   bid form.
+4. For a scheduled or in-progress job, confirm the next action points to the
+   work-session panel and start/stop proof requirements are visible.
+5. For a job with missing location, access, or preferred contact, confirm the
+   next action points to the owner update thread instead of work controls.
+6. For a pending closeout, confirm the next action tells the vendor to wait for
+   owner approval or requested changes.
+7. For a changes-requested closeout, confirm the next action points to closeout
+   revision.
+8. For approved closeout with a billing record, confirm the next action points
+   to read-only billing visibility and does not imply TurnFlow processes
+   payment.
+
 ## Owner Smoke Test
 
 1. Open `/api/health` and confirm it returns `status: "ok"`.

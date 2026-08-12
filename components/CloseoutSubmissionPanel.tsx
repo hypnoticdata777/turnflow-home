@@ -47,10 +47,12 @@ export function CloseoutSubmissionPanel({
   request,
   submissions,
   mode,
+  id = "closeout",
 }: {
   request: CloseoutPanelRequestData;
   submissions: CloseoutSubmissionData[];
   mode: "owner" | "vendor";
+  id?: string;
 }) {
   const router = useRouter();
   const [completionNotes, setCompletionNotes] = useState("");
@@ -121,7 +123,7 @@ export function CloseoutSubmissionPanel({
   }
 
   return (
-    <section id="closeout" className="scroll-mt-6">
+    <section id={id} className="scroll-mt-6">
       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-blue-700">Closeout</p>

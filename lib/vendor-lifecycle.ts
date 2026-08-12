@@ -9,6 +9,15 @@ export type VendorLifecycleRequest = {
   comments?: Array<unknown>;
 };
 
+export type VendorNextActionRequest = VendorLifecycleRequest & {
+  id?: string;
+  vendorBid?: { status: string; amount?: string | number | null } | null;
+  tasks?: Array<{ status: string; acceptedAt?: string | Date | null }>;
+  closeoutSubmissions?: Array<{ status: string; submittedAt?: string | Date }>;
+  billingRecords?: Array<{ status: string; recordedAt?: string | Date }>;
+  workSessions?: Array<{ event: string; createdAt?: string | Date | null }>;
+};
+
 export type VendorLifecycleStageStatus = "done" | "current" | "blocked" | "upcoming";
 
 export type VendorLifecycleStage = {
@@ -25,6 +34,14 @@ export type VendorLifecycleSummary = {
   tone: "attention" | "progress" | "ready";
   completedCount: number;
   totalCount: number;
+};
+
+export type VendorNextAction = {
+  label: string;
+  detail: string;
+  cta: string;
+  href: string;
+  tone: "attention" | "progress" | "ready";
 };
 
 const startedStatuses = new Set(["Scheduled", "In Progress", "Needs Review", "Complete"]);
@@ -48,6 +65,31 @@ function hasPriceContext(request: VendorLifecycleRequest) {
 
 function hasVendorUpdate(request: VendorLifecycleRequest) {
   return (request.comments ?? []).length > 0;
+}
+
+function latestByDate<T extends { submittedAt?: string | Date; recordedAt?: string | Date }>(
+  rows: T[] | undefined,
+  field: "submittedAt" | "recordedAt"
+) {
+  if (!rows || rows.length === 0) return null;
+  return [...rows].sort((a, b) => {
+    const left = new Date(a[field] ?? 0).getTime();
+    const right = new Date(b[field] ?? 0).getTime();
+    return right - left;
+  })[0];
+}
+
+function latestWorkSession(request: VendorNextActionRequest) {
+  const events = request.workSessions ?? [];
+  if (events.length === 0) return null;
+  return [...events].sort(
+    (a, b) =>
+      new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+  )[0];
+}
+
+function anchor(request: VendorNextActionRequest, suffix: string) {
+  return request.id ? `#${suffix}-${request.id}` : `#${suffix}`;
 }
 
 export function vendorLifecycleStages(
@@ -183,5 +225,212 @@ export function vendorLifecycleSummary(
     tone: focusStage.status === "blocked" ? "attention" : "progress",
     completedCount,
     totalCount: stages.length,
+  };
+}
+
+export function vendorNextAction(request: VendorNextActionRequest): VendorNextAction {
+  const bid = request.vendorBid;
+  const latestCloseout = latestByDate(request.closeoutSubmissions, "submittedAt");
+  const latestBilling = latestByDate(request.billingRecords, "recordedAt");
+  const latestSession = latestWorkSession(request);
+  const tasks = request.tasks ?? [];
+  const blockedTasks = tasks.filter((task) => task.status === "blocked").length;
+  const doneTasks = tasks.filter((task) => task.status === "done").length;
+  const acceptedTasks = tasks.filter((task) => task.acceptedAt).length;
+  const taskGap = tasks.length > 0 && doneTasks < tasks.length;
+  const acceptanceGap = tasks.length > 0 && doneTasks > acceptedTasks;
+
+  if (!bid && request.status === "Needs Quote") {
+    return {
+      label: "Bid requested",
+      detail:
+        "The owner needs price, scope, and availability before they can approve or schedule the work.",
+      cta: "Submit bid",
+      href: anchor(request, "vendor-bid"),
+      tone: "attention",
+    };
+  }
+
+  if (bid?.status === "pending") {
+    return {
+      label: "Waiting on owner approval",
+      detail: "Your bid is saved. Keep the owner updated only if scope, price, or timing changes.",
+      cta: "Review bid",
+      href: anchor(request, "vendor-bid"),
+      tone: "progress",
+    };
+  }
+
+  if (bid?.status === "declined") {
+    return {
+      label: "Bid needs revision",
+      detail: "The owner declined the current bid. Revise only if amount, availability, or scope changed.",
+      cta: "Revise bid",
+      href: anchor(request, "vendor-bid"),
+      tone: "attention",
+    };
+  }
+
+  if (!hasJobContext(request)) {
+    return {
+      label: "Ask for job context",
+      detail:
+        "Location, access instructions, and preferred contact need to be clear before work starts.",
+      cta: "Ask owner",
+      href: anchor(request, "request-updates"),
+      tone: "attention",
+    };
+  }
+
+  if (blockedTasks > 0) {
+    return {
+      label: "Resolve blocked scope",
+      detail: `${blockedTasks} ${blockedTasks === 1 ? "task is" : "tasks are"} blocked. Leave the owner a clear note before work continues.`,
+      cta: "Post update",
+      href: anchor(request, "request-updates"),
+      tone: "attention",
+    };
+  }
+
+  if (request.status === "Scheduled" || (request.status === "In Progress" && !latestSession)) {
+    return {
+      label: "Start with proof",
+      detail:
+        "Record the start event with a before photo so the owner can see what work began.",
+      cta: "Start work",
+      href: anchor(request, "vendor-work"),
+      tone: "attention",
+    };
+  }
+
+  if (latestSession?.event === "paused") {
+    return {
+      label: "Resume or close the visit",
+      detail: "Work is paused. Resume when work continues, or stop with proof when this visit is done.",
+      cta: "Resume work",
+      href: anchor(request, "vendor-work"),
+      tone: "progress",
+    };
+  }
+
+  if (latestSession?.event === "started" || latestSession?.event === "resumed") {
+    return {
+      label: "Stop with completion proof",
+      detail:
+        "When this visit is done, record a stop event with an after photo so the owner has proof.",
+      cta: "Stop work",
+      href: anchor(request, "vendor-work"),
+      tone: "progress",
+    };
+  }
+
+  if (taskGap) {
+    return {
+      label: "Update task progress",
+      detail: `${doneTasks} of ${tasks.length} project tasks are marked done. Keep task status current before closeout.`,
+      cta: "Review tasks",
+      href: anchor(request, "vendor-tasks"),
+      tone: "progress",
+    };
+  }
+
+  if (!hasPhotoType(request, "after")) {
+    return {
+      label: "Add after photo",
+      detail: "The owner needs completion proof before closeout feels trustworthy.",
+      cta: "Upload proof",
+      href: "#helper-upload",
+      tone: "attention",
+    };
+  }
+
+  if (!hasCost(request.finalCost)) {
+    return {
+      label: "Share final cost context",
+      detail: "Photos are present. Add invoice or final amount context so the owner can finish the record.",
+      cta: "Post cost update",
+      href: anchor(request, "request-updates"),
+      tone: "attention",
+    };
+  }
+
+  if (latestCloseout?.status === "pending") {
+    return {
+      label: "Closeout under owner review",
+      detail: "The handoff is submitted. Wait for the owner to approve it or request specific changes.",
+      cta: "Review closeout",
+      href: anchor(request, "vendor-closeout"),
+      tone: "progress",
+    };
+  }
+
+  if (latestCloseout?.status === "changes_requested") {
+    return {
+      label: "Closeout changes requested",
+      detail: "The owner needs a revised handoff. Update completion notes, receipts, or final amount.",
+      cta: "Revise closeout",
+      href: anchor(request, "vendor-closeout"),
+      tone: "attention",
+    };
+  }
+
+  if (!latestCloseout || (request.status === "Needs Review" && latestCloseout.status !== "approved")) {
+    return {
+      label: "Submit closeout",
+      detail:
+        "Proof and final cost are ready. Submit completion notes so the owner can approve or request changes.",
+      cta: "Submit handoff",
+      href: anchor(request, "vendor-closeout"),
+      tone: "attention",
+    };
+  }
+
+  if (acceptanceGap) {
+    return {
+      label: "Waiting on task acceptance",
+      detail:
+        "Done tasks are waiting for owner acceptance. Add a note if the owner needs review context.",
+      cta: "Review tasks",
+      href: anchor(request, "vendor-tasks"),
+      tone: "progress",
+    };
+  }
+
+  if (latestBilling?.status === "disputed") {
+    return {
+      label: "Billing needs context",
+      detail: "The owner flagged the billing record for follow-up. Add invoice or materials context in updates.",
+      cta: "Post billing note",
+      href: anchor(request, "request-updates"),
+      tone: "attention",
+    };
+  }
+
+  if (latestBilling?.status === "paid") {
+    return {
+      label: "Job record settled",
+      detail: "Closeout is approved and the owner marked the final charge paid outside TurnFlow.",
+      cta: "Review record",
+      href: anchor(request, "vendor-billing"),
+      tone: "ready",
+    };
+  }
+
+  if (latestBilling) {
+    return {
+      label: "Billing recorded",
+      detail: "The owner has a final-charge record. TurnFlow stores history; payment happens outside the app.",
+      cta: "Review billing",
+      href: anchor(request, "vendor-billing"),
+      tone: "ready",
+    };
+  }
+
+  return {
+    label: "Waiting on owner closeout",
+    detail: "Closeout is approved. The owner controls final billing recordkeeping from here.",
+    cta: "Review closeout",
+    href: anchor(request, "vendor-closeout"),
+    tone: "ready",
   };
 }

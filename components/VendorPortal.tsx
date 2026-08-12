@@ -39,6 +39,7 @@ import {
   vendorUploadPrompt,
   type HelperRequestCardState,
 } from "@/lib/helper-workspace";
+import { vendorNextAction, type VendorNextAction } from "@/lib/vendor-lifecycle";
 import { missingCompletionProof } from "@/lib/request-guidance";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
@@ -74,6 +75,41 @@ type VendorProfileData = {
   notificationPreference: string | null;
   licenseInsuranceNotes: string | null;
 };
+
+const NEXT_ACTION_CLASSES: Record<VendorNextAction["tone"], string> = {
+  attention: "border-rose-200 bg-rose-50 text-rose-950",
+  progress: "border-sky-200 bg-sky-50 text-sky-950",
+  ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
+};
+
+function VendorNextActionPanel({
+  action,
+  requestId,
+}: {
+  action: VendorNextAction;
+  requestId: string;
+}) {
+  return (
+    <section
+      id={`vendor-next-action-${requestId}`}
+      className={`mt-4 rounded-lg border p-3 ${NEXT_ACTION_CLASSES[action.tone]}`}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold">Next vendor action</p>
+          <h4 className="mt-1 text-base font-semibold">{action.label}</h4>
+          <p className="mt-1 text-sm leading-6">{action.detail}</p>
+        </div>
+        <a
+          href={action.href}
+          className="inline-flex w-fit items-center justify-center rounded border border-current bg-white/75 px-3 py-2 text-sm font-semibold"
+        >
+          {action.cta}
+        </a>
+      </div>
+    </section>
+  );
+}
 
 export function VendorPortal({
   requests,
@@ -254,6 +290,7 @@ export function VendorPortal({
                 : "Property not found";
               const missingProof = missingCompletionProof(r);
               const readiness = helperRequestCardState("vendor", r);
+              const nextAction = vendorNextAction(r);
               return (
                 <article key={r.id} className="rounded-lg border bg-white p-4 shadow-sm">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -297,15 +334,25 @@ export function VendorPortal({
                     onAction={() => handleReadinessAction(r, readiness)}
                   />
 
+                  <VendorNextActionPanel action={nextAction} requestId={r.id} />
+
                   <VendorLifecycleTracker request={r} />
 
-                  <VendorBidPanel requestId={r.id} request={r} bid={r.vendorBid} />
+                  <div id={`vendor-bid-${r.id}`} className="scroll-mt-6">
+                    <VendorBidPanel requestId={r.id} request={r} bid={r.vendorBid} />
+                  </div>
 
                   <div className="mt-4">
-                    <RequestTaskChecklist requestId={r.id} tasks={r.tasks} mode="vendor" />
+                    <RequestTaskChecklist
+                      id={`vendor-tasks-${r.id}`}
+                      requestId={r.id}
+                      tasks={r.tasks}
+                      mode="vendor"
+                    />
                   </div>
 
                   <WorkSessionPanel
+                    id={`vendor-work-${r.id}`}
                     requestId={r.id}
                     requestStatus={r.status}
                     events={r.workSessions}
@@ -323,6 +370,7 @@ export function VendorPortal({
                       }}
                       submissions={r.closeoutSubmissions}
                       mode="vendor"
+                      id={`vendor-closeout-${r.id}`}
                     />
                   </div>
 
@@ -331,6 +379,7 @@ export function VendorPortal({
                       requestId={r.id}
                       records={r.billingRecords}
                       mode="vendor"
+                      id={`vendor-billing-${r.id}`}
                     />
                   </div>
 

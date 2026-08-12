@@ -60,7 +60,7 @@ coaching.
 
 | Endpoint | Role | User Goal | Primary Action | Success State | Empty/Error States | Trust/Privacy Cues | Next Handoff | POC Score |
 |---|---|---|---|---|---|---|---|---|
-| `/vendor` | Vendor | Understand assigned jobs and move each one through bid, approval, work session, closeout, and billing review. | Update profile, submit bid, add updates, upload proof, start/pause/resume/stop work sessions, complete tasks, submit closeout. | Vendor can tell exactly what the owner is waiting on. | No-assigned-work state should explain that jobs appear by owner invite/assignment. Blocked actions must say what proof, task, cost, or owner decision is missing. | Copy must make scoped access clear and avoid implying vendor sees owner-wide data or receives payment in-app. | Owner review on `/owner/requests/[id]` | `2` |
+| `/vendor` | Vendor | Understand assigned jobs and move each one through bid, approval, work session, closeout, and billing review. | Follow the per-job next-action panel, update profile, submit bid, add updates, upload proof, start/pause/resume/stop work sessions, complete tasks, submit closeout. | Vendor can tell exactly what the owner is waiting on. | No-assigned-work state should explain that jobs appear by owner invite/assignment. Blocked actions must say what proof, task, cost, or owner decision is missing. | Copy must make scoped access clear and avoid implying vendor sees owner-wide data or receives payment in-app. | Owner review on `/owner/requests/[id]` | `3` |
 
 ## Collaborator Workspace Routes
 
@@ -80,15 +80,12 @@ coaching.
 
 ## Priority Hardening Queue
 
-1. `/vendor`: sharpen the vendor "next action" model across bid, owner
-   approval, ready-to-start, active work, stop proof, closeout, changes
-   requested, approved, and billing-record visibility.
-2. `/owner/backup`: make export/restore risk and success states more
+1. `/owner/backup`: make export/restore risk and success states more
    homeowner-friendly before hosted POC testing.
-3. `/`: refresh public positioning and screenshots after the product UI settles.
-4. `/owner/requests/new`: run mobile homeowner testing to confirm the guided
+2. `/`: refresh public positioning and screenshots after the product UI settles.
+3. `/owner/requests/new`: run mobile homeowner testing to confirm the guided
    intake feels worth the effort before adding more fields.
-5. `/owner/account`: use testing to confirm sharing/access boundaries are
+4. `/owner/account`: use testing to confirm sharing/access boundaries are
    understood without facilitator explanation.
 
 ## Per-Endpoint UX Pass Template

@@ -193,6 +193,10 @@ are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`, and
 - Vendor lifecycle tracker for assigned jobs, covering opportunity, bid/price
   context, owner approval, scheduled/ready, work in progress, closeout proof,
   and billing record stages.
+- Vendor next-action panel on each assigned job, pointing vendors to the right
+  control for bid submission, owner approval waiting, job context, start/stop
+  proof, task progress, closeout submission, requested changes, billing context,
+  or settled history.
 - Vendor work-session events for start, pause, resume, and stop, with notes,
   task/area labels, required before/after proof for start/stop, owner-visible
   timeline history, decision-log entries, and owner notifications.

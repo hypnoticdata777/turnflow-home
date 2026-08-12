@@ -46,6 +46,10 @@ The current app supports assigned vendor accounts:
 - The vendor portal now shows a per-request lifecycle tracker:
   opportunity received, bid/price context, owner approval, scheduled/ready,
   work in progress, closeout proof, and billing record.
+- Each assigned job also has a next-action panel that routes the vendor to the
+  correct control for bid submission, waiting on owner approval, missing job
+  context, start/stop work proof, task progress, closeout submission, requested
+  changes, billing context, or settled record review.
 
 This is a good POC-safe foundation because it makes the assigned-job workflow
 traceable without opening competitive bidding or payment risks too early.
@@ -136,11 +140,13 @@ True bidding and billing will need additional tables or expanded fields:
 10. Add structured project task checklist with per-task proof and timing. Done.
 11. Add per-task estimate/final cost fields and owner acceptance before
     closeout. Done.
-12. Add open opportunity notifications before assignment.
-13. Add owner bid comparison and approval tied to assigned vendor selection.
-14. Add closeout submission and owner review before billing record
+12. Add per-job vendor next-action guidance across bid, work, closeout, and
+    billing states. Done.
+13. Add open opportunity notifications before assignment.
+14. Add owner bid comparison and approval tied to assigned vendor selection.
+15. Add closeout submission and owner review before billing record
     finalization. Done.
-15. Add owner approve/request-changes decisions for closeout submissions. Done.
-16. Add owner billing records after approved closeout, with paid/disputed/void
+16. Add owner approve/request-changes decisions for closeout submissions. Done.
+17. Add owner billing records after approved closeout, with paid/disputed/void
     status and export coverage. Done.
-17. Add payment processing only after owner/vendor billing behavior is tested.
+18. Add payment processing only after owner/vendor billing behavior is tested.

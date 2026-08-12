@@ -28,12 +28,14 @@ export function WorkSessionPanel({
   events,
   userId,
   tasks,
+  id,
 }: {
   requestId: string;
   requestStatus: string;
   events: WorkSessionData[];
   userId: string;
   tasks: RequestTaskData[];
+  id?: string;
 }) {
   const router = useRouter();
   const guidance = workSessionGuidance(events, requestStatus);
@@ -98,7 +100,7 @@ export function WorkSessionPanel({
   }
 
   return (
-    <section className="mt-4 rounded-lg border border-gray-200 bg-white p-4">
+    <section id={id} className="mt-4 scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4">
       <div className={`mb-4 rounded-lg border p-3 ${GUIDANCE_CLASSES[guidance.tone]}`}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>

@@ -36,10 +36,12 @@ export function BillingRecordPanel({
   requestId,
   records,
   mode,
+  id = "billing",
 }: {
   requestId: string;
   records: BillingRecordData[];
   mode: "owner" | "vendor";
+  id?: string;
 }) {
   const router = useRouter();
   const sortedRecords = [...records].sort(
@@ -79,7 +81,7 @@ export function BillingRecordPanel({
   }
 
   return (
-    <section id="billing" className="scroll-mt-6">
+    <section id={id} className="scroll-mt-6">
       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-blue-700">Billing record</p>

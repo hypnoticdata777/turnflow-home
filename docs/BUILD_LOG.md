@@ -2,6 +2,50 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-12 - Vendor Next Action Panel
+
+Scope: make the vendor portal route tell vendors exactly what to do next on
+each assigned job.
+
+### Changed
+
+- Added `vendorNextAction` to `lib/vendor-lifecycle.ts`.
+- Covered bid requested, pending owner approval, scheduled start, active stop
+  proof, requested closeout changes, and settled paid-record states in tests.
+- Added a next-action panel to each vendor request card with role-specific CTA
+  anchors.
+- Added per-request anchor IDs for vendor bid, task, work-session, closeout,
+  billing, and update sections.
+- Made shared task, closeout, billing, and work-session panels accept optional
+  IDs while keeping owner defaults unchanged.
+- Updated README, QA checklist, UI/UX review docs, endpoint map, vendor roadmap,
+  and this build log.
+
+### Why
+
+The vendor portal has become a serious workflow surface with bids, tasks, work
+sessions, closeout, and billing visibility. Vendors should not have to infer
+the right next step from several panels; the page now names the current action
+and jumps them to the exact control.
+
+### Validation
+
+- `npm test -- vendor-lifecycle helper-workspace` passed: 36 tests.
+- `npm run typecheck` passed.
+- `npm run lint` passed with no warnings.
+- `npm run verify` passed.
+- `npm test` passed: 242 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run db:generate` passed with no schema changes.
+- `git diff --exit-code -- drizzle` passed.
+- `npm run build` passed.
+
+### Follow-Up
+
+- Run `npm run ux:helper` against seeded demo data and inspect mobile vendor
+  screenshots.
+- Harden `/owner/backup` export/restore language and success/error states next.
+
 ## 2026-08-12 - Owner Request Workflow Rail
 
 Scope: make the owner request detail route easier to navigate as one mature
