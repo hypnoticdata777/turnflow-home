@@ -14,13 +14,16 @@ Scope: make the hosted Vercel POC preserve Auth.js sessions after login.
   the final role-aware `redirectTo` target so the session cookie and redirect
   are written in one server-action response.
 - Updated logout to let Auth.js clear the session and redirect to `/login`.
+- Set Auth.js `trustHost: true` explicitly for the hosted Vercel callback path.
 
 ### Why
 
 The first hosted owner smoke test reached `/owner/dashboard` after sign-in but
 did not retain a session cookie for the next protected navigation. Moving the
 redirect into Auth.js keeps hosted cookie handling and navigation in the same
-response path.
+response path. The first redeploy then exposed an Auth.js server configuration
+error on `/api/auth/callback/credentials`, so host trust is now explicit instead
+of relying on platform auto-detection.
 
 ### Validation
 

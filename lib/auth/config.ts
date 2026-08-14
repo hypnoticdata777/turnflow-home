@@ -17,6 +17,7 @@ export const {
 } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
