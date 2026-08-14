@@ -2,6 +2,38 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-14 - Hosted Auth Cookie Redirect Fix
+
+Scope: make the hosted Vercel POC preserve Auth.js sessions after login.
+
+### Changed
+
+- Updated owner signup to let Auth.js handle the post-signup redirect with
+  `redirectTo` after account creation.
+- Updated login to validate credentials first, then call Auth.js `signIn` with
+  the final role-aware `redirectTo` target so the session cookie and redirect
+  are written in one server-action response.
+- Updated logout to let Auth.js clear the session and redirect to `/login`.
+
+### Why
+
+The first hosted owner smoke test reached `/owner/dashboard` after sign-in but
+did not retain a session cookie for the next protected navigation. Moving the
+redirect into Auth.js keeps hosted cookie handling and navigation in the same
+response path.
+
+### Validation
+
+- `npm.cmd run typecheck` passed.
+- `npm.cmd test` passed: 265 tests.
+- `npm.cmd run lint` passed with no warnings.
+- `npm.cmd run build` passed.
+
+### Follow-Up
+
+- Push to `main`, wait for Vercel to redeploy, then rerun hosted owner and
+  helper smoke tests against `https://turnflow-home.vercel.app`.
+
 ## 2026-08-12 - Owner Closeout Review Guidance
 
 Scope: make owner review of vendor closeout handoffs clearer before approval or
