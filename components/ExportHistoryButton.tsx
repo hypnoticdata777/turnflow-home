@@ -30,7 +30,7 @@ export function ExportHistoryButton({
     <button
       onClick={handleExport}
       disabled={loading}
-      className="rounded bg-blue-600 px-3 py-1 text-sm text-white disabled:opacity-50"
+      className="rounded-lg bg-blue-600 px-3 py-1 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-800 active:scale-95 disabled:opacity-50"
     >
       {loading ? "Preparing..." : "Export history"}
     </button>

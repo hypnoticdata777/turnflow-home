@@ -25,7 +25,7 @@ export function HelperPortalShell({
               </p>
             </div>
             <form action={logoutAction}>
-              <button className="rounded border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <button className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-150 hover:border-gray-400 hover:bg-gray-100">
                 Logout
               </button>
             </form>

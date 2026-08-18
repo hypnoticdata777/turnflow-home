@@ -8,7 +8,7 @@ export function DeletePropertyButton({ propertyId }: { propertyId: string }) {
 
   return (
     <button
-      className="rounded bg-red-600 px-3 py-1 text-sm text-white disabled:opacity-50"
+      className="rounded-lg bg-red-600 px-3 py-1 text-sm text-white transition-colors duration-150 hover:bg-red-800 disabled:opacity-50"
       disabled={isPending}
       onClick={() => {
         if (

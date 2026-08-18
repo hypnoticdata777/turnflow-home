@@ -21,7 +21,7 @@ export function HelperRequestReadiness({
   state: HelperRequestCardState;
   onAction?: () => void;
 }) {
-  const actionClassesValue = `mt-3 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white sm:mt-0 ${actionClasses[state.tone]}`;
+  const actionClassesValue = `mt-3 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 sm:mt-0 ${actionClasses[state.tone]}`;
 
   return (
     <div

@@ -31,7 +31,7 @@ export function CopyableInviteLink({ inviteLink }: { inviteLink: string }) {
         <button
           type="button"
           onClick={copyInviteLink}
-          className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700"
+          className="rounded-lg border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 transition-transform duration-150 hover:scale-105 hover:border-gray-400 hover:bg-gray-100 active:scale-95"
         >
           Copy link
         </button>
