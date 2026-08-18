@@ -267,14 +267,14 @@ export function BackupManager() {
           <button
             onClick={handleBackup}
             disabled={backingUp}
-            className="rounded bg-blue-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             {backingUp ? "Preparing..." : "Download JSON backup"}
           </button>
           <button
             onClick={handleCsvExport}
             disabled={exportingCsv}
-            className="rounded border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-800 disabled:opacity-50"
+            className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-800 hover:border-blue-300 hover:bg-blue-100 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             {exportingCsv ? "Preparing..." : "Download CSV history"}
           </button>
@@ -330,7 +330,7 @@ export function BackupManager() {
         <button
           onClick={handleRestore}
           disabled={restoring || !file || preview?.valid === false}
-          className="mt-4 w-full rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="mt-4 w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
         >
           {restoring ? "Restoring..." : "Restore as new records"}
         </button>

@@ -256,7 +256,7 @@ export function CloseoutSubmissionPanel({
               type="button"
               disabled={reviewing !== null}
               onClick={() => reviewCloseout("approved")}
-              className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+              className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
             >
               {reviewing === "approved" ? "Approving..." : reviewGuidance.approveCta}
             </button>
@@ -265,7 +265,7 @@ export function CloseoutSubmissionPanel({
               disabled={reviewing !== null || !reviewNotes.trim()}
               onClick={() => reviewCloseout("changes_requested")}
               title={!reviewNotes.trim() ? "Add a note explaining what needs to change." : undefined}
-              className="rounded border border-amber-300 bg-white px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-amber-300 bg-white px-4 py-2 text-sm font-medium text-amber-800 hover:border-amber-400 hover:bg-amber-100 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {reviewing === "changes_requested"
                 ? "Sending..."
@@ -315,7 +315,7 @@ export function CloseoutSubmissionPanel({
             type="submit"
             disabled={submitting || !readiness.ready}
             title={!readiness.ready ? readiness.detail : undefined}
-            className="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Submitting..." : "Submit closeout"}
           </button>

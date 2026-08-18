@@ -71,7 +71,7 @@ export function CommentThread({
                 key={suggestion}
                 type="button"
                 onClick={() => setText(suggestion)}
-                className="max-w-full rounded border border-blue-200 bg-white px-3 py-2 text-left text-xs font-medium leading-5 text-blue-900 hover:bg-blue-100"
+                className="max-w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-left text-xs font-medium leading-5 text-blue-900 hover:border-blue-300 hover:bg-blue-100 transition-transform duration-150 hover:scale-105 active:scale-95"
               >
                 Draft {index + 1}: {suggestion}
               </button>
@@ -108,7 +108,7 @@ export function CommentThread({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-blue-600 px-3 py-2 text-sm text-white disabled:opacity-50"
+          className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
         >
           {submitting ? "Posting..." : "Post"}
         </button>
