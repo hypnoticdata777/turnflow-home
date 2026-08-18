@@ -19,7 +19,7 @@ export function SharedAccessControls({
       <button
         type="submit"
         disabled={pending}
-        className="rounded border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-700 disabled:opacity-50"
+        className="rounded-lg border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-700 transition-transform duration-150 hover:scale-105 hover:border-red-300 hover:bg-red-100 active:scale-95 disabled:opacity-50"
       >
         {pending ? "Removing..." : "Remove access"}
       </button>

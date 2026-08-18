@@ -40,7 +40,7 @@ export function RequestCreatedNoticeBanner({
         <button
           type="button"
           onClick={() => setVisible(false)}
-          className="inline-flex items-center justify-center rounded border border-current bg-white/75 px-3 py-1.5 text-sm font-medium"
+          className="inline-flex items-center justify-center rounded-lg border border-current bg-white/75 px-3 py-1.5 text-sm font-medium transition-transform duration-150 hover:scale-105 hover:bg-white active:scale-95"
         >
           Dismiss
         </button>

@@ -130,7 +130,7 @@ export function VaultManager({
           <button
             type="submit"
             disabled={submitting}
-            className="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-800 active:scale-95 disabled:opacity-50"
           >
             {submitting ? "Uploading..." : "Add document"}
           </button>
@@ -168,7 +168,7 @@ export function VaultManager({
                 <button
                   onClick={() => handleDelete(d.id)}
                   disabled={deletingId === d.id}
-                  className="rounded bg-red-600 px-3 py-1 text-sm text-white disabled:opacity-50"
+                  className="rounded-lg bg-red-600 px-3 py-1 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-red-800 active:scale-95 disabled:opacity-50"
                 >
                   Delete
                 </button>

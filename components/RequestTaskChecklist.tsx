@@ -265,7 +265,7 @@ export function RequestTaskChecklist({
                         type="button"
                         disabled={actingId === task.id}
                         onClick={() => acceptTask(task.id)}
-                        className="inline-flex w-fit items-center justify-center rounded bg-emerald-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-800 disabled:opacity-50"
+                        className="inline-flex w-fit items-center justify-center rounded-lg bg-emerald-700 px-3 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-emerald-800 active:scale-95 disabled:opacity-50"
                       >
                         Accept task
                       </button>
@@ -274,7 +274,7 @@ export function RequestTaskChecklist({
                       type="button"
                       disabled={actingId === task.id}
                       onClick={() => deleteTask(task.id)}
-                      className="inline-flex w-fit items-center justify-center rounded border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+                      className="inline-flex w-fit items-center justify-center rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 transition-transform duration-150 hover:scale-105 hover:border-red-300 hover:bg-red-100 active:scale-95 disabled:opacity-50"
                     >
                       Delete task
                     </button>
@@ -312,7 +312,7 @@ export function RequestTaskChecklist({
                   <button
                     type="submit"
                     disabled={actingId === task.id}
-                    className="self-end rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 disabled:opacity-50"
+                    className="self-end rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-800 transition-transform duration-150 hover:scale-105 hover:border-gray-400 hover:bg-gray-100 active:scale-95 disabled:opacity-50"
                   >
                     Save costs
                   </button>
@@ -390,7 +390,7 @@ export function RequestTaskChecklist({
           </fieldset>
           <button
             type="submit"
-            className="rounded bg-blue-700 px-4 py-2 text-sm font-medium text-white"
+            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-900 active:scale-95"
           >
             Add task
           </button>

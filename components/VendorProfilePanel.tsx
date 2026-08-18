@@ -150,7 +150,7 @@ export function VendorProfilePanel({
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center justify-center rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-black active:scale-95 disabled:opacity-60"
           >
             {saving ? "Saving..." : "Save profile"}
           </button>
