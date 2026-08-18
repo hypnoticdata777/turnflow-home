@@ -74,7 +74,7 @@ export function OwnerSidebar() {
           </p>
         </div>
         <form action={logoutAction} className="md:hidden">
-          <button className="rounded border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700">
+          <button className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors duration-150 hover:border-gray-400 hover:bg-gray-100">
             Logout
           </button>
         </form>
@@ -91,10 +91,10 @@ export function OwnerSidebar() {
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`min-w-max rounded-lg border px-3 py-2 text-sm font-medium transition-colors md:min-w-0 ${
+              className={`min-w-max rounded-lg border px-3 py-2 text-sm font-medium transition-colors duration-150 md:min-w-0 ${
                 active
                   ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-                  : "border-transparent text-gray-700 hover:border-gray-200 hover:bg-gray-50"
+                  : "border-transparent text-gray-700 hover:border-gray-300 hover:bg-gray-100"
               }`}
             >
               <span className="block">{item.label}</span>
@@ -111,10 +111,14 @@ export function OwnerSidebar() {
       </nav>
 
       <form action={logoutAction} className="mt-auto hidden p-4 md:block">
-        <button className="w-full rounded border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <button className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-150 hover:border-gray-400 hover:bg-gray-100">
           Logout
         </button>
       </form>
+
+      <p className="hidden px-4 pb-4 text-center text-xs text-gray-400 md:block">
+        © 2026 TurnFlow Home. All rights reserved.
+      </p>
     </aside>
   );
 }

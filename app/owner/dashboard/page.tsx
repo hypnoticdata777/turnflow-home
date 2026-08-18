@@ -96,16 +96,16 @@ export default async function OwnerDashboardPage({
         : "border-amber-200 bg-amber-50 text-amber-950";
   const guidanceButtonClasses =
     guidance.tone === "ready"
-      ? "bg-emerald-800"
+      ? "bg-emerald-800 hover:bg-emerald-900"
       : guidance.tone === "empty"
-        ? "bg-blue-800"
-        : "bg-amber-800";
+        ? "bg-blue-800 hover:bg-blue-900"
+        : "bg-amber-800 hover:bg-amber-900";
 
   const chipClasses = (isActive: boolean) =>
-    `rounded-full border px-3 py-1 text-sm whitespace-nowrap ${
+    `rounded-full border px-3 py-1 text-sm whitespace-nowrap transition-transform duration-150 hover:scale-105 active:scale-95 ${
       isActive
-        ? "border-blue-600 bg-blue-600 text-white"
-        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+        ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
+        : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-100"
     }`;
   const valueMetricClasses = (tone: (typeof valueMetrics)[number]["tone"]) =>
     tone === "ready"
@@ -165,13 +165,13 @@ export default async function OwnerDashboardPage({
           <div className="flex flex-wrap gap-2">
             <Link
               href={guidance.primaryHref}
-              className={`inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium text-white ${guidanceButtonClasses}`}
+              className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors duration-150 ${guidanceButtonClasses}`}
             >
               {guidance.primaryCta}
             </Link>
             <Link
               href={guidance.secondaryHref}
-              className="inline-flex items-center justify-center rounded border border-current bg-white/75 px-4 py-2 text-sm font-medium"
+              className="inline-flex items-center justify-center rounded-lg border border-current bg-white/75 px-4 py-2 text-sm font-medium transition-colors duration-150 hover:bg-white"
             >
               {guidance.secondaryCta}
             </Link>
@@ -189,7 +189,7 @@ export default async function OwnerDashboardPage({
           </div>
           <Link
             href="/owner/onboarding"
-            className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-150 hover:border-gray-400 hover:bg-gray-100"
           >
             Open setup guide
           </Link>
@@ -206,7 +206,7 @@ export default async function OwnerDashboardPage({
               <p className="mt-2 min-h-20 text-sm leading-6">{metric.detail}</p>
               <Link
                 href={metric.href}
-                className={`mt-4 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white ${valueMetricButtonClasses(
+                className={`mt-4 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 ${valueMetricButtonClasses(
                   metric.tone
                 )}`}
               >
@@ -244,7 +244,7 @@ export default async function OwnerDashboardPage({
           </p>
           <Link
             href="/owner/requests/new"
-            className="mt-3 inline-block rounded bg-blue-600 px-4 py-2 text-sm text-white"
+            className="mt-3 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors duration-150 hover:bg-blue-800"
           >
             Create your first request
           </Link>
@@ -257,7 +257,7 @@ export default async function OwnerDashboardPage({
           </p>
           <Link
             href="/owner/dashboard"
-            className="mt-3 inline-flex items-center justify-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium"
+            className="mt-3 inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-colors duration-150 hover:border-gray-400 hover:bg-gray-100"
           >
             View all requests
           </Link>
@@ -309,7 +309,7 @@ export default async function OwnerDashboardPage({
                   </div>
                   <Link
                     href={signal.href}
-                    className={`mt-3 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white sm:mt-0 ${requestSignalButtonClasses(
+                    className={`mt-3 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 sm:mt-0 ${requestSignalButtonClasses(
                       signal.tone
                     )}`}
                   >
@@ -328,7 +328,7 @@ export default async function OwnerDashboardPage({
                   </div>
                   <Link
                     href={updateSignal.href}
-                    className={`mt-3 inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white sm:mt-0 ${requestUpdateButtonClasses(
+                    className={`mt-3 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 sm:mt-0 ${requestUpdateButtonClasses(
                       updateSignal.tone
                     )}`}
                   >
@@ -339,7 +339,7 @@ export default async function OwnerDashboardPage({
                 <div className="mt-3 flex gap-2">
                   <Link
                     href={`/owner/requests/${r.id}`}
-                    className="rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-150 hover:border-gray-400 hover:bg-gray-100"
                   >
                     Open full record
                   </Link>
