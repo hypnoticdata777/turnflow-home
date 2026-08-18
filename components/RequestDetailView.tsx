@@ -104,7 +104,7 @@ function RequestWorkflowRail({ steps }: { steps: RequestWorkflowStep[] }) {
           <a
             key={step.id}
             href={step.href}
-            className={`block min-h-36 rounded-lg border p-3 transition hover:-translate-y-0.5 hover:shadow-sm ${WORKFLOW_TONE_CLASSES[step.tone]}`}
+            className={`block min-h-36 rounded-lg border p-3 transition hover:-translate-y-0.5 hover:shadow-sm transition-transform duration-150 hover:scale-105 active:scale-95 ${WORKFLOW_TONE_CLASSES[step.tone]}`}
           >
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm font-semibold">{step.label}</p>
@@ -186,7 +186,7 @@ function CostEditor({ request }: { request: RequestData }) {
         <button
           onClick={handleSaveCosts}
           disabled={costSaving}
-          className="rounded bg-gray-800 px-4 py-2 text-sm text-white disabled:opacity-50"
+          className="rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-gray-900 active:scale-95 disabled:opacity-50"
         >
           {costSaving ? "Saving..." : "Save costs"}
         </button>
@@ -272,10 +272,10 @@ export function RequestDetailView({
         : "border-amber-200 bg-amber-50 text-amber-950";
   const guidanceButtonClasses =
     guidance.tone === "ready"
-      ? "bg-emerald-800"
+      ? "bg-emerald-800 hover:bg-emerald-900"
       : guidance.tone === "attention"
-        ? "bg-blue-800"
-      : "bg-amber-800";
+        ? "bg-blue-800 hover:bg-blue-900"
+      : "bg-amber-800 hover:bg-amber-900";
   const recordValueClasses = (tone: (typeof recordValueMetrics)[number]["tone"]) =>
     tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -411,13 +411,13 @@ export function RequestDetailView({
             <div className="flex flex-wrap gap-2">
               <a
                 href={guidance.primaryHref}
-                className={`inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium text-white ${guidanceButtonClasses}`}
+                className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 active:scale-95 ${guidanceButtonClasses}`}
               >
                 {guidance.primaryCta}
               </a>
               <a
                 href={guidance.secondaryHref}
-                className="inline-flex items-center justify-center rounded border border-current bg-white/75 px-4 py-2 text-sm font-medium"
+                className="inline-flex items-center justify-center rounded-lg border border-current bg-white/75 px-4 py-2 text-sm font-medium transition-transform duration-150 hover:scale-105 hover:bg-white active:scale-95"
               >
                 {guidance.secondaryCta}
               </a>
@@ -453,7 +453,7 @@ export function RequestDetailView({
             </div>
             <button
               onClick={handleDownloadPdf}
-              className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-transform duration-150 hover:scale-105 hover:border-gray-400 hover:bg-gray-100 active:scale-95"
             >
               Export proof packet
             </button>
@@ -472,7 +472,7 @@ export function RequestDetailView({
                   </div>
                   <a
                     href={metric.href}
-                    className={`inline-flex items-center justify-center rounded px-3 py-2 text-sm font-medium text-white ${recordValueButtonClasses(
+                    className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 active:scale-95 ${recordValueButtonClasses(
                       metric.tone
                     )}`}
                   >
@@ -667,7 +667,7 @@ export function RequestDetailView({
 
       <a
         href="/owner/dashboard"
-        className="inline-block rounded bg-gray-600 px-4 py-2 text-white"
+        className="inline-block rounded-lg bg-gray-600 px-4 py-2 text-white transition-colors duration-150 hover:bg-gray-800"
       >
         Back to dashboard
       </a>
