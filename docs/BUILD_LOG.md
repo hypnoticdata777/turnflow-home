@@ -2,6 +2,54 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-08-17 - App-Wide Button Restyle and Copyright Notice
+
+Scope: consistent rounded/hover button styling across every owner-facing page
+and component, plus a copyright line in the owner sidebar.
+
+### Changed
+
+- Rounded every button-shaped element (`<button>`, and `<Link>`/`<a>` styled
+  as a button) to `rounded-lg`; pre-existing pills stayed `rounded-full`.
+- Added or deepened `hover:` fill/border colors on every button so hover
+  states read as noticeably darker, without changing any base color hue.
+- Split button interaction style in two: links that navigate to a different
+  route get a plain darker-hover color transition; buttons/links that act in
+  place (approve/decline a bid, add a comment, toggle a section, copy a link,
+  the in-page workflow-rail anchors on the request detail page, dashboard and
+  vault filter chips) get the same darker hover plus a small
+  `hover:scale-105 active:scale-95` bounce so they read as "stay here" rather
+  than "you're leaving."
+- Added `© 2026 TurnFlow Home. All rights reserved.` to the owner sidebar
+  footer.
+- Refreshed `package-lock.json` after a routine `npm install` and let Next.js
+  add an explicit `node_modules` line to `.gitignore`.
+
+### Why
+
+The existing app had no shared button component — every button was hand
+styled per-component, which had drifted into inconsistent corner radii and
+several buttons with no hover state at all. This pass standardizes the
+interaction language app-wide instead of one-off patching, and separates
+"this leaves the page" from "this changes something here" so the UI signals
+which is which.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npx.cmd tsc --noEmit` passed.
+- `npm.cmd test` passed: 265 tests.
+- `npm.cmd run build` passed.
+- Manual pass through login, owner dashboard, request detail, properties,
+  vault, account, and the vendor portal in a headless browser: no console or
+  page errors.
+
+### Follow-Up
+
+- Copyright notice currently only appears in the owner sidebar; extend to
+  the vendor portal, collaborator view, and login/signup pages if wanted
+  everywhere.
+
 ## 2026-08-14 - Hosted Auth Cookie Redirect Fix
 
 Scope: make the hosted Vercel POC preserve Auth.js sessions after login.
