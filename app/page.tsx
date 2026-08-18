@@ -66,13 +66,13 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="rounded border border-gray-300 bg-white/80 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-white"
+                className="rounded-lg border border-gray-300 bg-white/80 px-3 py-2 text-sm font-medium text-gray-800 transition-colors duration-150 hover:border-gray-400 hover:bg-white"
               >
                 Sign in
               </Link>
               <Link
                 href="/signup"
-                className="rounded bg-gray-950 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
+                className="rounded-lg bg-gray-950 px-3 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-black"
               >
                 Create account
               </Link>
@@ -94,13 +94,13 @@ export default function HomePage() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center rounded bg-emerald-800 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-900"
+                className="inline-flex items-center justify-center rounded-lg bg-emerald-800 px-5 py-3 text-sm font-semibold text-white transition-colors duration-150 hover:bg-emerald-900"
               >
                 Start owner workspace
               </Link>
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center rounded border border-gray-300 bg-white/85 px-5 py-3 text-sm font-semibold text-gray-800 hover:bg-white"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white/85 px-5 py-3 text-sm font-semibold text-gray-800 transition-colors duration-150 hover:border-gray-400 hover:bg-white"
               >
                 Sign in
               </Link>

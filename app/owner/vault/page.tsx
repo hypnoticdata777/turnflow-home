@@ -73,10 +73,10 @@ export default async function VaultPage({
                 <Link
                   key={p.id}
                   href={`/owner/vault?propertyId=${p.id}`}
-                  className={`rounded-full border px-3 py-1 text-sm whitespace-nowrap ${
+                  className={`rounded-full border px-3 py-1 text-sm whitespace-nowrap transition-transform duration-150 hover:scale-105 active:scale-95 ${
                     selectedPropertyId === p.id
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                      ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
+                      : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-100"
                   }`}
                 >
                   {p.nickname ? `${p.nickname} - ${p.address}` : p.address}

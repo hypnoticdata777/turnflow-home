@@ -118,10 +118,10 @@ export default async function OwnerAccountPage() {
         : "border-amber-200 bg-amber-50 text-amber-950";
   const summaryButtonClasses =
     setupSummary.tone === "ready"
-      ? "bg-emerald-800"
+      ? "bg-emerald-800 hover:bg-emerald-900"
       : setupSummary.tone === "empty"
-        ? "bg-blue-800"
-        : "bg-amber-800";
+        ? "bg-blue-800 hover:bg-blue-900"
+        : "bg-amber-800 hover:bg-amber-900";
 
   return (
     <main className="max-w-6xl">
@@ -173,7 +173,7 @@ export default async function OwnerAccountPage() {
           {nextStep && (
             <Link
               href={nextStep.href}
-              className={`inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium text-white ${summaryButtonClasses}`}
+              className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors duration-150 ${summaryButtonClasses}`}
             >
               {nextStep.cta}
             </Link>
@@ -192,7 +192,7 @@ export default async function OwnerAccountPage() {
           </div>
           <Link
             href="/owner/onboarding"
-            className="inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+            className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-blue-800"
           >
             Continue setup
           </Link>
@@ -340,7 +340,7 @@ export default async function OwnerAccountPage() {
           </div>
           <Link
             href={ownerRequests[0] ? `/owner/requests/${ownerRequests[0].id}` : "/owner/requests/new"}
-            className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-colors duration-150 hover:border-gray-400 hover:bg-gray-100"
           >
             Manage invites
           </Link>
