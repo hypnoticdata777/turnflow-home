@@ -26,7 +26,7 @@ export function PendingInviteControls({ inviteId }: { inviteId: string }) {
           <button
             type="submit"
             disabled={pending}
-            className="rounded border border-blue-300 bg-white px-3 py-1 text-xs font-medium text-blue-800 disabled:opacity-50"
+            className="rounded-lg border border-blue-300 bg-white px-3 py-1 text-xs font-medium text-blue-800 transition-transform duration-150 hover:scale-105 hover:border-blue-400 hover:bg-blue-50 active:scale-95 disabled:opacity-50"
           >
             {resendPending ? "Resending..." : "Resend"}
           </button>
@@ -36,7 +36,7 @@ export function PendingInviteControls({ inviteId }: { inviteId: string }) {
           <button
             type="submit"
             disabled={pending}
-            className="rounded border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-700 disabled:opacity-50"
+            className="rounded-lg border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-700 transition-transform duration-150 hover:scale-105 hover:border-red-300 hover:bg-red-50 active:scale-95 disabled:opacity-50"
           >
             {cancelPending ? "Canceling..." : "Cancel"}
           </button>

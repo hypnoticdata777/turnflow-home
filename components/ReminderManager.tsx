@@ -140,7 +140,7 @@ export function ReminderManager({
         <h2 className="text-2xl font-bold">Recurring reminders</h2>
         <button
           onClick={handleDownloadIcs}
-          className="rounded bg-gray-700 px-4 py-2 text-sm text-white"
+          className="rounded-lg bg-gray-700 px-4 py-2 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-gray-900 active:scale-95"
         >
           Download calendar (.ics)
         </button>
@@ -201,7 +201,7 @@ export function ReminderManager({
           <button
             type="submit"
             disabled={submitting}
-            className="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-800 active:scale-95 disabled:opacity-50"
           >
             {submitting ? "Saving..." : "Add reminder"}
           </button>
@@ -245,14 +245,14 @@ export function ReminderManager({
                     <button
                       onClick={() => handleDone(r)}
                       disabled={actingId === r.id}
-                      className="rounded bg-green-600 px-3 py-1 text-sm text-white disabled:opacity-50"
+                      className="rounded-lg bg-green-600 px-3 py-1 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-green-800 active:scale-95 disabled:opacity-50"
                     >
                       Mark done
                     </button>
                     <button
                       onClick={() => handleDelete(r)}
                       disabled={actingId === r.id}
-                      className="rounded bg-red-600 px-3 py-1 text-sm text-white disabled:opacity-50"
+                      className="rounded-lg bg-red-600 px-3 py-1 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-red-800 active:scale-95 disabled:opacity-50"
                     >
                       Delete
                     </button>

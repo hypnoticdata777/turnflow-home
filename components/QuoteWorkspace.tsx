@@ -133,7 +133,7 @@ function QuoteCard({
           <button
             onClick={() => onApprove(quote.id)}
             disabled={actingId === quote.id}
-            className="rounded bg-green-600 px-2 py-1 text-white disabled:opacity-50"
+            className="rounded-lg bg-green-600 px-2 py-1 text-white transition-transform duration-150 hover:scale-105 hover:bg-green-800 active:scale-95 disabled:opacity-50"
           >
             Approve
           </button>
@@ -142,7 +142,7 @@ function QuoteCard({
           <button
             onClick={() => onDecline(quote.id)}
             disabled={actingId === quote.id}
-            className="rounded bg-gray-500 px-2 py-1 text-white disabled:opacity-50"
+            className="rounded-lg bg-gray-500 px-2 py-1 text-white transition-transform duration-150 hover:scale-105 hover:bg-gray-700 active:scale-95 disabled:opacity-50"
           >
             Decline
           </button>
@@ -150,7 +150,7 @@ function QuoteCard({
         <button
           onClick={() => onDelete(quote.id)}
           disabled={actingId === quote.id}
-          className="rounded bg-red-600 px-2 py-1 text-white disabled:opacity-50"
+          className="rounded-lg bg-red-600 px-2 py-1 text-white transition-transform duration-150 hover:scale-105 hover:bg-red-800 active:scale-95 disabled:opacity-50"
         >
           Delete
         </button>
@@ -426,7 +426,7 @@ export function QuoteWorkspace({
           <button
             type="submit"
             disabled={submitting}
-            className="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-800 active:scale-95 disabled:opacity-50"
           >
             {submitting ? "Saving..." : "Add quote"}
           </button>

@@ -28,7 +28,7 @@ export function OwnerProfileForm({ initialName }: { initialName: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-800 active:scale-95 disabled:opacity-50"
         >
           {pending ? "Saving..." : "Save profile"}
         </button>

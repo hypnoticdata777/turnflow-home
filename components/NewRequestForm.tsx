@@ -168,10 +168,10 @@ export function NewRequestForm({
         : "border-amber-200 bg-amber-50 text-amber-950";
   const summaryButtonClasses =
     intakeSummary.tone === "ready"
-      ? "bg-emerald-800"
+      ? "bg-emerald-800 hover:bg-emerald-900"
       : intakeSummary.tone === "empty"
-        ? "bg-blue-800"
-        : "bg-amber-800";
+        ? "bg-blue-800 hover:bg-blue-900"
+        : "bg-amber-800 hover:bg-amber-900";
   const handoffClasses =
     handoffSummary.tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -225,7 +225,7 @@ export function NewRequestForm({
                 type="button"
                 onClick={handleQuickAddProperty}
                 disabled={quickAddPending}
-                className="rounded bg-blue-600 px-4 py-2 text-sm text-white whitespace-nowrap disabled:opacity-50 md:self-end"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white whitespace-nowrap transition-transform duration-150 hover:scale-105 hover:bg-blue-800 active:scale-95 disabled:opacity-50 md:self-end"
               >
                 {quickAddPending ? "Saving..." : "Add property"}
               </button>
@@ -249,7 +249,7 @@ export function NewRequestForm({
             {nextStep && (
               <a
                 href={nextStep.href}
-                className={`inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium text-white ${summaryButtonClasses}`}
+                className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors duration-150 ${summaryButtonClasses}`}
               >
                 {nextStep.cta}
               </a>
@@ -472,13 +472,13 @@ export function NewRequestForm({
           <button
             type="submit"
             disabled={saving}
-            className="rounded bg-green-700 px-6 py-2 text-white disabled:opacity-50"
+            className="rounded-lg bg-green-700 px-6 py-2 text-white transition-colors duration-150 hover:bg-green-900 disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save draft request"}
           </button>
           <a
             href="/owner/dashboard"
-            className="inline-block rounded bg-gray-600 px-6 py-2 text-center text-white"
+            className="inline-block rounded-lg bg-gray-600 px-6 py-2 text-center text-white transition-colors duration-150 hover:bg-gray-800"
           >
             Cancel
           </a>

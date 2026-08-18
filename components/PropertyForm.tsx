@@ -63,7 +63,7 @@ export function PropertyForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
+        className="rounded-lg bg-green-600 px-4 py-2 text-white transition-transform duration-150 hover:scale-105 hover:bg-green-800 active:scale-95 disabled:opacity-50"
       >
         {pending ? "Saving..." : "Add property"}
       </button>
