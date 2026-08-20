@@ -48,10 +48,10 @@ async function main() {
   // than an empty request would give.
   await page.goto(`${BASE_URL}/owner/dashboard`);
   await page.waitForLoadState("networkidle");
-  const hvacCard = page.locator("div.border", {
+  const hvacCard = page.locator("article", {
     has: page.locator("h2", { hasText: "HVAC not cooling upstairs" }),
   });
-  const hvacHref = await hvacCard.locator('a:has-text("View")').getAttribute("href");
+  const hvacHref = await hvacCard.locator('a:has-text("Open full record")').getAttribute("href");
   if (!hvacHref) {
     throw new Error("Could not find the HVAC request's View link on the dashboard");
   }
