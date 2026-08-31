@@ -36,11 +36,11 @@ company reporting. The value is calmer ownership:
 
 ## Screenshots
 
-These screenshots show the current route coverage pattern. Refresh them before
-using the repo for a public case study or hosted POC, because signed-in owner
-and helper routes have recently gained more value snapshots and care signals.
-The public UX smoke script also captures the homepage, login, and signup screens
-under `screenshots/ux-public/`.
+These screenshots were refreshed against the current owner, vendor, and public
+UI. Refresh them again before a public case study, portfolio update, or hosted
+POC only after changing visible route layout, workflow copy, seeded demo data,
+or the screenshot script. The public UX smoke script also captures the homepage,
+login, and signup screens under `screenshots/ux-public/`.
 
 | | |
 |---|---|
