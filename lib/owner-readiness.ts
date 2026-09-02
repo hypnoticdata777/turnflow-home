@@ -69,6 +69,15 @@ export type OwnerValueMetric = {
   cta: string;
 };
 
+export type OwnerLaneMetric = {
+  lane: "Owner" | "Vendor" | "Collaborator" | "System";
+  value: number;
+  detail: string;
+  tone: "attention" | "progress" | "ready" | "empty";
+  href: string;
+  cta: string;
+};
+
 export type OwnerCareMetric = {
   label: string;
   value: number;
@@ -337,6 +346,77 @@ export function ownerValueMetrics(input: OwnerReadinessInput): OwnerValueMetric[
       tone: reminderCount > 0 ? "ready" : savedHistoryCount > 0 ? "progress" : "empty",
       href: reminderCount > 0 ? "/owner/calendar" : "/owner/onboarding",
       cta: reminderCount > 0 ? "Review reminders" : "Add reminder",
+    },
+  ];
+}
+
+export function ownerLaneMetrics(input: OwnerReadinessInput): OwnerLaneMetric[] {
+  const requestCount = input.requests.length;
+  const propertyCount = input.properties.length;
+  const vendorLaneCount = input.requests.filter(
+    (request) => request.assignedVendorId || request.pendingVendorInviteId
+  ).length;
+  const collaboratorLaneCount = input.requests.filter(
+    (request) => request.collaboratorId || request.pendingCollaboratorInviteId
+  ).length;
+  const evidenceCount = input.requests.filter(
+    (request) => (request.photos ?? []).length > 0
+  ).length;
+  const recordAssetCount = evidenceCount + input.vaultDocuments.length + input.reminders.length;
+  const firstRequestHref = input.requests[0]?.id
+    ? `/owner/requests/${input.requests[0].id}`
+    : "/owner/requests/new";
+
+  return [
+    {
+      lane: "Owner",
+      value: requestCount,
+      detail:
+        requestCount > 0
+          ? `${plural(requestCount, "repair record")} anchored to ${plural(propertyCount, "property", "properties")}.`
+          : propertyCount > 0
+            ? "A property exists; the first repair record is still waiting."
+            : "The owner lane starts with a property and one repair record.",
+      tone: requestCount > 0 ? "ready" : propertyCount > 0 ? "progress" : "empty",
+      href: requestCount > 0 ? "/owner/dashboard" : "/owner/requests/new",
+      cta: requestCount > 0 ? "Review records" : "Log repair",
+    },
+    {
+      lane: "Vendor",
+      value: vendorLaneCount,
+      detail:
+        vendorLaneCount > 0
+          ? `${plural(vendorLaneCount, "request")} ${vendorLaneCount === 1 ? "has" : "have"} an assigned or invited vendor path.`
+          : requestCount > 0
+            ? "No request has an assigned or invited vendor yet."
+            : "Vendor work starts after an owner creates and shares a request.",
+      tone: vendorLaneCount > 0 ? "ready" : requestCount > 0 ? "progress" : "empty",
+      href: firstRequestHref,
+      cta: vendorLaneCount > 0 ? "Review vendor path" : "Invite vendor",
+    },
+    {
+      lane: "Collaborator",
+      value: collaboratorLaneCount,
+      detail:
+        collaboratorLaneCount > 0
+          ? `${plural(collaboratorLaneCount, "request")} ${collaboratorLaneCount === 1 ? "has" : "have"} a helper share path.`
+          : requestCount > 0
+            ? "No trusted helper has scoped access yet."
+            : "Helper access appears only after a request-specific invite.",
+      tone: collaboratorLaneCount > 0 ? "ready" : requestCount > 0 ? "progress" : "empty",
+      href: firstRequestHref,
+      cta: collaboratorLaneCount > 0 ? "Review helper path" : "Invite helper",
+    },
+    {
+      lane: "System",
+      value: recordAssetCount,
+      detail:
+        recordAssetCount > 0
+          ? `${plural(evidenceCount, "proof-backed request")}, ${plural(input.vaultDocuments.length, "vault item")}, and ${plural(input.reminders.length, "reminder")} are tied into the record.`
+          : "Proof, vault documents, and reminders have not started yet.",
+      tone: recordAssetCount > 0 ? "ready" : requestCount > 0 ? "attention" : "empty",
+      href: evidenceCount > 0 ? firstRequestHref : "/owner/onboarding",
+      cta: recordAssetCount > 0 ? "Review record assets" : "Add proof",
     },
   ];
 }

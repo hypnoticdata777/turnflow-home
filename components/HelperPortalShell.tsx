@@ -13,7 +13,7 @@ export function HelperPortalShell({
   children: ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-6 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-gray-100 px-4 py-6 text-gray-950 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <header className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

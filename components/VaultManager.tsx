@@ -87,11 +87,11 @@ export function VaultManager({
   }
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="mb-6 rounded-xl bg-white p-4 shadow">
         <h2 className="mb-4 text-xl font-semibold">Add a document</h2>
         <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-4 md:items-end">
-          <div>
+          <div className="min-w-0">
             <label className="mb-1 block text-xs font-medium">Name</label>
             <input
               value={name}
@@ -100,7 +100,7 @@ export function VaultManager({
               className="w-full rounded border p-2 text-sm"
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="mb-1 block text-xs font-medium">Category</label>
             <select
               value={category}
@@ -116,12 +116,12 @@ export function VaultManager({
               ))}
             </select>
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="mb-1 block text-xs font-medium">File</label>
             <input
               type="file"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full text-sm"
+              className="block w-full min-w-0 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-gray-800"
             />
           </div>
           <button
@@ -146,8 +146,8 @@ export function VaultManager({
                 key={d.id}
                 className="flex flex-col gap-3 rounded border p-3 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div>
-                  <p>
+                <div className="min-w-0">
+                  <p className="break-words">
                     <strong>{d.name}</strong>{" "}
                     <span className="text-xs text-gray-500">({d.category})</span>
                   </p>

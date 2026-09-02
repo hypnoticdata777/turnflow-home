@@ -3,6 +3,7 @@ import {
   ownerAccountReadinessItems,
   ownerCalendarValueMetrics,
   ownerDashboardGuidance,
+  ownerLaneMetrics,
   ownerNextSetupStep,
   ownerPropertyCareSignal,
   ownerReadinessFlags,
@@ -316,6 +317,96 @@ describe("ownerValueMetrics", () => {
       href: "/owner/onboarding",
       cta: "Add reminder",
     });
+  });
+});
+
+describe("ownerLaneMetrics", () => {
+  it("starts every lane from empty state for a new owner", () => {
+    expect(ownerLaneMetrics(emptyInput)).toEqual([
+      {
+        lane: "Owner",
+        value: 0,
+        detail: "The owner lane starts with a property and one repair record.",
+        tone: "empty",
+        href: "/owner/requests/new",
+        cta: "Log repair",
+      },
+      {
+        lane: "Vendor",
+        value: 0,
+        detail: "Vendor work starts after an owner creates and shares a request.",
+        tone: "empty",
+        href: "/owner/requests/new",
+        cta: "Invite vendor",
+      },
+      {
+        lane: "Collaborator",
+        value: 0,
+        detail: "Helper access appears only after a request-specific invite.",
+        tone: "empty",
+        href: "/owner/requests/new",
+        cta: "Invite helper",
+      },
+      {
+        lane: "System",
+        value: 0,
+        detail: "Proof, vault documents, and reminders have not started yet.",
+        tone: "empty",
+        href: "/owner/onboarding",
+        cta: "Add proof",
+      },
+    ]);
+  });
+
+  it("summarizes owner, vendor, collaborator, and record-asset lanes", () => {
+    const metrics = ownerLaneMetrics({
+      properties: [{ id: "property-1" }],
+      requests: [
+        {
+          id: "request-1",
+          assignedVendorId: "vendor-1",
+          collaboratorId: "helper-1",
+          photos: [{ type: "before" }],
+        },
+        {
+          id: "request-2",
+          pendingVendorInviteId: "invite-1",
+          pendingCollaboratorInviteId: "invite-2",
+        },
+      ],
+      invites: [{ status: "pending" }, { status: "pending" }],
+      vaultDocuments: [{ id: "doc-1" }],
+      reminders: [{ id: "reminder-1" }],
+    });
+
+    expect(metrics).toMatchObject([
+      {
+        lane: "Owner",
+        value: 2,
+        tone: "ready",
+        href: "/owner/dashboard",
+      },
+      {
+        lane: "Vendor",
+        value: 2,
+        detail: "2 requests have an assigned or invited vendor path.",
+        tone: "ready",
+        href: "/owner/requests/request-1",
+      },
+      {
+        lane: "Collaborator",
+        value: 2,
+        detail: "2 requests have a helper share path.",
+        tone: "ready",
+        href: "/owner/requests/request-1",
+      },
+      {
+        lane: "System",
+        value: 3,
+        detail: "1 proof-backed request, 1 vault item, and 1 reminder are tied into the record.",
+        tone: "ready",
+      },
+    ]);
   });
 });
 

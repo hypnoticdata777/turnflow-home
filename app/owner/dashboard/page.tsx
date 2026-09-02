@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { invites, properties, reminders, requests, vaultDocuments } from "@/lib/db/schema";
 import {
   ownerDashboardGuidance,
+  ownerLaneMetrics,
   ownerRequestCardSignal,
   ownerRequestUpdateSignal,
   ownerSetupProgress,
@@ -88,18 +89,25 @@ export default async function OwnerDashboardPage({
     vaultDocuments: ownerVaultDocs,
     reminders: ownerReminders,
   });
+  const laneMetrics = ownerLaneMetrics({
+    properties: ownerProperties,
+    requests: allOwnerRequests,
+    invites: ownerInvites,
+    vaultDocuments: ownerVaultDocs,
+    reminders: ownerReminders,
+  });
   const guidanceClasses =
     guidance.tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
       : guidance.tone === "empty"
         ? "border-blue-200 bg-blue-50 text-blue-950"
-        : "border-amber-200 bg-amber-50 text-amber-950";
+        : "border-cyan-200 bg-cyan-50 text-cyan-950";
   const guidanceButtonClasses =
     guidance.tone === "ready"
       ? "bg-emerald-800 hover:bg-emerald-900"
       : guidance.tone === "empty"
         ? "bg-blue-800 hover:bg-blue-900"
-        : "bg-amber-800 hover:bg-amber-900";
+        : "bg-cyan-800 hover:bg-cyan-900";
 
   const chipClasses = (isActive: boolean) =>
     `rounded-full border px-3 py-1 text-sm whitespace-nowrap transition-transform duration-150 hover:scale-105 active:scale-95 ${
@@ -113,7 +121,7 @@ export default async function OwnerDashboardPage({
       : tone === "attention"
         ? "border-blue-200 bg-blue-50 text-blue-950"
         : tone === "progress"
-          ? "border-amber-200 bg-amber-50 text-amber-950"
+          ? "border-cyan-200 bg-cyan-50 text-cyan-950"
           : "border-gray-200 bg-white text-gray-950";
   const valueMetricButtonClasses = (tone: (typeof valueMetrics)[number]["tone"]) =>
     tone === "ready"
@@ -121,32 +129,48 @@ export default async function OwnerDashboardPage({
       : tone === "attention"
         ? "bg-blue-800 hover:bg-blue-900"
         : tone === "progress"
-        ? "bg-amber-800 hover:bg-amber-900"
+          ? "bg-cyan-800 hover:bg-cyan-900"
+          : "bg-gray-800 hover:bg-gray-900";
+  const laneMetricClasses = (tone: (typeof laneMetrics)[number]["tone"]) =>
+    tone === "ready"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      : tone === "attention"
+        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : tone === "progress"
+          ? "border-cyan-200 bg-cyan-50 text-cyan-950"
+          : "border-gray-200 bg-white text-gray-950";
+  const laneMetricButtonClasses = (tone: (typeof laneMetrics)[number]["tone"]) =>
+    tone === "ready"
+      ? "bg-emerald-800 hover:bg-emerald-900"
+      : tone === "attention"
+        ? "bg-blue-800 hover:bg-blue-900"
+        : tone === "progress"
+          ? "bg-cyan-800 hover:bg-cyan-900"
           : "bg-gray-800 hover:bg-gray-900";
   const requestSignalClasses = (tone: ReturnType<typeof ownerRequestCardSignal>["tone"]) =>
     tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
       : tone === "attention"
         ? "border-blue-200 bg-blue-50 text-blue-950"
-        : "border-amber-200 bg-amber-50 text-amber-950";
+        : "border-cyan-200 bg-cyan-50 text-cyan-950";
   const requestSignalButtonClasses = (tone: ReturnType<typeof ownerRequestCardSignal>["tone"]) =>
     tone === "ready"
       ? "bg-emerald-800 hover:bg-emerald-900"
       : tone === "attention"
         ? "bg-blue-800 hover:bg-blue-900"
-        : "bg-amber-800 hover:bg-amber-900";
+        : "bg-cyan-800 hover:bg-cyan-900";
   const requestUpdateClasses = (tone: ReturnType<typeof ownerRequestUpdateSignal>["tone"]) =>
     tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
       : tone === "attention"
         ? "border-blue-200 bg-blue-50 text-blue-950"
-        : "border-amber-200 bg-amber-50 text-amber-950";
+        : "border-cyan-200 bg-cyan-50 text-cyan-950";
   const requestUpdateButtonClasses = (tone: ReturnType<typeof ownerRequestUpdateSignal>["tone"]) =>
     tone === "ready"
       ? "bg-emerald-800 hover:bg-emerald-900"
       : tone === "attention"
         ? "bg-blue-800 hover:bg-blue-900"
-        : "bg-amber-800 hover:bg-amber-900";
+        : "bg-cyan-800 hover:bg-cyan-900";
 
   return (
     <main>
@@ -207,6 +231,38 @@ export default async function OwnerDashboardPage({
               <Link
                 href={metric.href}
                 className={`mt-4 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 ${valueMetricButtonClasses(
+                  metric.tone
+                )}`}
+              >
+                {metric.cta}
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="mb-4">
+          <p className="text-sm font-semibold text-emerald-800">Workspace lanes</p>
+          <h2 className="text-2xl font-bold text-gray-950">
+            How this record is split and connected
+          </h2>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {laneMetrics.map((metric) => (
+            <article
+              key={metric.lane}
+              className={`rounded-lg border p-4 ${laneMetricClasses(metric.tone)}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold">{metric.lane}</p>
+                <p className="text-2xl font-bold">{metric.value}</p>
+              </div>
+              <p className="mt-3 min-h-20 text-sm leading-6">{metric.detail}</p>
+              <Link
+                href={metric.href}
+                className={`mt-4 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 ${laneMetricButtonClasses(
                   metric.tone
                 )}`}
               >

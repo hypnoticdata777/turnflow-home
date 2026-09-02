@@ -10,7 +10,7 @@ export default async function OwnerLayout({
   await requireRole("owner");
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-100 md:flex-row">
+    <div className="flex min-h-screen flex-col bg-gray-100 text-gray-950 md:flex-row">
       <Suspense
         fallback={
           <div className="h-20 border-b bg-white md:h-auto md:w-64 md:border-r" />
@@ -18,7 +18,7 @@ export default async function OwnerLayout({
       >
         <OwnerSidebar />
       </Suspense>
-      <div className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</div>
+      <div className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</div>
     </div>
   );
 }

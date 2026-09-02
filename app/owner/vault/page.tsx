@@ -45,7 +45,7 @@ export default async function VaultPage({
       : tone === "attention"
         ? "border-blue-200 bg-blue-50 text-blue-950"
         : tone === "progress"
-          ? "border-amber-200 bg-amber-50 text-amber-950"
+          ? "border-cyan-200 bg-cyan-50 text-cyan-950"
           : "border-gray-200 bg-white text-gray-950";
 
   return (
@@ -73,7 +73,7 @@ export default async function VaultPage({
                 <Link
                   key={p.id}
                   href={`/owner/vault?propertyId=${p.id}`}
-                  className={`rounded-full border px-3 py-1 text-sm whitespace-nowrap transition-transform duration-150 hover:scale-105 active:scale-95 ${
+                  className={`max-w-full truncate rounded-full border px-3 py-1 text-sm whitespace-nowrap transition-transform duration-150 hover:scale-105 active:scale-95 ${
                     selectedPropertyId === p.id
                       ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
                       : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-100"

@@ -2,6 +2,59 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-02 - Owner Dashboard Lane Maturity and Contrast Fix
+
+Scope: keep moving after hosted auth/proof uploads by making the owner dashboard
+show the app's separate work lanes more clearly, while fixing the washed-out
+light UI seen on the hosted page.
+
+### Changed
+
+- Removed the global `prefers-color-scheme: dark` override from
+  `app/globals.css`. The app is currently designed as a light interface, and
+  that media query made users with dark-mode browsers inherit near-white text
+  on white cards.
+- Added explicit dark foreground classes to the owner and helper app shells so
+  nested cards inherit readable text.
+- Added `ownerLaneMetrics()` to summarize the current state of the Owner,
+  Vendor, Collaborator, and System lanes from the same request/property/invite/
+  proof/vault/reminder data already driving the dashboard.
+- Added a new owner dashboard lane panel so the homeowner can see how records,
+  vendor paths, helper sharing, and record assets connect.
+- Moved the in-progress/accent panels from pale amber to cyan so the dashboard
+  no longer stacks beige-on-white sections.
+- Fixed the mobile vault overflow found during UX smoke by making the owner
+  content column, property selector chips, vault file input, and document rows
+  shrink inside narrow viewports.
+- Added unit coverage for empty and populated lane states.
+
+### Why
+
+Resend-backed outbound email is useful later, but it is not required for the
+core POC now that manual invite/share paths and hosted auth work. The bigger
+next step is making the product model legible: owners create the source record,
+vendors work inside scoped request paths, collaborators get request-specific
+access, and system assets such as proof, vault docs, and reminders attach back
+to the record.
+
+### Validation
+
+- `npm.cmd test -- __tests__/owner-readiness.test.ts` passed: 36 tests.
+- `npm.cmd run typecheck` passed.
+- `npm.cmd run ux:owner-flow` passed locally against a fresh owner account:
+  signup, property creation, request creation, and proof upload.
+- `npm.cmd run ux:owner` passed locally against that owner account across
+  desktop and mobile owner pages after the vault overflow fix.
+- `npm.cmd run verify` passed: lint, typecheck, 270 tests, production audit,
+  Drizzle generation/schema drift, and production build.
+
+### Follow-Up
+
+- Redeploy and visually re-check the hosted dashboard under a dark-mode browser
+  preference to confirm the contrast fix.
+- Continue maturing each lane's dedicated UX: vendor closeout, collaborator
+  comments, owner review, and system notifications/history.
+
 ## 2026-09-02 - Blob Upload Proxy, Public Store, Dev-Audit Cleanup
 
 Scope: get proof/vault uploads actually working. Two stacked failures were in
