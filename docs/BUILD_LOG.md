@@ -2,6 +2,30 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-02 - Hosted Latest Deployment Verification
+
+Scope: clear the first investor-demo readiness gate by confirming production
+is running the latest dashboard/contrast work.
+
+### Validation
+
+- Hosted `npm.cmd run ux:owner-flow` passed against
+  `https://turnflow-home.vercel.app`: fresh owner signup, property creation,
+  request creation, and proof upload.
+- A direct hosted browser check confirmed `/owner/dashboard` renders the new
+  Owner/Vendor/Collaborator/System lane panel with `0` horizontal overflow.
+- The hosted dashboard screenshot shows the light-theme contrast fix is live:
+  dark readable text on white cards, with the former beige-on-white issue gone.
+
+### Follow-Up
+
+- The broad hosted owner smoke reached signed-in routes but timed out while
+  waiting for `networkidle` on `/owner/dashboard`; a direct heading-based check
+  passed, so update the smoke script to avoid using `networkidle` as the only
+  hosted readiness signal.
+- Build curated investor demo seed data so the production demo uses polished
+  records instead of timestamped smoke-test records.
+
 ## 2026-09-02 - Owner Dashboard Lane Maturity and Contrast Fix
 
 Scope: keep moving after hosted auth/proof uploads by making the owner dashboard
