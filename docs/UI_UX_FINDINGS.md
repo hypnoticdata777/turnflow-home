@@ -27,7 +27,7 @@ Statuses:
 
 | ID | Date | Route | Device/Width | Priority | Status | Finding | Evidence | Owner Decision | Fix Commit |
 |---|---|---|---|---|---|---|---|---|---|
-| UX-001 | 2026-09-02 | `/owner/requests/new` -> `/owner/requests/[id]` | Desktop smoke, 1440px | P0 | Open | New owner can create a request, but before-proof upload fails in current hosted/local credential setup. | `npm run ux:owner-flow` fails after request creation; hosted `/api/blob-upload` cannot read `BLOB_READ_WRITE_TOKEN`, local Blob token points to a missing store. | Refresh/reconnect Blob token, set it in Vercel Production and local `.env.local`, redeploy, then rerun owner-flow smoke. | - |
+| UX-001 | 2026-09-02 | `/owner/requests/new` -> `/owner/requests/[id]` | Desktop smoke, 1440px | P0 | Fixed | New owner can create a request, but before-proof upload fails. Root cause was two stacked: (1) browser `@vercel/blob/client` upload is CORS-blocked on Vercel's endpoints (open platform bug); (2) the Blob store was Private but the app serves proof URLs publicly. | `npm run ux:owner-flow` hung on upload; network trace showed the browser PUT to `vercel.com/api/blob` CORS-blocked; with a server-side proxy `put()` then rejected `public access on a private store`. | Rewrote uploads as a server-side proxy (`/api/blob-upload` receives the file, does server `put()`); replaced the Private store with a new Public one. Local + hosted `npm run ux:owner-flow` pass; detail page shows "Request saved with initial proof". | `5ea0bc8` |
 
 ## Writing A Finding
 

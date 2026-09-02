@@ -59,24 +59,21 @@ and access mode is immutable, so it was replaced with a new **Public** store
 
 ### Validation
 
-- Local `UX_BASE_URL=http://localhost:3000 npm run ux:owner-flow` **passes**:
-  signup -> property -> request -> before-proof upload -> detail page shows
-  "Request saved with initial proof" and the photo thumbnail.
-  `screenshots/ux-owner-flow/03-request-created.png` captured.
+- Local and hosted `npm run ux:owner-flow` both **pass** (commit `5ea0bc8`
+  deployed to Production): signup -> property -> request -> before-proof
+  upload -> detail page shows "Request saved with initial proof", Evidence
+  trail "Ready - 1 photo attached", and the photo thumbnail.
+  `screenshots/ux-owner-flow/` regenerated from the hosted run.
+- Hosted `npm run ux:public`, `npm run ux:owner`, `npm run ux:helper` all pass.
 - `npm.cmd run verify` passed: lint, typecheck, 268 tests, production audit
   (0 vulnerabilities), Drizzle generation, schema drift check, production build.
 - `npm.cmd run poc:ready` against `.env.local` (new public store token): 0
   blockers, only the `RESEND_API_KEY` warning.
 - Full `npm audit`: 4 moderate dev-only findings remain (`drizzle-kit ->
   @esbuild-kit -> esbuild@0.18.20`); `js-yaml` cleared.
+- `NEXT_PUBLIC_VERCEL_BLOB_API_URL` removed from Vercel.
 
 ### Follow-Up
-
-- Deploy this change and point Production `BLOB_READ_WRITE_TOKEN` at the new
-  public store, then run
-  `UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:owner-flow`.
-  Remove the now-useless `NEXT_PUBLIC_VERCEL_BLOB_API_URL` from Vercel.
-- Commit the `screenshots/ux-owner-flow/` set once the hosted run is green.
 - Real iPhone HEIC photos over ~4 MB will not upload through the proxy (no
   in-browser HEIC transcode). Revisit if user testing hits it - options are a
   HEIC decode lib or a resumable/multipart upload service.
