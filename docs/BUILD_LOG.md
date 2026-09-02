@@ -2,6 +2,90 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-02 - Blob Upload Proxy, Public Store, Dev-Audit Cleanup
+
+Scope: get proof/vault uploads actually working. Two stacked failures were in
+the way - a Vercel platform CORS bug on browser client uploads, and a Blob
+store that was created Private when the app needs Public.
+
+### Changed
+
+- Replaced the browser `@vercel/blob/client` `upload()` flow with a
+  **server-side upload proxy**:
+  - `app/api/blob-upload/route.ts` now receives the file as
+    `multipart/form-data`, re-checks the same path authorization
+    (`turnflow/{requestId}/{type}/{uid}/...`,
+    `turnflow-property/{propertyId}/{uid}/...`), and stores it with a
+    server-side `put(pathname, file, { access: "public", token })`.
+    Distinct status codes: `503` no server token, `400` bad form body,
+    `403` (typed `UploadAccessError`) authz denial, `413` over ~4 MB,
+    `415` disallowed type, `502` storage/infra failure (real cause logged,
+    not echoed to the browser).
+  - New `lib/blob-upload-client.ts` `uploadFileToBlob(pathname, file)` POSTs
+    to that route. Large `image/jpeg|png|webp` files are downscaled on the
+    client (canvas, longest edge 2000px, JPEG q0.82) before the request so
+    they clear Vercel's ~4.5 MB serverless body limit. HEIC/PDF cannot be
+    downscaled in-browser and surface a clear "too large" error if oversized.
+  - `NewRequestForm`, `RequestDetailView`, `VendorPortal`, `QuoteWorkspace`,
+    `VaultManager`, `WorkSessionPanel` swapped from `upload()` to
+    `uploadFileToBlob()`.
+- `lib/poc-readiness.ts` now validates the *shape* of `BLOB_READ_WRITE_TOKEN`
+  (must start `vercel_blob_rw_`, >= 30 chars) - a stale/placeholder value is
+  a hard blocker instead of a green check. Added unit coverage.
+- `scripts/ux-owner-flow-smoke.ts` `assertRequestDetail` no longer expects the
+  zero-photo "Start the evidence trail" empty state; it now fails if the
+  detail page still shows "No photos yet." after the queued before-proof
+  upload.
+- `npm audit fix` bumped the transitive dev dependency `js-yaml`
+  `4.3.0 -> 4.3.2` (GHSA-5p4m-2wfm-xmqj) and let npm 11 dedupe redundant
+  nested `vitest`/`esbuild` platform-binary entries out of
+  `package-lock.json`. `npm ci` re-verified with no further lockfile changes.
+
+### Why
+
+The 2026-09-02 owner-flow smoke hung on proof upload. Tracing the hosted flow:
+`POST /api/blob-upload` returned `200` with a valid client token, but the
+browser's follow-up `PUT` to `https://vercel.com/api/blob/?pathname=...` (and,
+with `NEXT_PUBLIC_VERCEL_BLOB_API_URL` overridden, `blob.vercel-storage.com`)
+was **CORS-blocked - no `Access-Control-Allow-Origin`**. This is an open Vercel
+platform issue (community thread escalated to Vercel; no SDK/env/dashboard fix
+- `@vercel/blob` 2.8.0 uses the same endpoint). Routing uploads through our own
+function sidesteps it entirely. With the proxy in place, `put()` then failed
+`Cannot use public access on a private store` and, after the old store was
+deleted, `This store does not exist` - the `turnflow_blob` store was Private
+and access mode is immutable, so it was replaced with a new **Public** store
+(`turnflow-home-blob`). The app serves proof photos and vault docs as raw
+`blob.url` in `<img>`/`<a>`, which requires a public store.
+
+### Validation
+
+- Local `UX_BASE_URL=http://localhost:3000 npm run ux:owner-flow` **passes**:
+  signup -> property -> request -> before-proof upload -> detail page shows
+  "Request saved with initial proof" and the photo thumbnail.
+  `screenshots/ux-owner-flow/03-request-created.png` captured.
+- `npm.cmd run verify` passed: lint, typecheck, 268 tests, production audit
+  (0 vulnerabilities), Drizzle generation, schema drift check, production build.
+- `npm.cmd run poc:ready` against `.env.local` (new public store token): 0
+  blockers, only the `RESEND_API_KEY` warning.
+- Full `npm audit`: 4 moderate dev-only findings remain (`drizzle-kit ->
+  @esbuild-kit -> esbuild@0.18.20`); `js-yaml` cleared.
+
+### Follow-Up
+
+- Deploy this change and point Production `BLOB_READ_WRITE_TOKEN` at the new
+  public store, then run
+  `UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:owner-flow`.
+  Remove the now-useless `NEXT_PUBLIC_VERCEL_BLOB_API_URL` from Vercel.
+- Commit the `screenshots/ux-owner-flow/` set once the hosted run is green.
+- Real iPhone HEIC photos over ~4 MB will not upload through the proxy (no
+  in-browser HEIC transcode). Revisit if user testing hits it - options are a
+  HEIC decode lib or a resumable/multipart upload service.
+- Add `RESEND_API_KEY` + a verified `NOTIFICATIONS_FROM_EMAIL` before testing
+  real outbound invite/reminder email.
+- Still deferred: no `Content-Security-Policy` until nonce handling is designed
+  (`__tests__/security-headers.test.ts`); the dev-only esbuild audit chain
+  (forced fix downgrades `drizzle-kit` to 0.18.1).
+
 ## 2026-09-02 - First Owner Flow Smoke and Env Blocker Triage
 
 Scope: turn the first homeowner POC path into a repeatable smoke check and

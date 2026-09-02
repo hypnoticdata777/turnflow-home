@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
+import { uploadFileToBlob } from "@/lib/blob-upload-client";
 import { recordWorkSessionEventAction } from "@/lib/actions/work-sessions";
 import { recordRequestPhotoAction } from "@/lib/actions/requests";
 import { requestPhotoPath } from "@/lib/blob-paths";
@@ -68,10 +68,7 @@ export function WorkSessionPanel({
         const photoType = proofRequirement.photoType ?? "other";
         setStatus(`Uploading ${photoType} proof...`);
         const pathname = requestPhotoPath(requestId, photoType, userId, proofFile.name);
-        const blob = await upload(pathname, proofFile, {
-          access: "public",
-          handleUploadUrl: "/api/blob-upload",
-        });
+        const blob = await uploadFileToBlob(pathname, proofFile);
         const photo = await recordRequestPhotoAction(
           requestId,
           photoType,

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
+import { uploadFileToBlob } from "@/lib/blob-upload-client";
 import { VAULT_DOCUMENT_CATEGORIES } from "@/lib/utils";
 import { createVaultDocumentAction, deleteVaultDocumentAction } from "@/lib/actions/vault";
 import { vaultDocumentPath } from "@/lib/blob-paths";
@@ -44,10 +44,7 @@ export function VaultManager({
     setFormStatus("Uploading...");
     try {
       const pathname = vaultDocumentPath(propertyId, userId, file.name);
-      const blob = await upload(pathname, file, {
-        access: "public",
-        handleUploadUrl: "/api/blob-upload",
-      });
+      const blob = await uploadFileToBlob(pathname, file);
 
       const formData = new FormData();
       formData.set("name", name.trim());

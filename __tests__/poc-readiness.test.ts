@@ -8,7 +8,7 @@ const readyEnv: PocReadinessEnv = {
   AUTH_URL: "https://turnflow-home.example.com",
   NEXTAUTH_URL: "https://turnflow-home.example.com",
   APP_URL: "https://turnflow-home.example.com",
-  BLOB_READ_WRITE_TOKEN: "vercel_blob_token",
+  BLOB_READ_WRITE_TOKEN: `vercel_blob_rw_${"A".repeat(24)}`,
   HEALTHCHECK_SECRET: "b".repeat(32),
   CRON_SECRET: "c".repeat(32),
   RESEND_API_KEY: "re_123",
@@ -73,6 +73,22 @@ describe("evaluatePocReadiness", () => {
       expect.objectContaining({
         key: "NOTIFICATIONS_FROM_EMAIL",
         status: "blocked",
+      })
+    );
+  });
+
+  it("blocks a Blob token that is present but not a real read/write token", () => {
+    const report = evaluatePocReadiness({
+      ...readyEnv,
+      BLOB_READ_WRITE_TOKEN: "vercel_blob_token",
+    });
+
+    expect(report.status).toBe("blocked");
+    expect(report.items).toContainEqual(
+      expect.objectContaining({
+        key: "BLOB_READ_WRITE_TOKEN",
+        status: "blocked",
+        detail: expect.stringContaining("not a valid Vercel Blob read/write token"),
       })
     );
   });

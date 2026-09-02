@@ -123,7 +123,9 @@ npm run verify
 ```
 
 `npm run poc:ready` checks whether the required auth, database, Blob, app URL,
-healthcheck, cron, and notification settings are ready for a user-facing POC.
+healthcheck, cron, and notification settings are ready for a user-facing POC. It
+validates shape as well as presence: a `BLOB_READ_WRITE_TOKEN` that is not a
+real `vercel_blob_rw_...` token is reported as a blocker, not a pass.
 
 `npm run verify` runs lint, typecheck, unit tests, production dependency audit,
 Drizzle schema generation, schema drift check, and a production build.

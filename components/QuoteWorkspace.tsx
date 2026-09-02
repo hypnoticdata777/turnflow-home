@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
+import { uploadFileToBlob } from "@/lib/blob-upload-client";
 import {
   approveQuoteAction,
   createQuoteAction,
@@ -213,10 +213,7 @@ export function QuoteWorkspace({
       if (attachment) {
         setFormStatus("Uploading attachment...");
         const pathname = requestPhotoPath(requestId, "quote", userId, attachment.name);
-        const blob = await upload(pathname, attachment, {
-          access: "public",
-          handleUploadUrl: "/api/blob-upload",
-        });
+        const blob = await uploadFileToBlob(pathname, attachment);
         formData.set("attachmentUrl", blob.url);
         formData.set("attachmentBlobPath", blob.pathname);
       }

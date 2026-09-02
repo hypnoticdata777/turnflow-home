@@ -23,9 +23,10 @@ export type CreateRequestResult = { requestId: string } | { error: string };
  * Creates a request and returns its id. Inline photo capture (Package 1)
  * happens in two steps from the client: this action creates the row
  * first (photo Blob paths need a real requestId to be scoped under),
- * then the client uploads each queued file via @vercel/blob/client and
- * calls recordRequestPhotoAction() per file — mirrors the Firebase
- * build's "create request, then loop uploadRequestPhoto()" sequencing.
+ * then the client uploads each queued file via uploadFileToBlob() (POST
+ * to /api/blob-upload) and calls recordRequestPhotoAction() per file —
+ * mirrors the Firebase build's "create request, then loop
+ * uploadRequestPhoto()" sequencing.
  */
 export async function createRequestAction(
   formData: FormData

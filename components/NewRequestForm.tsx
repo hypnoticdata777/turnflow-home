@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
+import { uploadFileToBlob } from "@/lib/blob-upload-client";
 import {
   CONTACT_METHODS,
   REQUEST_CATEGORIES,
@@ -116,10 +116,7 @@ export function NewRequestForm({
       setPhotoStatus(`Uploading ${type}...`);
       try {
         const pathname = requestPhotoPath(requestId, type, userId, file.name);
-        const blob = await upload(pathname, file, {
-          access: "public",
-          handleUploadUrl: "/api/blob-upload",
-        });
+        const blob = await uploadFileToBlob(pathname, file);
         await recordRequestPhotoAction(requestId, type, blob.url, blob.pathname);
       } catch (err) {
         console.error(`Failed to upload ${type} photo:`, err);

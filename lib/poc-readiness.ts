@@ -56,6 +56,20 @@ function validEmail(value: string | undefined) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value!.trim());
 }
 
+// A real Vercel Blob read/write token looks like
+// `vercel_blob_rw_<storeId>_<secret>` and runs well past 30 characters. A
+// short or wrong-prefixed value is a stale/placeholder token that passes a
+// bare presence check but fails the moment a client upload is attempted, so
+// treat it as a hard blocker rather than a green check.
+function blobTokenState(value: string | undefined) {
+  if (!hasValue(value)) return "missing";
+  const token = value!.trim();
+  if (!token.startsWith("vercel_blob_rw_") || token.length < 30) {
+    return "malformed";
+  }
+  return "ready";
+}
+
 function secretStrength(value: string | undefined) {
   if (!hasValue(value)) return "missing";
   if (value!.trim().length < 32) return "short";
@@ -170,7 +184,7 @@ export function evaluatePocReadiness(env: PocReadinessEnv): PocReadinessReport {
           detail: "APP_URL is missing or is not an absolute http(s) URL.",
           nextStep: "Set APP_URL to the local, preview, or production base URL.",
         },
-    hasValue(env.BLOB_READ_WRITE_TOKEN)
+    blobTokenState(env.BLOB_READ_WRITE_TOKEN) === "ready"
       ? {
           key: "BLOB_READ_WRITE_TOKEN",
           label: "Blob storage",
@@ -181,8 +195,12 @@ export function evaluatePocReadiness(env: PocReadinessEnv): PocReadinessReport {
           key: "BLOB_READ_WRITE_TOKEN",
           label: "Blob storage",
           status: "blocked",
-          detail: "BLOB_READ_WRITE_TOKEN is missing.",
-          nextStep: "Set the Vercel Blob read/write token before real users upload files.",
+          detail:
+            blobTokenState(env.BLOB_READ_WRITE_TOKEN) === "missing"
+              ? "BLOB_READ_WRITE_TOKEN is missing."
+              : "BLOB_READ_WRITE_TOKEN is set but is not a valid Vercel Blob read/write token (expected a long value starting with vercel_blob_rw_).",
+          nextStep:
+            "Copy a fresh read/write token from the Vercel Blob store and set it for Production and local .env.local before real users upload files.",
         },
     healthSecretStrength === "ready"
       ? {

@@ -125,7 +125,6 @@ async function assertRequestDetail(page: Page) {
     "Repair record",
     "Evidence trail",
     "Record workflow",
-    "Start the evidence trail",
     "Vendor",
     "Decision Log",
   ]) {
@@ -134,8 +133,10 @@ async function assertRequestDetail(page: Page) {
     }
   }
 
-  if (!/Before|before proof/i.test(bodyText)) {
-    throw new Error("created request detail does not show the uploaded before proof context");
+  // The queued before-proof upload must have landed: the detail page shows the
+  // "No photos yet." empty state only while photos.length === 0.
+  if (bodyText.includes("No photos yet")) {
+    throw new Error("created request detail still shows no uploaded proof photo");
   }
 
   await expectNoHorizontalOverflow(page, "created request detail");

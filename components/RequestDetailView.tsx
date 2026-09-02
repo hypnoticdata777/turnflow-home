@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
+import { uploadFileToBlob } from "@/lib/blob-upload-client";
 import {
   REQUEST_STATUSES,
   costForRequest,
@@ -338,10 +338,7 @@ export function RequestDetailView({
     setUploadStatus(`Uploading ${type}...`);
     try {
       const pathname = requestPhotoPath(request.id, type, userId, file.name);
-      const blob = await upload(pathname, file, {
-        access: "public",
-        handleUploadUrl: "/api/blob-upload",
-      });
+      const blob = await uploadFileToBlob(pathname, file);
       await recordRequestPhotoAction(request.id, type, blob.url, blob.pathname);
       setPhotos((prev) => [...prev, { id: blob.pathname, type, url: blob.url }]);
       setUploadStatus(`Uploaded ${type}.`);

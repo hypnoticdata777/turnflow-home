@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
+import { uploadFileToBlob } from "@/lib/blob-upload-client";
 import {
   REQUEST_STATUSES,
   requestStatusBadgeClasses,
@@ -203,10 +203,7 @@ export function VendorPortal({
     setUploadStatus(`Uploading ${type}...`);
     try {
       const pathname = requestPhotoPath(selectedRequestId, type, userId, file.name);
-      const blob = await upload(pathname, file, {
-        access: "public",
-        handleUploadUrl: "/api/blob-upload",
-      });
+      const blob = await uploadFileToBlob(pathname, file);
       await recordRequestPhotoAction(selectedRequestId, type, blob.url, blob.pathname);
       setUploadStatus(`Uploaded ${type}.`);
       router.refresh();
