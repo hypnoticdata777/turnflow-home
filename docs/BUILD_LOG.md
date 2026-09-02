@@ -36,10 +36,11 @@ store that was created Private when the app needs Public.
   zero-photo "Start the evidence trail" empty state; it now fails if the
   detail page still shows "No photos yet." after the queued before-proof
   upload.
-- `npm audit fix` bumped the transitive dev dependency `js-yaml`
-  `4.3.0 -> 4.3.2` (GHSA-5p4m-2wfm-xmqj) and let npm 11 dedupe redundant
-  nested `vitest`/`esbuild` platform-binary entries out of
-  `package-lock.json`. `npm ci` re-verified with no further lockfile changes.
+- `package-lock.json` left as-is. An `npm audit fix` (npm 11) was tried for
+  the dev-only `js-yaml` advisory GHSA-5p4m-2wfm-xmqj, but it also pruned
+  nested `@esbuild/*` platform entries that CI's older `npm ci` requires,
+  breaking the Validate job. Reverted to the committed lockfile; `js-yaml`
+  stays on `4.3.0` (dev-only, not in `npm run audit:prod`).
 
 ### Why
 
@@ -69,8 +70,9 @@ and access mode is immutable, so it was replaced with a new **Public** store
   (0 vulnerabilities), Drizzle generation, schema drift check, production build.
 - `npm.cmd run poc:ready` against `.env.local` (new public store token): 0
   blockers, only the `RESEND_API_KEY` warning.
-- Full `npm audit`: 4 moderate dev-only findings remain (`drizzle-kit ->
-  @esbuild-kit -> esbuild@0.18.20`); `js-yaml` cleared.
+- Full `npm audit`: 4 moderate + 1 high, all dev-only (`drizzle-kit ->
+  @esbuild-kit -> esbuild@0.18.20`, and `js-yaml`); `npm run audit:prod`
+  stays at 0.
 - `NEXT_PUBLIC_VERCEL_BLOB_API_URL` removed from Vercel.
 
 ### Follow-Up
