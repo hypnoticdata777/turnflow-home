@@ -100,6 +100,9 @@ Re-run locally before deploying if the environment or database schema changed:
 - `docs/QA_CHECKLIST.md` is complete for the target environment.
 - `.env.local` is not committed.
 - Vercel project has Neon and Blob environment variables set.
+- `BLOB_READ_WRITE_TOKEN` is scoped to Production before deploying production;
+  a visible row in Vercel is not enough if the saved value is blank, scoped only
+  to another environment, or the app was not redeployed after changing it.
 - Vercel project has `AUTH_SECRET` and `NEXTAUTH_SECRET` set to the same long
   random value. If login fails with `MissingSecret`, rotate both and redeploy.
 - `AUTH_URL` and `NEXTAUTH_URL` point to the actual deployed URL.
@@ -145,8 +148,13 @@ Ready:
 ```bash
 UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:public
 UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:owner
+UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:owner-flow
 UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:helper
 ```
+
+`npm run ux:owner-flow` is the hosted proof-upload canary: it signs up a fresh
+public-safe owner, creates a property, creates a request, uploads a proof image,
+and fails if `/api/blob-upload` cannot read `BLOB_READ_WRITE_TOKEN` at runtime.
 
 ## Current Known POC Gaps
 

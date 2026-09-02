@@ -27,7 +27,7 @@ Statuses:
 
 | ID | Date | Route | Device/Width | Priority | Status | Finding | Evidence | Owner Decision | Fix Commit |
 |---|---|---|---|---|---|---|---|---|---|
-| UX-000 | - | - | - | - | - | No findings logged yet. | - | - | - |
+| UX-001 | 2026-09-02 | `/owner/requests/new` -> `/owner/requests/[id]` | Desktop smoke, 1440px | P0 | Open | New owner can create a request, but before-proof upload fails in current hosted/local credential setup. | `npm run ux:owner-flow` fails after request creation; hosted `/api/blob-upload` cannot read `BLOB_READ_WRITE_TOKEN`, local Blob token points to a missing store. | Refresh/reconnect Blob token, set it in Vercel Production and local `.env.local`, redeploy, then rerun owner-flow smoke. | - |
 
 ## Writing A Finding
 

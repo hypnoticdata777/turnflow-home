@@ -84,7 +84,8 @@ server-side authorization checks, and deploy-ready verification.
 - Auth.js / NextAuth v5 with credentials auth and JWT sessions
 - Tailwind CSS v4
 - Vitest for unit tests
-- Playwright-based smoke scripts for public, owner, and helper routes
+- Playwright-based smoke scripts for public, owner, first-owner workflow, and
+  helper routes
 
 ## Getting Started
 
@@ -144,11 +145,22 @@ npm run ux:owner
 npm run ux:helper
 ```
 
+To verify the first useful homeowner workflow end-to-end against a local,
+preview, or production URL, run:
+
+```bash
+npm run ux:owner-flow
+```
+
+This creates a public-safe test owner account, adds a property, creates a
+request with a before-proof image, and fails if the request is saved but Blob
+proof upload is not working.
+
 The public smoke check covers `/`, `/login`, and `/signup` at desktop and mobile
 widths. The smoke scripts check responsive route behavior, active navigation,
 visible encoding artifacts, horizontal overflow, and key route-specific cues.
 Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
-and `screenshots/ux-helper/`.
+`screenshots/ux-owner-flow/`, and `screenshots/ux-helper/`.
 
 ## Core Features
 
@@ -267,14 +279,15 @@ The codebase is in good shape for the next hosted POC preparation pass:
 - Database schema generation reports no drift.
 - Production dependency audit reports no vulnerabilities.
 - Browser smoke scripts exist for the public homepage/auth entry points, owner
-  routes, and helper routes.
+  routes, the first-owner create/upload flow, and helper routes.
 
 Before inviting external users, the remaining launch steps are:
 
 - Configure a real preview/production environment.
 - Run `npm run poc:ready` in that environment.
 - Seed public-safe demo data.
-- Run owner and helper browser smoke tests against the hosted URL.
+- Run owner, first-owner workflow, and helper browser smoke tests against the
+  hosted URL.
 - Refresh screenshots for README, portfolio, and case study.
 - Run a homeowner user-testing pass and log findings in `docs/UI_UX_FINDINGS.md`.
 

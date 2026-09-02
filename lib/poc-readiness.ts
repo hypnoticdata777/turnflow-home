@@ -5,6 +5,9 @@ export type PocReadinessEnv = Partial<
     NodeJS.ProcessEnv,
     | "DATABASE_URL"
     | "AUTH_SECRET"
+    | "NEXTAUTH_SECRET"
+    | "AUTH_URL"
+    | "NEXTAUTH_URL"
     | "APP_URL"
     | "BLOB_READ_WRITE_TOKEN"
     | "HEALTHCHECK_SECRET"
@@ -61,6 +64,7 @@ function secretStrength(value: string | undefined) {
 
 export function evaluatePocReadiness(env: PocReadinessEnv): PocReadinessReport {
   const authSecretStrength = secretStrength(env.AUTH_SECRET);
+  const nextAuthSecretStrength = secretStrength(env.NEXTAUTH_SECRET);
   const healthSecretStrength = secretStrength(env.HEALTHCHECK_SECRET);
   const cronSecretStrength = secretStrength(env.CRON_SECRET);
   const hasResend = hasValue(env.RESEND_API_KEY);
@@ -97,6 +101,60 @@ export function evaluatePocReadiness(env: PocReadinessEnv): PocReadinessReport {
               ? "AUTH_SECRET is missing."
               : "AUTH_SECRET is shorter than 32 characters.",
           nextStep: "Set a long random AUTH_SECRET before testing login or deploying.",
+        },
+    nextAuthSecretStrength === "ready" && env.NEXTAUTH_SECRET === env.AUTH_SECRET
+      ? {
+          key: "NEXTAUTH_SECRET",
+          label: "NextAuth compatibility secret",
+          status: "ready",
+          detail: "NEXTAUTH_SECRET matches AUTH_SECRET for hosted Auth.js credentials callbacks.",
+        }
+      : {
+          key: "NEXTAUTH_SECRET",
+          label: "NextAuth compatibility secret",
+          status: "blocked",
+          detail:
+            nextAuthSecretStrength === "missing"
+              ? "NEXTAUTH_SECRET is missing."
+              : env.NEXTAUTH_SECRET !== env.AUTH_SECRET
+                ? "NEXTAUTH_SECRET does not match AUTH_SECRET."
+                : "NEXTAUTH_SECRET is shorter than 32 characters.",
+          nextStep:
+            "Set NEXTAUTH_SECRET to the exact same long value as AUTH_SECRET, then redeploy.",
+        },
+    validUrl(env.AUTH_URL) && env.AUTH_URL === env.APP_URL
+      ? {
+          key: "AUTH_URL",
+          label: "Auth URL",
+          status: "ready",
+          detail: "AUTH_URL matches APP_URL for same-host Auth.js redirects.",
+        }
+      : {
+          key: "AUTH_URL",
+          label: "Auth URL",
+          status: "blocked",
+          detail: !validUrl(env.AUTH_URL)
+            ? "AUTH_URL is missing or is not an absolute http(s) URL."
+            : "AUTH_URL does not match APP_URL.",
+          nextStep:
+            "Set AUTH_URL to the same base URL as APP_URL for the target environment.",
+        },
+    validUrl(env.NEXTAUTH_URL) && env.NEXTAUTH_URL === env.APP_URL
+      ? {
+          key: "NEXTAUTH_URL",
+          label: "NextAuth URL",
+          status: "ready",
+          detail: "NEXTAUTH_URL matches APP_URL for hosted NextAuth compatibility.",
+        }
+      : {
+          key: "NEXTAUTH_URL",
+          label: "NextAuth URL",
+          status: "blocked",
+          detail: !validUrl(env.NEXTAUTH_URL)
+            ? "NEXTAUTH_URL is missing or is not an absolute http(s) URL."
+            : "NEXTAUTH_URL does not match APP_URL.",
+          nextStep:
+            "Set NEXTAUTH_URL to the same base URL as APP_URL for the target environment.",
         },
     validUrl(env.APP_URL)
       ? {

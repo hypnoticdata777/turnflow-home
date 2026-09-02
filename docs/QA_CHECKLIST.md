@@ -60,6 +60,18 @@ assigned to the demo vendor and shared with the demo collaborator, checks each
 scoped workspace at desktop and mobile widths, and saves screenshots under
 `screenshots/ux-helper/`.
 
+For a first-time homeowner workflow canary, run:
+
+```bash
+npm run ux:owner-flow
+```
+
+This signs up a public-safe test owner, adds a property, creates a request,
+uploads before proof through Vercel Blob, and saves screenshots under
+`screenshots/ux-owner-flow/`. It must fail if the request row is created but the
+proof file does not upload, because that is exactly the trust-breaking POC path
+new users will hit first.
+
 ## Vendor Smoke Test
 
 1. Sign in as the demo vendor and open `/vendor`.
@@ -158,6 +170,8 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 - The public homepage shows actual product UI, not a broken image, blank hero,
   or PMC-positioned placeholder.
 - `npm run ux:owner` passes for signed-in owner routes before a moderated test.
+- `npm run ux:owner-flow` passes before asking a fresh homeowner tester to
+  create their first request with proof.
 - The owner intake screen separates required save fields from optional handoff
   details so homeowners can save a draft without feeling trapped by polish work.
 - Account & Sharing must make current visibility understandable before the owner
@@ -201,5 +215,6 @@ scoped workspace at desktop and mobile widths, and saves screenshots under
 - Owner cannot create a property or request.
 - Invite acceptance or access removal leaves stale role visibility.
 - Proof packet, backup export, or vault upload fails for public-safe demo data.
+- First-owner request creation succeeds but before-proof upload fails.
 - Any changed homeowner workflow scores `0` in the UI/UX review scorecard.
 - Any open `P0` UI/UX finding, or open `P1` finding tied to a changed workflow.

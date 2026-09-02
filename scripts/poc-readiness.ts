@@ -6,6 +6,9 @@ config({ path: ".env.local" });
 const env: PocReadinessEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
   AUTH_SECRET: process.env.AUTH_SECRET,
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+  AUTH_URL: process.env.AUTH_URL,
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   APP_URL: process.env.APP_URL,
   BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
   HEALTHCHECK_SECRET: process.env.HEALTHCHECK_SECRET,

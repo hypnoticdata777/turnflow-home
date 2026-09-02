@@ -2,6 +2,59 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-02 - First Owner Flow Smoke and Env Blocker Triage
+
+Scope: turn the first homeowner POC path into a repeatable smoke check and
+triage the hosted proof-upload blocker.
+
+### Changed
+
+- Added `npm run ux:owner-flow`, which signs up a public-safe owner, creates a
+  property, creates a maintenance request, attempts a before-proof upload, saves
+  screenshots under `screenshots/ux-owner-flow/`, and fails if the request saves
+  but the proof upload does not.
+- Added upload diagnostics to the owner-flow smoke script for `/api/blob-upload`
+  and Vercel Blob responses, with client upload tokens redacted from output.
+- Expanded `npm run poc:ready` to require `NEXTAUTH_SECRET`, `AUTH_URL`, and
+  `NEXTAUTH_URL`, including matching `AUTH_SECRET` and `APP_URL` checks.
+- Fixed the local `.env.local` development shape without printing secrets:
+  `NEXTAUTH_SECRET` was normalized onto its own row, and local `APP_URL`,
+  `AUTH_URL`, and `NEXTAUTH_URL` were set to `http://localhost:3000`.
+- Updated README, deployment, and QA docs so the first-owner create/upload path
+  is part of hosted POC smoke testing.
+
+### Why
+
+Hosted login was already fixed, so the next real blocker was whether a new
+homeowner can complete the first useful workflow: create an account, add a
+property, save a request, and attach proof. The new smoke test proved request
+creation works but proof upload does not currently complete in the hosted POC.
+
+The production failure is `/api/blob-upload` returning a 400 because the server
+function cannot read `BLOB_READ_WRITE_TOKEN`. The local split-test proved a
+second credential issue: the local token is present, but Vercel Blob reports
+that the referenced store does not exist. That points to Blob environment
+wiring/token freshness rather than request-form UI logic.
+
+### Validation
+
+- `npm.cmd test -- __tests__/poc-readiness.test.ts` passed: 5 tests.
+- `npm.cmd run poc:ready` now reports 0 hard blockers locally, with one email
+  delivery warning while `RESEND_API_KEY` is blank.
+- Hosted `UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:owner-flow`
+  intentionally fails on proof upload with a missing Blob read/write token.
+- Local `UX_BASE_URL=http://localhost:3000 npm run ux:owner-flow` reaches Blob
+  token generation but intentionally fails because the local Blob token points
+  to a store Vercel Blob cannot find.
+
+### Follow-Up
+
+- Reconnect or recreate the Vercel Blob store, copy a fresh read/write token,
+  set `BLOB_READ_WRITE_TOKEN` for Production and local `.env.local`, redeploy,
+  then rerun `npm run ux:owner-flow` locally and against production.
+- Add `RESEND_API_KEY` and a verified `NOTIFICATIONS_FROM_EMAIL` before testing
+  real outbound invite/reminder email.
+
 ## 2026-09-02 - Hosted POC Auth and Smoke Hardening
 
 Scope: finish the Vercel hosted-login blocker and make hosted smoke checks

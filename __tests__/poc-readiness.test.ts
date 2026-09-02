@@ -4,6 +4,9 @@ import { evaluatePocReadiness, type PocReadinessEnv } from "@/lib/poc-readiness"
 const readyEnv: PocReadinessEnv = {
   DATABASE_URL: "postgres://user:pass@example.neon.tech/db?sslmode=require",
   AUTH_SECRET: "a".repeat(32),
+  NEXTAUTH_SECRET: "a".repeat(32),
+  AUTH_URL: "https://turnflow-home.example.com",
+  NEXTAUTH_URL: "https://turnflow-home.example.com",
   APP_URL: "https://turnflow-home.example.com",
   BLOB_READ_WRITE_TOKEN: "vercel_blob_token",
   HEALTHCHECK_SECRET: "b".repeat(32),
@@ -26,11 +29,14 @@ describe("evaluatePocReadiness", () => {
     const report = evaluatePocReadiness({});
 
     expect(report.status).toBe("blocked");
-    expect(report.blockedCount).toBe(5);
+    expect(report.blockedCount).toBe(8);
     expect(report.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ key: "DATABASE_URL", status: "blocked" }),
         expect.objectContaining({ key: "AUTH_SECRET", status: "blocked" }),
+        expect.objectContaining({ key: "NEXTAUTH_SECRET", status: "blocked" }),
+        expect.objectContaining({ key: "AUTH_URL", status: "blocked" }),
+        expect.objectContaining({ key: "NEXTAUTH_URL", status: "blocked" }),
         expect.objectContaining({ key: "APP_URL", status: "blocked" }),
         expect.objectContaining({ key: "BLOB_READ_WRITE_TOKEN", status: "blocked" }),
         expect.objectContaining({ key: "HEALTHCHECK_SECRET", status: "blocked" }),
@@ -68,6 +74,37 @@ describe("evaluatePocReadiness", () => {
         key: "NOTIFICATIONS_FROM_EMAIL",
         status: "blocked",
       })
+    );
+  });
+
+  it("blocks when the hosted NextAuth secret does not match AUTH_SECRET", () => {
+    const report = evaluatePocReadiness({
+      ...readyEnv,
+      NEXTAUTH_SECRET: "different".repeat(4),
+    });
+
+    expect(report.status).toBe("blocked");
+    expect(report.items).toContainEqual(
+      expect.objectContaining({
+        key: "NEXTAUTH_SECRET",
+        status: "blocked",
+      })
+    );
+  });
+
+  it("blocks when auth base URLs point at a different host than APP_URL", () => {
+    const report = evaluatePocReadiness({
+      ...readyEnv,
+      AUTH_URL: "https://wrong.example.com",
+      NEXTAUTH_URL: "https://wrong.example.com",
+    });
+
+    expect(report.status).toBe("blocked");
+    expect(report.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: "AUTH_URL", status: "blocked" }),
+        expect.objectContaining({ key: "NEXTAUTH_URL", status: "blocked" }),
+      ])
     );
   });
 });
