@@ -147,6 +147,19 @@ npm run ux:owner
 npm run ux:helper
 ```
 
+For a resettable hosted investor walkthrough, seed the curated public-safe
+story and use the same password for all three lanes: `TurnFlowDemo!2026`.
+
+```bash
+npm run db:seed:investor
+```
+
+| Lane | Email |
+|---|---|
+| Owner | `investor.owner@turnflow.demo` |
+| Vendor | `investor.vendor@turnflow.demo` |
+| Collaborator | `investor.helper@turnflow.demo` |
+
 To verify the first useful homeowner workflow end-to-end against a local,
 preview, or production URL, run:
 

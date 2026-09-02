@@ -15,7 +15,7 @@ const VIEWPORTS = [
 ] as const;
 
 async function login(page: Page, email: string, password: string) {
-  await page.goto(new URL("/login", BASE_URL).toString(), { waitUntil: "networkidle" });
+  await page.goto(new URL("/login", BASE_URL).toString(), { waitUntil: "domcontentloaded" });
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
@@ -36,16 +36,18 @@ async function login(page: Page, email: string, password: string) {
     );
   }
 
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 }
 
 async function assertRoute(page: Page, pathName: string, heading: string) {
-  await page.goto(new URL(pathName, BASE_URL).toString(), { waitUntil: "networkidle" });
+  await page.goto(new URL(pathName, BASE_URL).toString(), { waitUntil: "domcontentloaded" });
 
   if (page.url().includes("/login")) {
     throw new Error(`Helper smoke was redirected to login while opening ${pathName}`);
   }
 
+  const routeHeading = page.getByRole("heading", { name: heading }).first();
+  await routeHeading.waitFor({ timeout: 15000 });
   const headingCount = await page.getByRole("heading", { name: heading }).count();
   if (headingCount === 0) {
     throw new Error(`${pathName} is missing heading "${heading}"`);

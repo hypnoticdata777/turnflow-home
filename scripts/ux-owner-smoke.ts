@@ -32,7 +32,7 @@ const ROUTE_TEXT_CHECKS: Partial<Record<(typeof ROUTES)[number]["path"], string[
 };
 
 async function login(page: Page) {
-  await page.goto(new URL("/login", BASE_URL).toString(), { waitUntil: "networkidle" });
+  await page.goto(new URL("/login", BASE_URL).toString(), { waitUntil: "domcontentloaded" });
   await page.getByLabel("Email").fill(OWNER_EMAIL);
   await page.getByLabel("Password").fill(OWNER_PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
@@ -53,22 +53,25 @@ async function login(page: Page) {
     );
   }
 
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 }
 
 async function assertRoute(page: Page, route: (typeof ROUTES)[number]) {
-  await page.goto(new URL(route.path, BASE_URL).toString(), { waitUntil: "networkidle" });
+  await page.goto(new URL(route.path, BASE_URL).toString(), { waitUntil: "domcontentloaded" });
 
   if (page.url().includes("/login")) {
     throw new Error(`Owner smoke was redirected to login while opening ${route.path}`);
   }
 
+  const heading = page.getByRole("heading", { name: route.heading }).first();
+  await heading.waitFor({ timeout: 15000 });
   const headingCount = await page.getByRole("heading", { name: route.heading }).count();
   if (headingCount === 0) {
     throw new Error(`${route.path} is missing heading "${route.heading}"`);
   }
 
   const nav = page.getByRole("navigation", { name: "Owner navigation" });
+  await nav.first().waitFor({ timeout: 15000 });
   if ((await nav.count()) === 0) {
     throw new Error(`${route.path} is missing owner navigation`);
   }
@@ -102,7 +105,7 @@ async function assertRoute(page: Page, route: (typeof ROUTES)[number]) {
 }
 
 async function assertFirstRequestDetail(page: Page) {
-  await page.goto(new URL("/owner/dashboard", BASE_URL).toString(), { waitUntil: "networkidle" });
+  await page.goto(new URL("/owner/dashboard", BASE_URL).toString(), { waitUntil: "domcontentloaded" });
   const firstRequestLink = page.getByRole("link", { name: "Open full record" }).first();
   if ((await firstRequestLink.count()) === 0) return;
 
@@ -112,7 +115,7 @@ async function assertFirstRequestDetail(page: Page) {
     }),
     firstRequestLink.click(),
   ]);
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
   const bodyText = await page.locator("body").innerText();
 
   for (const expectedText of [

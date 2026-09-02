@@ -21,7 +21,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed.ts",
-    "db:seed:demo": "tsx scripts/seed-demo.ts"
+    "db:seed:demo": "tsx scripts/seed-demo.ts",
+    "db:seed:investor": "tsx scripts/seed-investor-demo.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

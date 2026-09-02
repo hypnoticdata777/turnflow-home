@@ -85,10 +85,30 @@ user data.
 Use only public-safe demo data for screenshots, portfolio links, and hosted POC
 walkthroughs.
 
-The same seed also guarantees a public-safe demo property and one request that
-is assigned to the demo vendor and shared with the demo collaborator. That data
-keeps `npm run ux:owner` and `npm run ux:helper` repeatable in preview and POC
-environments.
+For investor walkthroughs, use the curated reset instead:
+
+```bash
+npm run db:seed:investor
+```
+
+It resets only these `@turnflow.demo` accounts and rebuilds a polished
+owner/vendor/collaborator story:
+
+| Role | Email | Password |
+|---|---|---|
+| Owner | `investor.owner@turnflow.demo` | `TurnFlowDemo!2026` |
+| Vendor | `investor.vendor@turnflow.demo` | `TurnFlowDemo!2026` |
+| Collaborator | `investor.helper@turnflow.demo` | `TurnFlowDemo!2026` |
+
+The investor seed includes multiple properties, assigned vendor work, scoped
+helper access, pending invites, proof photos, quotes, tasks, work sessions,
+closeout, billing, vault documents, reminders, comments, decision history, and
+notification-log rows.
+
+The standard demo seed also guarantees a public-safe demo property and one
+request that is assigned to the demo vendor and shared with the demo
+collaborator. That data keeps `npm run ux:owner` and `npm run ux:helper`
+repeatable in preview and POC environments.
 
 ## Pre-Deploy Checklist
 

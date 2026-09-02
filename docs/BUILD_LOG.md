@@ -2,6 +2,58 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-02 - Curated Investor Demo Seed and Hosted Smoke Stability
+
+Scope: clear the next investor-demo readiness gate by giving production a
+repeatable, public-safe dataset across owner, vendor, and collaborator lanes,
+then make hosted smoke checks fail on real route/UX problems instead of
+long-lived background network activity.
+
+### Changed
+
+- Added `scripts/seed-investor-demo.ts`, a curated reset that rebuilds only the
+  `@turnflow.demo` accounts:
+  - Owner: `investor.owner@turnflow.demo`
+  - Vendor: `investor.vendor@turnflow.demo`
+  - Collaborator: `investor.helper@turnflow.demo`
+  - Shared password: `TurnFlowDemo!2026`
+- Added `npm run db:seed:investor`.
+- Seeded a richer investor story: two properties, five requests, scoped vendor
+  and collaborator access, pending invites, proof placeholders, quotes, project
+  tasks, work sessions, closeout submission, billing record, vault documents,
+  reminders, request comments, decision history, and notification-log rows.
+- Reworked the investor seed cleanup so it deletes request/property child rows
+  before deleting the demo users. The first version seeded successfully once but
+  failed on rerun because `comments.author_id` still referenced the old owner.
+- Updated hosted Playwright smoke scripts to wait for `domcontentloaded` and
+  route headings/nav instead of using `networkidle` as the primary readiness
+  signal. Hosted `/owner/dashboard` can keep background requests alive long
+  enough to make `networkidle` a false negative even when the route is usable.
+- Documented the investor walkthrough accounts in `README.md` and
+  `docs/DEPLOYMENT.md`.
+
+### Validation
+
+- `npm.cmd run typecheck` passed after adding the seed script.
+- `npm.cmd run db:seed:investor` passed twice against the configured hosted
+  Neon database, proving the curated data can be reset repeatedly.
+- Hosted owner smoke passed with `UX_BASE_URL=https://turnflow-home.vercel.app`,
+  `UX_OWNER_EMAIL=investor.owner@turnflow.demo`, and the investor demo password
+  across desktop and mobile owner pages plus first request detail.
+- Hosted helper smoke passed with the investor vendor and collaborator accounts
+  across desktop and mobile `/vendor` and `/collaborator`.
+- Hosted public smoke passed across `/`, `/login`, and `/signup` at desktop and
+  mobile widths.
+- `npm.cmd run verify` passed: lint, typecheck, 270 tests, production audit,
+  Drizzle generation/schema drift, and production build.
+
+### Follow-Up
+
+- The vendor portal is data-rich but visually dense; keep it on the UX polish
+  list before the investor handoff.
+- The investor demo has log-only email records while `RESEND_API_KEY` remains
+  intentionally out of scope.
+
 ## 2026-09-02 - Hosted Latest Deployment Verification
 
 Scope: clear the first investor-demo readiness gate by confirming production

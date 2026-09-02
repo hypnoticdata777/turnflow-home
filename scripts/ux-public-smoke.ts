@@ -36,8 +36,10 @@ const ROUTES = [
 
 async function assertRoute(page: Page, route: (typeof ROUTES)[number]) {
   const url = new URL(route.path, BASE_URL).toString();
-  await page.goto(url, { waitUntil: "networkidle" });
+  await page.goto(url, { waitUntil: "domcontentloaded" });
 
+  const heading = page.getByRole("heading", { name: route.heading }).first();
+  await heading.waitFor({ timeout: 15000 });
   const headingCount = await page.getByRole("heading", { name: route.heading }).count();
   if (headingCount === 0) {
     throw new Error(`${route.path} is missing heading "${route.heading}"`);
