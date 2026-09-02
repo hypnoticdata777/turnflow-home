@@ -20,6 +20,10 @@ Set these locally in `.env.local` and in the Vercel project environment:
 DATABASE_URL=
 BLOB_READ_WRITE_TOKEN=
 AUTH_SECRET=
+NEXTAUTH_SECRET=
+AUTH_URL=
+NEXTAUTH_URL=
+AUTH_TRUST_HOST=true
 APP_URL=
 RESEND_API_KEY=
 NOTIFICATIONS_FROM_EMAIL=
@@ -30,7 +34,12 @@ HEALTHCHECK_SECRET=
 Notes:
 
 - `DATABASE_URL` should be the Neon pooled connection string.
-- `AUTH_SECRET` should be a long random value.
+- `AUTH_SECRET` should be a long random value. In Vercel, set
+  `NEXTAUTH_SECRET` to the same value for Auth.js/NextAuth compatibility.
+- `AUTH_URL` and `NEXTAUTH_URL` should match the deployed production URL, for
+  example `https://turnflow-home.vercel.app`.
+- `AUTH_TRUST_HOST` should be `true` in Vercel production so the hosted callback
+  path can trust the platform host.
 - `APP_URL` must match the deployed app URL in production so invite links are
   correct.
 - `RESEND_API_KEY` can stay blank for a no-email POC, but sends will log as
@@ -91,6 +100,9 @@ Re-run locally before deploying if the environment or database schema changed:
 - `docs/QA_CHECKLIST.md` is complete for the target environment.
 - `.env.local` is not committed.
 - Vercel project has Neon and Blob environment variables set.
+- Vercel project has `AUTH_SECRET` and `NEXTAUTH_SECRET` set to the same long
+  random value. If login fails with `MissingSecret`, rotate both and redeploy.
+- `AUTH_URL` and `NEXTAUTH_URL` point to the actual deployed URL.
 - `APP_URL` points to the actual deployed URL.
 - `CRON_SECRET` is set for production.
 - `HEALTHCHECK_SECRET` is set for production monitoring.
@@ -126,6 +138,15 @@ Re-run locally before deploying if the environment or database schema changed:
     sign in as that role and confirm the request is no longer visible.
 19. Open the owner's request detail page and confirm the Decision Log shows the
     access-removal event with the removed account email.
+
+Run the automated hosted smoke scripts after Vercel reports the deployment as
+Ready:
+
+```bash
+UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:public
+UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:owner
+UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:helper
+```
 
 ## Current Known POC Gaps
 

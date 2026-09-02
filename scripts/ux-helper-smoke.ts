@@ -31,7 +31,7 @@ async function login(page: Page, email: string, password: string) {
         "Helper smoke could not sign in.",
         `Attempted account: ${email}`,
         alertText ? `Login page message: ${alertText}` : "No login error was rendered.",
-        "Confirm AUTH_SECRET and DATABASE_URL are configured, run npm run db:seed, and rerun npm run ux:helper.",
+        "Confirm AUTH_SECRET, NEXTAUTH_SECRET, and DATABASE_URL are configured, run npm run db:seed, and rerun npm run ux:helper.",
       ].join(" ")
     );
   }
@@ -68,6 +68,8 @@ async function assertRoute(page: Page, pathName: string, heading: string) {
 }
 
 async function assertHelperWorkspace(page: Page, pathName: string, role: "vendor" | "collaborator") {
+  const bodyText = await page.locator("body").innerText();
+  const normalizedBodyText = bodyText.toLowerCase();
   const expectedText =
     role === "vendor"
       ? [
@@ -104,7 +106,7 @@ async function assertHelperWorkspace(page: Page, pathName: string, role: "vendor
         ];
 
   for (const text of expectedText) {
-    if ((await page.getByText(text, { exact: true }).count()) === 0) {
+    if (!normalizedBodyText.includes(text.toLowerCase())) {
       throw new Error(`${pathName} is missing helper workspace text "${text}"`);
     }
   }

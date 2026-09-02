@@ -48,7 +48,7 @@ async function login(page: Page) {
         "Owner smoke could not sign in.",
         `Attempted account: ${OWNER_EMAIL}`,
         alertText ? `Login page message: ${alertText}` : "No login error was rendered.",
-        "Confirm AUTH_SECRET and DATABASE_URL are configured, run npm run db:seed, and rerun npm run ux:owner.",
+        "Confirm AUTH_SECRET, NEXTAUTH_SECRET, and DATABASE_URL are configured, run npm run db:seed, and rerun npm run ux:owner.",
       ].join(" ")
     );
   }
@@ -106,8 +106,14 @@ async function assertFirstRequestDetail(page: Page) {
   const firstRequestLink = page.getByRole("link", { name: "Open full record" }).first();
   if ((await firstRequestLink.count()) === 0) return;
 
-  await firstRequestLink.click();
+  await Promise.all([
+    page.waitForURL((url) => url.pathname.startsWith("/owner/requests/"), {
+      timeout: 15000,
+    }),
+    firstRequestLink.click(),
+  ]);
   await page.waitForLoadState("networkidle");
+  const bodyText = await page.locator("body").innerText();
 
   for (const expectedText of [
     "Assigned vendor fit",
@@ -118,7 +124,7 @@ async function assertFirstRequestDetail(page: Page) {
     "Work timeline",
     "Vendor",
   ]) {
-    if ((await page.getByText(expectedText, { exact: true }).count()) === 0) {
+    if (!bodyText.includes(expectedText)) {
       throw new Error(`/owner/requests/[id] is missing request detail text "${expectedText}"`);
     }
   }

@@ -2,6 +2,48 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-02 - Hosted POC Auth and Smoke Hardening
+
+Scope: finish the Vercel hosted-login blocker and make hosted smoke checks
+match the live owner/helper UI more reliably.
+
+### Changed
+
+- Added deployment documentation for `AUTH_URL`, `NEXTAUTH_URL`,
+  `AUTH_TRUST_HOST`, and matching `AUTH_SECRET`/`NEXTAUTH_SECRET` values.
+- Updated `.env.local.example`, README, and deployment runbook so future hosted
+  setup includes the Auth.js compatibility secret path.
+- Hardened owner smoke detail navigation by waiting for the request-detail URL
+  before checking request-detail content.
+- Hardened helper smoke route text checks to compare rendered page text
+  case-insensitively, so visual uppercase labels still validate the intended UI
+  content.
+
+### Why
+
+The hosted app deployed successfully, but login failed at
+`/api/auth/callback/credentials`. Vercel runtime logs showed
+`MissingSecret`, which means the production function could not see a usable
+Auth.js secret. Rotating `AUTH_SECRET`, adding the matching `NEXTAUTH_SECRET`,
+and redeploying fixed hosted login. The next hosted smoke pass exposed brittle
+test assumptions rather than product breakage, so the checks now follow the
+rendered UI more closely.
+
+### Validation
+
+- Hosted login succeeded at `https://turnflow-home.vercel.app`.
+- `UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:public` passed.
+- `UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:owner` passed.
+- `UX_BASE_URL=https://turnflow-home.vercel.app npm run ux:helper` passed.
+- `npm.cmd run verify` passed: lint, typecheck, 265 tests, production audit,
+  Drizzle generation/schema drift check, and production build.
+
+### Follow-Up
+
+- Capture or curate fresh portfolio-ready signed-in screenshots from the hosted
+  environment.
+- Begin moderated owner/vendor user testing against the hosted POC.
+
 ## 2026-08-17 - App-Wide Button Restyle and Copyright Notice
 
 Scope: consistent rounded/hover button styling across every owner-facing page

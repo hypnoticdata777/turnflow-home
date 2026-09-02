@@ -17,9 +17,10 @@ with them.
 > place, automated verification passes, and the owner UI now includes
 > readiness/value guidance across setup, dashboard, request detail, properties,
 > vault, calendar, account sharing, backup, and the public homepage. A real
-> hosted POC still needs production environment configuration, seeded demo data,
-> refreshed signed-in screenshots, and manual user testing before inviting
-> external users.
+> hosted POC now has production environment configuration, seeded demo data, and
+> live public/owner/helper smoke coverage against Vercel. It still needs
+> refreshed portfolio-ready signed-in screenshots and moderated manual user
+> testing before inviting external users.
 
 ## Product Direction
 
@@ -102,6 +103,10 @@ template.
 DATABASE_URL=
 BLOB_READ_WRITE_TOKEN=
 AUTH_SECRET=
+NEXTAUTH_SECRET=
+AUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3000
+AUTH_TRUST_HOST=true
 APP_URL=http://localhost:3000
 RESEND_API_KEY=
 NOTIFICATIONS_FROM_EMAIL=notifications@example.com
@@ -130,8 +135,8 @@ Run public route checks against a running local or preview server:
 npm run ux:public
 ```
 
-After configuring `AUTH_SECRET` and `DATABASE_URL`, seed demo accounts and run
-signed-in owner/helper smoke checks:
+After configuring `AUTH_SECRET`, `NEXTAUTH_SECRET`, and `DATABASE_URL`, seed
+demo accounts and run signed-in owner/helper smoke checks:
 
 ```bash
 npm run db:seed
