@@ -81,11 +81,14 @@ export function BillingRecordPanel({
   }
 
   return (
-    <section id={id} className="scroll-mt-6">
-      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <section
+      id={id}
+      className="scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
+    >
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-blue-700">Billing record</p>
-          <h2 className="text-xl font-semibold">Final charge history</h2>
+          <p className="text-sm font-semibold text-cyan-700">Billing record</p>
+          <h2 className="text-xl font-semibold text-slate-950">Final charge history</h2>
         </div>
         <p className="text-sm font-medium text-gray-700">
           {records.length} {records.length === 1 ? "record" : "records"}
@@ -130,7 +133,10 @@ export function BillingRecordPanel({
       )}
 
       {mode === "owner" && latest && (
-        <form onSubmit={saveBillingRecord} className="mt-3 space-y-3 rounded-lg border p-3">
+        <form
+          onSubmit={saveBillingRecord}
+          className="mt-3 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+        >
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm font-medium">
               Amount
@@ -140,7 +146,7 @@ export function BillingRecordPanel({
                 type="number"
                 min="0"
                 step="0.01"
-                className="mt-1 w-full rounded border p-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
               />
             </label>
             <label className="block text-sm font-medium">
@@ -150,7 +156,7 @@ export function BillingRecordPanel({
                 onChange={(event) =>
                   setBillingStatus(event.target.value as BillingRecordStatus)
                 }
-                className="mt-1 w-full rounded border bg-white p-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
               >
                 {BILLING_RECORD_STATUSES.map((item) => (
                   <option key={item} value={item}>
@@ -167,7 +173,7 @@ export function BillingRecordPanel({
               onChange={(event) => setInvoiceReference(event.target.value)}
               maxLength={120}
               placeholder="Invoice number, receipt reference, check memo..."
-              className="mt-1 w-full rounded border p-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </label>
           <label className="block text-sm font-medium">
@@ -178,13 +184,13 @@ export function BillingRecordPanel({
               maxLength={500}
               rows={2}
               placeholder="Optional payment context, dispute note, or owner reminder."
-              className="mt-1 w-full rounded border p-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </label>
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-black hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save billing record"}
           </button>

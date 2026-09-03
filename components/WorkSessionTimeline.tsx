@@ -34,11 +34,14 @@ export function WorkSessionTimeline({
   const counts = workSessionCounts(events);
 
   return (
-    <section id={id} className="scroll-mt-6">
-      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <section
+      id={id}
+      className="scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
+    >
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-blue-700">Work timeline</p>
-          <h2 className="text-xl font-semibold">Vendor work sessions</h2>
+          <p className="text-sm font-semibold text-cyan-700">Work timeline</p>
+          <h2 className="text-xl font-semibold text-slate-950">Vendor work sessions</h2>
         </div>
         <p className="text-sm font-medium text-gray-700">{events.length} events</p>
       </div>

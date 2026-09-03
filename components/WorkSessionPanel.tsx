@@ -104,7 +104,14 @@ export function WorkSessionPanel({
   }
 
   return (
-    <section id={id} className="mt-4 scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4">
+    <section
+      id={id}
+      className="mt-4 scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
+    >
+      <div className="mb-4">
+        <p className="text-sm font-semibold text-cyan-700">Job activity</p>
+        <h2 className="text-xl font-semibold text-slate-950">Work sessions</h2>
+      </div>
       <div className={`mb-4 rounded-lg border p-3 ${GUIDANCE_CLASSES[guidance.tone]}`}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -117,7 +124,7 @@ export function WorkSessionPanel({
             disabled={savingEvent !== null || primaryReadiness?.blocked}
             onClick={() => recordEvent(guidance.primaryEvent)}
             title={primaryReadiness?.blocked ? primaryReadiness.detail : undefined}
-            className="inline-flex w-fit items-center justify-center rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-black active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-10 w-fit items-center justify-center rounded-lg bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-black hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {guidance.primaryAction}
           </button>
@@ -134,7 +141,7 @@ export function WorkSessionPanel({
               const selectedTask = tasks.find((task) => task.id === event.target.value);
               setTaskLabel(selectedTask?.title ?? "Main repair");
             }}
-            className="mt-1 mb-3 w-full rounded border bg-white p-2 text-sm"
+            className="mt-1 mb-3 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
           >
             {tasks.map((task) => (
               <option key={task.id} value={task.id}>
@@ -152,7 +159,7 @@ export function WorkSessionPanel({
             onChange={(event) => setTaskLabel(event.target.value)}
             maxLength={80}
             placeholder="Main repair, demo, plumbing, paint touch-up..."
-            className="mt-1 mb-3 w-full rounded border p-2 text-sm"
+            className="mt-1 mb-3 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
           />
         </label>
       )}
@@ -165,7 +172,7 @@ export function WorkSessionPanel({
           maxLength={500}
           rows={2}
           placeholder="Optional: what started, why it paused, what changed, or what the owner should review."
-          className="mt-1 w-full rounded border p-2 text-sm"
+          className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
         />
       </label>
 
@@ -194,13 +201,13 @@ export function WorkSessionPanel({
 
       <div className="mt-3 grid gap-2 sm:grid-cols-4">
         {eventReadiness.map((readiness) => (
-          <div key={readiness.event} className="rounded border border-gray-200 bg-white p-2">
+          <div key={readiness.event} className="rounded-lg border border-gray-200 bg-white p-2">
             <button
               type="button"
               disabled={savingEvent !== null || readiness.blocked}
               onClick={() => recordEvent(readiness.event)}
               title={readiness.blocked ? readiness.detail : undefined}
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-transform duration-150 hover:scale-105 hover:border-gray-400 hover:bg-gray-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition duration-150 hover:-translate-y-0.5 hover:border-gray-400 hover:bg-gray-100 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {savingEvent === readiness.event ? "Recording..." : readiness.label}
             </button>
