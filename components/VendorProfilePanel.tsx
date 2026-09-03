@@ -28,6 +28,7 @@ export function VendorProfilePanel({
   const router = useRouter();
   const readiness = vendorProfileReadiness(profile);
   const selectedTrades = new Set(profile?.trades ?? []);
+  const hasReadyProfile = readiness.tone === "ready";
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -68,99 +69,123 @@ export function VendorProfilePanel({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 lg:grid-cols-2">
-        <label className="block text-sm">
-          <span className="font-semibold">Business name</span>
-          <input
-            name="businessName"
-            defaultValue={profile?.businessName ?? ""}
-            className="mt-1 w-full rounded border p-2"
-            placeholder="Example: Brightside Plumbing"
-          />
-        </label>
-
-        <label className="block text-sm">
-          <span className="font-semibold">Service area</span>
-          <input
-            name="serviceArea"
-            defaultValue={profile?.serviceArea ?? ""}
-            className="mt-1 w-full rounded border p-2"
-            placeholder="Example: Miami-Dade, Broward, 20-mile radius"
-          />
-        </label>
-
-        <div className="lg:col-span-2">
-          <p className="text-sm font-semibold">Trade categories</p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {VENDOR_TRADE_OPTIONS.map((trade) => (
-              <label
-                key={trade}
-                className="flex items-center gap-2 rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  name="trades"
-                  value={trade}
-                  defaultChecked={selectedTrades.has(trade)}
-                  className="h-4 w-4"
-                />
-                <span>{trade}</span>
-              </label>
-            ))}
+      {hasReadyProfile && (
+        <div className="mb-4 grid gap-3 text-sm md:grid-cols-3">
+          <div className="rounded border border-gray-200 bg-gray-50 p-3">
+            <p className="font-semibold text-gray-950">Business</p>
+            <p className="mt-1 text-gray-600">{profile?.businessName}</p>
+          </div>
+          <div className="rounded border border-gray-200 bg-gray-50 p-3">
+            <p className="font-semibold text-gray-950">Service area</p>
+            <p className="mt-1 text-gray-600">{profile?.serviceArea}</p>
+          </div>
+          <div className="rounded border border-gray-200 bg-gray-50 p-3">
+            <p className="font-semibold text-gray-950">Trade fit</p>
+            <p className="mt-1 text-gray-600">{(profile?.trades ?? []).join(", ")}</p>
           </div>
         </div>
+      )}
 
-        <label className="block text-sm">
-          <span className="font-semibold">Availability</span>
-          <textarea
-            name="availability"
-            defaultValue={profile?.availability ?? ""}
-            className="mt-1 min-h-28 w-full rounded border p-2"
-            placeholder="Example: Weekdays 8-5, emergency plumbing after hours"
-          />
-        </label>
+      <details open={!hasReadyProfile} className="group">
+        <summary className="flex cursor-pointer list-none items-center justify-between rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800 marker:hidden">
+          {hasReadyProfile ? "Edit profile details" : "Complete profile details"}
+          <span className="text-gray-500 group-open:rotate-180">v</span>
+        </summary>
 
-        <label className="block text-sm">
-          <span className="font-semibold">License / insurance notes</span>
-          <textarea
-            name="licenseInsuranceNotes"
-            defaultValue={profile?.licenseInsuranceNotes ?? ""}
-            className="mt-1 min-h-28 w-full rounded border p-2"
-            placeholder="Example: License number, insurance expiration, or owner-visible credential notes"
-          />
-        </label>
+        <form onSubmit={handleSubmit} className="mt-4 grid gap-4 lg:grid-cols-2">
+          <label className="block text-sm">
+            <span className="font-semibold">Business name</span>
+            <input
+              name="businessName"
+              defaultValue={profile?.businessName ?? ""}
+              className="mt-1 w-full rounded border p-2"
+              placeholder="Example: Brightside Plumbing"
+            />
+          </label>
 
-        <label className="block text-sm">
-          <span className="font-semibold">Preferred notification</span>
-          <select
-            name="notificationPreference"
-            defaultValue={profile?.notificationPreference ?? ""}
-            className="mt-1 w-full rounded border bg-white p-2"
-          >
-            <option value="">Select preference</option>
-            {VENDOR_NOTIFICATION_OPTIONS.map((preference) => (
-              <option key={preference} value={preference}>
-                {preference}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="block text-sm">
+            <span className="font-semibold">Service area</span>
+            <input
+              name="serviceArea"
+              defaultValue={profile?.serviceArea ?? ""}
+              className="mt-1 w-full rounded border p-2"
+              placeholder="Example: Miami-Dade, Broward, 20-mile radius"
+            />
+          </label>
 
-        <div className="flex flex-col gap-2 self-end sm:flex-row sm:items-center">
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-black active:scale-95 disabled:opacity-60"
-          >
-            {saving ? "Saving..." : "Save profile"}
-          </button>
-          {message && (
-            <p className="text-sm font-medium text-gray-700" role="status">
-              {message}
-            </p>
-          )}
-        </div>
-      </form>
+          <div className="lg:col-span-2">
+            <p className="text-sm font-semibold">Trade categories</p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {VENDOR_TRADE_OPTIONS.map((trade) => (
+                <label
+                  key={trade}
+                  className="flex items-center gap-2 rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    name="trades"
+                    value={trade}
+                    defaultChecked={selectedTrades.has(trade)}
+                    className="h-4 w-4"
+                  />
+                  <span>{trade}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <label className="block text-sm">
+            <span className="font-semibold">Availability</span>
+            <textarea
+              name="availability"
+              defaultValue={profile?.availability ?? ""}
+              className="mt-1 min-h-28 w-full rounded border p-2"
+              placeholder="Example: Weekdays 8-5, emergency plumbing after hours"
+            />
+          </label>
+
+          <label className="block text-sm">
+            <span className="font-semibold">License / insurance notes</span>
+            <textarea
+              name="licenseInsuranceNotes"
+              defaultValue={profile?.licenseInsuranceNotes ?? ""}
+              className="mt-1 min-h-28 w-full rounded border p-2"
+              placeholder="Example: License number, insurance expiration, or owner-visible credential notes"
+            />
+          </label>
+
+          <label className="block text-sm">
+            <span className="font-semibold">Preferred notification</span>
+            <select
+              name="notificationPreference"
+              defaultValue={profile?.notificationPreference ?? ""}
+              className="mt-1 w-full rounded border bg-white p-2"
+            >
+              <option value="">Select preference</option>
+              {VENDOR_NOTIFICATION_OPTIONS.map((preference) => (
+                <option key={preference} value={preference}>
+                  {preference}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="flex flex-col gap-2 self-end sm:flex-row sm:items-center">
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-black active:scale-95 disabled:opacity-60"
+            >
+              {saving ? "Saving..." : "Save profile"}
+            </button>
+            {message && (
+              <p className="text-sm font-medium text-gray-700" role="status">
+                {message}
+              </p>
+            )}
+          </div>
+        </form>
+      </details>
     </section>
   );
 }

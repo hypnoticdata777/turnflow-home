@@ -2,6 +2,44 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-02 - Vendor Lane Command Center Polish
+
+Scope: improve the investor-demo vendor lane after the curated seed made the
+page data-rich but visually dense.
+
+### Changed
+
+- Combined the separate vendor work queue and closeout snapshot blocks into one
+  `Vendor command center` so bid, work, closeout, and owner-wait state are
+  visible together before opening an individual repair.
+- Added a compact shortcut rail for Queue, Profile, Scope, Jobs, and Upload so
+  the vendor page has an obvious first-screen path on desktop and mobile.
+- Changed the vendor profile panel so completed profiles show a compact
+  business/service-area/trade summary first, with the full editable form tucked
+  behind an `Edit profile details` disclosure.
+- Kept incomplete vendor profiles expanded so real setup still gives vendors
+  the fields they need immediately.
+
+### Validation
+
+- `npm.cmd run typecheck` passed.
+- `npm.cmd test -- __tests__\helper-workspace.test.ts
+  __tests__\vendor-lifecycle.test.ts __tests__\vendor-profile.test.ts` passed:
+  45 tests.
+- Local `npm.cmd run ux:helper` passed against the investor vendor and
+  collaborator accounts after starting `next dev` with database access.
+- Local screenshot inspection confirmed the vendor first screen now starts with
+  overview, shortcuts, command-center metrics, and compact profile context
+  before the longer request controls.
+- `npm.cmd run verify` passed: lint, typecheck, 270 tests, production audit,
+  Drizzle generation/schema drift, and production build.
+
+### Follow-Up
+
+- The individual vendor request cards still expose a lot of controls at once.
+  A later pass can add per-request progressive disclosure once the investor
+  walkthrough script is finalized.
+
 ## 2026-09-02 - Curated Investor Demo Seed and Hosted Smoke Stability
 
 Scope: clear the next investor-demo readiness gate by giving production a

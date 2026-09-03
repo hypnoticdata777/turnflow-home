@@ -225,70 +225,98 @@ export function VendorPortal({
         }}
       />
 
+      <nav
+        aria-label="Vendor workspace shortcuts"
+        className="flex flex-wrap gap-2 rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
+      >
+        {[
+          ["Queue", "#vendor-work-queue"],
+          ["Profile", "#vendor-profile"],
+          ["Scope", "#helper-scope"],
+          ["Jobs", "#helper-requests"],
+          ["Upload", "#helper-upload"],
+        ].map(([label, href]) => (
+          <a
+            key={href}
+            href={href}
+            className="inline-flex items-center justify-center rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-white"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
       <section
         id="vendor-work-queue"
         className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
       >
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-blue-700">Vendor work queue</p>
+            <p className="text-sm font-semibold text-blue-700">Vendor command center</p>
             <h2 className="text-xl font-semibold">Where assigned jobs need attention</h2>
+            <p className="mt-1 text-sm leading-6 text-gray-600">
+              Bid, work, closeout, and owner-wait states stay visible before the
+              vendor opens an individual repair record.
+            </p>
           </div>
-          <a
-            href="#helper-requests"
-            className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Review jobs
-          </a>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {workQueueMetrics.map((metric) => (
-            <article
-              key={metric.label}
-              className={`rounded-lg border p-4 ${WORK_QUEUE_CLASSES[metric.tone]}`}
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="#helper-requests"
+              className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              <p className="text-sm font-semibold">{metric.label}</p>
-              <p className="mt-2 text-3xl font-bold">{metric.value}</p>
-              <p className="mt-2 min-h-20 text-sm leading-6">{metric.detail}</p>
-            </article>
-          ))}
+              Review jobs
+            </a>
+            <a
+              href="#helper-upload"
+              className="inline-flex items-center justify-center rounded bg-gray-950 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
+            >
+              Upload proof
+            </a>
+          </div>
         </div>
-      </section>
 
-      <VendorProfilePanel profile={profile} />
-
-      <section
-        id="vendor-closeout"
-        className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
-      >
-        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div className="grid gap-4 xl:grid-cols-2">
           <div>
-            <p className="text-sm font-semibold text-blue-700">Closeout snapshot</p>
-            <h2 className="text-xl font-semibold">What needs to happen before owner review</h2>
+            <p className="mb-2 text-sm font-semibold text-gray-700">Vendor work queue</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {workQueueMetrics.map((metric) => (
+                <article
+                  key={metric.label}
+                  className={`rounded-lg border p-3 ${WORK_QUEUE_CLASSES[metric.tone]}`}
+                >
+                  <p className="text-sm font-semibold">{metric.label}</p>
+                  <p className="mt-1 text-2xl font-bold">{metric.value}</p>
+                  <p className="mt-2 text-sm leading-6">{metric.detail}</p>
+                </article>
+              ))}
+            </div>
           </div>
-          <a
-            href="#helper-upload"
-            className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Upload proof
-          </a>
-        </div>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {closeoutMetrics.map((metric) => (
-            <article
-              key={metric.label}
-              className={`rounded-lg border p-4 ${closeoutMetricClasses(metric.tone)}`}
-            >
-              <p className="text-sm font-semibold">{metric.label}</p>
-              <p className="mt-2 text-3xl font-bold">{metric.value}</p>
-              <p className="mt-2 min-h-20 text-sm leading-6">{metric.detail}</p>
-            </article>
-          ))}
+          <div id="vendor-closeout">
+            <p className="mb-2 text-sm font-semibold text-gray-700">Closeout snapshot</p>
+            <p className="mb-3 text-sm leading-6 text-gray-600">
+              What needs to happen before owner review
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {closeoutMetrics.map((metric) => (
+                <article
+                  key={metric.label}
+                  className={`rounded-lg border p-3 ${closeoutMetricClasses(metric.tone)}`}
+                >
+                  <p className="text-sm font-semibold">{metric.label}</p>
+                  <p className="mt-1 text-2xl font-bold">{metric.value}</p>
+                  <p className="mt-2 text-sm leading-6">{metric.detail}</p>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <HelperOnboardingChecklist role="vendor" items={onboardingItems} />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
+        <VendorProfilePanel profile={profile} />
+        <HelperOnboardingChecklist role="vendor" items={onboardingItems} />
+      </div>
 
       <section
         id="helper-scope"
