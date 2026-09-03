@@ -20,14 +20,14 @@ import {
 } from "@/lib/bid-review";
 
 const QUOTE_STATUS_CLASSES: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-700",
+  pending: "bg-sky-100 text-sky-700",
   approved: "bg-green-100 text-green-700",
   declined: "bg-red-100 text-red-700",
 };
 
 const REVIEW_GUIDANCE_CLASSES: Record<BidReviewGuidance["tone"], string> = {
   attention: "border-blue-200 bg-blue-50 text-blue-950",
-  progress: "border-amber-200 bg-amber-50 text-amber-950",
+  progress: "border-cyan-200 bg-cyan-50 text-cyan-950",
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 

@@ -2,6 +2,55 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Request Detail Action-First Hierarchy
+
+Scope: clear the next investor-demo blocker by making the first full repair
+record page teach through layout, navigation, and clickable controls instead of
+long explanatory text.
+
+### Changed
+
+- Captured before screenshots for the owner request detail:
+  - `docs/screenshots/2026-09-03-request-detail-before-desktop.png`
+  - `docs/screenshots/2026-09-03-request-detail-before-mobile.png`
+- Rebuilt the top of `/owner/requests/[id]` into a `Repair command center`
+  that shows title, status, property, priority, proof count, access count, and
+  the primary repair actions in the first viewport.
+- Added a click-through section strip for Cost, Bids, Access, Proof, Decisions,
+  Tasks, Closeout, Billing, Timeline, and Updates so a demo user can explore
+  the page without needing a written guide.
+- Reworked the repair workflow rail into larger action tiles with lane numbers,
+  state pills, and stronger CTA buttons. The page now points the owner toward
+  the next checkpoint rather than asking them to read the entire record first.
+- Converted record value into a compact owner proof-packet action strip with
+  metric cards and direct CTAs.
+- Reworked the proof upload section into an evidence board where Before, After,
+  Receipt, and Other are large clickable upload targets.
+- Removed weak amber/yellow attention states from the request-detail surface and
+  its shared widgets. In-progress now uses cyan/sky, ready uses emerald, and
+  missing/blocked states use rose for clearer contrast on white.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npm.cmd run typecheck` passed.
+- Local `npm.cmd run ux:owner` passed against the investor owner account after
+  the action-first hierarchy and final color cleanup.
+- Captured after screenshots for the final request detail polish:
+  - `docs/screenshots/2026-09-03-request-detail-after-desktop.png`
+  - `docs/screenshots/2026-09-03-request-detail-after-mobile.png`
+- Local screenshot inspection confirmed the page now opens with a command
+  center, click-through section navigation, checkpoint action tiles, proof
+  upload tiles, and higher-contrast status colors on desktop and mobile.
+- `npm.cmd run verify` passed: lint, typecheck, 270 tests, production audit,
+  Drizzle generation/schema drift, and production build.
+
+### Follow-Up
+
+- Continue applying the same action-first pattern to the next investor-demo
+  blocker: richer lane-specific UX for the owner/vendor/collaborator handoffs
+  that still feel obvious without a written tour.
+
 ## 2026-09-03 - Owner Dashboard Investor Walkthrough Polish
 
 Scope: clear the next investor-demo blocker by making `/owner/dashboard` read

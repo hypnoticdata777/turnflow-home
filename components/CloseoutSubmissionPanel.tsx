@@ -36,7 +36,7 @@ export type CloseoutPanelRequestData = {
 
 const TONE_CLASSES = {
   attention: "border-blue-200 bg-blue-50 text-blue-950",
-  progress: "border-amber-200 bg-amber-50 text-amber-950",
+  progress: "border-cyan-200 bg-cyan-50 text-cyan-950",
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 
@@ -89,7 +89,7 @@ export function CloseoutSubmissionPanel({
     reviewGuidance.tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
       : reviewGuidance.tone === "attention"
-        ? "border-amber-200 bg-amber-50 text-amber-950"
+        ? "border-rose-200 bg-rose-50 text-rose-950"
         : "border-blue-200 bg-blue-50 text-blue-950";
 
   async function submitCloseout(event: React.FormEvent<HTMLFormElement>) {
@@ -177,7 +177,7 @@ export function CloseoutSubmissionPanel({
               className={`rounded-lg border p-3 ${
                 check.complete
                   ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-                  : "border-amber-200 bg-amber-50 text-amber-950"
+                  : "border-rose-200 bg-rose-50 text-rose-950"
               }`}
             >
               <div className="flex items-start justify-between gap-3">
@@ -265,7 +265,7 @@ export function CloseoutSubmissionPanel({
               disabled={reviewing !== null || !reviewNotes.trim()}
               onClick={() => reviewCloseout("changes_requested")}
               title={!reviewNotes.trim() ? "Add a note explaining what needs to change." : undefined}
-              className="rounded-lg border border-amber-300 bg-white px-4 py-2 text-sm font-medium text-amber-800 hover:border-amber-400 hover:bg-amber-100 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-medium text-rose-800 hover:border-rose-400 hover:bg-rose-100 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {reviewing === "changes_requested"
                 ? "Sending..."

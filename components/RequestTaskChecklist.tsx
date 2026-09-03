@@ -29,13 +29,13 @@ export type RequestTaskData = {
 
 const METRIC_CLASSES = {
   attention: "border-blue-200 bg-blue-50 text-blue-950",
-  progress: "border-amber-200 bg-amber-50 text-amber-950",
+  progress: "border-cyan-200 bg-cyan-50 text-cyan-950",
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 
 const STATUS_CLASSES: Record<RequestTaskStatus, string> = {
   todo: "bg-gray-100 text-gray-700",
-  in_progress: "bg-amber-100 text-amber-800",
+  in_progress: "bg-cyan-100 text-cyan-800",
   blocked: "bg-red-100 text-red-700",
   done: "bg-emerald-100 text-emerald-700",
 };

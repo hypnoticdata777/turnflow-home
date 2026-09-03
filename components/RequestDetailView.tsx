@@ -88,32 +88,69 @@ const WORKFLOW_TONE_CLASSES: Record<RequestWorkflowTone, string> = {
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 
+const WORKFLOW_CTA_CLASSES: Record<RequestWorkflowTone, string> = {
+  attention: "bg-rose-900 text-white group-hover:bg-rose-950",
+  progress: "bg-sky-900 text-white group-hover:bg-sky-950",
+  ready: "bg-emerald-900 text-white group-hover:bg-emerald-950",
+};
+
+const DETAIL_NAV_ITEMS = [
+  { href: "#cost", label: "Cost" },
+  { href: "#quotes", label: "Bids" },
+  { href: "#sharing", label: "Access" },
+  { href: "#photos", label: "Proof" },
+  { href: "#decision-log", label: "Decisions" },
+  { href: "#project-tasks", label: "Tasks" },
+  { href: "#closeout", label: "Closeout" },
+  { href: "#billing", label: "Billing" },
+  { href: "#work-sessions", label: "Timeline" },
+  { href: "#comments", label: "Updates" },
+];
+
+const PROOF_UPLOAD_COPY: Record<PhotoType, { label: string; detail: string }> = {
+  before: { label: "Before", detail: "Start the trail" },
+  after: { label: "After", detail: "Show the fix" },
+  receipt: { label: "Receipt", detail: "Lock the cost" },
+  other: { label: "Other", detail: "Add context" },
+};
+
 function RequestWorkflowRail({ steps }: { steps: RequestWorkflowStep[] }) {
   return (
-    <section className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+    <section id="workflow" className="scroll-mt-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-blue-700">Record workflow</p>
-          <h2 className="text-xl font-semibold text-gray-950">Move this repair without guessing</h2>
+          <p className="text-sm font-semibold text-sky-700">Record workflow</p>
+          <h2 className="text-xl font-semibold text-slate-950">Click the next checkpoint</h2>
         </div>
-        <p className="text-sm font-medium text-gray-700">{steps.length} checkpoints</p>
+        <p className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700">
+          {steps.length} lanes
+        </p>
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-        {steps.map((step) => (
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {steps.map((step, index) => (
           <a
             key={step.id}
             href={step.href}
-            className={`block min-h-36 rounded-lg border p-3 transition hover:-translate-y-0.5 hover:shadow-sm transition-transform duration-150 hover:scale-105 active:scale-95 ${WORKFLOW_TONE_CLASSES[step.tone]}`}
+            className={`group flex min-h-44 flex-col justify-between rounded-lg border p-4 shadow-sm transition duration-150 hover:-translate-y-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:translate-y-0 active:scale-[0.99] ${WORKFLOW_TONE_CLASSES[step.tone]}`}
           >
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-sm font-semibold">{step.label}</p>
-              <span className="rounded-full border border-current/20 bg-white/70 px-2 py-1 text-xs font-semibold">
-                {step.state}
-              </span>
+            <div>
+              <div className="flex items-start justify-between gap-2">
+                <span className="rounded-full border border-current/20 bg-white/80 px-2 py-1 text-xs font-semibold">
+                  {index + 1}
+                </span>
+                <span className="rounded-full border border-current/20 bg-white/80 px-2 py-1 text-xs font-semibold">
+                  {step.state}
+                </span>
+              </div>
+              <p className="mt-4 text-base font-bold leading-tight">{step.label}</p>
+              <p className="mt-2 text-sm leading-6">{step.detail}</p>
             </div>
-            <p className="mt-2 text-sm leading-6">{step.detail}</p>
-            <p className="mt-3 text-xs font-semibold">{step.cta}</p>
+            <span
+              className={`mt-4 inline-flex min-h-10 items-center justify-center rounded-lg px-3 py-2 text-center text-sm font-semibold transition-colors ${WORKFLOW_CTA_CLASSES[step.tone]}`}
+            >
+              {step.cta}
+            </span>
           </a>
         ))}
       </div>
@@ -145,9 +182,21 @@ function CostEditor({ request }: { request: RequestData }) {
   }
 
   return (
-    <section id="cost" className="scroll-mt-6">
-      <h2 className="mb-3 text-xl font-semibold">Cost</h2>
-      <div className="mb-2 grid gap-2 md:grid-cols-3">
+    <section id="cost" className="scroll-mt-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-sky-700">Cost lane</p>
+          <h2 className="text-xl font-semibold text-slate-950">Money trail</h2>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-right">
+          <p className="text-xs font-semibold uppercase text-slate-500">Current</p>
+          <p className="text-2xl font-bold text-slate-950">
+            ${costForRequest(request).toFixed(2)}
+          </p>
+          <p className="text-xs font-medium text-slate-600">{costLabelForRequest(request)}</p>
+        </div>
+      </div>
+      <div className="mb-3 grid gap-3 md:grid-cols-3">
         <label className="text-sm">
           Estimated
           <input
@@ -156,7 +205,7 @@ function CostEditor({ request }: { request: RequestData }) {
             min="0"
             value={estimatedCost}
             onChange={(e) => setEstimatedCost(e.target.value)}
-            className="mt-1 w-full rounded border p-2"
+            className="mt-1 w-full rounded border border-slate-300 p-3 text-base focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </label>
         <label className="text-sm">
@@ -167,7 +216,7 @@ function CostEditor({ request }: { request: RequestData }) {
             min="0"
             value={quotedCost}
             onChange={(e) => setQuotedCost(e.target.value)}
-            className="mt-1 w-full rounded border p-2"
+            className="mt-1 w-full rounded border border-slate-300 p-3 text-base focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </label>
         <label className="text-sm">
@@ -178,23 +227,20 @@ function CostEditor({ request }: { request: RequestData }) {
             min="0"
             value={finalCost}
             onChange={(e) => setFinalCost(e.target.value)}
-            className="mt-1 w-full rounded border p-2"
+            className="mt-1 w-full rounded border border-slate-300 p-3 text-base focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
           />
         </label>
       </div>
-      <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <button
           onClick={handleSaveCosts}
           disabled={costSaving}
-          className="rounded-lg bg-gray-800 px-4 py-2 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-gray-900 active:scale-95 disabled:opacity-50"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-slate-950 px-5 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-md active:translate-y-0 active:scale-[0.99] disabled:opacity-50"
         >
           {costSaving ? "Saving..." : "Save costs"}
         </button>
         {costStatus && <p className="text-sm text-gray-600">{costStatus}</p>}
       </div>
-      <p className="mb-4 text-sm text-gray-600">
-        Current ({costLabelForRequest(request)}): ${costForRequest(request).toFixed(2)}
-      </p>
     </section>
   );
 }
@@ -269,25 +315,19 @@ export function RequestDetailView({
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
       : guidance.tone === "attention"
         ? "border-blue-200 bg-blue-50 text-blue-950"
-        : "border-amber-200 bg-amber-50 text-amber-950";
-  const guidanceButtonClasses =
-    guidance.tone === "ready"
-      ? "bg-emerald-800 hover:bg-emerald-900"
-      : guidance.tone === "attention"
-        ? "bg-blue-800 hover:bg-blue-900"
-      : "bg-amber-800 hover:bg-amber-900";
+        : "border-cyan-200 bg-cyan-50 text-cyan-950";
   const recordValueClasses = (tone: (typeof recordValueMetrics)[number]["tone"]) =>
     tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
       : tone === "attention"
         ? "border-blue-200 bg-blue-50 text-blue-950"
-        : "border-amber-200 bg-amber-50 text-amber-950";
+        : "border-cyan-200 bg-cyan-50 text-cyan-950";
   const recordValueButtonClasses = (tone: (typeof recordValueMetrics)[number]["tone"]) =>
     tone === "ready"
       ? "bg-emerald-800 hover:bg-emerald-900"
       : tone === "attention"
         ? "bg-blue-800 hover:bg-blue-900"
-        : "bg-amber-800 hover:bg-amber-900";
+        : "bg-cyan-800 hover:bg-cyan-900";
   const missingProof = missingCompletionProof({ ...request, photos });
 
   async function applyStatusChange(newStatus: string, waiverReason?: string) {
@@ -348,182 +388,199 @@ export function RequestDetailView({
     }
   }
 
+  const sharedAccessCount = [
+    request.assignedVendorId,
+    request.pendingVendorInviteId,
+    request.collaboratorId,
+    request.pendingCollaboratorInviteId,
+  ].filter(Boolean).length;
+  const summaryCards = [
+    { label: "Property", value: propertyLabel, href: "#record-summary" },
+    { label: "Priority", value: `${request.category} / ${request.urgency}`, href: "#workflow" },
+    { label: "Proof", value: `${photos.length} items`, href: "#photos" },
+    { label: "Access", value: `${sharedAccessCount} active`, href: "#sharing" },
+  ];
+
   return (
-    <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow">
+    <div className="mx-auto max-w-6xl space-y-6">
       {creationNotice && <RequestCreatedNoticeBanner notice={creationNotice} />}
 
-      <section id="record-summary" className="mb-6 scroll-mt-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-blue-700">Repair record</p>
-            <h1 className="text-3xl font-bold">{request.title}</h1>
-          </div>
-          <span
-            className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${requestStatusBadgeClasses(
-              status
-            )}`}
-          >
-            {status}
-          </span>
-        </div>
-
-        <dl className="mt-4 grid gap-3 text-sm text-gray-700 sm:grid-cols-2">
-          <div>
-            <dt className="font-semibold">Property</dt>
-            <dd>{propertyLabel}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Category / urgency</dt>
-            <dd>
-              {request.category} / {request.urgency}
-            </dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Location</dt>
-            <dd>{request.location || "Not recorded"}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Preferred contact</dt>
-            <dd>{request.contactMethod || "Not recorded"}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="font-semibold">Access instructions</dt>
-            <dd>{request.accessInstructions || "Not recorded"}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="font-semibold">Notes</dt>
-            <dd>{request.notes || "Not recorded"}</dd>
-          </div>
-        </dl>
-
-        <section className={`mt-5 rounded-lg border p-4 ${guidanceClasses}`}>
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-sm font-semibold">
-                {`${guidance.eyebrow}: ${guidance.completedCount} of ${guidance.totalCount} ready (${guidance.progress}%)`}
-              </p>
-              <h2 className="mt-1 text-xl font-semibold">{guidance.headline}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6">{guidance.detail}</p>
+      <section
+        id="record-summary"
+        className="scroll-mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+      >
+        <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="bg-slate-950 p-5 text-white sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-cyan-200">Repair command center</p>
+                <h1 className="mt-1 text-3xl font-bold sm:text-4xl">{request.title}</h1>
+              </div>
+              <span
+                className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${requestStatusBadgeClasses(
+                  status
+                )}`}
+              >
+                {status}
+              </span>
             </div>
-            <div className="flex flex-wrap gap-2">
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {summaryCards.map((card) => (
+                <a
+                  key={card.label}
+                  href={card.href}
+                  className="rounded-lg border border-white/15 bg-white/10 p-3 transition duration-150 hover:-translate-y-0.5 hover:bg-white/15 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-200 active:translate-y-0 active:scale-[0.99]"
+                >
+                  <p className="text-xs font-semibold uppercase text-cyan-100">{card.label}</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-white">{card.value}</p>
+                </a>
+              ))}
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
               <a
                 href={guidance.primaryHref}
-                className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 active:scale-95 ${guidanceButtonClasses}`}
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-cyan-200 hover:shadow-md active:translate-y-0 active:scale-[0.99]"
               >
                 {guidance.primaryCta}
               </a>
               <a
                 href={guidance.secondaryHref}
-                className="inline-flex items-center justify-center rounded-lg border border-current bg-white/75 px-4 py-2 text-sm font-medium transition-transform duration-150 hover:scale-105 hover:bg-white active:scale-95"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/25 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition duration-150 hover:-translate-y-0.5 hover:bg-white/15 active:translate-y-0 active:scale-[0.99]"
               >
                 {guidance.secondaryCta}
               </a>
-            </div>
-          </div>
-
-          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/70">
-            <div className="h-full bg-current" style={{ width: `${guidance.progress}%` }} />
-          </div>
-
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            {guidance.items.map((item) => (
-              <div key={item.label} className="rounded border border-current/20 bg-white/70 p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm font-semibold">{item.label}</p>
-                  <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold">
-                    {item.complete ? "Ready" : "Needs work"}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs leading-5">{item.detail}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-5 rounded-lg border border-gray-200 bg-white p-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold text-blue-700">Record value</p>
-              <h2 className="text-xl font-semibold text-gray-950">
-                What this repair record gives you
-              </h2>
-            </div>
-            <button
-              onClick={handleDownloadPdf}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-transform duration-150 hover:scale-105 hover:border-gray-400 hover:bg-gray-100 active:scale-95"
-            >
-              Export proof packet
-            </button>
-          </div>
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {recordValueMetrics.map((metric) => (
-              <article
-                key={metric.label}
-                className={`rounded-lg border p-3 ${recordValueClasses(metric.tone)}`}
+              <button
+                onClick={handleDownloadPdf}
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/25 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition duration-150 hover:-translate-y-0.5 hover:bg-white/15 active:translate-y-0 active:scale-[0.99]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{metric.label}</p>
-                    <p className="mt-1 text-2xl font-bold">{metric.value}</p>
-                  </div>
-                  <a
-                    href={metric.href}
-                    className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 active:scale-95 ${recordValueButtonClasses(
-                      metric.tone
-                    )}`}
-                  >
-                    {metric.cta}
-                  </a>
-                </div>
-                <p className="mt-2 text-sm leading-6">{metric.detail}</p>
-              </article>
-            ))}
+                Export proof packet
+              </button>
+            </div>
           </div>
-        </section>
 
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-          <label className="block text-sm">
-            <span className="font-semibold">Status</span>
-            <select
-              value={status}
-              onChange={handleStatusChange}
-              disabled={statusSaving}
-              className="mt-1 w-full rounded border bg-white p-2 sm:w-64"
-            >
-              {REQUEST_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="space-y-4 p-5 sm:p-6">
+            <div className={`rounded-lg border p-4 ${guidanceClasses}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold">
+                    {`${guidance.completedCount} of ${guidance.totalCount} ready`}
+                  </p>
+                  <h2 className="mt-1 text-xl font-semibold">{guidance.headline}</h2>
+                </div>
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-bold">
+                  {guidance.progress}%
+                </span>
+              </div>
+              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/80">
+                <div className="h-full bg-current" style={{ width: `${guidance.progress}%` }} />
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {guidance.items.map((item) => (
+                  <div key={item.label} className="rounded border border-current/20 bg-white/75 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-sm font-semibold">{item.label}</p>
+                      <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold">
+                        {item.complete ? "Ready" : "Next"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <label className="block text-sm">
+                <span className="font-semibold text-slate-900">Status</span>
+                <select
+                  value={status}
+                  onChange={handleStatusChange}
+                  disabled={statusSaving}
+                  className="mt-2 w-full rounded border border-slate-300 bg-white p-3 text-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                >
+                  {REQUEST_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <StatusHandoffGuidance guidance={statusGuidance} />
+              {statusError && <p className="mt-2 text-sm font-medium text-red-700">{statusError}</p>}
+            </div>
+          </div>
         </div>
-        <StatusHandoffGuidance guidance={statusGuidance} />
-        {statusError && <p className="mt-2 text-sm font-medium text-red-700">{statusError}</p>}
-      </section>
 
-      <hr className="my-4" />
+        <nav
+          aria-label="Repair record sections"
+          className="grid grid-cols-2 gap-px border-t border-slate-200 bg-slate-200 sm:grid-cols-5 lg:grid-cols-10"
+        >
+          {DETAIL_NAV_ITEMS.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="flex min-h-14 items-center justify-center bg-white px-3 py-2 text-center text-sm font-semibold text-slate-700 transition duration-150 hover:bg-slate-950 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-slate-900 active:bg-slate-800"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      </section>
 
       <RequestWorkflowRail steps={workflowSteps} />
 
-      <hr className="my-4" />
+      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-sky-700">Record value</p>
+            <h2 className="text-xl font-semibold text-slate-950">Owner proof packet</h2>
+          </div>
+          <button
+            onClick={handleDownloadPdf}
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50 hover:shadow-md active:translate-y-0 active:scale-[0.99]"
+          >
+            Export proof packet
+          </button>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {recordValueMetrics.map((metric) => (
+            <article
+              key={metric.label}
+              className={`flex min-h-36 flex-col justify-between rounded-lg border p-3 ${recordValueClasses(
+                metric.tone
+              )}`}
+            >
+              <div>
+                <p className="text-sm font-semibold">{metric.label}</p>
+                <p className="mt-1 text-2xl font-bold">{metric.value}</p>
+                <p className="mt-2 text-sm leading-6">{metric.detail}</p>
+              </div>
+              <a
+                href={metric.href}
+                className={`mt-4 inline-flex min-h-10 items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.99] ${recordValueButtonClasses(
+                  metric.tone
+                )}`}
+              >
+                {metric.cta}
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
 
       {showCompletionReview && (
-        <>
-          <CompletionWaiverReview
-            missingProof={missingProof}
-            guidance="You can still mark this complete with a written reason. The waiver is saved in the decision log so the record explains why proof was missing."
-            submitting={statusSaving}
-            onCancel={() => {
-              setShowCompletionReview(false);
-              setStatusError("");
-            }}
-            onConfirm={(reason) => applyStatusChange("Complete", reason)}
-          />
-
-          <hr className="my-4" />
-        </>
+        <CompletionWaiverReview
+          missingProof={missingProof}
+          guidance="You can still mark this complete with a written reason. The waiver is saved in the decision log so the record explains why proof was missing."
+          submitting={statusSaving}
+          onCancel={() => {
+            setShowCompletionReview(false);
+            setStatusError("");
+          }}
+          onConfirm={(reason) => applyStatusChange("Complete", reason)}
+        />
       )}
 
       <CostEditor
@@ -536,13 +593,9 @@ export function RequestDetailView({
         request={request}
       />
 
-      <hr className="my-4" />
-
       <section id="quotes" className="scroll-mt-6">
         <QuoteWorkspace requestId={request.id} quotes={quotes} userId={userId} />
       </section>
-
-      <hr className="my-4" />
 
       <section id="sharing" className="scroll-mt-6">
         <VendorFitPanel request={request} assignedVendor={assignedVendor} />
@@ -562,42 +615,59 @@ export function RequestDetailView({
         />
       </section>
 
-      <hr className="my-4" />
-
-      <section id="photos" className="scroll-mt-6">
-        <h2 className="mb-3 text-xl font-semibold">Photos</h2>
-        <p className="mb-3 text-sm text-gray-500">
-          Add before, after, receipt, or other proof to keep the repair record
-          complete.
-        </p>
-        <div className="mb-3 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+      <section id="photos" className="scroll-mt-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-sky-700">Proof lane</p>
+            <h2 className="text-xl font-semibold text-slate-950">Evidence board</h2>
+          </div>
+          <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700">
+            {photos.length} items
+          </span>
+        </div>
+        <div className="mb-3 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
           {PHOTO_TYPES.map((type) => (
-            <div key={type} className="rounded border p-3">
-              <h3 className="mb-2 font-medium capitalize">{type}</h3>
+            <label
+              key={type}
+              className="group flex min-h-32 cursor-pointer flex-col justify-between rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-sky-300 hover:bg-white hover:shadow-md focus-within:ring-2 focus-within:ring-sky-200 active:translate-y-0 active:scale-[0.99]"
+            >
+              <span>
+                <span className="block text-base font-bold text-slate-950">
+                  {PROOF_UPLOAD_COPY[type].label}
+                </span>
+                <span className="mt-1 block text-sm font-medium text-slate-600">
+                  {PROOF_UPLOAD_COPY[type].detail}
+                </span>
+              </span>
+              <span className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-slate-950 px-3 py-2 text-sm font-semibold text-white transition-colors group-hover:bg-sky-900">
+                Add proof
+              </span>
               <input
                 type="file"
                 accept="image/*"
                 capture="environment"
-                className="mb-2 w-full text-sm"
+                className="sr-only"
                 onChange={(e) => handleUpload(type, e.target.files?.[0])}
               />
-            </div>
+            </label>
           ))}
         </div>
         {uploadStatus && <p className="mb-4 text-sm text-gray-600">{uploadStatus}</p>}
         <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
           {photos.length === 0 ? (
-            <p className="col-span-full text-gray-500">No photos yet.</p>
+            <p className="col-span-full rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm font-medium text-slate-600">
+              No proof on this record yet.
+            </p>
           ) : (
             photos.map((p) => (
-              <figure key={p.id} className="rounded border p-1">
+              <figure key={p.id} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={p.url}
                   alt={`${p.type} photo`}
-                  className="h-36 w-full rounded object-cover"
+                  className="h-36 w-full object-cover"
                 />
-                <figcaption className="mt-1 text-center text-sm capitalize">
+                <figcaption className="p-2 text-center text-sm font-semibold capitalize text-slate-700">
                   {p.type}
                 </figcaption>
               </figure>
@@ -606,17 +676,11 @@ export function RequestDetailView({
         </div>
       </section>
 
-      <hr className="my-4" />
-
       <section id="decision-log" className="scroll-mt-6">
         <DecisionLog entries={log} userId={userId} assignedVendorId={request.assignedVendorId} />
       </section>
 
-      <hr className="my-4" />
-
       <RequestTaskChecklist requestId={request.id} tasks={tasks} mode="owner" />
-
-      <hr className="my-4" />
 
       <CloseoutSubmissionPanel
         request={{
@@ -629,21 +693,15 @@ export function RequestDetailView({
         mode="owner"
       />
 
-      <hr className="my-4" />
-
       <BillingRecordPanel
         requestId={request.id}
         records={billingRecords}
         mode="owner"
       />
 
-      <hr className="my-4" />
-
       <section id="work-sessions" className="scroll-mt-6">
         <WorkSessionTimeline events={workSessions} />
       </section>
-
-      <hr className="my-4" />
 
       <section id="comments" className="scroll-mt-6">
         <CommentThread
@@ -660,11 +718,9 @@ export function RequestDetailView({
         />
       </section>
 
-      <hr className="my-4" />
-
       <a
         href="/owner/dashboard"
-        className="inline-block rounded-lg bg-gray-600 px-4 py-2 text-white transition-colors duration-150 hover:bg-gray-800"
+        className="inline-flex min-h-11 w-fit items-center justify-center rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-md active:translate-y-0 active:scale-[0.99]"
       >
         Back to dashboard
       </a>
