@@ -59,9 +59,14 @@ export function CommentThread({
   );
 
   return (
-    <div>
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="mb-4">
+        <p className="text-sm font-semibold text-cyan-700">Shared thread</p>
+        <h2 className="text-xl font-semibold text-slate-950">Updates</h2>
+      </div>
+
       {guidance && (
-        <div className="mb-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-blue-950">
+        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-blue-950">
           <p className="text-xs font-semibold uppercase">{guidance.eyebrow}</p>
           <p className="mt-1 text-sm font-semibold">{guidance.title}</p>
           <p className="mt-1 text-sm leading-6">{guidance.detail}</p>
@@ -71,7 +76,7 @@ export function CommentThread({
                 key={suggestion}
                 type="button"
                 onClick={() => setText(suggestion)}
-                className="max-w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-left text-xs font-medium leading-5 text-blue-900 hover:border-blue-300 hover:bg-blue-100 transition-transform duration-150 hover:scale-105 active:scale-95"
+                className="max-w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-left text-xs font-medium leading-5 text-blue-900 transition duration-150 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-100 hover:shadow-sm active:translate-y-0"
               >
                 Draft {index + 1}: {suggestion}
               </button>
@@ -80,19 +85,21 @@ export function CommentThread({
         </div>
       )}
 
-      <p className="mb-2 text-sm font-medium">Updates</p>
       <div className="mb-3 space-y-2">
         {sorted.length === 0 ? (
-          <p className="text-sm text-gray-500">
+          <p className="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-600">
             {guidance?.emptyState ?? "No updates yet."}
           </p>
         ) : (
           sorted.map((c) => (
-            <article key={c.id} className="rounded border border-gray-100 bg-gray-50 p-2">
-              <p className="text-xs text-gray-500">
+            <article
+              key={c.id}
+              className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+            >
+              <p className="text-xs font-medium text-gray-500">
                 {authorLabel(c.authorId)} - {new Date(c.createdAt).toLocaleString()}
               </p>
-              <p className="text-sm text-gray-800">{c.text}</p>
+              <p className="mt-1 text-sm leading-6 text-gray-800">{c.text}</p>
             </article>
           ))
         )}
@@ -103,12 +110,12 @@ export function CommentThread({
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={guidance?.placeholder ?? "Post an update..."}
-          className="flex-1 rounded border p-2 text-sm"
+          className="flex-1 rounded-lg border border-gray-300 bg-white p-2 text-sm"
         />
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "Posting..." : "Post"}
         </button>

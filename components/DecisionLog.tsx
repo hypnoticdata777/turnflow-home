@@ -69,25 +69,34 @@ export function DecisionLog({
   );
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-3">Decision Log</h2>
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="mb-4">
+        <p className="text-sm font-semibold text-cyan-700">Record history</p>
+        <h2 className="text-xl font-semibold text-slate-950">Decision Log</h2>
+      </div>
       {sorted.length === 0 ? (
-        <p className="text-gray-500 text-sm">No log entries yet.</p>
+        <p className="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-600">
+          No log entries yet. Status changes, quote decisions, task edits, and
+          closeout reviews are recorded here automatically.
+        </p>
       ) : (
-        <div className="space-y-2">
+        <ol className="space-y-2">
           {sorted.map((entry) => {
             const text = describeLogAction(entry.action, entry.details);
             const when = new Date(entry.createdAt).toLocaleString();
             return (
-              <div key={entry.id} className="border-l-2 border-gray-300 pl-3">
-                <p className="text-sm">{text}</p>
-                <p className="text-xs text-gray-500">
+              <li
+                key={entry.id}
+                className="border-l-2 border-cyan-300 bg-gray-50 py-2 pl-3 pr-3"
+              >
+                <p className="text-sm text-gray-950">{text}</p>
+                <p className="mt-0.5 text-xs text-gray-500">
                   {actorLabel(entry.actorId, userId, assignedVendorId)} - {when}
                 </p>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       )}
     </div>
   );
