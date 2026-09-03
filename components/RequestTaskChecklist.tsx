@@ -36,7 +36,7 @@ const METRIC_CLASSES = {
 const STATUS_CLASSES: Record<RequestTaskStatus, string> = {
   todo: "bg-gray-100 text-gray-700",
   in_progress: "bg-cyan-100 text-cyan-800",
-  blocked: "bg-red-100 text-red-700",
+  blocked: "bg-rose-100 text-rose-800",
   done: "bg-emerald-100 text-emerald-700",
 };
 
@@ -162,11 +162,14 @@ export function RequestTaskChecklist({
   }
 
   return (
-    <section id={id} className="scroll-mt-6">
-      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <section
+      id={id}
+      className="scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
+    >
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-blue-700">Project tasks</p>
-          <h2 className="text-xl font-semibold">Task checklist</h2>
+          <p className="text-sm font-semibold text-cyan-700">Project tasks</p>
+          <h2 className="text-xl font-semibold text-slate-950">Task checklist</h2>
         </div>
         <p className="text-sm font-medium text-gray-700">{tasks.length} tasks</p>
       </div>
@@ -195,7 +198,10 @@ export function RequestTaskChecklist({
       ) : (
         <div className="space-y-2">
           {tasks.map((task) => (
-            <article key={task.id} className="rounded-lg border border-gray-200 p-3">
+            <article
+              key={task.id}
+              className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
+            >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h3 className="font-semibold">{task.title}</h3>
@@ -249,7 +255,7 @@ export function RequestTaskChecklist({
                     onChange={(event) =>
                       updateStatus(task.id, event.target.value as RequestTaskStatus)
                     }
-                    className="mt-1 w-full rounded border bg-white p-2 sm:w-48"
+                    className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 sm:w-48"
                   >
                     {REQUEST_TASK_STATUSES.map((taskStatus) => (
                       <option key={taskStatus} value={taskStatus}>
@@ -265,7 +271,7 @@ export function RequestTaskChecklist({
                         type="button"
                         disabled={actingId === task.id}
                         onClick={() => acceptTask(task.id)}
-                        className="inline-flex w-fit items-center justify-center rounded-lg bg-emerald-700 px-3 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-emerald-800 active:scale-95 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-fit items-center justify-center rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Accept task
                       </button>
@@ -274,7 +280,7 @@ export function RequestTaskChecklist({
                       type="button"
                       disabled={actingId === task.id}
                       onClick={() => deleteTask(task.id)}
-                      className="inline-flex w-fit items-center justify-center rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 transition-transform duration-150 hover:scale-105 hover:border-red-300 hover:bg-red-100 active:scale-95 disabled:opacity-50"
+                      className="inline-flex min-h-10 w-fit items-center justify-center rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm font-semibold text-rose-700 transition duration-150 hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-100 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Delete task
                     </button>
@@ -285,7 +291,7 @@ export function RequestTaskChecklist({
               {canEditScope && (
                 <form
                   action={(formData) => updateCost(task.id, formData)}
-                  className="mt-3 grid gap-2 rounded-md border border-gray-100 bg-gray-50 p-2 sm:grid-cols-[1fr_1fr_auto]"
+                  className="mt-3 grid gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 sm:grid-cols-[1fr_1fr_auto]"
                 >
                   <label className="text-sm font-medium">
                     Estimated
@@ -295,7 +301,7 @@ export function RequestTaskChecklist({
                       min="0"
                       step="0.01"
                       defaultValue={task.estimatedCost ?? ""}
-                      className="mt-1 w-full rounded border bg-white p-2 text-sm"
+                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
                     />
                   </label>
                   <label className="text-sm font-medium">
@@ -306,13 +312,13 @@ export function RequestTaskChecklist({
                       min="0"
                       step="0.01"
                       defaultValue={task.finalCost ?? ""}
-                      className="mt-1 w-full rounded border bg-white p-2 text-sm"
+                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
                     />
                   </label>
                   <button
                     type="submit"
                     disabled={actingId === task.id}
-                    className="self-end rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-800 transition-transform duration-150 hover:scale-105 hover:border-gray-400 hover:bg-gray-100 active:scale-95 disabled:opacity-50"
+                    className="inline-flex min-h-10 items-center justify-center self-end rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition duration-150 hover:-translate-y-0.5 hover:border-gray-400 hover:bg-gray-100 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Save costs
                   </button>
@@ -324,8 +330,11 @@ export function RequestTaskChecklist({
       )}
 
       {canEditScope && (
-        <form onSubmit={addTask} className="mt-4 space-y-3 rounded-lg border border-gray-200 p-3">
-          <h3 className="text-sm font-semibold">Add project task</h3>
+        <form
+          onSubmit={addTask}
+          className="mt-4 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+        >
+          <h3 className="text-base font-semibold text-gray-950">Add project task</h3>
           <label className="block text-sm font-medium">
             Task title
             <input
@@ -333,7 +342,7 @@ export function RequestTaskChecklist({
               onChange={(event) => setTitle(event.target.value)}
               maxLength={120}
               placeholder="Example: Remove old vanity"
-              className="mt-1 w-full rounded border p-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </label>
           <label className="block text-sm font-medium">
@@ -344,7 +353,7 @@ export function RequestTaskChecklist({
               maxLength={500}
               rows={2}
               placeholder="Optional scope, materials, or acceptance notes."
-              className="mt-1 w-full rounded border p-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -357,7 +366,7 @@ export function RequestTaskChecklist({
                 min="0"
                 step="0.01"
                 placeholder="0.00"
-                className="mt-1 w-full rounded border p-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
               />
             </label>
             <label className="block text-sm font-medium">
@@ -369,7 +378,7 @@ export function RequestTaskChecklist({
                 min="0"
                 step="0.01"
                 placeholder="Optional after work is done"
-                className="mt-1 w-full rounded border p-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
               />
             </label>
           </div>
@@ -390,7 +399,7 @@ export function RequestTaskChecklist({
           </fieldset>
           <button
             type="submit"
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-900 active:scale-95"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-md active:translate-y-0"
           >
             Add task
           </button>

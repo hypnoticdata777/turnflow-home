@@ -2,6 +2,59 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Request Detail: Deep Workflow Panels
+
+Scope: finish bringing the owner request-detail page's deep sections in line
+with the polished top of the page. Three slices, done together.
+
+### Changed
+
+- Captured before screenshots of the tasks/closeout, billing/sessions, and
+  decisions/comments regions:
+  - `docs/screenshots/2026-09-03-request-detail-tasks-closeout-before-desktop.png`
+  - `docs/screenshots/2026-09-03-request-detail-billing-sessions-before-desktop.png`
+  - `docs/screenshots/2026-09-03-request-detail-decisions-comments-before-desktop.png`
+- Each panel is now a white card
+  (`rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5`) with a
+  cyan eyebrow + `text-slate-950` heading, matching the page's other sections:
+  - `DecisionLog` (Record history / Decision Log) - entries became
+    `border-l-cyan-300 bg-gray-50` rows with a dashed empty state.
+  - `CommentThread` (Shared thread / Updates) - comment cards normalized,
+    input + Post button modernized, dashed empty state.
+  - `WorkSessionTimeline` (Work timeline) and `WorkSessionPanel` (Job activity /
+    Work sessions, vendor) - card wrappers, modern buttons, normalized inputs.
+  - `BillingRecordPanel` (Billing record) - edit form is a `bg-gray-50`
+    sub-card, inputs + Save button modernized.
+  - `RequestTaskChecklist` (Project tasks) - task cards gained `shadow-sm`,
+    the `blocked` status pill and the delete button moved red -> rose, the
+    inline cost form and "Add project task" form are `bg-gray-50` sub-cards,
+    all buttons modernized.
+  - `CloseoutSubmissionPanel` (Closeout) - review/submit forms are `bg-gray-50`
+    sub-cards, inputs + buttons modernized.
+- The old `transition-transform ... hover:scale-105` button idiom is replaced
+  with the app's `hover:-translate-y-0.5 hover:shadow` affordance throughout
+  these panels.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- `npm run ux:owner` passed across all nine owner routes at desktop and mobile,
+  including `assertFirstRequestDetail` (reads `Project tasks`,
+  `Owner closeout decision`, `Work timeline`, `Bid review`, `Quote comparison`,
+  `Vendor`, `Assigned vendor fit` from the request-detail body). Dev log clean.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-request-detail-tasks-closeout-after-desktop.png`
+  - `docs/screenshots/2026-09-03-request-detail-billing-sessions-after-desktop.png`
+  - `docs/screenshots/2026-09-03-request-detail-decisions-comments-after-desktop.png`
+
+### Follow-Up
+
+- The owner request-detail page is now consistently carded top to bottom. The
+  action-language pass is complete across every owner, vendor, helper, and
+  public surface.
+
 ## 2026-09-03 - Request Detail: Quotes Section
 
 Scope: the owner request-detail page opens as a command center and then drops

@@ -143,11 +143,14 @@ export function CloseoutSubmissionPanel({
   }
 
   return (
-    <section id={id} className="scroll-mt-6">
-      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <section
+      id={id}
+      className="scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
+    >
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-blue-700">Closeout</p>
-          <h2 className="text-xl font-semibold">
+          <p className="text-sm font-semibold text-cyan-700">Closeout</p>
+          <h2 className="text-xl font-semibold text-slate-950">
             {mode === "vendor" ? "Submit owner handoff" : "Vendor handoff"}
           </h2>
         </div>
@@ -239,7 +242,7 @@ export function CloseoutSubmissionPanel({
       )}
 
       {mode === "owner" && latest?.status === "pending" && (
-        <div className="mt-3 space-y-3 rounded-lg border p-3">
+        <div className="mt-3 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
           <label className="block text-sm font-medium">
             Owner review note
             <textarea
@@ -248,7 +251,7 @@ export function CloseoutSubmissionPanel({
               maxLength={800}
               rows={2}
               placeholder="Optional for approval. Required when requesting changes."
-              className="mt-1 w-full rounded border p-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </label>
           <div className="flex flex-col gap-2 sm:flex-row">
@@ -256,7 +259,7 @@ export function CloseoutSubmissionPanel({
               type="button"
               disabled={reviewing !== null}
               onClick={() => reviewCloseout("approved")}
-              className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {reviewing === "approved" ? "Approving..." : reviewGuidance.approveCta}
             </button>
@@ -265,7 +268,7 @@ export function CloseoutSubmissionPanel({
               disabled={reviewing !== null || !reviewNotes.trim()}
               onClick={() => reviewCloseout("changes_requested")}
               title={!reviewNotes.trim() ? "Add a note explaining what needs to change." : undefined}
-              className="rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-medium text-rose-800 hover:border-rose-400 hover:bg-rose-100 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-semibold text-rose-800 transition duration-150 hover:-translate-y-0.5 hover:border-rose-400 hover:bg-rose-100 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {reviewing === "changes_requested"
                 ? "Sending..."
@@ -276,7 +279,10 @@ export function CloseoutSubmissionPanel({
       )}
 
       {mode === "vendor" && (
-        <form onSubmit={submitCloseout} className="mt-3 space-y-3 rounded-lg border p-3">
+        <form
+          onSubmit={submitCloseout}
+          className="mt-3 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+        >
           <label className="block text-sm font-medium">
             Completion notes
             <textarea
@@ -285,7 +291,7 @@ export function CloseoutSubmissionPanel({
               maxLength={1000}
               rows={3}
               placeholder="Summarize what was completed and what the owner should review."
-              className="mt-1 w-full rounded border p-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </label>
           <label className="block text-sm font-medium">
@@ -296,7 +302,7 @@ export function CloseoutSubmissionPanel({
               maxLength={800}
               rows={2}
               placeholder="Optional: parts used, receipt note, invoice reference, or warranty detail."
-              className="mt-1 w-full rounded border p-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </label>
           <label className="block text-sm font-medium">
@@ -308,14 +314,14 @@ export function CloseoutSubmissionPanel({
               min="0"
               step="0.01"
               placeholder="0.00"
-              className="mt-1 w-full rounded border p-2 text-sm sm:max-w-xs"
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white p-2 text-sm sm:max-w-xs"
             />
           </label>
           <button
             type="submit"
             disabled={submitting || !readiness.ready}
             title={!readiness.ready ? readiness.detail : undefined}
-            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Submitting..." : "Submit closeout"}
           </button>
