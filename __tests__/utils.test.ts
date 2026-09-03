@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   REQUEST_STATUSES,
   requestStatusBadgeClasses,
+  requestStatusBadgeClassesOnDark,
   REQUEST_CATEGORIES,
   CATEGORY_CHECKLISTS,
   checklistForCategory,
@@ -39,6 +40,29 @@ describe("requestStatusBadgeClasses", () => {
   it("falls back to the Draft styling for unknown/missing status", () => {
     expect(requestStatusBadgeClasses("Draft")).toBe(requestStatusBadgeClasses(undefined));
     expect(requestStatusBadgeClasses("Draft")).toBe(requestStatusBadgeClasses("bogus"));
+  });
+});
+
+describe("requestStatusBadgeClassesOnDark", () => {
+  it("maps every known status to one of the five family styles", () => {
+    const families = new Set(REQUEST_STATUSES.map(requestStatusBadgeClassesOnDark));
+    expect(families.size).toBe(5);
+  });
+
+  it("groups siblings into the same family: quote/review, scheduled/in-progress", () => {
+    expect(requestStatusBadgeClassesOnDark("Needs Quote")).toBe(
+      requestStatusBadgeClassesOnDark("Needs Review")
+    );
+    expect(requestStatusBadgeClassesOnDark("Scheduled")).toBe(
+      requestStatusBadgeClassesOnDark("In Progress")
+    );
+  });
+
+  it("falls back to the neutral chip for Draft, Archived, and unknown status", () => {
+    const neutral = requestStatusBadgeClassesOnDark("Draft");
+    expect(requestStatusBadgeClassesOnDark("Archived")).toBe(neutral);
+    expect(requestStatusBadgeClassesOnDark(undefined)).toBe(neutral);
+    expect(requestStatusBadgeClassesOnDark("bogus")).toBe(neutral);
   });
 });
 

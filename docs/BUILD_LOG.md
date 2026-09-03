@@ -2,6 +2,53 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Request Detail Status Chip on Dark Surface
+
+Scope: the request-detail command center puts the status badge on a slate-950
+hero, where the light pastel pill from `requestStatusBadgeClasses` read as a
+sticker rather than part of the surface. Everything else on that hero uses a
+translucent-tint + light-text treatment.
+
+### Changed
+
+- Captured before screenshots of the request-detail command center:
+  - `docs/screenshots/2026-09-03-owner-lane-before-status-detail-inprogress-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-status-detail-needsreview-desktop.png`
+- Added `requestStatusBadgeClassesOnDark(status)` to `lib/utils.ts`: same five
+  semantic families as `requestStatusBadgeClasses`, but as a dark-surface chip
+  (`bg-<family>-400/15 text-<family>-100 ring-1 ring-inset ring-<family>-300/30`,
+  neutral `bg-white/10 text-slate-200 ring-white/20` for Draft/Archived/unknown).
+  Siblings share a family color here because the chip always shows the exact
+  status label.
+- `components/RequestDetailView.tsx`: the command-center status badge now uses
+  the dark variant, and the Status `<select>` focus ring moved from `sky` to
+  `cyan` to match the hero's accent.
+- Added `requestStatusBadgeClassesOnDark` tests (family count, sibling grouping,
+  neutral fallback) to `__tests__/utils.test.ts`.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests (3 new).
+- `npm run ux:owner` passed across all nine owner routes at desktop and mobile,
+  including the first-request-detail text assertions.
+- `npm run ux:helper` passed for `/vendor` and `/collaborator` at desktop and
+  mobile.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-after-status-detail-inprogress-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-status-detail-needsreview-desktop.png`
+- Local screenshot inspection confirmed the chip now sits in the hero's visual
+  language (cyan for In Progress, blue for Needs Review) instead of a light
+  pastel pill.
+
+### Follow-Up
+
+- `RequestDetailView` still uses `sky` for the workflow-rail `progress` tone
+  (`WORKFLOW_TONE_CLASSES` / `WORKFLOW_CTA_CLASSES`) and a few section eyebrows,
+  while the rest of the owner lane standardized on `cyan`. Align on a later
+  component pass.
+
 ## 2026-09-03 - Request Status Badge Scale
 
 Scope: the last amber/yellow in the app was the `Needs Quote` badge in

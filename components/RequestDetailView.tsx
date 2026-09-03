@@ -7,7 +7,7 @@ import {
   REQUEST_STATUSES,
   costForRequest,
   costLabelForRequest,
-  requestStatusBadgeClasses,
+  requestStatusBadgeClassesOnDark,
 } from "@/lib/utils";
 import {
   recordRequestPhotoAction,
@@ -417,7 +417,7 @@ export function RequestDetailView({
                 <h1 className="mt-1 text-3xl font-bold sm:text-4xl">{request.title}</h1>
               </div>
               <span
-                className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${requestStatusBadgeClasses(
+                className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${requestStatusBadgeClassesOnDark(
                   status
                 )}`}
               >
@@ -497,7 +497,7 @@ export function RequestDetailView({
                   value={status}
                   onChange={handleStatusChange}
                   disabled={statusSaving}
-                  className="mt-2 w-full rounded border border-slate-300 bg-white p-3 text-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                  className="mt-2 w-full rounded border border-slate-300 bg-white p-3 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-100"
                 >
                   {REQUEST_STATUSES.map((s) => (
                     <option key={s} value={s}>

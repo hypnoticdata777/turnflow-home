@@ -135,6 +135,28 @@ export function requestStatusBadgeClasses(status: string | null | undefined): st
   }
 }
 
+/**
+ * Same semantic families as requestStatusBadgeClasses, tuned for a dark
+ * (slate-950) command surface: translucent tint + light text + inset ring.
+ * The status label carries the exact state, so siblings share a family color.
+ */
+export function requestStatusBadgeClassesOnDark(status: string | null | undefined): string {
+  switch (status) {
+    case "Needs Quote":
+    case "Needs Review":
+      return "bg-blue-400/15 text-blue-100 ring-1 ring-inset ring-blue-300/30";
+    case "Waiting":
+      return "bg-rose-400/15 text-rose-100 ring-1 ring-inset ring-rose-300/30";
+    case "Scheduled":
+    case "In Progress":
+      return "bg-cyan-400/15 text-cyan-100 ring-1 ring-inset ring-cyan-300/30";
+    case "Complete":
+      return "bg-emerald-400/15 text-emerald-100 ring-1 ring-inset ring-emerald-300/30";
+    default:
+      return "bg-white/10 text-slate-200 ring-1 ring-inset ring-white/20"; // Draft / Archived / anything else
+  }
+}
+
 export const REQUEST_CATEGORIES = [
   "Plumbing",
   "Electrical",
