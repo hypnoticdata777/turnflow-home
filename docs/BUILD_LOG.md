@@ -2,6 +2,51 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Request Detail: Quotes Section
+
+Scope: the owner request-detail page opens as a command center and then drops
+into older "admin form" styling for the deep workflow sections. This is the
+first of a few small slices to bring those in line. Quotes first - it is a core
+demo moment (comparing and approving vendor bids).
+
+### Changed
+
+- Captured a before screenshot of the `#quotes` section:
+  - `docs/screenshots/2026-09-03-quotes-section-before-desktop.png`
+- `components/QuoteWorkspace.tsx`:
+  - the whole section is now a white card
+    (`rounded-lg border ... bg-white p-4 shadow-sm`) with an eyebrow +
+    heading (`Vendor pricing` / `Quotes and bids`) like the page's other
+    sections, instead of a bare `<h2>Quotes</h2>` on the page ground.
+  - quote cards moved from `rounded border p-3` to
+    `rounded-lg border ... bg-white p-3 shadow-sm` with a hover raise; the
+    approved quote now carries an emerald ring so the selected bid reads at a
+    glance.
+  - Approve / Delete buttons got the modern affordance and a real tap target;
+    Decline is now a neutral outline (affirmative / destructive / neutral
+    hierarchy). The "Add quote" submit matches the app's primary buttons.
+  - the "Add a quote" form is now a `bg-gray-50` sub-card with normalized
+    inputs and a styled file picker; the empty state is a dashed hint.
+  - The smoke-checked strings (`Bid review`, `Quote comparison`, `Vendor`) are
+    untouched.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- `npm run ux:owner` passed across all nine owner routes at desktop and mobile,
+  including `assertFirstRequestDetail` (which reads `Bid review` /
+  `Quote comparison` / `Vendor` from the request-detail body). Dev log clean.
+- Captured after screenshot:
+  - `docs/screenshots/2026-09-03-quotes-section-after-desktop.png`
+
+### Follow-Up
+
+- Remaining request-detail panels still on the old styling: Decision Log,
+  Task checklist, Closeout, Billing, Work sessions, Comments. Two or three more
+  small slices.
+
 ## 2026-09-03 - Completion Waiver / Billing Dispute Colors
 
 Scope: the amber cleanup missed two files. `CompletionWaiverReview` (shown when

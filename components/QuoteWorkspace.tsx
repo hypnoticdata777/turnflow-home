@@ -69,11 +69,13 @@ function QuoteCard({
 
   return (
     <article
-      className={`rounded border p-3 ${quote.status === "approved" ? "border-emerald-400" : ""}`}
+      className={`rounded-lg border bg-white p-3 shadow-sm transition duration-150 hover:shadow-md ${
+        quote.status === "approved" ? "border-emerald-300 ring-1 ring-emerald-200" : "border-gray-200"
+      }`}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h3 className="font-medium">{quote.vendorName || "Unnamed vendor"}</h3>
+          <h3 className="font-semibold text-gray-950">{quote.vendorName || "Unnamed vendor"}</h3>
           {quote.submittedByVendorId && (
             <p className="mt-1 text-xs font-medium text-blue-700">
               Submitted by assigned vendor
@@ -128,12 +130,12 @@ function QuoteCard({
         <p className="mt-1 text-sm leading-6">{decisionGuidance.detail}</p>
         <p className="mt-1 text-xs font-semibold">{decisionGuidance.nextAction}</p>
       </div>
-      <div className="mt-2 flex flex-wrap gap-2 text-sm">
+      <div className="mt-3 flex flex-wrap gap-2 text-sm">
         {quote.status !== "approved" && (
           <button
             onClick={() => onApprove(quote.id)}
             disabled={actingId === quote.id}
-            className="rounded-lg bg-emerald-600 px-2 py-1 font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
+            className="inline-flex min-h-9 items-center justify-center rounded-lg bg-emerald-600 px-3 py-1.5 font-semibold text-white transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-sm active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Approve
           </button>
@@ -142,7 +144,7 @@ function QuoteCard({
           <button
             onClick={() => onDecline(quote.id)}
             disabled={actingId === quote.id}
-            className="rounded-lg bg-gray-500 px-2 py-1 text-white transition-transform duration-150 hover:scale-105 hover:bg-gray-700 active:scale-95 disabled:opacity-50"
+            className="inline-flex min-h-9 items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 font-semibold text-gray-700 transition duration-150 hover:border-gray-400 hover:bg-gray-100 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Decline
           </button>
@@ -150,7 +152,7 @@ function QuoteCard({
         <button
           onClick={() => onDelete(quote.id)}
           disabled={actingId === quote.id}
-          className="rounded-lg bg-rose-600 px-2 py-1 font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-rose-700 active:scale-95 disabled:opacity-50"
+          className="inline-flex min-h-9 items-center justify-center rounded-lg bg-rose-600 px-3 py-1.5 font-semibold text-white transition duration-150 hover:-translate-y-0.5 hover:bg-rose-700 hover:shadow-sm active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Delete
         </button>
@@ -282,8 +284,11 @@ export function QuoteWorkspace({
   }
 
   return (
-    <section>
-      <h2 className="mb-3 text-xl font-semibold">Quotes</h2>
+    <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="mb-4">
+        <p className="text-sm font-semibold text-cyan-700">Vendor pricing</p>
+        <h2 className="text-xl font-semibold text-slate-950">Quotes and bids</h2>
+      </div>
 
       <div className={`mb-4 rounded-lg border p-3 ${REVIEW_GUIDANCE_CLASSES[reviewSummary.tone]}`}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -333,7 +338,10 @@ export function QuoteWorkspace({
 
       <div className="mb-4 space-y-3">
         {quotes.length === 0 ? (
-          <p className="text-sm text-gray-500">No quotes recorded yet.</p>
+          <p className="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-600">
+            No quotes recorded yet. Add a vendor estimate below, or wait for the
+            assigned vendor to submit a bid.
+          </p>
         ) : (
           quotes.map((quote) => (
             <QuoteCard
@@ -349,8 +357,11 @@ export function QuoteWorkspace({
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3 border-t pt-4">
-        <h3 className="text-sm font-medium">Add a quote</h3>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+      >
+        <h3 className="text-base font-semibold text-gray-950">Add a quote</h3>
         <div className="grid gap-2 md:grid-cols-2">
           <div>
             <label htmlFor={vendorNameId} className="mb-1 block text-sm font-medium">
@@ -362,7 +373,7 @@ export function QuoteWorkspace({
               placeholder="Vendor name"
               value={vendorName}
               onChange={(e) => setVendorName(e.target.value)}
-              className="w-full rounded border p-2 text-sm"
+              className="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </div>
           <div>
@@ -375,7 +386,7 @@ export function QuoteWorkspace({
               placeholder="Optional"
               value={vendorContact}
               onChange={(e) => setVendorContact(e.target.value)}
-              className="w-full rounded border p-2 text-sm"
+              className="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             />
           </div>
         </div>
@@ -391,7 +402,7 @@ export function QuoteWorkspace({
             placeholder="0.00"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full rounded border p-2 text-sm"
+            className="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
           />
         </div>
         <div>
@@ -403,7 +414,7 @@ export function QuoteWorkspace({
             placeholder="Optional"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full rounded border p-2 text-sm"
+            className="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm"
             rows={2}
           />
         </div>
@@ -416,14 +427,14 @@ export function QuoteWorkspace({
             type="file"
             accept="image/*,application/pdf"
             onChange={(e) => setAttachment(e.target.files?.[0] || null)}
-            className="text-sm"
+            className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-gray-200 file:px-3 file:py-2 file:text-sm file:font-medium file:text-gray-800"
           />
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-800 active:scale-95 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Saving..." : "Add quote"}
           </button>
