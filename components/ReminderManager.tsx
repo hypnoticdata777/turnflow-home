@@ -150,7 +150,7 @@ export function ReminderManager({
         other routine that should not depend on memory.
       </p>
 
-      <div className="mb-6 rounded-xl bg-white p-4 shadow">
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-xl font-semibold">Add a reminder</h2>
         <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-5 md:items-end">
           <div>
@@ -209,7 +209,7 @@ export function ReminderManager({
         {formStatus && <p className="mt-2 text-sm text-gray-600">{formStatus}</p>}
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow">
+      <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-xl font-semibold">Upcoming and overdue</h2>
         {reminders.length === 0 ? (
           <p className="text-gray-500">No reminders yet. Add one above.</p>
@@ -245,14 +245,14 @@ export function ReminderManager({
                     <button
                       onClick={() => handleDone(r)}
                       disabled={actingId === r.id}
-                      className="rounded-lg bg-green-600 px-3 py-1 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-green-800 active:scale-95 disabled:opacity-50"
+                      className="rounded-lg bg-emerald-600 px-3 py-1 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
                     >
                       Mark done
                     </button>
                     <button
                       onClick={() => handleDelete(r)}
                       disabled={actingId === r.id}
-                      className="rounded-lg bg-red-600 px-3 py-1 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-red-800 active:scale-95 disabled:opacity-50"
+                      className="rounded-lg bg-rose-600 px-3 py-1 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-rose-700 active:scale-95 disabled:opacity-50"
                     >
                       Delete
                     </button>

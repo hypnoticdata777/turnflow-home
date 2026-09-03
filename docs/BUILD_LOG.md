@@ -2,6 +2,65 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Owner Calendar / Notifications Action Language
+
+Scope: finish the owner-lane amber cleanup. Calendar and notifications were the
+last owner pages opening with an eyebrow + headline + paragraph and using amber
+for the in-progress metric tone, plus a yellow "due soon" reminder badge.
+
+### Changed
+
+- Captured before screenshots at desktop and mobile:
+  - `docs/screenshots/2026-09-03-owner-lane-before-calendar-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-calendar-mobile.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-notifications-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-notifications-mobile.png`
+- Rebuilt `/owner/calendar` around the dark command center (keeps the
+  `Maintenance calendar` heading), added an "Add a reminder" CTA that jumps to
+  the reminder manager, and moved the four care-metric tiles into a `border-t`
+  strip. The "due soon" metric tone moved from amber to cyan. The empty state
+  (no property yet) is now the same command surface with an "Add a property"
+  CTA instead of a bare sentence.
+- Rebuilt `/owner/notifications` around the dark command center. Folded the old
+  `Delivery log` eyebrow and the separate "Notification health" white section
+  into the hero so `Notifications`, `Notification health`, and
+  `Can owners trust outbound alerts?` all still render (smoke-checked), then
+  moved the four delivery-metric tiles into a `border-t` strip. Delivery-attempt
+  cards now use rose "failed" pills and tighter typography, with a
+  "N delivered / N failed" count next to the section heading.
+- `reminderStatusBadgeClasses` (`lib/utils.ts`): overdue red -> rose, due-soon
+  yellow -> cyan, scheduled green -> emerald, so the calendar badge palette
+  matches the owner-lane action colors.
+- `components/ReminderManager.tsx`: normalized the two form/list cards to the
+  shared `rounded-lg border ... shadow-sm` style, and moved the row buttons to
+  emerald (mark done) and rose (delete).
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 270 tests.
+- `npm run ux:owner` passed against `investor.owner@turnflow.demo` across all
+  nine owner routes at desktop (1440) and mobile (390), including the
+  `/owner/notifications` route-quality text checks (`Notification health`,
+  `Can owners trust outbound alerts?`) and the calendar/notifications heading
+  and active-nav assertions. No horizontal overflow, no encoding artifacts,
+  dev server log clean.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-after-calendar-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-calendar-mobile.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-notifications-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-notifications-mobile.png`
+- Local screenshot inspection confirmed both pages now open with a command
+  center, a CTA, and status tiles, with no amber or yellow on the surface.
+
+### Follow-Up
+
+- No amber remains in any `/owner/*` page. The remaining amber/yellow holdouts
+  are outside the owner lane: `NewRequestForm`, `RequestCreatedNoticeBanner`,
+  `BackupManager`, and the `Needs Quote` badge in `requestStatusBadgeClasses`
+  (an intentional seven-status color scale - treat separately).
+
 ## 2026-09-03 - Owner Setup / Account / Properties Action Language
 
 Scope: carry the action-first lane language into the remaining explanation-heavy

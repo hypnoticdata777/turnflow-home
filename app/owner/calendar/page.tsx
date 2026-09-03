@@ -14,15 +14,22 @@ export default async function CalendarPage() {
 
   if (ownerProperties.length === 0) {
     return (
-      <main>
-        <h1 className="mb-2 text-3xl font-bold">Maintenance calendar</h1>
-        <p className="text-gray-500">
-          Add a property before creating reminders.{" "}
-          <Link href="/owner/properties" className="text-blue-600 underline">
-            Add one now
-          </Link>
-          .
-        </p>
+      <main className="max-w-5xl">
+        <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="bg-slate-950 p-5 text-white">
+            <p className="text-sm font-semibold text-emerald-300">Preventive care</p>
+            <h1 className="mt-2 text-3xl font-bold">Maintenance calendar</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-200">
+              A property has to exist before you can schedule recurring home care.
+            </p>
+            <Link
+              href="/owner/properties"
+              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-md active:translate-y-0"
+            >
+              Add a property
+            </Link>
+          </div>
+        </section>
       </main>
     );
   }
@@ -47,21 +54,27 @@ export default async function CalendarPage() {
       : tone === "attention"
         ? "border-blue-200 bg-blue-50 text-blue-950"
         : tone === "progress"
-          ? "border-amber-200 bg-amber-50 text-amber-950"
+          ? "border-cyan-200 bg-cyan-50 text-cyan-950"
           : "border-gray-200 bg-white text-gray-950";
 
   return (
-    <main>
-      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-        <div className="mb-4">
-          <p className="text-sm font-semibold text-blue-700">Preventive care</p>
-          <h1 className="text-3xl font-bold text-gray-950">Maintenance calendar</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+    <main className="max-w-6xl">
+      <section className="mb-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="bg-slate-950 p-5 text-white">
+          <p className="text-sm font-semibold text-emerald-300">Preventive care</p>
+          <h1 className="mt-2 text-3xl font-bold">Maintenance calendar</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-200">
             Turn repeat home care into a visible routine before small issues become
             expensive repairs.
           </p>
+          <Link
+            href="#reminders"
+            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-md active:translate-y-0"
+          >
+            Add a reminder
+          </Link>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 border-t border-slate-200 p-5 md:grid-cols-2 xl:grid-cols-4">
           {valueMetrics.map((metric) => (
             <article
               key={metric.label}
@@ -74,7 +87,9 @@ export default async function CalendarPage() {
           ))}
         </div>
       </section>
-      <ReminderManager properties={properties} reminders={ownerReminders} />
+      <div id="reminders" className="scroll-mt-6">
+        <ReminderManager properties={properties} reminders={ownerReminders} />
+      </div>
     </main>
   );
 }
