@@ -88,7 +88,7 @@ export function VaultManager({
 
   return (
     <div className="min-w-0">
-      <div className="mb-6 rounded-xl bg-white p-4 shadow">
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-xl font-semibold">Add a document</h2>
         <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-4 md:items-end">
           <div className="min-w-0">
@@ -127,7 +127,7 @@ export function VaultManager({
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-blue-800 active:scale-95 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Uploading..." : "Add document"}
           </button>
@@ -135,16 +135,19 @@ export function VaultManager({
         {formStatus && <p className="mt-2 text-sm text-gray-600">{formStatus}</p>}
       </div>
 
-      <div className="rounded-xl bg-white p-4 shadow">
+      <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-xl font-semibold">Documents</h2>
         {documents.length === 0 ? (
-          <p className="text-gray-500">No documents yet.</p>
+          <p className="rounded border border-dashed border-gray-300 p-4 text-sm text-gray-600">
+            No documents yet. Add the warranty, receipt, manual, or inspection
+            report you would want to find later.
+          </p>
         ) : (
           <div className="space-y-2">
             {documents.map((d) => (
               <div
                 key={d.id}
-                className="flex flex-col gap-3 rounded border p-3 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
                   <p className="break-words">
@@ -165,7 +168,7 @@ export function VaultManager({
                 <button
                   onClick={() => handleDelete(d.id)}
                   disabled={deletingId === d.id}
-                  className="rounded-lg bg-red-600 px-3 py-1 text-sm text-white transition-transform duration-150 hover:scale-105 hover:bg-red-800 active:scale-95 disabled:opacity-50"
+                  className="rounded-lg bg-rose-600 px-3 py-1 text-sm font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-rose-700 active:scale-95 disabled:opacity-50"
                 >
                   Delete
                 </button>

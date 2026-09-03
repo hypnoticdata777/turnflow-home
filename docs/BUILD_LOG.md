@@ -2,6 +2,53 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Owner Vault Action Language
+
+Scope: `/owner/vault` was the last owner route still opening with a bare
+headline + paragraph instead of the command-center shell every other owner
+page now uses.
+
+### Changed
+
+- Captured before screenshots for `/owner/vault` at desktop and mobile:
+  - `docs/screenshots/2026-09-03-owner-lane-before-vault-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-vault-mobile.png`
+- `app/owner/vault/page.tsx`: replaced the bare `Property vault` heading +
+  gray paragraph with the dark command center (keeps the `Property vault`
+  heading), added an "Add a document" CTA that jumps to the manager, and moved
+  the four `ownerVaultValueMetrics` tiles into a `border-t` strip beneath the
+  hero (dropping the separate "What this vault protects" white card). The
+  no-property empty state is now an action card with an "Add a property" CTA
+  instead of one gray sentence.
+- `components/VaultManager.tsx`: normalized the two `rounded-xl ... shadow`
+  cards to the shared `rounded-lg border ... shadow-sm` style; the "Add
+  document" button gained a real hit area, shadow, and hover lift; delete
+  moved from `red` to `rose`; the empty "No documents yet." line is now a
+  dashed hint with a next-step sentence.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- `npm run ux:owner` passed across all nine owner routes at desktop (1440) and
+  mobile (390), including the `Property vault` heading and active-nav
+  assertions. No horizontal overflow, no encoding artifacts, dev server log
+  clean.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-after-vault-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-vault-mobile.png`
+- Local screenshot inspection confirmed the page now opens on the same dark
+  command center as the rest of the owner lane.
+
+### Follow-Up
+
+- Every `/owner/*` route now opens on the command-center shell with a
+  consistent action-color system. Next candidates outside the owner lane:
+  the public `/` and `/signup` pages, and the `QuoteWorkspace`
+  approved/declined pills (`green`/`red` -> `emerald`/`rose`) if a broader
+  vendor-lane pass revisits them.
+
 ## 2026-09-03 - Vendor / Helper Lane sky -> cyan Alignment
 
 Scope: finish the progress-tone color alignment. The earlier helper/vendor

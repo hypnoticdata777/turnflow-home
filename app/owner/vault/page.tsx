@@ -49,25 +49,59 @@ export default async function VaultPage({
           : "border-gray-200 bg-white text-gray-950";
 
   return (
-    <main>
-      <h1 className="mb-2 text-3xl font-bold">Property vault</h1>
-      <p className="mb-4 text-sm text-gray-500">
-        Receipts, warranties, manuals, invoices, and inspection reports for a
-        property, independent of any single request.
-      </p>
+    <main className="max-w-6xl">
+      <section className="mb-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="bg-slate-950 p-5 text-white">
+          <p className="text-sm font-semibold text-emerald-300">Property history</p>
+          <h1 className="mt-2 text-3xl font-bold">Property vault</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-200">
+            Receipts, warranties, manuals, invoices, and inspection reports for a
+            property, independent of any single request.
+          </p>
+          {ownerProperties.length > 0 && (
+            <Link
+              href="#vault-manager"
+              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-md active:translate-y-0"
+            >
+              Add a document
+            </Link>
+          )}
+        </div>
+        {ownerProperties.length > 0 && (
+          <div className="grid gap-3 border-t border-slate-200 p-5 md:grid-cols-2 xl:grid-cols-4">
+            {valueMetrics.map((metric) => (
+              <article
+                key={metric.label}
+                className={`rounded-lg border p-4 ${metricClasses(metric.tone)}`}
+              >
+                <p className="text-sm font-semibold">{metric.label}</p>
+                <p className="mt-2 text-3xl font-bold">{metric.value}</p>
+                <p className="mt-2 min-h-20 text-sm leading-6">{metric.detail}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       {ownerProperties.length === 0 ? (
-        <p className="text-gray-500">
-          No properties yet.{" "}
-          <Link href="/owner/properties" className="text-blue-600 underline">
-            Add one first
+        <div className="rounded-lg border border-dashed border-blue-200 bg-blue-50 p-5">
+          <p className="font-semibold text-blue-950">Add a property first.</p>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-blue-900">
+            The vault is organized per property. Add the home you want to keep
+            records for, then receipts, warranties, and manuals have a place to
+            live.
+          </p>
+          <Link
+            href="/owner/properties"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-md active:translate-y-0"
+          >
+            Add a property
           </Link>
-          .
-        </p>
+        </div>
       ) : (
         <>
           <div className="mb-6">
-            <label className="mb-1 block text-sm font-medium">Property</label>
+            <p className="mb-2 text-sm font-semibold text-gray-700">Property</p>
             <div className="flex flex-wrap gap-2">
               {ownerProperties.map((p) => (
                 <Link
@@ -85,33 +119,14 @@ export default async function VaultPage({
             </div>
           </div>
 
-          <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-            <div className="mb-4">
-              <p className="text-sm font-semibold text-blue-700">Property history</p>
-              <h2 className="text-2xl font-bold text-gray-950">
-                What this vault protects after the work is done
-              </h2>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {valueMetrics.map((metric) => (
-                <article
-                  key={metric.label}
-                  className={`rounded-lg border p-4 ${metricClasses(metric.tone)}`}
-                >
-                  <p className="text-sm font-semibold">{metric.label}</p>
-                  <p className="mt-2 text-3xl font-bold">{metric.value}</p>
-                  <p className="mt-2 min-h-20 text-sm leading-6">{metric.detail}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-
           {selectedPropertyId && (
-            <VaultManager
-              propertyId={selectedPropertyId}
-              documents={documents}
-              userId={session.user.id}
-            />
+            <div id="vault-manager" className="scroll-mt-6">
+              <VaultManager
+                propertyId={selectedPropertyId}
+                documents={documents}
+                userId={session.user.id}
+              />
+            </div>
           )}
         </>
       )}
