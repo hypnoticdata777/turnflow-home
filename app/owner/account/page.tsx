@@ -16,6 +16,18 @@ import {
   ownerSetupSummary,
 } from "@/lib/owner-readiness";
 
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="h-3.5 w-3.5">
+      <path
+        fillRule="evenodd"
+        d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.8 7.8a1 1 0 0 1-1.4 0l-3.8-3.8a1 1 0 1 1 1.4-1.4l3.1 3.09 7.1-7.09a1 1 0 0 1 1.4 0Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
 function formatDate(date: Date | null) {
   if (!date) return "Not recorded";
   return new Intl.DateTimeFormat("en", {
@@ -28,9 +40,9 @@ function formatDate(date: Date | null) {
 function sharingMetricClasses(tone: "attention" | "progress" | "ready" | "empty") {
   switch (tone) {
     case "attention":
-      return "border-amber-200 bg-amber-50 text-amber-950";
+      return "border-rose-200 bg-rose-50 text-rose-950";
     case "progress":
-      return "border-blue-200 bg-blue-50 text-blue-950";
+      return "border-cyan-200 bg-cyan-50 text-cyan-950";
     case "ready":
       return "border-emerald-200 bg-emerald-50 text-emerald-950";
     default:
@@ -110,113 +122,137 @@ export default async function OwnerAccountPage() {
   const nextStep = ownerNextSetupStep(setupSteps);
   const { completedCount, totalCount, progress } = ownerSetupProgress(setupSteps);
   const sharingMetrics = ownerSharingMetrics(readinessInput);
-  const summaryClasses =
-    setupSummary.tone === "ready"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-      : setupSummary.tone === "empty"
-        ? "border-blue-200 bg-blue-50 text-blue-950"
-        : "border-amber-200 bg-amber-50 text-amber-950";
-  const summaryButtonClasses =
-    setupSummary.tone === "ready"
-      ? "bg-emerald-800 hover:bg-emerald-900"
-      : setupSummary.tone === "empty"
-        ? "bg-blue-800 hover:bg-blue-900"
-        : "bg-amber-800 hover:bg-amber-900";
+  const primary = nextStep
+    ? { href: nextStep.href, label: nextStep.cta }
+    : { href: "/owner/requests/new", label: "Log another request" };
+
+  const trustStats = [
+    { label: "Owner readiness", value: `${progress}%` },
+    { label: "Shared requests", value: sharedRequestCount },
+    { label: "Active access", value: activeSharedAccess.length },
+    { label: "Pending invites", value: pendingInvites.length },
+  ];
+
+  const sharedScope = [
+    {
+      title: "Vendors",
+      detail: "Only their assigned request: details, property, access notes, status, proof upload.",
+    },
+    {
+      title: "Collaborators",
+      detail: "Only requests shared with them: status, notes, cost context, update thread.",
+    },
+    {
+      title: "Owner-only",
+      detail: "Properties, backups, vault documents, reminders, notification history.",
+    },
+  ];
 
   return (
     <main className="max-w-6xl">
-      <div className="mb-6">
-        <p className="text-sm font-semibold text-blue-700">Account & sharing</p>
-        <h1 className="text-3xl font-bold">Trust center</h1>
-        <p className="mt-2 max-w-3xl text-gray-600">
-          Review your owner account, launch-readiness signals, and the current
-          sharing footprint before bringing vendors or helpers into a repair.
-        </p>
-      </div>
-
-      <section className="mb-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Signed in as</p>
-          <h2 className="mt-1 text-xl font-semibold">{displayName}</h2>
-          <p className="mt-1 break-all text-sm text-gray-600">{displayEmail}</p>
-          <OwnerProfileForm initialName={displayName} />
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Shared requests</p>
-          <h2 className="mt-1 text-3xl font-bold">{sharedRequestCount}</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Requests with an assigned helper or pending invite.
+      <section className="mb-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="bg-slate-950 p-5 text-white">
+          <p className="text-sm font-semibold text-emerald-300">Account &amp; sharing</p>
+          <h1 className="mt-2 text-3xl font-bold">Trust center</h1>
+          <p className="mt-3 text-lg font-semibold">{setupSummary.headline}</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-200">{setupSummary.detail}</p>
+          <p className="mt-3 text-sm text-slate-300">
+            Signed in as <span className="font-semibold text-white">{displayName}</span>
+            <span className="break-all"> &middot; {displayEmail}</span>
           </p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Pending invites</p>
-          <h2 className="mt-1 text-3xl font-bold">{pendingInvites.length}</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Open invite links that can still be claimed.
-          </p>
-        </div>
-      </section>
 
-      <section className={`mb-6 rounded-lg border p-5 shadow-sm ${summaryClasses}`}>
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold">
-              Owner readiness: {completedCount} of {totalCount} complete ({progress}%)
-            </p>
-            <h2 className="mt-1 text-xl font-semibold">
-              {setupSummary.headline}
-            </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6">
-              {setupSummary.detail}
-            </p>
-          </div>
-          {nextStep && (
-            <Link
-              href={nextStep.href}
-              className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors duration-150 ${summaryButtonClasses}`}
-            >
-              {nextStep.cta}
-            </Link>
-          )}
-        </div>
-      </section>
-
-      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">Launch-readiness checklist</h2>
-            <p className="text-sm text-gray-600">
-              These signals help confirm the owner workflow has enough substance
-              for early users to understand the value.
-            </p>
-          </div>
-          <Link
-            href="/owner/onboarding"
-            className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-blue-800"
-          >
-            Continue setup
-          </Link>
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-2">
-          {readinessItems.map((item) => (
-            <div
-              key={item.label}
-              className="flex items-start gap-3 rounded border border-gray-100 bg-gray-50 p-3"
-            >
-              <span
-                className={`mt-0.5 rounded-full px-2 py-1 text-xs font-semibold ${
-                  item.complete ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"
-                }`}
-              >
-                {item.complete ? "Ready" : "Needs work"}
+          <div className="mt-5" aria-label="Owner readiness progress">
+            <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase text-slate-300">
+              <span>Launch readiness</span>
+              <span>
+                {completedCount}/{totalCount} ready
               </span>
-              <div>
-                <p className="font-medium">{item.label}</p>
-                <p className="text-sm text-gray-600">{item.detail}</p>
-              </div>
+            </div>
+            <div className="mt-2 h-2 rounded-full bg-slate-800">
+              <div
+                className="h-2 rounded-full bg-emerald-400"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link
+              href={primary.href}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-md active:translate-y-0"
+            >
+              {primary.label}
+            </Link>
+            <Link
+              href="/owner/onboarding"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-500 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition duration-150 hover:bg-slate-800"
+            >
+              Open setup guide
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-px border-t border-slate-200 bg-slate-200 md:grid-cols-4">
+          {trustStats.map((stat) => (
+            <div key={stat.label} className="bg-gray-50 p-4">
+              <p className="text-sm font-semibold text-gray-600">{stat.label}</p>
+              <p className="mt-1 text-2xl font-bold text-gray-950">{stat.value}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <h2 className="text-xl font-semibold">Profile</h2>
+          <p className="mt-1 text-sm text-gray-600">The name helpers and vendors see on shared requests.</p>
+          <OwnerProfileForm initialName={displayName} />
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Launch-readiness checklist</h2>
+              <p className="text-sm text-gray-600">Signals that the owner workflow has real substance.</p>
+            </div>
+            <Link
+              href="/owner/onboarding"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-md active:translate-y-0"
+            >
+              Continue setup
+            </Link>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {readinessItems.map((item) => (
+              <div
+                key={item.label}
+                className={`rounded-lg border p-3 ${
+                  item.complete
+                    ? "border-emerald-200 bg-emerald-50"
+                    : "border-cyan-200 bg-cyan-50"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold text-white ${
+                      item.complete ? "bg-emerald-600" : "bg-cyan-600"
+                    }`}
+                  >
+                    {item.complete ? (
+                      <>
+                        <CheckIcon /> Ready
+                      </>
+                    ) : (
+                      "Needs work"
+                    )}
+                  </span>
+                  <p className="font-semibold text-gray-950">{item.label}</p>
+                </div>
+                <p className="mt-2 text-sm text-gray-700">{item.detail}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -227,9 +263,9 @@ export default async function OwnerAccountPage() {
           </p>
           <h2 className="mt-1 text-xl font-semibold">Who can see owner records?</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Requests start owner-only. Vendors and collaborators only enter a
-            specific repair after an invite is accepted or access is assigned,
-            and removing access is recorded in the request decision log.
+            Requests start owner-only. Vendors and collaborators enter one specific
+            repair after an invite is accepted or access is assigned, and every
+            removal is written to the request decision log.
           </p>
         </div>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
@@ -247,30 +283,14 @@ export default async function OwnerAccountPage() {
       </section>
 
       <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-        <h2 className="text-xl font-semibold">What gets shared</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded border border-gray-100 bg-gray-50 p-4">
-            <h3 className="font-semibold">Vendors</h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Vendors see only requests assigned to them, including request
-              details, property label/address, access notes, status, and photo
-              proof upload tools.
-            </p>
-          </div>
-          <div className="rounded border border-gray-100 bg-gray-50 p-4">
-            <h3 className="font-semibold">Collaborators</h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Collaborators see only requests shared with them, including
-              status, notes, cost context, and the request update thread.
-            </p>
-          </div>
-          <div className="rounded border border-gray-100 bg-gray-50 p-4">
-            <h3 className="font-semibold">Owner-only areas</h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Properties, backup exports, vault documents, reminders, and
-              notification history stay in the owner portal.
-            </p>
-          </div>
+        <h2 className="text-xl font-semibold">What each role sees</h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {sharedScope.map((scope) => (
+            <div key={scope.title} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <h3 className="font-semibold text-gray-950">{scope.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-gray-600">{scope.detail}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -278,8 +298,7 @@ export default async function OwnerAccountPage() {
         <div className="mb-4">
           <h2 className="text-xl font-semibold">Active shared access</h2>
           <p className="text-sm text-gray-600">
-            Remove request access after a vendor or trusted helper has accepted
-            an invite.
+            Remove request access once a vendor or trusted helper is done.
           </p>
         </div>
 
@@ -335,12 +354,12 @@ export default async function OwnerAccountPage() {
           <div>
             <h2 className="text-xl font-semibold">Invite activity</h2>
             <p className="text-sm text-gray-600">
-              Review who has been invited and whether those links are still open.
+              Who has been invited and whether those links are still open.
             </p>
           </div>
           <Link
             href={ownerRequests[0] ? `/owner/requests/${ownerRequests[0].id}` : "/owner/requests/new"}
-            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-colors duration-150 hover:border-gray-400 hover:bg-gray-100"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold transition duration-150 hover:border-gray-400 hover:bg-gray-100"
           >
             Manage invites
           </Link>

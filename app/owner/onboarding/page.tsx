@@ -10,6 +10,18 @@ import {
   ownerSetupSummary,
 } from "@/lib/owner-readiness";
 
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="h-3.5 w-3.5">
+      <path
+        fillRule="evenodd"
+        d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.8 7.8a1 1 0 0 1-1.4 0l-3.8-3.8a1 1 0 1 1 1.4-1.4l3.1 3.09 7.1-7.09a1 1 0 0 1 1.4 0Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
 export default async function OwnerOnboardingPage() {
   const session = await requireRole("owner");
 
@@ -52,53 +64,71 @@ export default async function OwnerOnboardingPage() {
   const { completedCount, totalCount, progress } = ownerSetupProgress(steps);
   const nextStep = ownerNextSetupStep(steps);
   const summary = ownerSetupSummary(steps);
-  const summaryClasses =
-    summary.tone === "ready"
-      ? "border-green-200 bg-green-50 text-green-950"
-      : summary.tone === "empty"
-        ? "border-blue-200 bg-blue-50 text-blue-950"
-        : "border-amber-200 bg-amber-50 text-amber-950";
+  const primary = nextStep
+    ? { href: nextStep.href, label: nextStep.cta }
+    : { href: "/owner/requests/new", label: "Log another request" };
 
   return (
     <main className="max-w-5xl">
-      <div className="mb-6">
-        <p className="text-sm font-semibold text-blue-700">Homeowner setup</p>
-        <h1 className="text-3xl font-bold">Build your first repair record</h1>
-        <p className="mt-2 max-w-2xl text-gray-600">
-          Walk one real scenario from property setup to proof, help, history, and
-          reminders. This is the core path to test with homeowners.
-        </p>
-      </div>
+      <section className="mb-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="bg-slate-950 p-5 text-white">
+          <p className="text-sm font-semibold text-emerald-300">Homeowner setup</p>
+          <h1 className="mt-2 text-3xl font-bold">Build your first repair record</h1>
+          <p className="mt-3 text-lg font-semibold">{summary.headline}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-200">{summary.detail}</p>
 
-      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm text-gray-500">First-run progress</p>
-            <p className="text-3xl font-bold">{progress}%</p>
+          <div className="mt-5" aria-label="Owner setup progress">
+            <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase text-slate-300">
+              <span>First-run progress</span>
+              <span>
+                {completedCount}/{totalCount} ready
+              </span>
+            </div>
+            <div className="mt-2 h-2 rounded-full bg-slate-800">
+              <div
+                className="h-2 rounded-full bg-emerald-400"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
-          <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100 md:max-w-xl">
-            <div className="h-full bg-blue-600" style={{ width: `${progress}%` }} />
-          </div>
-          <p className="text-sm font-medium text-gray-700">
-            {completedCount} of {totalCount} done
-          </p>
-        </div>
-      </section>
 
-      <section className={`mb-6 rounded-lg border p-5 ${summaryClasses}`}>
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">{summary.headline}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6">{summary.detail}</p>
-          </div>
-          {nextStep && (
+          <div className="mt-5 flex flex-wrap gap-2">
             <Link
-              href={nextStep.href}
-              className="inline-flex items-center justify-center rounded-lg bg-gray-950 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-black"
+              href={primary.href}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-md active:translate-y-0"
             >
-              {nextStep.cta}
+              {primary.label}
             </Link>
-          )}
+            <Link
+              href="/owner/dashboard"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-500 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition duration-150 hover:bg-slate-800"
+            >
+              Open owner dashboard
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-px bg-slate-200 sm:grid-cols-6">
+          {steps.map((step, index) => (
+            <div key={step.title} className="bg-white p-3 text-center">
+              <p className="text-xs font-semibold uppercase text-gray-400">
+                Step {index + 1}
+              </p>
+              <p
+                className={`mt-1 inline-flex items-center gap-1 text-sm font-bold ${
+                  step.complete ? "text-emerald-700" : "text-cyan-700"
+                }`}
+              >
+                {step.complete ? (
+                  <>
+                    <CheckIcon /> Done
+                  </>
+                ) : (
+                  "To do"
+                )}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -106,29 +136,37 @@ export default async function OwnerOnboardingPage() {
         {steps.map((step, index) => (
           <article
             key={step.title}
-            className="border border-gray-200 bg-white p-5 rounded-lg shadow-sm"
+            className={`flex flex-col rounded-lg border p-5 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md ${
+              step.complete ? "border-emerald-200 bg-emerald-50" : "border-cyan-200 bg-cyan-50"
+            }`}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Step {index + 1}
                 </p>
-                <h2 className="mt-1 text-lg font-semibold">{step.title}</h2>
+                <h2 className="mt-1 text-lg font-semibold text-gray-950">{step.title}</h2>
               </div>
               <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  step.complete
-                    ? "bg-green-100 text-green-800"
-                    : "bg-amber-100 text-amber-800"
+                className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold text-white ${
+                  step.complete ? "bg-emerald-600" : "bg-cyan-600"
                 }`}
               >
-                {step.complete ? "Done" : "Needs work"}
+                {step.complete ? (
+                  <>
+                    <CheckIcon /> Done
+                  </>
+                ) : (
+                  "Needs work"
+                )}
               </span>
             </div>
-            <p className="mt-3 text-sm text-gray-600">{step.detail}</p>
+            <p className="mt-3 flex-1 text-sm leading-6 text-gray-700">{step.detail}</p>
             <Link
               href={step.href}
-              className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-blue-800"
+              className={`mt-4 inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 ${
+                step.complete ? "bg-gray-800 hover:bg-gray-900" : "bg-cyan-800 hover:bg-cyan-900"
+              }`}
             >
               {step.cta}
             </Link>

@@ -2,6 +2,75 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Owner Setup / Account / Properties Action Language
+
+Scope: carry the action-first lane language into the remaining explanation-heavy
+owner subpages. Setup, account, and properties still opened with an eyebrow,
+a headline, and a paragraph, and still fell back to amber for in-progress and
+"needs work" states. This slice makes each page open as a command surface and
+teach through layout, tiles, and button affordance.
+
+### Changed
+
+- Captured before screenshots for the owner lane subpages at desktop and mobile:
+  - `docs/screenshots/2026-09-03-owner-lane-before-setup-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-setup-mobile.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-account-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-account-mobile.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-properties-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-properties-mobile.png`
+- Rebuilt `/owner/onboarding` around a dark command center that keeps the
+  `Build your first repair record` heading, then shows the setup summary,
+  an emerald readiness bar, primary/secondary CTAs, and a six-segment step
+  status strip. Step cards became emerald (done) / cyan (needs work) surfaces
+  with a check-mark status pill and a full-width CTA. Removed the amber summary
+  block and the amber "needs work" pill.
+- Rebuilt `/owner/account` around the same command center (keeps the
+  `Trust center` heading plus the smoke-checked `Sharing boundary snapshot`
+  and `Who can see owner records?` text). Added a four-tile trust-stat strip,
+  paired the profile form with the launch-readiness checklist, converted the
+  checklist rows to emerald/cyan tiles with check-mark pills, condensed the
+  "what each role sees" section from paragraphs to short scannable lines, and
+  moved sharing "attention" (expired invite) states from amber to rose.
+- Rebuilt `/owner/properties` with the dark header (keeps the `Properties`
+  heading), a portfolio stat strip, per-property fact tiles for requests,
+  documents, and reminders, and a stronger care-signal CTA. Moved the
+  property care "progress" state from amber to cyan.
+- Standardized owner-lane action colors: slate command surfaces for entry,
+  emerald for ready, cyan for in-progress, blue for attention, rose for a
+  broken/expired state, gray/white for neutral data. No amber remains in
+  these three pages.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 270 tests.
+- `npm run ux:owner` passed against `investor.owner@turnflow.demo` across all
+  nine owner routes at desktop (1440) and mobile (390), including the
+  `/owner/account` route-quality text checks and the setup/properties/account
+  heading and active-nav assertions. No horizontal overflow, no encoding
+  artifacts, dev server log clean.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-after-setup-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-setup-mobile.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-account-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-account-mobile.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-properties-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-properties-mobile.png`
+- Local screenshot inspection confirmed each page now opens with a command
+  center, progress bar, action buttons, and status tiles instead of a
+  paragraph, on desktop and mobile.
+
+### Follow-Up
+
+- `components/PropertyForm.tsx` still ships a standalone green "Add property"
+  button; fold it into the shared action-color system on the next component
+  pass.
+- Apply the same treatment to the remaining amber holdouts:
+  `/owner/calendar`, `/owner/notifications`, and the `NewRequestForm` /
+  `RequestCreatedNoticeBanner` / `BackupManager` components.
+
 ## 2026-09-03 - Helper Lane Action Language
 
 Scope: continue investor-demo readiness by making login, vendor, and
