@@ -97,9 +97,11 @@ const WORK_QUEUE_CLASSES: Record<VendorWorkQueueMetric["tone"], string> = {
 function VendorNextActionPanel({
   action,
   requestId,
+  onAction,
 }: {
   action: VendorNextAction;
   requestId: string;
+  onAction?: () => void;
 }) {
   return (
     <section
@@ -112,12 +114,22 @@ function VendorNextActionPanel({
           <h4 className="mt-1 text-base font-semibold">{action.label}</h4>
           <p className="mt-1 text-sm leading-6">{action.detail}</p>
         </div>
-        <a
-          href={action.href}
-          className="inline-flex w-fit items-center justify-center rounded border border-current bg-white/75 px-3 py-2 text-sm font-semibold"
-        >
-          {action.cta}
-        </a>
+        {onAction ? (
+          <button
+            type="button"
+            onClick={onAction}
+            className="inline-flex w-fit items-center justify-center rounded border border-current bg-white/75 px-3 py-2 text-sm font-semibold"
+          >
+            {action.cta}
+          </button>
+        ) : (
+          <a
+            href={action.href}
+            className="inline-flex w-fit items-center justify-center rounded border border-current bg-white/75 px-3 py-2 text-sm font-semibold"
+          >
+            {action.cta}
+          </a>
+        )}
       </div>
     </section>
   );
@@ -138,6 +150,7 @@ export function VendorPortal({
   const [uploadStatus, setUploadStatus] = useState("");
   const [completionReviewRequestId, setCompletionReviewRequestId] = useState<string | null>(null);
   const [statusError, setStatusError] = useState("");
+  const [expandedRequestId, setExpandedRequestId] = useState("");
   const guidance = helperWorkspaceGuidance("vendor", requests);
   const onboardingItems = helperOnboardingItems("vendor", requests);
   const closeoutMetrics = vendorCloseoutMetrics(requests);
@@ -161,15 +174,34 @@ export function VendorPortal({
     });
   }
 
+  function focusRequestWorkflow(requestId: string, targetHref?: string) {
+    setExpandedRequestId(requestId);
+    window.setTimeout(() => {
+      const targetId = targetHref?.startsWith("#")
+        ? targetHref.slice(1)
+        : `vendor-workflow-${requestId}`;
+      document
+        .getElementById(targetId || `vendor-workflow-${requestId}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }
+
   function handleReadinessAction(request: VendorRequest, state: HelperRequestCardState) {
     if (state.actionHref === "#helper-upload") {
       focusUploadForRequest(request);
       return;
     }
 
-    document
-      .getElementById(`request-updates-${request.id}`)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    focusRequestWorkflow(request.id, `#request-updates-${request.id}`);
+  }
+
+  function handleVendorNextAction(request: VendorRequest, action: VendorNextAction) {
+    if (action.href === "#helper-upload") {
+      focusUploadForRequest(request);
+      return;
+    }
+
+    focusRequestWorkflow(request.id, action.href);
   }
 
   async function applyStatusChange(requestId: string, newStatus: string, waiverReason?: string) {
@@ -191,6 +223,7 @@ export function VendorPortal({
     const req = requests.find((r) => r.id === requestId);
     if (newStatus === "Complete" && req && missingCompletionProof(req).length > 0) {
       setStatusError("");
+      setExpandedRequestId(requestId);
       setCompletionReviewRequestId(requestId);
       return;
     }
@@ -359,6 +392,11 @@ export function VendorPortal({
               const missingProof = missingCompletionProof(r);
               const readiness = helperRequestCardState("vendor", r);
               const nextAction = vendorNextAction(r);
+              const isExpanded = expandedRequestId === r.id;
+              const activeTaskCount = r.tasks.filter((task) => task.status !== "done").length;
+              const proofCount = r.photos.length;
+              const updateCount = r.comments.length;
+              const closeoutCount = r.closeoutSubmissions.length;
               return (
                 <article key={r.id} className="rounded-lg border bg-white p-4 shadow-sm">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -402,101 +440,138 @@ export function VendorPortal({
                     onAction={() => handleReadinessAction(r, readiness)}
                   />
 
-                  <VendorNextActionPanel action={nextAction} requestId={r.id} />
-
-                  <VendorLifecycleTracker request={r} />
-
-                  <div id={`vendor-bid-${r.id}`} className="scroll-mt-6">
-                    <VendorBidPanel requestId={r.id} request={r} bid={r.vendorBid} />
-                  </div>
-
-                  <div className="mt-4">
-                    <RequestTaskChecklist
-                      id={`vendor-tasks-${r.id}`}
-                      requestId={r.id}
-                      tasks={r.tasks}
-                      mode="vendor"
-                    />
-                  </div>
-
-                  <WorkSessionPanel
-                    id={`vendor-work-${r.id}`}
+                  <VendorNextActionPanel
+                    action={nextAction}
                     requestId={r.id}
-                    requestStatus={r.status}
-                    events={r.workSessions}
-                    userId={userId}
-                    tasks={r.tasks}
+                    onAction={() => handleVendorNextAction(r, nextAction)}
                   />
 
-                  <div className="mt-4">
-                    <CloseoutSubmissionPanel
-                      request={{
-                        id: r.id,
-                        finalCost: r.finalCost,
-                        photos: r.photos,
-                        tasks: r.tasks,
-                      }}
-                      submissions={r.closeoutSubmissions}
-                      mode="vendor"
-                      id={`vendor-closeout-${r.id}`}
-                    />
+                  <div className="mt-4 grid gap-2 text-sm sm:grid-cols-4">
+                    <div className="rounded border border-gray-200 bg-gray-50 p-3">
+                      <p className="font-semibold text-gray-700">Proof</p>
+                      <p className="mt-1 text-lg font-bold text-gray-950">{proofCount}</p>
+                    </div>
+                    <div className="rounded border border-gray-200 bg-gray-50 p-3">
+                      <p className="font-semibold text-gray-700">Open tasks</p>
+                      <p className="mt-1 text-lg font-bold text-gray-950">{activeTaskCount}</p>
+                    </div>
+                    <div className="rounded border border-gray-200 bg-gray-50 p-3">
+                      <p className="font-semibold text-gray-700">Updates</p>
+                      <p className="mt-1 text-lg font-bold text-gray-950">{updateCount}</p>
+                    </div>
+                    <div className="rounded border border-gray-200 bg-gray-50 p-3">
+                      <p className="font-semibold text-gray-700">Closeouts</p>
+                      <p className="mt-1 text-lg font-bold text-gray-950">{closeoutCount}</p>
+                    </div>
                   </div>
 
-                  <div className="mt-4">
-                    <BillingRecordPanel
-                      requestId={r.id}
-                      records={r.billingRecords}
-                      mode="vendor"
-                      id={`vendor-billing-${r.id}`}
-                    />
-                  </div>
-
-                  <label className="mt-4 block text-sm">
-                    <span className="font-semibold">Status</span>
-                    <select
-                      value={r.status}
-                      disabled={savingId === r.id}
-                      onChange={(e) => handleStatusChange(r.id, e.target.value)}
-                      className="mt-1 w-full rounded border bg-white p-2 sm:max-w-xs"
+                  <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm font-medium text-gray-600">
+                      Bid, task, proof, closeout, billing, and update controls
+                    </p>
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      aria-controls={`vendor-workflow-${r.id}`}
+                      onClick={() => setExpandedRequestId(isExpanded ? "" : r.id)}
+                      className="inline-flex w-fit items-center justify-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
                     >
-                      {REQUEST_STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <StatusHandoffGuidance
-                    guidance={statusHandoffGuidance("vendor", r)}
-                  />
-                  {statusError && savingId === null && completionReviewRequestId === r.id && (
-                    <p className="mt-2 text-sm font-medium text-red-700">{statusError}</p>
-                  )}
+                      {isExpanded ? "Hide workflow controls" : "Open workflow controls"}
+                    </button>
+                  </div>
 
-                  {completionReviewRequestId === r.id && (
-                    <div className="mt-4">
-                      <CompletionWaiverReview
-                        missingProof={missingProof}
-                        guidance="You can complete this request with a written reason, but ask the owner to add final cost details when they are missing. The waiver is saved in the decision log."
-                        submitting={savingId === r.id}
-                        onCancel={() => {
-                          setCompletionReviewRequestId(null);
-                          setStatusError("");
-                        }}
-                        onConfirm={(reason) => applyStatusChange(r.id, "Complete", reason)}
+                  {isExpanded && (
+                    <div
+                      id={`vendor-workflow-${r.id}`}
+                      className="mt-4 scroll-mt-6 space-y-4 border-t border-gray-100 pt-4"
+                    >
+                      <VendorLifecycleTracker request={r} />
+
+                      <div id={`vendor-bid-${r.id}`} className="scroll-mt-6">
+                        <VendorBidPanel requestId={r.id} request={r} bid={r.vendorBid} />
+                      </div>
+
+                      <RequestTaskChecklist
+                        id={`vendor-tasks-${r.id}`}
+                        requestId={r.id}
+                        tasks={r.tasks}
+                        mode="vendor"
                       />
+
+                      <WorkSessionPanel
+                        id={`vendor-work-${r.id}`}
+                        requestId={r.id}
+                        requestStatus={r.status}
+                        events={r.workSessions}
+                        userId={userId}
+                        tasks={r.tasks}
+                      />
+
+                      <CloseoutSubmissionPanel
+                        request={{
+                          id: r.id,
+                          finalCost: r.finalCost,
+                          photos: r.photos,
+                          tasks: r.tasks,
+                        }}
+                        submissions={r.closeoutSubmissions}
+                        mode="vendor"
+                        id={`vendor-closeout-${r.id}`}
+                      />
+
+                      <BillingRecordPanel
+                        requestId={r.id}
+                        records={r.billingRecords}
+                        mode="vendor"
+                        id={`vendor-billing-${r.id}`}
+                      />
+
+                      <label className="block text-sm">
+                        <span className="font-semibold">Status</span>
+                        <select
+                          value={r.status}
+                          disabled={savingId === r.id}
+                          onChange={(e) => handleStatusChange(r.id, e.target.value)}
+                          className="mt-1 w-full rounded border bg-white p-2 sm:max-w-xs"
+                        >
+                          {REQUEST_STATUSES.map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <StatusHandoffGuidance
+                        guidance={statusHandoffGuidance("vendor", r)}
+                      />
+                      {statusError && savingId === null && completionReviewRequestId === r.id && (
+                        <p className="text-sm font-medium text-red-700">{statusError}</p>
+                      )}
+
+                      {completionReviewRequestId === r.id && (
+                        <CompletionWaiverReview
+                          missingProof={missingProof}
+                          guidance="You can complete this request with a written reason, but ask the owner to add final cost details when they are missing. The waiver is saved in the decision log."
+                          submitting={savingId === r.id}
+                          onCancel={() => {
+                            setCompletionReviewRequestId(null);
+                            setStatusError("");
+                          }}
+                          onConfirm={(reason) => applyStatusChange(r.id, "Complete", reason)}
+                        />
+                      )}
+
+                      <div id={`request-updates-${r.id}`} className="scroll-mt-6 border-t pt-3">
+                        <CommentThread
+                          requestId={r.id}
+                          comments={r.comments}
+                          userId={userId}
+                          assignedVendorId={r.assignedVendorId}
+                          guidance={commentThreadGuidance("vendor", r)}
+                        />
+                      </div>
                     </div>
                   )}
-
-                  <div id={`request-updates-${r.id}`} className="mt-4 scroll-mt-6 border-t pt-3">
-                    <CommentThread
-                      requestId={r.id}
-                      comments={r.comments}
-                      userId={userId}
-                      assignedVendorId={r.assignedVendorId}
-                      guidance={commentThreadGuidance("vendor", r)}
-                    />
-                  </div>
                 </article>
               );
             })}

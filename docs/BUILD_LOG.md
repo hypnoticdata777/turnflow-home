@@ -2,6 +2,60 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-02 - Vendor Request Progressive Disclosure
+
+Scope: continue investor-demo readiness by reducing the cognitive load inside
+the vendor lane. The previous command-center pass made the top of `/vendor`
+clearer, but each assigned repair card still exposed lifecycle, bid, task,
+work-session, closeout, billing, status, and comment controls all at once.
+
+### Changed
+
+- Kept the vendor request card's investor-readable layer visible first:
+  title, status, property, category/urgency, location, preferred contact,
+  access instructions, readiness guidance, and next vendor action.
+- Added compact per-request counters for proof items, open tasks, updates, and
+  closeout submissions so the card can explain its state without forcing the
+  viewer through every operational control.
+- Added a per-request `Open workflow controls` / `Hide workflow controls`
+  disclosure. Only the currently selected repair opens the heavier controls:
+  vendor lifecycle, private bid, task checklist, work sessions, closeout
+  submission, billing record, status handoff, completion waiver, and update
+  thread.
+- Kept all assigned requests compact by default so the investor demo starts
+  with the job story and opens the deeper workflow only when the viewer chooses
+  it.
+- Changed vendor next-action CTAs from plain anchors to action buttons that
+  expand the target request before scrolling to the relevant workflow section.
+  Upload-oriented actions still focus the shared upload panel.
+- Changed non-upload readiness actions to expand the request before scrolling
+  to the update thread, because that thread now lives inside the hidden
+  workflow controls.
+- Kept the completion-waiver path expanded when a vendor tries to mark a
+  request complete without required proof.
+- Updated the helper/vendor smoke so it opens one vendor workflow card to prove
+  the hidden controls still render, then collapses it again before capturing
+  screenshots.
+
+### Validation
+
+- `npm.cmd run typecheck` passed.
+- `npm.cmd test -- __tests__\helper-workspace.test.ts
+  __tests__\vendor-lifecycle.test.ts __tests__\vendor-profile.test.ts` passed:
+  45 tests.
+- Local `npm.cmd run ux:helper` passed against the investor vendor and
+  collaborator accounts after starting `next dev` with database access.
+- Local screenshot inspection confirmed desktop and mobile vendor request cards
+  now default to compact story-first cards with `Open workflow controls`
+  available per request.
+- `npm.cmd run verify` passed: lint, typecheck, 270 tests, production audit,
+  Drizzle generation/schema drift, and production build.
+
+### Follow-Up
+
+- Continue maturing owner/vendor/collaborator lane handoffs after this slice is
+  verified and pushed.
+
 ## 2026-09-02 - Vendor Lane Command Center Polish
 
 Scope: improve the investor-demo vendor lane after the curated seed made the

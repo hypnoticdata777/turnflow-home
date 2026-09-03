@@ -70,6 +70,16 @@ async function assertRoute(page: Page, pathName: string, heading: string) {
 }
 
 async function assertHelperWorkspace(page: Page, pathName: string, role: "vendor" | "collaborator") {
+  if (role === "vendor") {
+    const workflowButton = page.getByRole("button", { name: "Open workflow controls" }).first();
+    if (await workflowButton.isVisible().catch(() => false)) {
+      await workflowButton.click();
+      await page.getByRole("button", { name: "Hide workflow controls" }).first().waitFor({
+        timeout: 5000,
+      });
+    }
+  }
+
   const bodyText = await page.locator("body").innerText();
   const normalizedBodyText = bodyText.toLowerCase();
   const expectedText =
@@ -128,6 +138,16 @@ async function assertHelperWorkspace(page: Page, pathName: string, role: "vendor
   }
 }
 
+async function collapseVendorWorkflow(page: Page) {
+  const workflowButton = page.getByRole("button", { name: "Hide workflow controls" }).first();
+  if (await workflowButton.isVisible().catch(() => false)) {
+    await workflowButton.click();
+    await page.getByRole("button", { name: "Open workflow controls" }).first().waitFor({
+      timeout: 5000,
+    });
+  }
+}
+
 async function hideDevOverlays(page: Page) {
   await page.evaluate(() => {
     document
@@ -149,6 +169,7 @@ async function main() {
       await login(vendorPage, VENDOR_EMAIL, VENDOR_PASSWORD);
       await assertRoute(vendorPage, "/vendor", "Assigned requests");
       await assertHelperWorkspace(vendorPage, "/vendor", "vendor");
+      await collapseVendorWorkflow(vendorPage);
       await hideDevOverlays(vendorPage);
       await vendorPage.screenshot({
         path: path.join(OUT_DIR, `vendor-${viewport.name}.png`),
