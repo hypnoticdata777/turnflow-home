@@ -2,6 +2,53 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Backup / Restore Action Language
+
+Scope: last owner-lane amber holdout. `BackupManager` still opened with an
+eyebrow + headline + paragraph and used an amber caution box for the
+restore-duplicates warning.
+
+### Changed
+
+- Captured before screenshots for `/owner/backup` at desktop and mobile:
+  - `docs/screenshots/2026-09-03-owner-lane-before-backup-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-backup-mobile.png`
+- `components/BackupManager.tsx`:
+  - Replaced the header with the dark command center (keeps the
+    `Backup & restore` heading, which is the route's smoke heading), and moved
+    the scope tiles into a `border-t` strip directly beneath it.
+  - The restore-duplicates caution moved from amber to blue (attention).
+  - JSON export, CSV export, and restore buttons now have a real hit area,
+    shadow, and hover lift; the restore preview leads with a check mark when the
+    file is restorable.
+  - Normalized the outer container to `rounded-lg border ... shadow-sm`.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 270 tests.
+- `npm run ux:owner` passed against `investor.owner@turnflow.demo` across all
+  nine owner routes at desktop (1440) and mobile (390), including the
+  `Backup & restore` heading and active-nav assertions. No horizontal overflow,
+  no encoding artifacts, dev server log clean.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-after-backup-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-backup-mobile.png`
+- The restore preview and status banners render only after a real file select /
+  restore, which the route smoke does not exercise; verified by reading the
+  rendered markup (emerald/rose tones already in place, no amber).
+
+### Follow-Up
+
+- Owner-lane action-language pass is complete: every `/owner/*` page and its
+  owned components (setup, dashboard, request detail, account, properties,
+  calendar, notifications, new request, backup) now open on a command surface
+  with no amber or yellow. The only remaining amber/yellow in the app is the
+  `Needs Quote` entry in `requestStatusBadgeClasses` - an intentional
+  seven-status color scale shared across owner/vendor/collaborator; leave it or
+  redesign the whole scale in a separate pass.
+
 ## 2026-09-03 - New Request Intake Action Language
 
 Scope: clear the last amber holdouts on the owner request-intake path -

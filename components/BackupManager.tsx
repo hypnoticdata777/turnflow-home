@@ -21,6 +21,18 @@ function downloadBlob(content: string, filename: string, type: string) {
   URL.revokeObjectURL(url);
 }
 
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="h-3.5 w-3.5">
+      <path
+        fillRule="evenodd"
+        d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.8 7.8a1 1 0 0 1-1.4 0l-3.8-3.8a1 1 0 1 1 1.4-1.4l3.1 3.09 7.1-7.09a1 1 0 0 1 1.4 0Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
 export function BackupManager() {
   const [backingUp, setBackingUp] = useState(false);
   const [exportingCsv, setExportingCsv] = useState(false);
@@ -232,18 +244,17 @@ export function BackupManager() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl rounded-xl bg-white p-6 shadow">
-      <section className="mb-6">
-        <p className="text-sm font-semibold text-blue-700">Owner data portability</p>
-        <h1 className="mt-1 text-2xl font-bold">Backup &amp; restore</h1>
-        <p className="mt-2 text-sm leading-6 text-gray-600">
-          Export your homeowner record whenever you need it. JSON backups are
-          meant for restoring into TurnFlow; CSV history is meant for review in
-          a spreadsheet.
+    <div className="mx-auto max-w-3xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="bg-slate-950 p-6 text-white">
+        <p className="text-sm font-semibold text-emerald-300">Owner data portability</p>
+        <h1 className="mt-2 text-2xl font-bold">Backup &amp; restore</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-200">
+          Export your homeowner record whenever you need it. JSON backups restore
+          into TurnFlow; CSV history is for review in a spreadsheet.
         </p>
-      </section>
+      </div>
 
-      <section className="mb-6 grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 border-t border-slate-200 p-6 md:grid-cols-3">
         {scopeItems.map((item) => (
           <article key={item.label} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
             <p className="text-sm font-semibold text-gray-900">{item.label}</p>
@@ -251,103 +262,111 @@ export function BackupManager() {
             <p className="mt-1 text-sm leading-6 text-gray-600">{item.detail}</p>
           </article>
         ))}
-      </section>
+      </div>
 
-      <section className="mb-6 rounded-lg border border-gray-200 p-4">
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">Export owner record</h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
-            JSON includes properties, requests, cost fields, and billing
-            records for restore. CSV gives you a readable maintenance-history
-            table for review outside the app.
-          </p>
-        </div>
-
-        <div className="grid gap-2 sm:grid-cols-2">
-          <button
-            onClick={handleBackup}
-            disabled={backingUp}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
-          >
-            {backingUp ? "Preparing..." : "Download JSON backup"}
-          </button>
-          <button
-            onClick={handleCsvExport}
-            disabled={exportingCsv}
-            className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-800 hover:border-blue-300 hover:bg-blue-100 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
-          >
-            {exportingCsv ? "Preparing..." : "Download CSV history"}
-          </button>
-        </div>
-      </section>
-
-      <section className="rounded-lg border border-gray-200 p-4">
-        <h2 className="text-xl font-semibold">Restore from backup</h2>
-        <p className="mt-1 text-sm leading-6 text-gray-600">
-          Restore adds new copies owned by the currently signed-in homeowner.
-          Existing records are not overwritten or deleted.
-        </p>
-        <p className="mt-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-950">
-          Restore is best for recovering or moving data. If you restore the same
-          file twice, TurnFlow will create duplicate properties, requests, and
-          billing records.
-        </p>
-
-        <label className="mt-4 block text-sm font-medium">
-          JSON backup file
-          <input
-            type="file"
-            accept=".json,application/json"
-            onChange={(e) => handleFileSelect(e.target.files?.[0])}
-            className="mt-1 w-full rounded border border-gray-300 p-2 text-sm"
-          />
-        </label>
-
-        {preview && (
-          <div
-            className={`mt-4 rounded-lg border p-3 ${
-              preview.valid
-                ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-                : "border-rose-200 bg-rose-50 text-rose-950"
-            }`}
-          >
-            <p className="text-sm font-semibold">
-              {preview.valid ? "Backup file looks restorable" : "Backup file needs attention"}
+      <div className="space-y-6 px-6 pb-6">
+        <section className="rounded-lg border border-gray-200 p-4">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold">Export owner record</h2>
+            <p className="mt-1 text-sm leading-6 text-gray-600">
+              JSON includes properties, requests, cost fields, and billing
+              records for restore. CSV gives you a readable maintenance-history
+              table for review outside the app.
             </p>
-            <p className="mt-1 text-sm leading-6">
-              {preview.propertyCount} properties, {preview.requestCount} requests, and{" "}
-              {preview.billingRecordCount} billing records found.
-            </p>
-            {preview.errors.length > 0 && (
-              <p className="mt-2 text-sm font-medium">{preview.errors.join(" ")}</p>
-            )}
-            {preview.warnings.length > 0 && (
-              <p className="mt-2 text-sm leading-6">{preview.warnings.join(" ")}</p>
-            )}
           </div>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              onClick={handleBackup}
+              disabled={backingUp}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {backingUp ? "Preparing..." : "Download JSON backup"}
+            </button>
+            <button
+              onClick={handleCsvExport}
+              disabled={exportingCsv}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-800 transition duration-150 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-100 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {exportingCsv ? "Preparing..." : "Download CSV history"}
+            </button>
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-gray-200 p-4">
+          <h2 className="text-xl font-semibold">Restore from backup</h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            Restore adds new copies owned by the currently signed-in homeowner.
+            Existing records are not overwritten or deleted.
+          </p>
+          <p className="mt-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm leading-6 text-blue-950">
+            Restore is best for recovering or moving data. If you restore the same
+            file twice, TurnFlow will create duplicate properties, requests, and
+            billing records.
+          </p>
+
+          <label className="mt-4 block text-sm font-medium">
+            JSON backup file
+            <input
+              type="file"
+              accept=".json,application/json"
+              onChange={(e) => handleFileSelect(e.target.files?.[0])}
+              className="mt-1 w-full rounded border border-gray-300 p-2 text-sm"
+            />
+          </label>
+
+          {preview && (
+            <div
+              className={`mt-4 rounded-lg border p-3 ${
+                preview.valid
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+                  : "border-rose-200 bg-rose-50 text-rose-950"
+              }`}
+            >
+              <p className="inline-flex items-center gap-1 text-sm font-bold">
+                {preview.valid ? (
+                  <>
+                    <CheckIcon /> Backup file looks restorable
+                  </>
+                ) : (
+                  "Backup file needs attention"
+                )}
+              </p>
+              <p className="mt-1 text-sm leading-6">
+                {preview.propertyCount} properties, {preview.requestCount} requests, and{" "}
+                {preview.billingRecordCount} billing records found.
+              </p>
+              {preview.errors.length > 0 && (
+                <p className="mt-2 text-sm font-medium">{preview.errors.join(" ")}</p>
+              )}
+              {preview.warnings.length > 0 && (
+                <p className="mt-2 text-sm leading-6">{preview.warnings.join(" ")}</p>
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={handleRestore}
+            disabled={restoring || !file || preview?.valid === false}
+            className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {restoring ? "Restoring..." : "Restore as new records"}
+          </button>
+        </section>
+
+        {status && (
+          <p
+            className={`rounded-lg border p-3 text-sm font-medium ${
+              status.isError
+                ? "border-rose-200 bg-rose-50 text-rose-800"
+                : "border-emerald-200 bg-emerald-50 text-emerald-800"
+            }`}
+            role="status"
+          >
+            {status.text}
+          </p>
         )}
-
-        <button
-          onClick={handleRestore}
-          disabled={restoring || !file || preview?.valid === false}
-          className="mt-4 w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
-        >
-          {restoring ? "Restoring..." : "Restore as new records"}
-        </button>
-      </section>
-
-      {status && (
-        <p
-          className={`mt-4 rounded-lg border p-3 text-sm font-medium ${
-            status.isError
-              ? "border-rose-200 bg-rose-50 text-rose-800"
-              : "border-emerald-200 bg-emerald-50 text-emerald-800"
-          }`}
-          role="status"
-        >
-          {status.text}
-        </p>
-      )}
+      </div>
     </div>
   );
 }
