@@ -118,14 +118,14 @@ function VendorNextActionPanel({
           <button
             type="button"
             onClick={onAction}
-            className="inline-flex w-fit items-center justify-center rounded border border-current bg-white/75 px-3 py-2 text-sm font-semibold"
+            className="inline-flex min-h-11 w-fit items-center justify-center rounded-lg border border-current bg-white/80 px-4 py-2 text-sm font-semibold transition duration-150 hover:-translate-y-0.5 hover:bg-white hover:shadow-sm active:translate-y-0 active:scale-[0.99]"
           >
             {action.cta}
           </button>
         ) : (
           <a
             href={action.href}
-            className="inline-flex w-fit items-center justify-center rounded border border-current bg-white/75 px-3 py-2 text-sm font-semibold"
+            className="inline-flex min-h-11 w-fit items-center justify-center rounded-lg border border-current bg-white/80 px-4 py-2 text-sm font-semibold transition duration-150 hover:-translate-y-0.5 hover:bg-white hover:shadow-sm active:translate-y-0 active:scale-[0.99]"
           >
             {action.cta}
           </a>
@@ -160,11 +160,32 @@ export function VendorPortal({
   const closeoutMetricClasses = (tone: (typeof closeoutMetrics)[number]["tone"]) =>
     tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-      : tone === "attention"
-        ? "border-blue-200 bg-blue-50 text-blue-950"
+        : tone === "attention"
+          ? "border-blue-200 bg-blue-50 text-blue-950"
         : tone === "progress"
-          ? "border-amber-200 bg-amber-50 text-amber-950"
+          ? "border-sky-200 bg-sky-50 text-sky-950"
           : "border-gray-200 bg-white text-gray-950";
+  const scopeTiles = [
+    {
+      label: "Assigned jobs",
+      value: requests.length,
+      detail: "Only this vendor account's work queue appears.",
+      classes: "border-emerald-200 bg-emerald-50 text-emerald-950",
+    },
+    {
+      label: "Owner-only areas",
+      value: "Private",
+      detail:
+        "Owner-only areas like documents, backups, reminders, and other properties stay outside this view.",
+      classes: "border-slate-200 bg-slate-50 text-slate-950",
+    },
+    {
+      label: "Proof lane",
+      value: requests.reduce((count, request) => count + request.photos.length, 0),
+      detail: "Photos and receipts attach to the exact repair.",
+      classes: "border-blue-200 bg-blue-50 text-blue-950",
+    },
+  ];
 
   function focusUploadForRequest(request: VendorRequest) {
     setSelectedRequestId(request.id);
@@ -260,7 +281,7 @@ export function VendorPortal({
 
       <nav
         aria-label="Vendor workspace shortcuts"
-        className="flex flex-wrap gap-2 rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
+        className="grid gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 shadow-sm sm:grid-cols-5"
       >
         {[
           ["Queue", "#vendor-work-queue"],
@@ -272,7 +293,7 @@ export function VendorPortal({
           <a
             key={href}
             href={href}
-            className="inline-flex items-center justify-center rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-white"
+            className="inline-flex min-h-12 items-center justify-center bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition duration-150 hover:bg-slate-950 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-slate-900 active:bg-slate-800"
           >
             {label}
           </a>
@@ -281,13 +302,13 @@ export function VendorPortal({
 
       <section
         id="vendor-work-queue"
-        className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+        className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
       >
-        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-950 p-5 text-white sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-blue-700">Vendor command center</p>
-            <h2 className="text-xl font-semibold">Where assigned jobs need attention</h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
+            <p className="text-sm font-semibold text-cyan-200">Vendor command center</p>
+            <h2 className="text-xl font-semibold text-white">Where assigned jobs need attention</h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-300">
               Bid, work, closeout, and owner-wait states stay visible before the
               vendor opens an individual repair record.
             </p>
@@ -295,20 +316,20 @@ export function VendorPortal({
           <div className="flex flex-wrap gap-2">
             <a
               href="#helper-requests"
-              className="inline-flex items-center justify-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition duration-150 hover:-translate-y-0.5 hover:bg-white/15 active:translate-y-0 active:scale-[0.99]"
             >
               Review jobs
             </a>
             <a
               href="#helper-upload"
-              className="inline-flex items-center justify-center rounded bg-gray-950 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.99]"
             >
               Upload proof
             </a>
           </div>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-4 p-4 xl:grid-cols-2">
           <div>
             <p className="mb-2 text-sm font-semibold text-gray-700">Vendor work queue</p>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -353,14 +374,29 @@ export function VendorPortal({
 
       <section
         id="helper-scope"
-        className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+        className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
       >
-        <h2 className="text-xl font-semibold">What you can see</h2>
-        <p className="mt-2 text-sm leading-6 text-gray-600">
-          This workspace only shows requests assigned to this vendor account.
-          Owner-only areas like documents, backups, reminders, and other
-          properties stay outside this view.
-        </p>
+        <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-950 p-5 text-white sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-cyan-200">Vendor scope</p>
+            <h2 className="mt-1 text-xl font-semibold">What you can see</h2>
+          </div>
+          <a
+            href="#helper-requests"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.99]"
+          >
+            Assigned jobs
+          </a>
+        </div>
+        <div className="grid gap-px bg-slate-200 md:grid-cols-3">
+          {scopeTiles.map((tile) => (
+            <div key={tile.label} className={`border-t p-4 md:border-t-0 ${tile.classes}`}>
+              <p className="text-sm font-semibold">{tile.label}</p>
+              <p className="mt-2 text-3xl font-bold">{tile.value}</p>
+              <p className="mt-2 text-sm leading-6">{tile.detail}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section
@@ -581,63 +617,78 @@ export function VendorPortal({
 
       <section
         id="helper-upload"
-        className="scroll-mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+        className="scroll-mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
       >
-        <h2 className="mb-1 text-xl font-semibold">Upload photos</h2>
-        <p className="mb-4 text-sm text-gray-500">
-          Add before, after, receipt, or other proof to the assigned request.
-        </p>
+        <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-950 p-5 text-white sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-cyan-200">Proof lane</p>
+            <h2 className="mt-1 text-xl font-semibold">Upload photos</h2>
+          </div>
+          <span className="w-fit rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+            Before / After / Receipt / Other
+          </span>
+        </div>
 
-        <label className="mb-4 block text-sm font-medium">
-          Request
-          <select
-            value={selectedRequestId}
-            onChange={(e) => setSelectedRequestId(e.target.value)}
-            className="mt-1 w-full rounded border bg-white p-2"
-          >
-            <option value="">Select a request</option>
-            {requests.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.title}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="p-4">
+          <label className="mb-4 block text-sm font-medium">
+            Request
+            <select
+              value={selectedRequestId}
+              onChange={(e) => setSelectedRequestId(e.target.value)}
+              className="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm transition duration-150 hover:border-slate-500 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/20"
+            >
+              <option value="">Select a request</option>
+              {requests.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.title}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
-          <p className="text-sm font-semibold text-gray-950">{uploadPrompt.title}</p>
-          <p className="mt-1 text-sm leading-6 text-gray-600">{uploadPrompt.detail}</p>
-          {selectedRequest && uploadPrompt.recommendedPhotoTypes.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {uploadPrompt.recommendedPhotoTypes.map((type) => (
-                <span
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-blue-950">
+            <p className="text-sm font-bold">{uploadPrompt.title}</p>
+            <p className="mt-1 text-sm leading-6">{uploadPrompt.detail}</p>
+            {selectedRequest && uploadPrompt.recommendedPhotoTypes.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {uploadPrompt.recommendedPhotoTypes.map((type) => (
+                  <span
+                    key={type}
+                    className="rounded-full border border-blue-200 bg-white px-2 py-1 text-xs font-semibold capitalize text-blue-950"
+                  >
+                    {type}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {selectedRequest && (
+            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+              {PHOTO_TYPES.map((type) => (
+                <label
                   key={type}
-                  className="rounded-full border border-gray-200 bg-white px-2 py-1 text-xs font-medium capitalize text-gray-700"
+                  className="block cursor-pointer rounded-lg border border-slate-200 bg-slate-50 p-3 transition duration-150 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-white hover:shadow-sm active:translate-y-0"
                 >
-                  {type}
-                </span>
+                  <span className="block text-sm font-bold capitalize text-slate-950">
+                    {type}
+                  </span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-600">
+                    Attach image
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="mt-3 w-full text-xs text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-slate-950 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-black"
+                    onChange={(e) => handleUpload(type, e.target.files?.[0])}
+                  />
+                </label>
               ))}
             </div>
           )}
+          {uploadStatus && <p className="mt-3 text-sm font-medium text-slate-700">{uploadStatus}</p>}
         </div>
-
-        {selectedRequest && (
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-            {PHOTO_TYPES.map((type) => (
-              <div key={type} className="rounded border p-3">
-                <h3 className="mb-2 font-medium capitalize">{type}</h3>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="mb-2 w-full text-sm"
-                  onChange={(e) => handleUpload(type, e.target.files?.[0])}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-        {uploadStatus && <p className="mt-3 text-sm text-gray-600">{uploadStatus}</p>}
       </section>
     </div>
   );

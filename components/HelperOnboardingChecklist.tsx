@@ -22,44 +22,42 @@ export function HelperOnboardingChecklist({
   const roleLabel = role === "vendor" ? "vendor" : "collaborator";
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-950 p-5 text-white sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-emerald-800">
+          <p className="text-sm font-semibold text-cyan-200">
             First run checklist
           </p>
-          <h2 className="mt-1 text-xl font-semibold text-gray-950">
+          <h2 className="mt-1 text-xl font-semibold text-white">
             Work like a trusted {roleLabel}.
           </h2>
         </div>
         <a
           href="#helper-requests"
-          className="inline-flex items-center justify-center rounded border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/20 bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.99]"
         >
           Go to work
         </a>
       </div>
 
-      <ol className="mt-4 divide-y divide-gray-100 border-y border-gray-100">
+      <ol className="grid gap-px bg-slate-200 md:grid-cols-3">
         {items.map((item, index) => (
-          <li key={item.title} className="grid gap-3 py-4 sm:grid-cols-[2rem_1fr_auto]">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-sm font-semibold text-gray-700">
-              {index + 1}
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold text-gray-950">{item.title}</h3>
-                <span
-                  className={`rounded-full border px-2 py-0.5 text-xs font-medium ${statusClasses[item.status]}`}
-                >
-                  {statusCopy[item.status]}
-                </span>
+          <li key={item.title} className="bg-white p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-bold text-slate-700">
+                {index + 1}
               </div>
-              <p className="mt-1 text-sm leading-6 text-gray-600">{item.detail}</p>
+              <span
+                className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${statusClasses[item.status]}`}
+              >
+                {statusCopy[item.status]}
+              </span>
             </div>
+            <h3 className="mt-4 font-semibold text-slate-950">{item.title}</h3>
+            <p className="mt-1 min-h-12 text-sm leading-6 text-slate-600">{item.detail}</p>
             <a
               href={item.href}
-              className="inline-flex items-center justify-center self-start rounded bg-gray-950 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
+              className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-lg bg-slate-950 px-3 py-2 text-sm font-semibold text-white transition duration-150 hover:-translate-y-0.5 hover:bg-black active:translate-y-0 active:scale-[0.99]"
             >
               {item.cta}
             </a>

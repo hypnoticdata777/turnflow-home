@@ -27,6 +27,26 @@ export default async function CollaboratorPage() {
   });
   const guidance = helperWorkspaceGuidance("collaborator", sharedRequests);
   const onboardingItems = helperOnboardingItems("collaborator", sharedRequests);
+  const scopeTiles = [
+    {
+      label: "Shared requests",
+      value: sharedRequests.length,
+      detail: "Only owner-shared repairs land here.",
+      classes: "border-emerald-200 bg-emerald-50 text-emerald-950",
+    },
+    {
+      label: "Owner privacy",
+      value: "On",
+      detail: "Documents, backups, and other homes stay out.",
+      classes: "border-slate-200 bg-slate-50 text-slate-950",
+    },
+    {
+      label: "Update lane",
+      value: sharedRequests.reduce((count, request) => count + request.comments.length, 0),
+      detail: "Helpful notes go back to the record.",
+      classes: "border-blue-200 bg-blue-50 text-blue-950",
+    },
+  ];
 
   return (
     <HelperPortalShell
@@ -49,14 +69,29 @@ export default async function CollaboratorPage() {
 
         <section
           id="helper-scope"
-          className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
+          className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
         >
-          <h2 className="text-xl font-semibold">What you can see</h2>
-          <p className="mt-2 text-sm leading-6 text-gray-600">
-            This workspace only shows requests the owner shared with this
-            collaborator account. You can review status and add updates, while
-            owner-only areas stay private.
-          </p>
+          <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-950 p-5 text-white sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-cyan-200">Collaborator scope</p>
+              <h2 className="mt-1 text-xl font-semibold">What you can see</h2>
+            </div>
+            <a
+              href="#helper-requests"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.99]"
+            >
+              Shared requests
+            </a>
+          </div>
+          <div className="grid gap-px bg-slate-200 md:grid-cols-3">
+            {scopeTiles.map((tile) => (
+              <div key={tile.label} className={`border-t p-4 md:border-t-0 ${tile.classes}`}>
+                <p className="text-sm font-semibold">{tile.label}</p>
+                <p className="mt-2 text-3xl font-bold">{tile.value}</p>
+                <p className="mt-2 text-sm leading-6">{tile.detail}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         {sharedRequests.length === 0 ? (
@@ -76,49 +111,63 @@ export default async function CollaboratorPage() {
                 : "Property not found";
               const readiness = helperRequestCardState("collaborator", r);
               return (
-                <section key={r.id} className="rounded-lg border bg-white p-4 shadow-sm">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <h2 className="text-xl font-semibold">{r.title}</h2>
+                <section
+                  key={r.id}
+                  className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+                >
+                  <div className="flex flex-col gap-3 bg-slate-950 p-4 text-white sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-cyan-200">Shared request</p>
+                      <h2 className="mt-1 text-xl font-semibold">{r.title}</h2>
+                    </div>
                     <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${requestStatusBadgeClasses(
+                      className={`w-fit rounded-full px-2 py-1 text-xs font-semibold ${requestStatusBadgeClasses(
                         r.status
                       )}`}
                     >
                       {r.status}
                     </span>
                   </div>
-                  <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-                    <div>
-                      <dt className="font-semibold">Property</dt>
-                      <dd>{propertyLabel}</dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold">Category / urgency</dt>
-                      <dd>
-                        {r.category} / {r.urgency}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold">Cost ({costLabelForRequest(r)})</dt>
-                      <dd>${costForRequest(r).toFixed(2)}</dd>
-                    </div>
-                    <div>
-                      <dt className="font-semibold">Notes</dt>
-                      <dd>{r.notes || "Not recorded"}</dd>
-                    </div>
-                  </dl>
 
-                  <HelperRequestReadiness state={readiness} />
+                  <div className="grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-4">
+                    {[
+                      ["Property", propertyLabel],
+                      ["Scope", `${r.category} / ${r.urgency}`],
+                      [costLabelForRequest(r), `$${costForRequest(r).toFixed(2)}`],
+                      ["Updates", r.comments.length],
+                    ].map(([label, value]) => (
+                      <div key={label} className="bg-white p-4">
+                        <p className="text-xs font-semibold uppercase text-slate-500">
+                          {label}
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-slate-950">{value}</p>
+                      </div>
+                    ))}
+                  </div>
 
-                  <div className="mt-4 border-t pt-3">
-                    <CommentThread
-                      requestId={r.id}
-                      comments={r.comments}
-                      userId={session.user.id}
-                      assignedVendorId={r.assignedVendorId}
-                      collaboratorId={r.collaboratorId}
-                      guidance={commentThreadGuidance("collaborator", r)}
-                    />
+                  <div className="p-4">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <p className="text-xs font-semibold uppercase text-slate-500">Notes</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-700">
+                        {r.notes || "Not recorded"}
+                      </p>
+                    </div>
+
+                    <HelperRequestReadiness state={readiness} />
+
+                    <div
+                      id={`request-updates-${r.id}`}
+                      className="mt-4 scroll-mt-6 border-t border-slate-100 pt-3"
+                    >
+                      <CommentThread
+                        requestId={r.id}
+                        comments={r.comments}
+                        userId={session.user.id}
+                        assignedVendorId={r.assignedVendorId}
+                        collaboratorId={r.collaboratorId}
+                        guidance={commentThreadGuidance("collaborator", r)}
+                      />
+                    </div>
                   </div>
                 </section>
               );

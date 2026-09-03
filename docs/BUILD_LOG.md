@@ -2,6 +2,68 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Helper Lane Action Language
+
+Scope: continue investor-demo readiness by making login, vendor, and
+collaborator lanes explain themselves through layout, action surfaces, and
+contrast instead of relying on long instructional copy.
+
+### Changed
+
+- Captured before screenshots for the shared lane entry pass:
+  - `docs/screenshots/2026-09-03-lane-entry-before-login-desktop.png`
+  - `docs/screenshots/2026-09-03-lane-entry-before-login-mobile.png`
+  - `docs/screenshots/2026-09-03-lane-entry-before-vendor-desktop.png`
+  - `docs/screenshots/2026-09-03-lane-entry-before-collaborator-desktop.png`
+- Reworked the login shell to show Owner, Vendor, and Helper as a visual lane
+  strip above the credential form, then compressed the product promise into
+  three action cards: Request, Share, and Proof.
+- Strengthened the login submit button with a larger hit area, shadow, hover
+  lift, and active press state so the first interaction feels obviously
+  clickable.
+- Rebuilt the shared helper shell header as a dark workspace command surface
+  with section buttons for Overview, Scope, and Work.
+- Converted the shared helper overview into a status-and-action panel with
+  stronger primary/secondary CTAs and metric tiles that communicate state at a
+  glance.
+- Converted the first-run helper checklist from a linear text list into three
+  action cards with step numbers, status pills, and full-width CTAs.
+- Reworked collaborator scope from a paragraph into three tiles covering shared
+  requests, owner privacy, and the update lane.
+- Reworked collaborator request cards into command cards with a dark request
+  header, compact fact tiles, readiness action, and the update thread beneath.
+- Reworked vendor shortcuts into a button grid, rebuilt the vendor command
+  center on a dark surface, and converted vendor scope into tiles for assigned
+  jobs, private owner-only areas, and proof.
+- Reworked vendor proof upload into a proof-lane surface where the request
+  picker and each photo type behave like action targets.
+- Removed the remaining weak amber progress states from shared helper,
+  vendor profile, vendor bid, vendor closeout, and work-session panels. Progress
+  now uses sky/cyan; ready uses emerald; blocked/attention stays blue or rose.
+
+### Validation
+
+- `npm.cmd run lint` passed.
+- `npm.cmd run typecheck` passed.
+- `npm.cmd run ux:public` passed for `/`, `/login`, and `/signup` at desktop
+  and mobile widths.
+- `npm.cmd run ux:helper` passed for `/vendor` and `/collaborator` at desktop
+  and mobile widths using the investor demo helper accounts.
+- Captured after screenshots for the lane entry pass:
+  - `docs/screenshots/2026-09-03-lane-entry-after-login-desktop.png`
+  - `docs/screenshots/2026-09-03-lane-entry-after-login-mobile.png`
+  - `docs/screenshots/2026-09-03-lane-entry-after-vendor-desktop.png`
+  - `docs/screenshots/2026-09-03-lane-entry-after-collaborator-desktop.png`
+- Local screenshot inspection confirmed login, vendor, and collaborator now
+  communicate lane purpose with stronger layout, button affordance, and
+  high-contrast action states.
+
+### Follow-Up
+
+- Continue replacing explanation-heavy owner subpages with action-first
+  surfaces, starting with the remaining owner setup/account/properties/new
+  request pages that still lean on amber or paragraph-heavy guidance.
+
 ## 2026-09-03 - Request Detail Action-First Hierarchy
 
 Scope: clear the next investor-demo blocker by making the first full repair
