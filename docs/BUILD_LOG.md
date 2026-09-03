@@ -2,6 +2,53 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Public Home / Signup Alignment
+
+Scope: bring the public `/` and `/signup` pages onto the same tokens and button
+affordance as the rest of the app so the landing -> signup -> app transition
+feels like one product. `AuthChrome` (shared by login and signup) was already
+in the new language; this pass covers the surrounding pages.
+
+### Changed
+
+- Captured before screenshots:
+  - `docs/screenshots/2026-09-03-public-before-home-desktop.png`
+  - `docs/screenshots/2026-09-03-public-before-home-mobile.png`
+  - `docs/screenshots/2026-09-03-public-before-signup-desktop.png`
+- `app/page.tsx`:
+  - page background `bg-[#f7f7f2]` -> `bg-slate-100` (matches `AuthChrome`), and
+    the dark workflow section `bg-gray-950` -> `bg-slate-950`.
+  - all four CTAs (nav "Sign in" / "Create account", hero "Start owner
+    workspace" / "Sign in") gained a real hit area, shadow, and hover lift.
+  - the "For homeowners / vendors / future you" readiness cards gained
+    `bg-white shadow-sm` + hover lift so they match the proof-point cards; the
+    proof-point cards and workflow step tiles gained the same hover polish.
+- `app/signup/page.tsx`: the "Create owner account" submit button now matches
+  the login submit (hit area, shadow, hover lift, active press).
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- `npm run ux:public` passed for `/`, `/login`, and `/signup` at desktop (1440)
+  and mobile (390): headings (`TurnFlow Home`, `Welcome back`,
+  `Start your repair record`), field labels, primary actions
+  (`Start owner workspace`, `Sign in`, `Create owner account`), no horizontal
+  overflow, no encoding artifacts. Dev server log clean.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-public-after-home-desktop.png`
+  - `docs/screenshots/2026-09-03-public-after-home-mobile.png`
+  - `docs/screenshots/2026-09-03-public-after-signup-desktop.png`
+- Local screenshot inspection: the landing's lower sections and the auth pages
+  now share the same slate ground and white card treatment.
+
+### Follow-Up
+
+- Owner lane and public pages are aligned. Remaining known item: the
+  `QuoteWorkspace` approved/declined quote pills still use `green`/`red`
+  rather than `emerald`/`rose`.
+
 ## 2026-09-03 - Owner Vault Action Language
 
 Scope: `/owner/vault` was the last owner route still opening with a bare

@@ -41,7 +41,7 @@ const READINESS = [
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#f7f7f2] text-gray-950">
+    <main className="min-h-screen bg-slate-100 text-gray-950">
       <section className="relative min-h-[78vh] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -66,13 +66,13 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="rounded-lg border border-gray-300 bg-white/80 px-3 py-2 text-sm font-medium text-gray-800 transition-colors duration-150 hover:border-gray-400 hover:bg-white"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 bg-white/80 px-3 py-2 text-sm font-semibold text-gray-800 transition duration-150 hover:border-gray-400 hover:bg-white"
               >
                 Sign in
               </Link>
               <Link
                 href="/signup"
-                className="rounded-lg bg-gray-950 px-3 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-black"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-slate-950 px-3 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-black hover:shadow-md active:translate-y-0"
               >
                 Create account
               </Link>
@@ -94,13 +94,13 @@ export default function HomePage() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center rounded-lg bg-emerald-800 px-5 py-3 text-sm font-semibold text-white transition-colors duration-150 hover:bg-emerald-900"
+                className="inline-flex min-h-12 items-center justify-center rounded-lg bg-emerald-800 px-5 py-3 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-900 hover:shadow-md active:translate-y-0 active:scale-[0.99]"
               >
                 Start owner workspace
               </Link>
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white/85 px-5 py-3 text-sm font-semibold text-gray-800 transition-colors duration-150 hover:border-gray-400 hover:bg-white"
+                className="inline-flex min-h-12 items-center justify-center rounded-lg border border-gray-300 bg-white/85 px-5 py-3 text-sm font-semibold text-gray-800 transition duration-150 hover:-translate-y-0.5 hover:border-gray-400 hover:bg-white active:translate-y-0"
               >
                 Sign in
               </Link>
@@ -112,7 +112,10 @@ export default function HomePage() {
       <section className="border-y border-gray-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-3 px-4 py-5 sm:grid-cols-3 sm:px-6 lg:px-8">
           {READINESS.map((item) => (
-            <article key={item.label} className="rounded-lg border border-gray-200 p-4">
+            <article
+              key={item.label}
+              className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md"
+            >
               <h2 className="text-sm font-semibold text-gray-950">{item.label}</h2>
               <p className="mt-2 text-sm leading-6 text-gray-600">{item.detail}</p>
             </article>
@@ -138,7 +141,10 @@ export default function HomePage() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             {PROOF_POINTS.map((point) => (
-              <article key={point.title} className="rounded-lg border border-gray-200 bg-white p-4">
+              <article
+                key={point.title}
+                className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:shadow-md"
+              >
                 <h3 className="text-base font-semibold text-gray-950">{point.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-gray-600">{point.body}</p>
               </article>
@@ -147,7 +153,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-gray-950 text-white">
+      <section className="bg-slate-950 text-white">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -158,7 +164,10 @@ export default function HomePage() {
             </div>
             <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
               {WORKFLOW.map((step, index) => (
-                <li key={step} className="rounded-lg border border-white/15 bg-white/10 p-3">
+                <li
+                  key={step}
+                  className="rounded-lg border border-white/15 bg-white/10 p-3 transition duration-150 hover:bg-white/15"
+                >
                   <p className="text-xs font-semibold text-emerald-200">
                     Step {index + 1}
                   </p>
