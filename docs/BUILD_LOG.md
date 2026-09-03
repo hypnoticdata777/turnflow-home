@@ -2,6 +2,42 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Quote Decision Colors
+
+Scope: the last off-palette colors in the app - `QuoteWorkspace` used raw
+`green`/`red` for the approve/decline treatment instead of the
+`emerald`/`rose` the rest of the app settled on.
+
+### Changed
+
+- Captured before screenshot of a request-detail `#quotes` section:
+  - `docs/screenshots/2026-09-03-quote-decision-before-desktop.png`
+- `components/QuoteWorkspace.tsx`:
+  - `QUOTE_STATUS_CLASSES.approved` `green` -> `emerald`, `.declined`
+    `red` -> `rose` (`.pending` was already cyan).
+  - the approved-quote card border `border-green-400` -> `border-emerald-400`.
+  - the "Approve" button `green` -> `emerald`, the "Delete" button `red` ->
+    `rose`; both gained `font-medium`. The "Decline" button stays neutral
+    gray because declining a quote is a non-destructive choice, not an error.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- Captured after screenshot:
+  - `docs/screenshots/2026-09-03-quote-decision-after-desktop.png`
+- The investor seed only has a `pending` quote, so the approved/declined pill
+  and the approved-card border are not exercised on screen; verified by reading
+  the class map. The visible diff is the pinker "Delete" and the
+  emerald "Approve".
+
+### Follow-Up
+
+- Action-color pass is complete across owner, vendor, helper, and public
+  surfaces. No off-palette colors remain outside intentional semantics
+  (blue "vendor bid" tag, gray "Decline").
+
 ## 2026-09-03 - Public Home / Signup Alignment
 
 Scope: bring the public `/` and `/signup` pages onto the same tokens and button

@@ -21,8 +21,8 @@ import {
 
 const QUOTE_STATUS_CLASSES: Record<string, string> = {
   pending: "bg-cyan-100 text-cyan-700",
-  approved: "bg-green-100 text-green-700",
-  declined: "bg-red-100 text-red-700",
+  approved: "bg-emerald-100 text-emerald-700",
+  declined: "bg-rose-100 text-rose-700",
 };
 
 const REVIEW_GUIDANCE_CLASSES: Record<BidReviewGuidance["tone"], string> = {
@@ -69,7 +69,7 @@ function QuoteCard({
 
   return (
     <article
-      className={`rounded border p-3 ${quote.status === "approved" ? "border-green-400" : ""}`}
+      className={`rounded border p-3 ${quote.status === "approved" ? "border-emerald-400" : ""}`}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -133,7 +133,7 @@ function QuoteCard({
           <button
             onClick={() => onApprove(quote.id)}
             disabled={actingId === quote.id}
-            className="rounded-lg bg-green-600 px-2 py-1 text-white transition-transform duration-150 hover:scale-105 hover:bg-green-800 active:scale-95 disabled:opacity-50"
+            className="rounded-lg bg-emerald-600 px-2 py-1 font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
           >
             Approve
           </button>
@@ -150,7 +150,7 @@ function QuoteCard({
         <button
           onClick={() => onDelete(quote.id)}
           disabled={actingId === quote.id}
-          className="rounded-lg bg-red-600 px-2 py-1 text-white transition-transform duration-150 hover:scale-105 hover:bg-red-800 active:scale-95 disabled:opacity-50"
+          className="rounded-lg bg-rose-600 px-2 py-1 font-medium text-white transition-transform duration-150 hover:scale-105 hover:bg-rose-700 active:scale-95 disabled:opacity-50"
         >
           Delete
         </button>
