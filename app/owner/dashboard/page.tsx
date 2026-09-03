@@ -102,13 +102,6 @@ export default async function OwnerDashboardPage({
       : guidance.tone === "empty"
         ? "border-blue-200 bg-blue-50 text-blue-950"
         : "border-cyan-200 bg-cyan-50 text-cyan-950";
-  const guidanceButtonClasses =
-    guidance.tone === "ready"
-      ? "bg-emerald-800 hover:bg-emerald-900"
-      : guidance.tone === "empty"
-        ? "bg-blue-800 hover:bg-blue-900"
-        : "bg-cyan-800 hover:bg-cyan-900";
-
   const chipClasses = (isActive: boolean) =>
     `rounded-full border px-3 py-1 text-sm whitespace-nowrap transition-transform duration-150 hover:scale-105 active:scale-95 ${
       isActive
@@ -171,39 +164,186 @@ export default async function OwnerDashboardPage({
       : tone === "attention"
         ? "bg-blue-800 hover:bg-blue-900"
         : "bg-cyan-800 hover:bg-cyan-900";
+  const attentionRequests = allOwnerRequests
+    .map((request) => ({
+      request,
+      signal: ownerRequestCardSignal(request),
+      updateSignal: ownerRequestUpdateSignal(request),
+    }))
+    .filter(({ signal, updateSignal }) => signal.tone === "attention" || updateSignal.tone === "attention");
+  const featuredRequest = attentionRequests[0]?.request ?? allOwnerRequests[0] ?? null;
+  const featuredSignal = featuredRequest ? ownerRequestCardSignal(featuredRequest) : null;
+  const featuredUpdateSignal = featuredRequest ? ownerRequestUpdateSignal(featuredRequest) : null;
+  const featuredPropertyLabel = featuredRequest?.property
+    ? featuredRequest.property.nickname
+      ? `${featuredRequest.property.nickname} - ${featuredRequest.property.address}`
+      : featuredRequest.property.address
+    : "No property selected";
+  const protectedMetric = valueMetrics.find((metric) => metric.label === "Proof-backed records");
+  const sharedMetric = valueMetrics.find((metric) => metric.label === "Shared help");
+  const careMetric = valueMetrics.find((metric) => metric.label === "Preventive care");
+  const commandStats = [
+    {
+      label: "Launch readiness",
+      value: `${progress}%`,
+      detail: `${completedCount} of ${setupStepCount} core owner steps are ready.`,
+    },
+    {
+      label: "Owner attention",
+      value: attentionRequests.length,
+      detail:
+        attentionRequests.length > 0
+          ? `${attentionRequests.length} request${attentionRequests.length === 1 ? "" : "s"} need a decision, proof, or shared-thread update.`
+          : "No repair record is asking for owner action right now.",
+    },
+    {
+      label: "Proof protected",
+      value: protectedMetric?.value ?? 0,
+      detail: protectedMetric?.detail ?? "Proof metrics appear after the first request.",
+    },
+    {
+      label: "Scoped help",
+      value: sharedMetric?.value ?? 0,
+      detail: sharedMetric?.detail ?? "Access stays request-specific.",
+    },
+  ];
+  const demoPath = [
+    {
+      label: "Owner",
+      detail: `${totalCount} repair record${totalCount === 1 ? "" : "s"} anchored to the homeowner account.`,
+    },
+    {
+      label: "Vendor",
+      detail: `${laneMetrics.find((metric) => metric.lane === "Vendor")?.value ?? 0} jobs have assigned or invited vendor flow.`,
+    },
+    {
+      label: "Collaborator",
+      detail: `${laneMetrics.find((metric) => metric.lane === "Collaborator")?.value ?? 0} jobs have scoped helper visibility.`,
+    },
+    {
+      label: "System",
+      detail: `${careMetric?.value ?? 0} reminders plus vault/proof records preserve the history.`,
+    },
+  ];
 
   return (
     <main>
-      <section className={`mb-6 rounded-lg border p-5 ${guidanceClasses}`}>
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold">
-              {guidance.eyebrow}: {completedCount} of {setupStepCount} ready ({progress}%)
-            </p>
-            <h1 className="mt-1 text-3xl font-bold">My maintenance requests</h1>
-            <p className="mt-2 text-lg font-semibold">{guidance.headline}</p>
-            <p className="mt-1 max-w-3xl text-sm leading-6">
-              {guidance.detail}
-            </p>
+      <section className="mb-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
+          <div className="bg-slate-950 p-5 text-white">
+            <p className="text-sm font-semibold text-emerald-300">Owner command center</p>
+            <h1 className="mt-2 text-3xl font-bold">My maintenance requests</h1>
+            <p className="mt-3 text-lg font-semibold">{guidance.headline}</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-200">{guidance.detail}</p>
+            <div className="mt-5" aria-label="Owner workspace progress">
+              <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase text-slate-300">
+                <span>{guidance.eyebrow}</span>
+                <span>
+                  {completedCount}/{setupStepCount} ready
+                </span>
+              </div>
+              <div className="mt-2 h-2 rounded-full bg-slate-800">
+                <div
+                  className="h-2 rounded-full bg-emerald-400"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link
+                href={guidance.primaryHref}
+                className="inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors duration-150 hover:bg-emerald-400"
+              >
+                {guidance.primaryCta}
+              </Link>
+              <Link
+                href={guidance.secondaryHref}
+                className="inline-flex items-center justify-center rounded-lg border border-slate-500 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-slate-800"
+              >
+                {guidance.secondaryCta}
+              </Link>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href={guidance.primaryHref}
-              className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors duration-150 ${guidanceButtonClasses}`}
-            >
-              {guidance.primaryCta}
-            </Link>
-            <Link
-              href={guidance.secondaryHref}
-              className="inline-flex items-center justify-center rounded-lg border border-current bg-white/75 px-4 py-2 text-sm font-medium transition-colors duration-150 hover:bg-white"
-            >
-              {guidance.secondaryCta}
-            </Link>
+
+          <div className="p-5">
+            <p className="text-sm font-semibold text-blue-700">Next owner move</p>
+            {featuredRequest && featuredSignal && featuredUpdateSignal ? (
+              <div className="mt-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-950">{featuredRequest.title}</h2>
+                    <p className="mt-1 text-sm text-gray-600">{featuredPropertyLabel}</p>
+                  </div>
+                  <span
+                    className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${requestStatusBadgeClasses(
+                      featuredRequest.status
+                    )}`}
+                  >
+                    {featuredRequest.status}
+                  </span>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className={`rounded-lg border p-3 ${requestSignalClasses(featuredSignal.tone)}`}>
+                    <p className="text-sm font-semibold">{featuredSignal.label}</p>
+                    <p className="mt-1 text-sm leading-6">{featuredSignal.detail}</p>
+                  </div>
+                  <div className={`rounded-lg border p-3 ${requestUpdateClasses(featuredUpdateSignal.tone)}`}>
+                    <p className="text-sm font-semibold">{featuredUpdateSignal.label}</p>
+                    <p className="mt-1 text-sm leading-6">{featuredUpdateSignal.detail}</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link
+                    href={featuredSignal.href}
+                    className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold text-white ${requestSignalButtonClasses(
+                      featuredSignal.tone
+                    )} whitespace-nowrap`}
+                  >
+                    {featuredSignal.cta}
+                  </Link>
+                  <Link
+                    href={`/owner/requests/${featuredRequest.id}`}
+                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    Open full record
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className={`mt-3 rounded-lg border p-4 ${guidanceClasses}`}>
+                <p className="text-lg font-semibold">Start the first record.</p>
+                <p className="mt-1 text-sm leading-6">
+                  A property and one repair request will give the owner workspace a useful center.
+                </p>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className="grid border-t border-slate-200 bg-gray-50 md:grid-cols-2 xl:grid-cols-4">
+          {commandStats.map((stat) => (
+            <div key={stat.label} className="border-b border-slate-200 p-4 last:border-b-0 md:border-r md:last:border-r-0 xl:border-b-0">
+              <p className="text-sm font-semibold text-gray-600">{stat.label}</p>
+              <p className="mt-1 text-2xl font-bold text-gray-950">{stat.value}</p>
+              <p className="mt-2 text-sm leading-6 text-gray-600">{stat.detail}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="mb-5 grid gap-3 md:grid-cols-4">
+          {demoPath.map((step, index) => (
+            <div key={step.label} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <p className="text-xs font-semibold uppercase text-gray-500">
+                Lane {index + 1}
+              </p>
+              <p className="mt-1 text-base font-bold text-gray-950">{step.label}</p>
+              <p className="mt-2 text-sm leading-6 text-gray-600">{step.detail}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold text-blue-700">Homeowner value</p>
@@ -274,7 +414,7 @@ export default async function OwnerDashboardPage({
       </section>
 
       {totalCount > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-4 flex flex-wrap gap-2" id="owner-records">
           <Link href="/owner/dashboard" className={chipClasses(!activeStatus)}>
             All ({totalCount})
           </Link>
@@ -319,12 +459,24 @@ export default async function OwnerDashboardPage({
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <section className="space-y-4" aria-label="Owner repair action queue">
+          <div>
+            <p className="text-sm font-semibold text-blue-700">Owner action queue</p>
+            <h2 className="text-2xl font-bold text-gray-950">Repair records ready for review</h2>
+          </div>
           {ownerRequests.map((r) => {
             const cost = costForRequest(r);
             const costLabel = costLabelForRequest(r);
             const signal = ownerRequestCardSignal(r);
             const updateSignal = ownerRequestUpdateSignal(r);
+            const proofCount = r.photos.length;
+            const updateCount = r.comments.length;
+            const accessCount = [
+              r.assignedVendorId,
+              r.collaboratorId,
+              r.pendingVendorInviteId,
+              r.pendingCollaboratorInviteId,
+            ].filter(Boolean).length;
             const propertyLabel = r.property
               ? r.property.nickname
                 ? `${r.property.nickname} - ${r.property.address}`
@@ -333,63 +485,91 @@ export default async function OwnerDashboardPage({
 
             return (
               <article key={r.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <h2 className="text-xl font-semibold">{r.title}</h2>
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${requestStatusBadgeClasses(
-                      r.status
-                    )}`}
-                  >
-                    {r.status}
-                  </span>
-                </div>
-                <p>
-                  <strong>Property:</strong> {propertyLabel}
-                </p>
-                <p>
-                  <strong>Category:</strong> {r.category} &nbsp;{" "}
-                  <strong>Urgency:</strong> {r.urgency}
-                </p>
-                <p>
-                  <strong>Cost ({costLabel}):</strong> ${cost.toFixed(2)}
-                </p>
-
-                <div
-                  className={`mt-4 rounded-lg border p-3 sm:flex sm:items-start sm:justify-between sm:gap-4 ${requestSignalClasses(
-                    signal.tone
-                  )}`}
-                >
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto]">
                   <div>
-                    <p className="text-sm font-semibold">{signal.label}</p>
-                    <p className="mt-1 text-sm leading-6">{signal.detail}</p>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <h2 className="text-xl font-semibold">{r.title}</h2>
+                      <span
+                        className={`w-fit rounded-full px-2 py-1 text-xs font-medium ${requestStatusBadgeClasses(
+                          r.status
+                        )}`}
+                      >
+                        {r.status}
+                      </span>
+                    </div>
+                    <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+                      <div>
+                        <dt className="font-semibold text-gray-950">Property</dt>
+                        <dd className="text-gray-700">{propertyLabel}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-semibold text-gray-950">Scope</dt>
+                        <dd className="text-gray-700">
+                          {r.category} / {r.urgency}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="font-semibold text-gray-950">Cost</dt>
+                        <dd className="text-gray-700">
+                          {costLabel}: ${cost.toFixed(2)}
+                        </dd>
+                      </div>
+                    </dl>
                   </div>
-                  <Link
-                    href={signal.href}
-                    className={`mt-3 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 sm:mt-0 ${requestSignalButtonClasses(
+                  <div className="grid grid-cols-3 gap-2 text-center lg:w-64">
+                    <div className="rounded border border-gray-200 bg-gray-50 p-2">
+                      <p className="text-xs font-semibold text-gray-500">Proof</p>
+                      <p className="mt-1 text-lg font-bold text-gray-950">{proofCount}</p>
+                    </div>
+                    <div className="rounded border border-gray-200 bg-gray-50 p-2">
+                      <p className="text-xs font-semibold text-gray-500">Updates</p>
+                      <p className="mt-1 text-lg font-bold text-gray-950">{updateCount}</p>
+                    </div>
+                    <div className="rounded border border-gray-200 bg-gray-50 p-2">
+                      <p className="text-xs font-semibold text-gray-500">Access</p>
+                      <p className="mt-1 text-lg font-bold text-gray-950">{accessCount}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                  <div
+                    className={`rounded-lg border p-3 sm:flex sm:items-start sm:justify-between sm:gap-4 ${requestSignalClasses(
                       signal.tone
                     )}`}
                   >
-                    {signal.cta}
-                  </Link>
-                </div>
-
-                <div
-                  className={`mt-3 rounded-lg border p-3 sm:flex sm:items-start sm:justify-between sm:gap-4 ${requestUpdateClasses(
-                    updateSignal.tone
-                  )}`}
-                >
-                  <div>
-                    <p className="text-sm font-semibold">{updateSignal.label}</p>
-                    <p className="mt-1 text-sm leading-6">{updateSignal.detail}</p>
+                    <div>
+                      <p className="text-sm font-semibold">{signal.label}</p>
+                      <p className="mt-1 text-sm leading-6">{signal.detail}</p>
+                    </div>
+                    <Link
+                      href={signal.href}
+                      className={`mt-3 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 sm:mt-0 ${requestSignalButtonClasses(
+                        signal.tone
+                      )} whitespace-nowrap`}
+                    >
+                      {signal.cta}
+                    </Link>
                   </div>
-                  <Link
-                    href={updateSignal.href}
-                    className={`mt-3 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 sm:mt-0 ${requestUpdateButtonClasses(
+
+                  <div
+                    className={`rounded-lg border p-3 sm:flex sm:items-start sm:justify-between sm:gap-4 ${requestUpdateClasses(
                       updateSignal.tone
                     )}`}
                   >
-                    {updateSignal.cta}
-                  </Link>
+                    <div>
+                      <p className="text-sm font-semibold">{updateSignal.label}</p>
+                      <p className="mt-1 text-sm leading-6">{updateSignal.detail}</p>
+                    </div>
+                    <Link
+                      href={updateSignal.href}
+                      className={`mt-3 inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors duration-150 sm:mt-0 ${requestUpdateButtonClasses(
+                        updateSignal.tone
+                      )} whitespace-nowrap`}
+                    >
+                      {updateSignal.cta}
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="mt-3 flex gap-2">
@@ -403,7 +583,7 @@ export default async function OwnerDashboardPage({
               </article>
             );
           })}
-        </div>
+        </section>
       )}
     </main>
   );

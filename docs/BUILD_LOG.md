@@ -2,6 +2,56 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Owner Dashboard Investor Walkthrough Polish
+
+Scope: clear the next investor-demo blocker by making `/owner/dashboard` read
+as a guided owner command center instead of a stack of useful but busy product
+widgets.
+
+### Changed
+
+- Captured before screenshots for the owner dashboard:
+  - `docs/screenshots/2026-09-03-owner-dashboard-before-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-dashboard-before-mobile.png`
+- Replaced the old first card with an `Owner command center` hero that keeps
+  the existing `My maintenance requests` route heading while adding launch
+  readiness, progress, and next-step context in one first-screen story.
+- Added a `Next owner move` panel that selects the first request needing owner
+  attention and shows both the record-quality signal and shared-thread signal
+  before linking into the repair record.
+- Added compact command stats for launch readiness, owner attention, proof
+  protection, and scoped help.
+- Added a four-step lane strip before the owner value cards so the investor
+  can see Owner, Vendor, Collaborator, and System lanes as a connected story.
+- Reworked dashboard request cards into a clearer action queue with property,
+  scope, cost, proof count, update count, access count, record-quality signal,
+  shared-thread signal, and the full-record link.
+- Reduced the owner dashboard's reliance on weak yellow/beige attention blocks
+  by anchoring the first screen in slate, emerald, blue, cyan, and white states.
+
+### Validation
+
+- `npm.cmd run typecheck` passed.
+- `npm.cmd test -- __tests__\owner-readiness.test.ts` passed: 36 tests.
+- Local `npm.cmd run ux:owner` passed against the investor owner account after
+  one retry. The first run completed the meaningful route checks and failed
+  while writing `backup-mobile.png` because Windows/OneDrive temporarily held
+  the generated screenshot path; the retry passed all desktop and mobile owner
+  routes plus first request detail.
+- Captured after screenshots for the final owner dashboard polish:
+  - `docs/screenshots/2026-09-03-owner-dashboard-after-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-dashboard-after-mobile.png`
+- Local screenshot inspection confirmed the dashboard now opens with an owner
+  command center, next owner move, launch-readiness stats, lane strip, value
+  cards, and clearer request action queue on desktop and mobile.
+- `npm.cmd run verify` passed: lint, typecheck, 270 tests, production audit,
+  Drizzle generation/schema drift, and production build.
+
+### Follow-Up
+
+- Continue polishing request detail hierarchy after the owner dashboard first
+  screen is verified and pushed.
+
 ## 2026-09-02 - Vendor Request Progressive Disclosure
 
 Scope: continue investor-demo readiness by reducing the cognitive load inside
