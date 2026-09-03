@@ -20,7 +20,7 @@ import {
 } from "@/lib/bid-review";
 
 const QUOTE_STATUS_CLASSES: Record<string, string> = {
-  pending: "bg-sky-100 text-sky-700",
+  pending: "bg-cyan-100 text-cyan-700",
   approved: "bg-green-100 text-green-700",
   declined: "bg-red-100 text-red-700",
 };
@@ -33,7 +33,7 @@ const REVIEW_GUIDANCE_CLASSES: Record<BidReviewGuidance["tone"], string> = {
 
 const COMPARISON_METRIC_CLASSES: Record<QuoteComparisonMetric["tone"], string> = {
   attention: "border-rose-200 bg-rose-50 text-rose-950",
-  progress: "border-sky-200 bg-sky-50 text-sky-950",
+  progress: "border-cyan-200 bg-cyan-50 text-cyan-950",
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 

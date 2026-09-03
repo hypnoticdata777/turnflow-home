@@ -2,6 +2,53 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Vendor / Helper Lane sky -> cyan Alignment
+
+Scope: finish the progress-tone color alignment. The earlier helper/vendor
+slices left a sky/cyan mix; this pass moves every remaining `sky` to `cyan` so
+"in progress / moving forward" is one color across owner, vendor, and
+collaborator lanes.
+
+### Changed
+
+- Captured before screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-before-sky-cyan-vendor-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-sky-cyan-collaborator-desktop.png`
+- `sky` -> `cyan` in eight components, all on the `progress` / `pending` /
+  `resumed` tone:
+  - `HelperRequestReadiness.tsx` (card tone + action button)
+  - `HelperWorkspaceOverview.tsx` (guidance tone + button)
+  - `QuoteWorkspace.tsx` (`pending` quote pill + comparison-metric tone; the
+    review-guidance tone in the same file was already cyan)
+  - `VendorBidPanel.tsx`, `VendorProfilePanel.tsx`, `WorkSessionPanel.tsx`
+    (guidance/readiness tone)
+  - `VendorPortal.tsx` (next-action, work-queue, and closeout-metric tone)
+  - `WorkSessionTimeline.tsx` (`resumed` event tone)
+- No structural change; `sky-*` no longer appears anywhere under `app/` or
+  `components/`.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- `npm run ux:helper` passed for `/vendor` and `/collaborator` at desktop and
+  mobile with the investor vendor and collaborator accounts.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-after-sky-cyan-vendor-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-sky-cyan-collaborator-desktop.png`
+- Local screenshot inspection: the vendor "needs closeout proof" / "closeout
+  under owner review" panels shift from the sky tint to cyan, matching the
+  owner lane. The collaborator page has no progress-tone card in the current
+  seed, so its before/after are identical.
+
+### Follow-Up
+
+- Progress tone is now uniformly `cyan` app-wide. Remaining non-palette colors
+  are all semantic: `green`/`red` for approved/declined quote pills
+  (`QuoteWorkspace`), and the `Needs Quote` slot in `requestStatusBadgeClasses`
+  is already blue. Nothing outstanding on the color pass.
+
 ## 2026-09-03 - RequestDetailView sky -> cyan Alignment
 
 Scope: the follow-up from the status-chip slice. `RequestDetailView` was the one

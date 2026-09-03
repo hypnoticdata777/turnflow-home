@@ -19,7 +19,7 @@ import type { RequestTaskData } from "@/components/RequestTaskChecklist";
 
 const GUIDANCE_CLASSES = {
   attention: "border-blue-200 bg-blue-50 text-blue-950",
-  progress: "border-sky-200 bg-sky-50 text-sky-950",
+  progress: "border-cyan-200 bg-cyan-50 text-cyan-950",
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 

@@ -19,7 +19,7 @@ export function HelperWorkspaceOverview({
         ? "border-gray-200 bg-white text-gray-950"
         : guidance.tone === "attention"
           ? "border-blue-200 bg-blue-50 text-blue-950"
-          : "border-sky-200 bg-sky-50 text-sky-950";
+          : "border-cyan-200 bg-cyan-50 text-cyan-950";
   const buttonClasses =
     guidance.tone === "ready"
       ? "bg-emerald-800 hover:bg-emerald-900"
@@ -27,7 +27,7 @@ export function HelperWorkspaceOverview({
         ? "bg-gray-900 hover:bg-black"
         : guidance.tone === "attention"
           ? "bg-blue-800 hover:bg-blue-900"
-          : "bg-sky-800 hover:bg-sky-900";
+          : "bg-cyan-800 hover:bg-cyan-900";
   const stats = [
     { label: labels.total, value: guidance.stats.totalCount },
     { label: labels.active, value: guidance.stats.activeCount },

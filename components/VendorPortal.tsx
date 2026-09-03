@@ -83,13 +83,13 @@ type VendorProfileData = {
 
 const NEXT_ACTION_CLASSES: Record<VendorNextAction["tone"], string> = {
   attention: "border-rose-200 bg-rose-50 text-rose-950",
-  progress: "border-sky-200 bg-sky-50 text-sky-950",
+  progress: "border-cyan-200 bg-cyan-50 text-cyan-950",
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
 };
 
 const WORK_QUEUE_CLASSES: Record<VendorWorkQueueMetric["tone"], string> = {
   attention: "border-rose-200 bg-rose-50 text-rose-950",
-  progress: "border-sky-200 bg-sky-50 text-sky-950",
+  progress: "border-cyan-200 bg-cyan-50 text-cyan-950",
   ready: "border-emerald-200 bg-emerald-50 text-emerald-950",
   empty: "border-gray-200 bg-white text-gray-950",
 };
@@ -163,7 +163,7 @@ export function VendorPortal({
         : tone === "attention"
           ? "border-blue-200 bg-blue-50 text-blue-950"
         : tone === "progress"
-          ? "border-sky-200 bg-sky-50 text-sky-950"
+          ? "border-cyan-200 bg-cyan-50 text-cyan-950"
           : "border-gray-200 bg-white text-gray-950";
   const scopeTiles = [
     {
