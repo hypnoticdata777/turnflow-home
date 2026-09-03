@@ -107,24 +107,31 @@ export const REQUEST_STATUSES = [
 ] as const;
 export type RequestStatus = (typeof REQUEST_STATUSES)[number];
 
+/**
+ * Tailwind classes for a request-status badge, paired with REQUEST_STATUSES.
+ * Four semantic families, shade-separated so siblings stay distinct:
+ * slate = not active (Draft, Archived), blue = owner action needed
+ * (Needs Quote, Needs Review), cyan = work moving (Scheduled, In Progress),
+ * rose = blocked (Waiting), emerald = done (Complete).
+ */
 export function requestStatusBadgeClasses(status: string | null | undefined): string {
   switch (status) {
     case "Needs Quote":
-      return "bg-yellow-100 text-yellow-800";
-    case "Waiting":
-      return "bg-orange-100 text-orange-800";
-    case "Scheduled":
       return "bg-blue-100 text-blue-800";
+    case "Waiting":
+      return "bg-rose-100 text-rose-800";
+    case "Scheduled":
+      return "bg-cyan-100 text-cyan-800";
     case "In Progress":
-      return "bg-indigo-100 text-indigo-800";
+      return "bg-cyan-200 text-cyan-900";
     case "Needs Review":
-      return "bg-purple-100 text-purple-800";
+      return "bg-blue-200 text-blue-900";
     case "Complete":
-      return "bg-green-100 text-green-800";
+      return "bg-emerald-100 text-emerald-800";
     case "Archived":
-      return "bg-gray-200 text-gray-700";
+      return "bg-slate-200 text-slate-600";
     default:
-      return "bg-gray-100 text-gray-800"; // Draft / anything else
+      return "bg-slate-100 text-slate-700"; // Draft / anything else
   }
 }
 

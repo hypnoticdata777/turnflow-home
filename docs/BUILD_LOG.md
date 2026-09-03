@@ -2,6 +2,55 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Request Status Badge Scale
+
+Scope: the last amber/yellow in the app was the `Needs Quote` badge in
+`requestStatusBadgeClasses`. That function was also an eight-hue rainbow
+(gray, yellow, orange, blue, indigo, purple, green, gray) whose colors did not
+map to meaning. Redesigned the whole scale to the owner-lane action language.
+
+### Changed
+
+- Captured before screenshots showing the status badges across lanes:
+  - `docs/screenshots/2026-09-03-owner-lane-before-status-dashboard-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-status-vendor-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-status-collaborator-desktop.png`
+- `requestStatusBadgeClasses` (`lib/utils.ts`) now uses four semantic families,
+  shade-separated so the eight statuses stay distinct:
+  - slate = not active: `Draft` (`slate-100`), `Archived` (`slate-200`)
+  - blue = owner action needed: `Needs Quote` (`blue-100`),
+    `Needs Review` (`blue-200`)
+  - cyan = work moving: `Scheduled` (`cyan-100`), `In Progress` (`cyan-200`)
+  - rose = blocked: `Waiting`
+  - emerald = done: `Complete`
+- No consumer parses the returned string; the five call sites
+  (`owner/dashboard`, `RequestDetailView`, `VendorPortal`, `collaborator`,
+  and the featured card) only spread it onto a pill, so no other change was
+  needed.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 270 tests, including
+  `requestStatusBadgeClasses` "distinct class per status" and
+  "Draft == undefined == unknown" fallback.
+- `npm run ux:owner` passed across all nine owner routes at desktop and mobile.
+- `npm run ux:helper` passed for `/vendor` and `/collaborator` at desktop and
+  mobile with the investor vendor and collaborator accounts.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-after-status-dashboard-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-status-vendor-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-status-collaborator-desktop.png`
+- Local screenshot inspection confirmed the dashboard queue now reads as a
+  blue -> cyan -> emerald progression instead of a five-hue rainbow, and the
+  vendor lane badges blend with its existing blue/cyan/emerald surfaces.
+
+### Follow-Up
+
+- App-wide amber/yellow cleanup is complete. `reminderStatusBadgeClasses` and
+  `requestStatusBadgeClasses` now share the rose/cyan/emerald vocabulary.
+
 ## 2026-09-03 - Backup / Restore Action Language
 
 Scope: last owner-lane amber holdout. `BackupManager` still opened with an
