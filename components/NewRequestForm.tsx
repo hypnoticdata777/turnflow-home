@@ -30,6 +30,18 @@ type Property = { id: string; address: string; nickname: string | null };
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
 type PhotoType = (typeof PHOTO_TYPES)[number];
 
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="h-3.5 w-3.5">
+      <path
+        fillRule="evenodd"
+        d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.8 7.8a1 1 0 0 1-1.4 0l-3.8-3.8a1 1 0 1 1 1.4-1.4l3.1 3.09 7.1-7.09a1 1 0 0 1 1.4 0Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
 export function NewRequestForm({
   properties,
   userId,
@@ -162,13 +174,13 @@ export function NewRequestForm({
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
       : intakeSummary.tone === "empty"
         ? "border-blue-200 bg-blue-50 text-blue-950"
-        : "border-amber-200 bg-amber-50 text-amber-950";
+        : "border-cyan-200 bg-cyan-50 text-cyan-950";
   const summaryButtonClasses =
     intakeSummary.tone === "ready"
       ? "bg-emerald-800 hover:bg-emerald-900"
       : intakeSummary.tone === "empty"
         ? "bg-blue-800 hover:bg-blue-900"
-        : "bg-amber-800 hover:bg-amber-900";
+        : "bg-cyan-800 hover:bg-cyan-900";
   const handoffClasses =
     handoffSummary.tone === "ready"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -178,7 +190,7 @@ export function NewRequestForm({
 
   return (
     <div className="grid max-w-6xl gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] lg:items-start">
-      <div className="rounded-xl bg-white p-4 shadow sm:p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
         {error && (
           <p className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {error}
@@ -260,8 +272,18 @@ export function NewRequestForm({
               <div key={step.label} className="rounded border border-current/20 bg-white/70 p-3">
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-sm font-semibold">{step.label}</p>
-                  <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold">
-                    {step.complete ? "Ready" : "Needs work"}
+                  <span
+                    className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold ${
+                      step.complete ? "bg-emerald-600 text-white" : "bg-white"
+                    }`}
+                  >
+                    {step.complete ? (
+                      <>
+                        <CheckIcon /> Ready
+                      </>
+                    ) : (
+                      "Needs work"
+                    )}
                   </span>
                 </div>
                 <p className="mt-1 text-xs leading-5">{step.detail}</p>
@@ -469,13 +491,13 @@ export function NewRequestForm({
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-green-700 px-6 py-2 text-white transition-colors duration-150 hover:bg-green-900 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-emerald-600 px-6 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save draft request"}
           </button>
           <a
             href="/owner/dashboard"
-            className="inline-block rounded-lg bg-gray-600 px-6 py-2 text-center text-white transition-colors duration-150 hover:bg-gray-800"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-2 text-center text-sm font-semibold text-gray-700 transition duration-150 hover:border-gray-400 hover:bg-gray-100"
           >
             Cancel
           </a>
@@ -519,8 +541,18 @@ export function NewRequestForm({
               <div key={check.label} className="rounded border border-current/20 bg-white/70 p-3">
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-sm font-semibold">{check.label}</p>
-                  <span className="rounded-full bg-white px-2 py-1 text-xs font-semibold">
-                    {check.complete ? "Ready" : "Optional"}
+                  <span
+                    className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold ${
+                      check.complete ? "bg-emerald-600 text-white" : "bg-white"
+                    }`}
+                  >
+                    {check.complete ? (
+                      <>
+                        <CheckIcon /> Ready
+                      </>
+                    ) : (
+                      "Optional"
+                    )}
                   </span>
                 </div>
                 <p className="mt-1 text-xs leading-5">{check.detail}</p>

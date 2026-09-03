@@ -2,6 +2,60 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - New Request Intake Action Language
+
+Scope: clear the last amber holdouts on the owner request-intake path -
+`NewRequestForm` and `RequestCreatedNoticeBanner` - and bring the
+`/owner/requests/new` header into the same command-center pattern as the rest
+of the owner lane.
+
+### Changed
+
+- Captured before screenshots for `/owner/requests/new` at desktop and mobile:
+  - `docs/screenshots/2026-09-03-owner-lane-before-new-request-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-before-new-request-mobile.png`
+- `app/owner/requests/new/page.tsx`: replaced the eyebrow + headline + paragraph
+  header with the dark command center (keeps the `New maintenance request`
+  heading) plus a "Start the draft" CTA that jumps to the property field.
+- `components/NewRequestForm.tsx`:
+  - Intake-summary "in progress" tone moved from amber to cyan (panel border,
+    background, and next-step button).
+  - Normalized the form container to the shared `rounded-lg border ... shadow-sm`
+    card style.
+  - "Ready" status pills on the intake steps and vendor-handoff checks now use
+    an emerald pill with a check mark; incomplete stays neutral.
+  - Submit button moved to emerald with a real hit area, shadow, and hover lift;
+    "Cancel" is now a bordered secondary button instead of a solid gray block.
+- `components/RequestCreatedNoticeBanner.tsx`: the non-success ("some/all photos
+  did not upload") tone moved from amber to blue (attention), and the success
+  banner now leads with a check mark. Dismiss button tightened to match.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 270 tests.
+- `npm run ux:owner` passed against `investor.owner@turnflow.demo` across all
+  nine owner routes at desktop (1440) and mobile (390), including the
+  `/owner/requests/new` route-quality text checks (`Owner-controlled draft`,
+  `Vendor handoff readiness`) and the `New maintenance request` heading and
+  active-nav assertions. No horizontal overflow, no encoding artifacts, dev
+  server log clean.
+- Captured after screenshots:
+  - `docs/screenshots/2026-09-03-owner-lane-after-new-request-desktop.png`
+  - `docs/screenshots/2026-09-03-owner-lane-after-new-request-mobile.png`
+- `RequestCreatedNoticeBanner` renders only after a real create with a photo
+  upload failure, which the route smoke does not trigger; verified by reading
+  the rendered markup and the `requestCreatedNotice` tone mapping in
+  `lib/request-submit.ts` rather than a screenshot.
+
+### Follow-Up
+
+- Owner-lane amber/yellow cleanup is complete across pages and the intake
+  components. Remaining non-owner holdouts: `BackupManager` and the
+  `Needs Quote` badge in `requestStatusBadgeClasses` (an intentional
+  seven-status color scale - handle separately if at all).
+
 ## 2026-09-03 - Owner Calendar / Notifications Action Language
 
 Scope: finish the owner-lane amber cleanup. Calendar and notifications were the
