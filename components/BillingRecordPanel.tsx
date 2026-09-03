@@ -23,7 +23,7 @@ export type BillingRecordData = {
 const STATUS_CLASSES: Record<BillingRecordStatus, string> = {
   recorded: "bg-blue-100 text-blue-800",
   paid: "bg-emerald-100 text-emerald-800",
-  disputed: "bg-amber-100 text-amber-800",
+  disputed: "bg-rose-100 text-rose-800",
   void: "bg-gray-100 text-gray-700",
 };
 

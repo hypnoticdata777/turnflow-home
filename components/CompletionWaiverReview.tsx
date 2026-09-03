@@ -33,7 +33,7 @@ export function CompletionWaiverReview({
   return (
     <section
       aria-labelledby={titleId}
-      className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-950"
+      className="rounded-lg border border-rose-300 bg-rose-50 p-4 text-rose-950"
     >
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
@@ -47,14 +47,14 @@ export function CompletionWaiverReview({
           type="button"
           onClick={onCancel}
           disabled={submitting}
-          className="inline-flex items-center justify-center rounded-lg border border-current bg-white/75 px-4 py-2 text-sm font-medium hover:bg-white transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg border border-rose-300 bg-white px-4 py-2 text-sm font-semibold text-rose-900 transition duration-150 hover:border-rose-400 hover:bg-rose-100 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
         >
           Keep current status
         </button>
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <div className="rounded border border-amber-200 bg-white/75 p-3">
+        <div className="rounded-lg border border-rose-200 bg-white/75 p-3">
           <p className="text-sm font-semibold">Missing before clean completion</p>
           <ul className="mt-2 space-y-1 text-sm">
             {missingProof.map((item) => (
@@ -72,16 +72,16 @@ export function CompletionWaiverReview({
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             rows={3}
-            className="mt-1 w-full rounded border border-amber-300 bg-white p-2 text-sm text-gray-900"
+            className="mt-1 w-full rounded border border-rose-300 bg-white p-2 text-sm text-gray-900"
             placeholder="Example: Work was emergency-only and after photo will be added later."
           />
-          {error && <p className="mt-2 text-sm font-medium text-red-700">{error}</p>}
+          {error && <p className="mt-2 text-sm font-medium text-rose-700">{error}</p>}
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={handleConfirm}
               disabled={submitting}
-              className="inline-flex items-center justify-center rounded-lg bg-amber-800 px-4 py-2 text-sm font-medium text-white hover:bg-amber-900 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-rose-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:-translate-y-0.5 hover:bg-rose-800 hover:shadow-md active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "Completing..." : "Complete with waiver"}
             </button>
@@ -89,7 +89,7 @@ export function CompletionWaiverReview({
               type="button"
               onClick={onCancel}
               disabled={submitting}
-              className="inline-flex items-center justify-center rounded-lg border border-amber-300 bg-white px-4 py-2 text-sm font-medium hover:border-amber-400 hover:bg-amber-100 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition duration-150 hover:border-gray-400 hover:bg-gray-100 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>

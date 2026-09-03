@@ -2,6 +2,44 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Completion Waiver / Billing Dispute Colors
+
+Scope: the amber cleanup missed two files. `CompletionWaiverReview` (shown when
+an owner marks a request complete without required proof) was still fully amber,
+and `BillingRecordPanel` used amber for the `disputed` status pill.
+
+### Changed
+
+- Captured a before screenshot of the completion-waiver panel (driven by
+  switching a proof-missing request's status to "Complete"):
+  - `docs/screenshots/2026-09-03-completion-waiver-before-desktop.png`
+- `components/CompletionWaiverReview.tsx`: the whole panel moved amber -> rose
+  (container, inner "missing" box, waiver-reason textarea border, error text).
+  Rose is the design language's "blocked / risky" tone and reads as "you are
+  bypassing a safeguard" better than amber did. The "Complete with waiver"
+  button is now rose with the modern hit-area/shadow/lift affordance; the
+  "Cancel" / "Keep current status" buttons are neutral/rose-outline secondaries.
+- `components/BillingRecordPanel.tsx`: `disputed` status pill
+  `bg-amber-100 text-amber-800` -> `bg-rose-100 text-rose-800` (joins
+  `recorded` blue / `paid` emerald / `void` gray).
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- `grep -rnE "amber-[0-9]|yellow-[0-9]" app components lib` now returns nothing.
+- No smoke covers the waiver panel; captured with a scripted owner login that
+  switches a proof-missing request to "Complete". The billing `disputed` pill
+  needs a disputed record to render on screen; verified by the class map.
+- Captured after screenshot:
+  - `docs/screenshots/2026-09-03-completion-waiver-after-desktop.png`
+
+### Follow-Up
+
+- Amber/yellow is now gone from the entire codebase (`app`, `components`,
+  `lib`). Every action color is on the slate/blue/cyan/emerald/rose system.
+
 ## 2026-09-03 - Accept Invite Action Language
 
 Scope: `/accept-invite` is the first screen an invited vendor or helper sees
