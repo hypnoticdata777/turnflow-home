@@ -2,6 +2,45 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - RequestDetailView sky -> cyan Alignment
+
+Scope: the follow-up from the status-chip slice. `RequestDetailView` was the one
+owner-lane surface still using `sky` for its "in progress" tone and section
+eyebrows, while every other owner page standardized on `cyan`.
+
+### Changed
+
+- Captured before screenshot of the record-workflow rail:
+  - `docs/screenshots/2026-09-03-owner-lane-before-sky-cyan-workflow-desktop.png`
+- `components/RequestDetailView.tsx`, all `sky` -> `cyan`:
+  - `WORKFLOW_TONE_CLASSES.progress` and `WORKFLOW_CTA_CLASSES.progress`
+    (the workflow-rail "in progress" card + its CTA)
+  - the four section eyebrows (Record workflow, Cost lane, Record value,
+    Proof lane)
+  - the three cost-input focus rings
+  - the proof-upload tile hover border / focus-within ring / CTA hover
+- No structural change; `sky-*` no longer appears in the file.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- `npm run ux:owner` passed across all nine owner routes at desktop and mobile,
+  including the first-request-detail text assertions.
+- Captured after screenshot:
+  - `docs/screenshots/2026-09-03-owner-lane-after-sky-cyan-workflow-desktop.png`
+- Local screenshot inspection confirmed the workflow rail's in-progress cards
+  now use the same cyan as the dashboard, calendar, and notifications surfaces.
+
+### Follow-Up
+
+- Other components still using `sky` for the progress tone (`QuoteWorkspace`,
+  `WorkSessionPanel`, `WorkSessionTimeline`, `VendorBidPanel`,
+  `VendorProfilePanel`, `HelperWorkspaceOverview`, `HelperRequestReadiness`)
+  were deliberately set to sky/cyan in the earlier helper/vendor slices; leave
+  unless a broader vendor/helper-lane pass revisits them.
+
 ## 2026-09-03 - Request Detail Status Chip on Dark Surface
 
 Scope: the request-detail command center puts the status badge on a slate-950
