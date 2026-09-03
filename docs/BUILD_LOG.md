@@ -2,6 +2,49 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-03 - Accept Invite Action Language
+
+Scope: `/accept-invite` is the first screen an invited vendor or helper sees
+after clicking an invite link, and it had never been through the
+action-language pass. It sat a step behind the auth pages it links from.
+
+### Changed
+
+- Captured a before screenshot (a temporary pending invite for the investor
+  collaborator account was inserted, screenshotted, and deleted; the seed's
+  four invites were untouched):
+  - `docs/screenshots/2026-09-03-accept-invite-before-desktop.png`
+- `app/accept-invite/page.tsx` `Shell`:
+  - page ground `bg-[#f6f7f4]` -> `bg-slate-100` (matches `AuthChrome`, which
+    is the page the invite flow redirects through).
+  - the card now opens with a `bg-slate-950` header strip (emerald "TurnFlow
+    Home" eyebrow + "Accept invite" heading + description) instead of that
+    block living as plain text inside the white card.
+- The happy-path body: the request `Title / Category / Location` `<dl>` became
+  three fact tiles (Request full-width, Category + Location in a row), and
+  "What happens next" became a numbered list with step badges and bordered
+  rows instead of a divide-y text list.
+- `components/AcceptInviteButton.tsx`: the "Accept invite" button now matches
+  the login/signup submit (hit area, shadow, hover lift, active press); the
+  error line moved from `red` to `rose`.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test` passed: 27 files, 273 tests.
+- No smoke covers `/accept-invite`; verified with a scripted login as the
+  investor collaborator against a temporary invite, at 1400px.
+- Captured after screenshot:
+  - `docs/screenshots/2026-09-03-accept-invite-after-desktop.png`
+- Confirmed the DB is back to the seed's four invites with no temp rows left.
+
+### Follow-Up
+
+- The command-center / action-language pass now covers every owner, vendor,
+  helper, and public page plus the invite-acceptance entry point. Nothing
+  specific outstanding.
+
 ## 2026-09-03 - Quote Decision Colors
 
 Scope: the last off-palette colors in the app - `QuoteWorkspace` used raw

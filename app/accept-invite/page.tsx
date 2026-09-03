@@ -65,50 +65,70 @@ export default async function AcceptInvitePage({
 
   return (
     <Shell status={`You have been invited to work on this request as a ${invite.role}.`}>
-      <dl className="mb-4 space-y-2 text-sm text-gray-700">
-        <div>
-          <dt className="font-semibold">Title</dt>
-          <dd>{req.title}</dd>
+      <dl className="mt-4 space-y-2">
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <dt className="text-xs font-semibold text-gray-500">Request</dt>
+          <dd className="mt-1 text-sm font-semibold text-gray-950">{req.title}</dd>
         </div>
-        <div>
-          <dt className="font-semibold">Category</dt>
-          <dd>{req.category}</dd>
-        </div>
-        <div>
-          <dt className="font-semibold">Location</dt>
-          <dd>{req.location || "Not recorded"}</dd>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <dt className="text-xs font-semibold text-gray-500">Category</dt>
+            <dd className="mt-1 text-sm font-semibold text-gray-950">{req.category}</dd>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <dt className="text-xs font-semibold text-gray-500">Location</dt>
+            <dd className="mt-1 text-sm font-semibold text-gray-950">
+              {req.location || "Not recorded"}
+            </dd>
+          </div>
         </div>
       </dl>
-      <div className="mb-5 border-y border-gray-100 py-3">
-        <p className="mb-2 text-sm font-semibold text-gray-950">What happens next</p>
-        <ul className="divide-y divide-gray-100">
-          {expectations.map((item) => (
-            <li key={item.title} className="py-2">
-              <p className="text-sm font-medium text-gray-900">{item.title}</p>
-              <p className="text-xs leading-5 text-gray-600">{item.detail}</p>
+
+      <div className="mt-5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          What happens next
+        </p>
+        <ol className="mt-2 space-y-2">
+          {expectations.map((item, index) => (
+            <li
+              key={item.title}
+              className="flex gap-3 rounded-lg border border-gray-200 bg-white p-3"
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+                {index + 1}
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-gray-950">{item.title}</p>
+                <p className="mt-0.5 text-xs leading-5 text-gray-600">{item.detail}</p>
+              </div>
             </li>
           ))}
-        </ul>
+        </ol>
       </div>
-      <AcceptInviteButton inviteId={inviteId} redirectTo={roleHome(invite.role)} />
+
+      <div className="mt-5">
+        <AcceptInviteButton inviteId={inviteId} redirectTo={roleHome(invite.role)} />
+      </div>
     </Shell>
   );
 }
 
 function Shell({ status, children }: { status: string; children?: React.ReactNode }) {
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f6f7f4] px-4 py-8">
-      <section className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-emerald-800">TurnFlow Home</p>
+    <main className="grid min-h-screen place-items-center bg-slate-100 px-4 py-8">
+      <section className="w-full max-w-md overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="bg-slate-950 p-6 text-white">
+          <p className="text-sm font-semibold text-emerald-300">TurnFlow Home</p>
           <h1 className="mt-2 text-2xl font-bold">Accept invite</h1>
-          <p className="mt-2 text-sm leading-6 text-gray-600">
+          <p className="mt-2 text-sm leading-6 text-slate-200">
             Confirm the shared maintenance request before it appears in your
             scoped workspace.
           </p>
         </div>
-        <p className="mb-4 text-sm text-gray-700">{status}</p>
-        {children}
+        <div className="p-6">
+          <p className="text-sm leading-6 text-slate-700">{status}</p>
+          {children}
+        </div>
       </section>
     </main>
   );
