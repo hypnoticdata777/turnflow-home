@@ -138,7 +138,9 @@ Re-run locally before deploying if the environment or database schema changed:
 1. Open `/api/health` and confirm it returns `status: "ok"` with no cached
    response.
 2. Call `/api/health/deep` with `Authorization: Bearer $HEALTHCHECK_SECRET` and
-   confirm it returns `status: "ok"` and `checks.database: "ok"`.
+   confirm it returns `status: "ok"`, `checks.database: "ok"`,
+   `checks.appUrl: "ok"`, and `checks.blobStorage: "ok"`. Missing email
+   delivery may report `checks.emailDelivery: "warning"` for a log-only POC.
 3. Create a new owner account from `/signup`.
 4. Confirm signup redirects to `/owner/onboarding`.
 5. Create a property.

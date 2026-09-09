@@ -1,7 +1,12 @@
 import { sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { authorizeDeepHealth, buildDeepHealthPayload } from "@/lib/health";
+import {
+  authorizeDeepHealth,
+  buildDeepHealthPayload,
+  buildOperationalHealthChecks,
+  operationalChecksAreDegraded,
+} from "@/lib/health";
 
 export const dynamic = "force-dynamic";
 
@@ -26,22 +31,30 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   try {
     await db.select({ ok: sql<number>`1` });
+    const operational = buildOperationalHealthChecks();
 
     return NextResponse.json(
       buildDeepHealthPayload({
-        status: "ok",
+        status: operationalChecksAreDegraded(operational) ? "degraded" : "ok",
         auth: "ok",
         database: "ok",
+        operational,
         latencyMs: Date.now() - startedAt,
       }),
-      { headers: NO_STORE_HEADERS }
+      {
+        status: operationalChecksAreDegraded(operational) ? 503 : 200,
+        headers: NO_STORE_HEADERS,
+      }
     );
   } catch {
+    const operational = buildOperationalHealthChecks();
+
     return NextResponse.json(
       buildDeepHealthPayload({
         status: "degraded",
         auth: "ok",
         database: "error",
+        operational,
         latencyMs: Date.now() - startedAt,
       }),
       { status: 503, headers: NO_STORE_HEADERS }

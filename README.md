@@ -271,7 +271,8 @@ Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
   updates, vendor bid decisions, work-session events, and reminder digests, with
   log-only fallback and owner-facing delivery-health guidance when email is not
   configured.
-- Public `/api/health` endpoint and protected `/api/health/deep` database check.
+- Public `/api/health` endpoint and protected `/api/health/deep` database plus
+  runtime-configuration check.
 - Global browser security headers configured in `next.config.ts`.
 
 ## Documentation
@@ -324,5 +325,7 @@ Before inviting external users, the remaining launch steps are:
 - Request-level privacy controls and audit history are strong for invite links,
   accepted access, request decisions, and access removals; deeper account/org
   privacy policy controls are still future work.
-- Payments, subscriptions, onboarding analytics, and production observability are
-  not wired yet.
+- Payments, subscriptions, and onboarding analytics are not wired yet.
+- Production observability now includes public and protected health endpoints
+  with database and monitor-safe runtime-configuration checks; external uptime
+  alerting/log aggregation is still future work.

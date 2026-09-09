@@ -2,6 +2,43 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - Deep Health Runtime Checks
+
+Scope: reduce the production-observability gap without adding an external
+monitoring vendor or exposing secret values.
+
+### Changed
+
+- `lib/health.ts`:
+  - Added monitor-safe runtime checks for `APP_URL`, Vercel Blob token shape,
+    reminder cron protection, and Resend sender readiness.
+  - Missing email delivery reports `warning`; malformed required runtime config
+    reports `error` and degrades protected deep health.
+- `app/api/health/deep/route.ts`:
+  - Protected deep health now includes database plus runtime configuration
+    checks.
+  - The route returns `503` when database or required runtime configuration is
+    degraded.
+- `__tests__/health.test.ts` covers healthy config, log-only email warning, and
+  malformed runtime config.
+- `README.md`, `docs/DEPLOYMENT.md`, and `docs/ENDPOINT_EXPERIENCE_MAP.md`
+  now describe deep health as database plus runtime configuration monitoring.
+
+### Validation
+
+- `npm run typecheck` passed.
+- `npm test -- __tests__\health.test.ts __tests__\poc-readiness.test.ts`
+  passed: 19 tests.
+- `npm run poc:ready` passed with 0 blockers and 1 expected warning for missing
+  `RESEND_API_KEY`.
+- `npm run verify` passed: lint, typecheck, 276 tests, production audit, Drizzle
+  generation/drift check, and production build.
+
+### Follow-Up
+
+- External uptime alerting, request/error log aggregation, and onboarding
+  analytics remain future production layers.
+
 ## 2026-09-09 - Portfolio Screenshot Refresh
 
 Scope: close the portfolio-ready screenshot gap after the Account & Sharing

@@ -75,7 +75,7 @@ coaching.
 | `/api/auth/[...nextauth]` | Auth.js runtime | Session and credential auth. | Must preserve role routing and avoid leaking account state in errors. | `3` |
 | `/api/blob-upload` | Authenticated app users | Authorize direct uploads to Blob storage. | Must enforce role/session context and keep uploaded evidence tied to the intended workflow. | `3` |
 | `/api/health` | Public monitor | Basic app health. | Returns safe public status without secrets or database details. | `3` |
-| `/api/health/deep` | Protected monitor | Database-backed health check. | Requires `HEALTHCHECK_SECRET` bearer token and hides raw infrastructure errors. | `3` |
+| `/api/health/deep` | Protected monitor | Database and runtime-configuration health check. | Requires `HEALTHCHECK_SECRET` bearer token and hides raw infrastructure errors and secret values. | `3` |
 | `/api/cron/reminder-digest` | Vercel Cron | Send due/overdue reminder digest. | Requires `CRON_SECRET`, logs attempts, and remains safe when email is log-only. | `3` |
 
 ## Priority Hardening Queue

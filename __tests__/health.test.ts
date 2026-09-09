@@ -5,6 +5,8 @@ import {
   bearerTokenFromHeader,
   buildDeepHealthPayload,
   buildHealthPayload,
+  buildOperationalHealthChecks,
+  operationalChecksAreDegraded,
 } from "@/lib/health";
 
 describe("buildHealthPayload", () => {
@@ -95,6 +97,12 @@ describe("buildDeepHealthPayload", () => {
         status: "ok",
         auth: "ok",
         database: "ok",
+        operational: {
+          appUrl: "ok",
+          blobStorage: "ok",
+          reminderCron: "ok",
+          emailDelivery: "warning",
+        },
         latencyMs: 12,
       },
       new Date("2026-08-08T12:00:00.000Z"),
@@ -103,7 +111,64 @@ describe("buildDeepHealthPayload", () => {
 
     expect(payload.status).toBe("ok");
     expect(payload.environment).toBe("production");
-    expect(payload.checks).toEqual({ auth: "ok", database: "ok" });
+    expect(payload.checks).toEqual({
+      auth: "ok",
+      database: "ok",
+      appUrl: "ok",
+      blobStorage: "ok",
+      reminderCron: "ok",
+      emailDelivery: "warning",
+    });
     expect(payload.latencyMs).toBe(12);
+  });
+});
+
+describe("buildOperationalHealthChecks", () => {
+  it("reports monitor-safe runtime configuration without exposing values", () => {
+    const checks = buildOperationalHealthChecks({
+      APP_URL: "https://turnflow-home.example.com",
+      BLOB_READ_WRITE_TOKEN: `vercel_blob_rw_${"A".repeat(24)}`,
+      CRON_SECRET: "c".repeat(32),
+      RESEND_API_KEY: "re_123",
+      NOTIFICATIONS_FROM_EMAIL: "notifications@example.com",
+    });
+
+    expect(checks).toEqual({
+      appUrl: "ok",
+      blobStorage: "ok",
+      reminderCron: "ok",
+      emailDelivery: "ok",
+    });
+    expect(operationalChecksAreDegraded(checks)).toBe(false);
+  });
+
+  it("treats missing email as a warning but malformed required config as degraded", () => {
+    const checks = buildOperationalHealthChecks({
+      APP_URL: "not-a-url",
+      BLOB_READ_WRITE_TOKEN: "wrong-token",
+      CRON_SECRET: "",
+      RESEND_API_KEY: "",
+    });
+
+    expect(checks).toEqual({
+      appUrl: "error",
+      blobStorage: "error",
+      reminderCron: "warning",
+      emailDelivery: "warning",
+    });
+    expect(operationalChecksAreDegraded(checks)).toBe(true);
+  });
+
+  it("marks email as an error when Resend is configured without a valid sender", () => {
+    const checks = buildOperationalHealthChecks({
+      APP_URL: "https://turnflow-home.example.com",
+      BLOB_READ_WRITE_TOKEN: `vercel_blob_rw_${"A".repeat(24)}`,
+      CRON_SECRET: "c".repeat(32),
+      RESEND_API_KEY: "re_123",
+      NOTIFICATIONS_FROM_EMAIL: "bad-sender",
+    });
+
+    expect(checks.emailDelivery).toBe("error");
+    expect(operationalChecksAreDegraded(checks)).toBe(true);
   });
 });
