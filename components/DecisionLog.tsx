@@ -1,4 +1,26 @@
 const LOG_ACTION_TEXT: Record<string, (d: Record<string, unknown>) => string> = {
+  request_created: (d) =>
+    `Created request "${d.title || "Untitled request"}" (${d.category || "category not set"} / ${
+      d.urgency || "urgency not set"
+    }).`,
+  invite_created: (d) => {
+    const role = d.role === "collaborator" ? "collaborator" : "vendor";
+    const delivery = d.emailSent ? "email sent" : "copyable link ready";
+    return `Invited ${role}${d.email ? ` at ${d.email}` : ""} (${delivery}).`;
+  },
+  invite_accepted: (d) => {
+    const role = d.role === "collaborator" ? "collaborator" : "vendor";
+    return `Accepted ${role} invite${d.email ? ` for ${d.email}` : ""}.`;
+  },
+  invite_resent: (d) => {
+    const role = d.role === "collaborator" ? "collaborator" : "vendor";
+    const delivery = d.emailSent ? "email sent" : "copyable link ready";
+    return `Resent ${role} invite${d.email ? ` to ${d.email}` : ""} (${delivery}).`;
+  },
+  invite_canceled: (d) => {
+    const role = d.role === "collaborator" ? "collaborator" : "vendor";
+    return `Canceled pending ${role} invite${d.email ? ` for ${d.email}` : ""}.`;
+  },
   status_changed: (d) => `Status changed${d.from ? ` from ${d.from}` : ""} to ${d.to}.`,
   completion_waived: (d) =>
     `Marked Complete without full proof on record - waived: "${d.reason}"`,

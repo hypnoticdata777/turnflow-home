@@ -124,6 +124,8 @@ True bidding and billing will need additional tables or expanded fields:
 - Keep early vendor notifications opt-in and trade-specific.
 - Make every major transition visible in the request history.
 - Delay payments until the workflow is tested manually with real users.
+- Prefer removing handoff friction inside the assigned-job loop before adding
+  payment, subscription, or marketplace dependencies.
 
 ## Suggested Build Order
 

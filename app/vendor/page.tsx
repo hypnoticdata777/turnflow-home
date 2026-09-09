@@ -2,11 +2,18 @@ import { requireRole } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
 import { and, inArray, eq } from "drizzle-orm";
 import { HelperPortalShell } from "@/components/HelperPortalShell";
+import { InviteAcceptedBanner } from "@/components/InviteAcceptedBanner";
 import { VendorPortal } from "@/components/VendorPortal";
 import { quotes } from "@/lib/db/schema";
 
-export default async function VendorPage() {
+export default async function VendorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ accepted?: string | string[] }>;
+}) {
   const session = await requireRole("vendor");
+  const { accepted } = await searchParams;
+  const inviteAccepted = accepted === "1";
 
   const assignedRequests = await db.query.requests.findMany({
     where: (r, { eq }) => eq(r.assignedVendorId, session.user.id),
@@ -87,6 +94,7 @@ export default async function VendorPage() {
       title="Assigned requests"
       description="Review the repair details the owner shared with you, update status, and add proof photos for the assigned work."
     >
+      {inviteAccepted && <InviteAcceptedBanner role="vendor" />}
       <VendorPortal
         requests={assignedRequestsWithBids}
         userId={session.user.id}

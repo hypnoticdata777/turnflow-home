@@ -5,6 +5,7 @@ import { HelperPortalShell } from "@/components/HelperPortalShell";
 import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
 import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
+import { InviteAcceptedBanner } from "@/components/InviteAcceptedBanner";
 import { commentThreadGuidance } from "@/lib/comment-guidance";
 import {
   helperOnboardingItems,
@@ -17,8 +18,14 @@ import {
   requestStatusBadgeClasses,
 } from "@/lib/utils";
 
-export default async function CollaboratorPage() {
+export default async function CollaboratorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ accepted?: string | string[] }>;
+}) {
   const session = await requireRole("collaborator");
+  const { accepted } = await searchParams;
+  const inviteAccepted = accepted === "1";
 
   const sharedRequests = await db.query.requests.findMany({
     where: (r, { eq }) => eq(r.collaboratorId, session.user.id),
@@ -54,6 +61,7 @@ export default async function CollaboratorPage() {
       title="Shared requests"
       description="See only the maintenance requests an owner shared with you, review the current status, and post helpful updates back to the record."
     >
+      {inviteAccepted && <InviteAcceptedBanner role="collaborator" />}
       <div className="space-y-6">
         <HelperWorkspaceOverview
           guidance={guidance}

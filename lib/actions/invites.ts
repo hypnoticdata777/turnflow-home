@@ -55,7 +55,11 @@ async function createInvite(
 
   await db
     .update(requests)
-    .set(role === "vendor" ? { pendingVendorInviteId: invite.id } : { pendingCollaboratorInviteId: invite.id })
+    .set(
+      role === "vendor"
+        ? { pendingVendorInviteId: invite.id, updatedAt: new Date() }
+        : { pendingCollaboratorInviteId: invite.id, updatedAt: new Date() }
+    )
     .where(eq(requests.id, requestId));
 
   const link = buildInviteLink(process.env.APP_URL, invite.id);
@@ -66,6 +70,19 @@ async function createInvite(
     recipientEmail: trimmedEmail,
     subject: "You've been invited to a TurnFlow Home request",
     text: `You've been invited as a ${role} on a TurnFlow Home maintenance request.\n\nAccept it here: ${link}\n\nThis invite expires in ${INVITE_VALID_DAYS} days.`,
+  });
+
+  await db.insert(decisionLog).values({
+    requestId,
+    actorId: session.user.id,
+    action: "invite_created",
+    details: {
+      role,
+      email: trimmedEmail,
+      inviteId: invite.id,
+      expiresAt: expiresAt.toISOString(),
+      emailSent,
+    },
   });
 
   revalidatePath(`/owner/requests/${requestId}`);
@@ -90,6 +107,7 @@ export type ManageInviteState =
 
 function revalidateInviteSurfaces(requestId: string | null) {
   revalidatePath("/owner/account");
+  revalidatePath("/owner/dashboard");
   if (requestId) {
     revalidatePath(`/owner/requests/${requestId}`);
   }
@@ -183,8 +201,8 @@ export async function cancelInviteAction(
       .update(requests)
       .set(
         invite.role === "vendor"
-          ? { pendingVendorInviteId: null }
-          : { pendingCollaboratorInviteId: null }
+          ? { pendingVendorInviteId: null, updatedAt: new Date() }
+          : { pendingCollaboratorInviteId: null, updatedAt: new Date() }
       )
       .where(
         and(
@@ -195,6 +213,17 @@ export async function cancelInviteAction(
             : eq(requests.pendingCollaboratorInviteId, invite.id)
         )
       );
+
+    await db.insert(decisionLog).values({
+      requestId: invite.requestId,
+      actorId: session.user.id,
+      action: "invite_canceled",
+      details: {
+        role: invite.role,
+        email: invite.email,
+        inviteId: invite.id,
+      },
+    });
   }
 
   await db
@@ -246,6 +275,19 @@ export async function resendInviteAction(
     text: `You've been invited as a ${invite.role} on a TurnFlow Home maintenance request.\n\nAccept it here: ${link}\n\nThis invite expires in ${INVITE_VALID_DAYS} days.`,
   });
 
+  await db.insert(decisionLog).values({
+    requestId: invite.requestId,
+    actorId: session.user.id,
+    action: "invite_resent",
+    details: {
+      role: invite.role,
+      email: invite.email,
+      inviteId: invite.id,
+      expiresAt: expiresAt.toISOString(),
+      emailSent,
+    },
+  });
+
   revalidateInviteSurfaces(invite.requestId);
   return {
     success: emailSent
@@ -288,8 +330,8 @@ export async function acceptInviteAction(inviteId: string): Promise<AcceptInvite
     .update(requests)
     .set(
       invite.role === "vendor"
-        ? { assignedVendorId: session.user.id, pendingVendorInviteId: null }
-        : { collaboratorId: session.user.id, pendingCollaboratorInviteId: null }
+        ? { assignedVendorId: session.user.id, pendingVendorInviteId: null, updatedAt: new Date() }
+        : { collaboratorId: session.user.id, pendingCollaboratorInviteId: null, updatedAt: new Date() }
     )
     .where(eq(requests.id, invite.requestId));
 
@@ -298,6 +340,19 @@ export async function acceptInviteAction(inviteId: string): Promise<AcceptInvite
     .set({ status: "accepted", acceptedById: session.user.id, acceptedAt: new Date() })
     .where(eq(invites.id, inviteId));
 
+  await db.insert(decisionLog).values({
+    requestId: invite.requestId,
+    actorId: session.user.id,
+    action: "invite_accepted",
+    details: {
+      role: invite.role,
+      email: invite.email,
+      inviteId,
+      acceptedById: session.user.id,
+    },
+  });
+
+  revalidateInviteSurfaces(invite.requestId);
   revalidatePath(invite.role === "vendor" ? "/vendor" : "/collaborator");
   return { success: true };
 }

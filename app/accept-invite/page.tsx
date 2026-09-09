@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getSession, roleHome } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
 import { AcceptInviteButton } from "@/components/AcceptInviteButton";
-import { helperInviteExpectations } from "@/lib/helper-workspace";
 
 export default async function AcceptInvitePage({
   searchParams,
@@ -61,10 +60,10 @@ export default async function AcceptInvitePage({
     return <Shell status="The request this invite is for could not be found." />;
   }
 
-  const expectations = helperInviteExpectations(invite.role);
+  const destination = `${roleHome(invite.role)}?accepted=1`;
 
   return (
-    <Shell status={`You have been invited to work on this request as a ${invite.role}.`}>
+    <Shell status={`Opening your ${invite.role} workspace for "${req.title}"...`}>
       <dl className="mt-4 space-y-2">
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
           <dt className="text-xs font-semibold text-gray-500">Request</dt>
@@ -85,29 +84,7 @@ export default async function AcceptInvitePage({
       </dl>
 
       <div className="mt-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          What happens next
-        </p>
-        <ol className="mt-2 space-y-2">
-          {expectations.map((item, index) => (
-            <li
-              key={item.title}
-              className="flex gap-3 rounded-lg border border-gray-200 bg-white p-3"
-            >
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
-                {index + 1}
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-gray-950">{item.title}</p>
-                <p className="mt-0.5 text-xs leading-5 text-gray-600">{item.detail}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      <div className="mt-5">
-        <AcceptInviteButton inviteId={inviteId} redirectTo={roleHome(invite.role)} />
+        <AcceptInviteButton inviteId={inviteId} redirectTo={destination} autoAccept />
       </div>
     </Shell>
   );
@@ -121,8 +98,7 @@ function Shell({ status, children }: { status: string; children?: React.ReactNod
           <p className="text-sm font-semibold text-emerald-300">TurnFlow Home</p>
           <h1 className="mt-2 text-2xl font-bold">Accept invite</h1>
           <p className="mt-2 text-sm leading-6 text-slate-200">
-            Confirm the shared maintenance request before it appears in your
-            scoped workspace.
+            One scoped request is being added to your workspace.
           </p>
         </div>
         <div className="p-6">

@@ -81,6 +81,24 @@ export async function createRequestAction(
     })
     .returning({ id: requests.id });
 
+  await db.insert(decisionLog).values({
+    requestId: created.id,
+    actorId: session.user.id,
+    action: "request_created",
+    details: {
+      title,
+      category,
+      urgency,
+      propertyId,
+      contactMethod: CONTACT_METHODS.includes(contactMethod as (typeof CONTACT_METHODS)[number])
+        ? contactMethod
+        : null,
+      hasLocation: Boolean(location),
+      hasAccessInstructions: Boolean(accessInstructions),
+      hasNotes: Boolean(notes),
+    },
+  });
+
   revalidatePath("/owner/dashboard");
   return { requestId: created.id };
 }

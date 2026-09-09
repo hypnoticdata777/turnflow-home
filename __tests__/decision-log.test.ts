@@ -2,6 +2,42 @@ import { describe, expect, it } from "vitest";
 import { describeLogAction } from "@/components/DecisionLog";
 
 describe("describeLogAction", () => {
+  it("describes request creation and invite lifecycle events", () => {
+    expect(
+      describeLogAction("request_created", {
+        title: "Kitchen sink leak",
+        category: "Plumbing",
+        urgency: "High",
+      })
+    ).toBe('Created request "Kitchen sink leak" (Plumbing / High).');
+    expect(
+      describeLogAction("invite_created", {
+        role: "vendor",
+        email: "vendor@test.com",
+        emailSent: false,
+      })
+    ).toBe("Invited vendor at vendor@test.com (copyable link ready).");
+    expect(
+      describeLogAction("invite_accepted", {
+        role: "collaborator",
+        email: "helper@test.com",
+      })
+    ).toBe("Accepted collaborator invite for helper@test.com.");
+    expect(
+      describeLogAction("invite_resent", {
+        role: "vendor",
+        email: "vendor@test.com",
+        emailSent: true,
+      })
+    ).toBe("Resent vendor invite to vendor@test.com (email sent).");
+    expect(
+      describeLogAction("invite_canceled", {
+        role: "vendor",
+        email: "vendor@test.com",
+      })
+    ).toBe("Canceled pending vendor invite for vendor@test.com.");
+  });
+
   it("describes vendor access removal", () => {
     expect(
       describeLogAction("shared_access_removed", {

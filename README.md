@@ -221,7 +221,8 @@ Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
 - Structured project task checklist with owner-created scope rows, expected
   proof types, estimated/final task costs, owner/vendor task status updates,
   owner acceptance for done tasks, and work-session task links.
-- Append-only decision log for status changes, waivers, quote decisions, and
+- Append-only decision log for request creation, invite handoff, status changes,
+  waivers, quote decisions, work events, closeout reviews, billing updates, and
   access changes.
 - Completion gating that requires final cost, after-photo proof, and assigned
   vendor, unless the owner records an explicit waiver reason.
@@ -231,7 +232,8 @@ Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
 - Status handoff guidance for owners and vendors so status changes explain
   decision-log impact, owner notification, and missing closeout proof.
 - Vendor and collaborator invite flow with expiring links, copyable invite URLs,
-  pending invite management, accepted-access removal, and scoped portals.
+  automatic valid-invite claiming after login, pending invite management,
+  accepted-access removal, and scoped portals.
 - Vendor-owned matching profile for business name, trade categories, service
   area, availability, notification preference, and license/insurance notes.
 - Vendor lifecycle tracker for assigned jobs, covering opportunity, bid/price

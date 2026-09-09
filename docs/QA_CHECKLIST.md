@@ -148,11 +148,14 @@ new users will hit first.
 2. Resend the pending invite from Account & Sharing and confirm the fallback
    link is copyable.
 3. Cancel a second pending invite and confirm it disappears from pending state.
-4. Accept an invite as the matching vendor or collaborator account.
-5. Confirm that role only sees the assigned/shared request.
+4. Open an invite as the matching vendor or collaborator account and confirm it
+   auto-claims after login.
+5. Confirm the user lands in the right workspace with the accepted-invite
+   confirmation and only sees the assigned/shared request.
 6. Remove accepted access from Account & Sharing.
 7. Confirm the removed role can no longer see the request.
-8. Confirm the request Decision Log names the removed account email.
+8. Confirm the request Decision Log includes request creation, invite sent,
+   invite accepted, and removed-access entries.
 9. Confirm Account & Sharing shows owner-only records, active people with
    access, open invite links, and shared request footprint correctly.
 10. Confirm expired pending invite links are called out as needing cancel or

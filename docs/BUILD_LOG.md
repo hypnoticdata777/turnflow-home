@@ -2,6 +2,43 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - Frictionless Invite Handoff and Lifecycle Logging
+
+Scope: mature the owner/vendor/collaborator loop without adding payment or
+external workflow dependencies.
+
+### Changed
+
+- `/accept-invite` now treats a valid authenticated invite as a handoff gate:
+  the invite auto-claims and routes the vendor/collaborator into the scoped
+  workspace, with the existing button kept as a retry fallback.
+- `/vendor` and `/collaborator` show a compact accepted-invite confirmation when
+  the handoff lands successfully.
+- `createRequestAction` now records `request_created` in the request decision
+  log, so new records begin with an audit trail automatically.
+- Invite creation, resend, cancel, and acceptance now write readable
+  decision-log events and refresh owner plus helper surfaces.
+- `DecisionLog` now renders lifecycle copy for request creation and invite
+  handoff events.
+- Updated README, endpoint mapping, QA checklist, and vendor roadmap language to
+  reflect the product strategy: remove friction in the core loop before adding
+  payments/subscriptions.
+
+### Validation
+
+- `npm run verify` passed: lint, typecheck, 28 test files / 286 tests,
+  production dependency audit, Drizzle drift check, and production build.
+- `npm run ux:helper` passed for `/vendor` and `/collaborator` at desktop and
+  mobile.
+- `npm run ux:owner-flow` passed through signup, property creation, request
+  creation, proof upload, and request-detail landing.
+- `npm run ux:owner` passed across owner routes at desktop and mobile.
+
+### Follow-Up
+
+- Consider adding a dedicated invite-acceptance browser smoke once the scripted
+  test database can create and discard temporary invite rows safely.
+
 ## 2026-09-09 - Email and Cron Verification Surface
 
 Scope: reduce the remaining email/cron launch blocker without needing live
