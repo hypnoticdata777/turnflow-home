@@ -2,6 +2,31 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - CI Esbuild Lockfile Repair
+
+Scope: fix the GitHub Actions `npm ci` failure shown in the Actions log.
+
+### Changed
+
+- Added `esbuild@0.28.2` as a dev dependency so Vite's optional peer resolves
+  to a compatible root package instead of the older Drizzle transitive
+  `esbuild@0.25.12`.
+- Refreshed `package-lock.json` so the Linux `@esbuild/*@0.28.2` optional
+  packages required by GitHub's Ubuntu runner are present in the committed
+  lockfile.
+
+### Validation
+
+- `npm ci` passed from a clean install.
+- `npm ls vite vitest esbuild` showed Vite resolving to `esbuild@0.28.2`.
+- `npm run verify` passed after the clean install: lint, typecheck, 28 test
+  files / 286 tests, production dependency audit, Drizzle drift check, and
+  production build.
+
+### Follow-Up
+
+- Confirm the next GitHub Actions run passes on `main`.
+
 ## 2026-09-09 - Requirements/Event Matrix and CI Env Fix
 
 Scope: make the multi-user loop auditable and address the likely GitHub CI
