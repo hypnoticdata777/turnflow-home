@@ -179,6 +179,7 @@ and fails if `/api/blob-upload` cannot read `BLOB_READ_WRITE_TOKEN` at runtime.
 ## Current Known POC Gaps
 
 - No workspace/org model yet.
-- No privacy-controls UI yet.
+- Request-level privacy controls are now visible in Account & Sharing; deeper
+  account/org-level privacy policy controls are still future work.
 - Full `npm audit` still reports a dev-only Drizzle tooling finding through
   `@esbuild-kit`; production audit is clean with `npm audit --omit=dev`.

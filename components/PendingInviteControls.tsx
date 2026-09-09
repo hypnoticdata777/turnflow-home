@@ -26,7 +26,7 @@ export function PendingInviteControls({ inviteId }: { inviteId: string }) {
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg border border-blue-300 bg-white px-3 py-1 text-xs font-medium text-blue-800 transition-transform duration-150 hover:scale-105 hover:border-blue-400 hover:bg-blue-50 active:scale-95 disabled:opacity-50"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-blue-300 bg-white px-3 py-2 text-xs font-semibold text-blue-800 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-blue-400 hover:bg-blue-50 hover:shadow-md active:translate-y-0 disabled:opacity-50"
           >
             {resendPending ? "Resending..." : "Resend"}
           </button>
@@ -36,14 +36,14 @@ export function PendingInviteControls({ inviteId }: { inviteId: string }) {
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-700 transition-transform duration-150 hover:scale-105 hover:border-red-300 hover:bg-red-50 active:scale-95 disabled:opacity-50"
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-50 hover:shadow-md active:translate-y-0 disabled:opacity-50"
           >
             {cancelPending ? "Canceling..." : "Cancel"}
           </button>
         </form>
       </div>
       {message && (
-        <p className={`text-xs ${isError ? "text-red-600" : "text-green-700"}`}>
+        <p className={`text-xs font-medium ${isError ? "text-rose-600" : "text-emerald-700"}`}>
           {message}
         </p>
       )}

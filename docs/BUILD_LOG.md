@@ -2,6 +2,64 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - Account Privacy Controls
+
+Scope: close the explicit POC gap that Account & Sharing explained privacy
+boundaries but did not yet feel like a control surface.
+
+### Changed
+
+- Confirmed the local folder is aligned with `origin/main`; the only untracked
+  file is the chat attachment `# TurnFlow_Sept2026.txt`, which remains
+  untouched.
+- `app/owner/account/page.tsx`:
+  - Added a `Privacy controls` action board after the sharing-boundary
+    snapshot.
+  - The board gives owners direct actions for private requests, scoped sharing,
+    live access, and open invite links.
+  - Added anchors for `#active-access` and `#invite-activity` so the privacy
+    cards jump to the real controls.
+  - Kept the existing `Sharing boundary snapshot`, `Active shared access`, and
+    `Invite activity` headings for smoke/readability continuity.
+- `components/SharedAccessControls.tsx`:
+  - Modernized the destructive control from red hover-scale styling to the
+    app's rose, hit-area, shadow, and hover-lift treatment.
+  - Updated success/error feedback to emerald/rose.
+- `components/PendingInviteControls.tsx`:
+  - Modernized resend/cancel buttons to the same blue/rose hit-area and
+    hover-lift treatment.
+- Mobile Account & Sharing now renders active access and invite activity as
+  stacked cards while keeping desktop tables for wider screens.
+- `package.json` and `package-lock.json`:
+  - Patched `next` / `eslint-config-next` from `16.3.0` to `16.3.4`.
+  - Refreshed the transitive `sharp` optional dependency family to `0.35.4` so
+    the production audit is clean again.
+  - Applied the non-breaking audit fix, removing the full-audit `js-yaml` high
+    finding and the Vitest mocker finding.
+- `README.md` and `docs/DEPLOYMENT.md` now describe the remaining gap more
+  accurately: request-level privacy controls exist; deeper account/org privacy
+  policy controls are still future work.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm test -- __tests__\owner-readiness.test.ts` passed: 36 tests.
+- `npm run ux:owner` passed across owner routes at desktop and mobile; Account
+  & Sharing screenshots were visually checked.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run verify` passed: lint, typecheck, 273 tests, production audit, Drizzle
+  generation/drift check, and production build on Next.js `16.3.4`.
+- Full `npm audit` now has only the known dev-only Drizzle/esbuild tooling
+  finding; the suggested `npm audit fix --force` would downgrade `drizzle-kit`
+  to a breaking older line and was intentionally not applied.
+
+### Follow-Up
+
+- Next launch gap after this slice: decide whether to attack the org/workspace
+  model, portfolio-ready signed-in screenshots, or moderated user-testing
+  findings first.
+
 ## 2026-09-03 - Request Detail: Deep Workflow Panels
 
 Scope: finish bringing the owner request-detail page's deep sections in line

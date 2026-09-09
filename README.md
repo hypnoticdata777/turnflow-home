@@ -319,7 +319,8 @@ Before inviting external users, the remaining launch steps are:
   open vendor marketplace or payment system.
 - Email can run in log-only mode, but real launch testing should verify Resend
   deliverability, sender domain setup, and reminder cron behavior.
-- Privacy/audit history is strong for request decisions and access changes, but
-  a deeper account-level privacy audit trail is still future work.
+- Request-level privacy controls and audit history are strong for invite links,
+  accepted access, request decisions, and access removals; deeper account/org
+  privacy policy controls are still future work.
 - Payments, subscriptions, onboarding analytics, and production observability are
   not wired yet.
