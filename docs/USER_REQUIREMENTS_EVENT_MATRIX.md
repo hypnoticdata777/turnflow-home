@@ -83,8 +83,8 @@ Rows that are not event-log entries but still matter:
 | Loop | Natural Test | Pass Criteria | Current State |
 |---|---|---|---|
 | First owner setup | Sign up, land in onboarding, create property, create request, upload proof, land on detail. | User never needs to leave the guided path; request has `request_created`; proof appears. | Covered by `npm run ux:owner-flow` |
-| Owner to vendor invite | Owner invites vendor, copies link if needed, vendor opens invite and signs in. | Valid invite auto-claims, vendor lands in `/vendor?accepted=1`, owner sees active access, `invite_accepted` logs. | Covered manually; dedicated browser smoke recommended |
-| Owner to collaborator invite | Owner invites collaborator, collaborator opens invite and signs in. | Valid invite auto-claims, collaborator lands in `/collaborator?accepted=1`, only shared request appears. | Covered manually; dedicated browser smoke recommended |
+| Owner to vendor invite | Owner invites vendor, copies link if needed, vendor opens invite and signs in. | Valid invite auto-claims, vendor lands in `/vendor?accepted=1`, owner sees active access, `invite_accepted` logs. | Covered by `npm run ux:invite` |
+| Owner to collaborator invite | Owner invites collaborator, collaborator opens invite and signs in. | Valid invite auto-claims, collaborator lands in `/collaborator?accepted=1`, only shared request appears. | Covered by `npm run ux:invite` |
 | Vendor bid loop | Owner sets Needs Quote, vendor submits bid, owner approves/declines. | Vendor is routed to bid action; owner sees private bid review; decision log captures both sides. | Covered by unit/helper smoke surfaces |
 | Vendor work loop | Owner schedules work, vendor starts/stops with proof and updates tasks. | Work timeline and decision log explain progress; missing proof blocks completion unless waived. | Covered by helper smoke surfaces |
 | Closeout loop | Vendor submits closeout, owner approves or requests changes. | Owner sees pending review; approval creates billing record; changes route vendor back to revision. | Covered by unit/helper smoke surfaces |
@@ -93,9 +93,6 @@ Rows that are not event-log entries but still matter:
 
 ## Open Coverage Gaps
 
-- Add a dedicated invite-acceptance browser smoke that creates a temporary
-  pending invite, signs in as the matching role, confirms auto-claim, then
-  cleans up the temporary data.
 - Add an owner/vendor/collaborator manual script that follows one seeded repair
   from request creation through closeout approval and billing status update.
 - Decide whether photo upload should write a lightweight decision-log event, or

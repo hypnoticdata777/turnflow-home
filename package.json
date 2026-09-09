@@ -14,6 +14,7 @@
     "ux:owner": "tsx scripts/ux-owner-smoke.ts",
     "ux:owner-flow": "tsx scripts/ux-owner-flow-smoke.ts",
     "ux:helper": "tsx scripts/ux-helper-smoke.ts",
+    "ux:invite": "tsx scripts/ux-invite-acceptance-smoke.ts",
     "poc:ready": "tsx scripts/poc-readiness.ts",
     "audit:prod": "npm audit --omit=dev --cache .npm-cache",
     "verify": "npm run lint && npm run typecheck && npm test && npm run audit:prod && npm run db:generate && git diff --exit-code -- drizzle && npm run build",

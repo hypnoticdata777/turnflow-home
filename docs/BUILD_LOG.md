@@ -2,6 +2,45 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - Invite Acceptance Loop Smoke
+
+Scope: turn the requirements/event matrix into executable coverage for the
+owner-to-vendor and owner-to-collaborator invite handoff.
+
+### Changed
+
+- Added `scripts/ux-invite-acceptance-smoke.ts`.
+  - Creates temporary owner, property, request, invite, and matching
+    vendor/collaborator users.
+  - Opens the real invite URL from a signed-out browser context.
+  - Signs in as the matching role and verifies valid invites auto-claim.
+  - Confirms landing in `/vendor?accepted=1` and `/collaborator?accepted=1`
+    with the accepted-invite confirmation.
+  - Verifies the role workspace contains the accepted request and privacy
+    boundary copy.
+  - Verifies the database has accepted invite state, request access assignment,
+    and an `invite_accepted` decision-log entry.
+  - Cleans up the temporary rows after the run.
+- Added `npm run ux:invite`.
+- Updated `docs/USER_REQUIREMENTS_EVENT_MATRIX.md` and `docs/QA_CHECKLIST.md`
+  so invite handoff is marked as scripted coverage.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm run ux:invite` passed against local dev server and configured
+  database: vendor and collaborator invites both accepted and landed in scoped
+  workspaces.
+- `npm run verify` passed: lint, typecheck, 28 test files / 286 tests,
+  production dependency audit, Drizzle drift check, and production build.
+
+### Follow-Up
+
+- Expand the same pattern into a seeded owner/vendor/collaborator full-loop
+  smoke covering bid, work session, closeout, owner approval, and billing
+  recordkeeping.
+
 ## 2026-09-09 - CI Esbuild Lockfile Repair
 
 Scope: fix the GitHub Actions `npm ci` failure shown in the Actions log.

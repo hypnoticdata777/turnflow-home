@@ -72,6 +72,17 @@ uploads before proof through Vercel Blob, and saves screenshots under
 proof file does not upload, because that is exactly the trust-breaking POC path
 new users will hit first.
 
+For the invite handoff canary, run:
+
+```bash
+npm run ux:invite
+```
+
+This creates temporary owner, vendor, and collaborator accounts, opens real
+invite links from signed-out browser contexts, verifies valid invites
+auto-claim after login, confirms the helper lands in the scoped workspace, and
+checks accepted invite state plus the `invite_accepted` decision-log event.
+
 ## Vendor Smoke Test
 
 1. Sign in as the demo vendor and open `/vendor`.
@@ -149,7 +160,7 @@ new users will hit first.
    link is copyable.
 3. Cancel a second pending invite and confirm it disappears from pending state.
 4. Open an invite as the matching vendor or collaborator account and confirm it
-   auto-claims after login.
+   auto-claims after login. Covered by `npm run ux:invite`.
 5. Confirm the user lands in the right workspace with the accepted-invite
    confirmation and only sees the assigned/shared request.
 6. Remove accepted access from Account & Sharing.
