@@ -21,6 +21,17 @@ export type NotificationEntryGuidance = {
   tone: "attention" | "ready";
 };
 
+export type NotificationOpsEnv = Partial<
+  Pick<NodeJS.ProcessEnv, "RESEND_API_KEY" | "NOTIFICATIONS_FROM_EMAIL" | "CRON_SECRET">
+>;
+
+export type NotificationOpsCheck = {
+  label: string;
+  value: string;
+  detail: string;
+  tone: "attention" | "progress" | "ready";
+};
+
 const TYPE_LABELS: Record<string, string> = {
   status_change: "Status change",
   vendor_invite: "Vendor invite",
@@ -36,7 +47,21 @@ const TYPE_LABELS: Record<string, string> = {
   closeout_approved: "Closeout approved",
   closeout_changes_requested: "Closeout changes requested",
   reminder_due: "Maintenance reminder",
+  delivery_test: "Delivery test",
 };
+
+function hasValue(value: string | undefined) {
+  return Boolean(value?.trim());
+}
+
+function validEmail(value: string | undefined) {
+  if (!hasValue(value)) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value!.trim());
+}
+
+function secretReady(value: string | undefined) {
+  return Boolean(value && value.trim().length >= 32);
+}
 
 export function notificationTypeLabel(type: string) {
   return TYPE_LABELS[type] || type;
@@ -107,6 +132,71 @@ export function notificationDeliveryMetrics(
           : entries.length > 0
             ? "ready"
             : "empty",
+    },
+  ];
+}
+
+export function notificationOpsChecks(
+  env: NotificationOpsEnv,
+  entries: NotificationLogInput[],
+  now: Date = new Date()
+): NotificationOpsCheck[] {
+  const latestTest = entries
+    .filter((entry) => entry.type === "delivery_test")
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+    )[0];
+  const latestReminder = entries
+    .filter((entry) => entry.type === "reminder_due")
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+    )[0];
+  const testDelivered = latestTest?.status === "sent";
+  const reminderAgeDays = latestReminder?.createdAt
+    ? Math.floor(
+        (now.getTime() - new Date(latestReminder.createdAt).getTime()) /
+          (24 * 60 * 60 * 1000)
+      )
+    : null;
+
+  return [
+    {
+      label: "Resend key",
+      value: hasValue(env.RESEND_API_KEY) ? "Set" : "Missing",
+      detail: hasValue(env.RESEND_API_KEY)
+        ? "Outbound email has an API key available in this environment."
+        : "Email attempts are logged but cannot leave the app until RESEND_API_KEY is set.",
+      tone: hasValue(env.RESEND_API_KEY) ? "ready" : "attention",
+    },
+    {
+      label: "Sender address",
+      value: validEmail(env.NOTIFICATIONS_FROM_EMAIL) ? "Valid" : "Needs setup",
+      detail: validEmail(env.NOTIFICATIONS_FROM_EMAIL)
+        ? "The configured sender is shaped like a deliverable email address."
+        : "Set NOTIFICATIONS_FROM_EMAIL to a verified Resend sender before real user testing.",
+      tone: validEmail(env.NOTIFICATIONS_FROM_EMAIL) ? "ready" : "attention",
+    },
+    {
+      label: "Test delivery",
+      value: latestTest ? (testDelivered ? "Passed" : "Failed") : "Not run",
+      detail: latestTest
+        ? testDelivered
+          ? "The latest owner-triggered delivery test sent successfully."
+          : "The latest owner-triggered delivery test failed; inspect the log entry below."
+        : "Send a test email after configuring Resend to confirm provider delivery.",
+      tone: latestTest ? (testDelivered ? "ready" : "attention") : "progress",
+    },
+    {
+      label: "Reminder cron",
+      value: secretReady(env.CRON_SECRET) ? "Protected" : "Needs secret",
+      detail: secretReady(env.CRON_SECRET)
+        ? latestReminder
+          ? `Reminder digest attempts are protected; latest reminder log is ${reminderAgeDays} day${reminderAgeDays === 1 ? "" : "s"} old.`
+          : "Reminder digest route is protected; no reminder digest attempts are logged yet."
+        : "Set a long CRON_SECRET before relying on hosted reminder automation.",
+      tone: secretReady(env.CRON_SECRET) ? "ready" : "attention",
     },
   ];
 }

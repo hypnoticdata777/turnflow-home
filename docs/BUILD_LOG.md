@@ -2,6 +2,45 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - Email and Cron Verification Surface
+
+Scope: reduce the remaining email/cron launch blocker without needing live
+Resend credentials in the repo.
+
+### Changed
+
+- `lib/actions/notifications.ts`:
+  - Added an owner-only `sendTestNotificationAction` that sends a delivery-test
+    email to the signed-in owner and records the result in the notification log.
+- `lib/notification-guidance.ts`:
+  - Added launch-readiness checks for Resend API key presence, sender email
+    validity, latest delivery-test outcome, and reminder cron protection.
+  - Added a `Delivery test` notification type label.
+- `/owner/notifications`:
+  - Added a `Send test email` action in the notification-health hero.
+  - Added an Email and Reminder Automation launch-check section that surfaces
+    configuration posture without exposing secret values.
+  - Capped the visible delivery-attempt log to the latest 20 attempts so older
+    reminder failures do not bury the launch checks.
+- `__tests__/notification-guidance.test.ts` now covers the delivery-test label
+  and ops-check states.
+- `README.md` and `docs/DEPLOYMENT.md` now call out the owner-triggered test
+  email and Resend sender verification path.
+
+### Validation
+
+- `npm run typecheck` passed.
+- `npm test -- __tests__\notification-guidance.test.ts __tests__\poc-readiness.test.ts __tests__\health.test.ts`
+  passed: 28 tests.
+
+### Follow-Up
+
+- Configure `RESEND_API_KEY` and a verified `NOTIFICATIONS_FROM_EMAIL` in the
+  target environment, then use the owner Notifications page to send and verify
+  a delivery test.
+- Confirm hosted Vercel cron invokes `/api/cron/reminder-digest` with
+  `Authorization: Bearer $CRON_SECRET`.
+
 ## 2026-09-09 - Workspace and Billing Foundation
 
 Scope: start the organization/workspace/billing architecture gap without forcing

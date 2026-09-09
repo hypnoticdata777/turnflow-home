@@ -276,8 +276,8 @@ Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
   record restore.
 - Email notifications through Resend for invites, status changes, vendor bid
   updates, vendor bid decisions, work-session events, and reminder digests, with
-  log-only fallback and owner-facing delivery-health guidance when email is not
-  configured.
+  log-only fallback, owner-triggered delivery tests, and owner-facing
+  delivery-health guidance when email is not configured.
 - Public `/api/health` endpoint and protected `/api/health/deep` database plus
   runtime-configuration check.
 - Global browser security headers configured in `next.config.ts`.
@@ -330,7 +330,8 @@ Before inviting external users, the remaining launch steps are:
   timeline make assigned jobs more traceable, but they do not yet create an
   open vendor marketplace or payment system.
 - Email can run in log-only mode, but real launch testing should verify Resend
-  deliverability, sender domain setup, and reminder cron behavior.
+  deliverability with the owner test-email action, sender domain setup, and
+  reminder cron behavior.
 - Request-level privacy controls and audit history are strong for invite links,
   accepted access, request decisions, and access removals; deeper account/org
   privacy policy controls are still future work.

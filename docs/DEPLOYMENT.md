@@ -43,7 +43,10 @@ Notes:
 - `APP_URL` must match the deployed app URL in production so invite links are
   correct.
 - `RESEND_API_KEY` can stay blank for a no-email POC, but sends will log as
-  failed.
+  failed and the owner notification page will keep the test-delivery check in a
+  failed or not-run state.
+- `NOTIFICATIONS_FROM_EMAIL` should be a Resend-verified sender address before
+  relying on outbound delivery.
 - `HEALTHCHECK_SECRET` protects `/api/health/deep`; set it before wiring an
   external deep-health monitor.
 - `CRON_SECRET` should be set in production because `/api/cron/reminder-digest`
@@ -150,18 +153,20 @@ Re-run locally before deploying if the environment or database schema changed:
 9. Sign in as vendor and confirm only assigned requests are visible.
 10. Add/update request status.
 11. Verify the notification log records the send attempt.
-12. Download a proof packet PDF.
-13. Open the vault and upload a public-safe document.
-14. Add one recurring reminder and confirm the setup guide progress updates.
-15. Open Account & Sharing and confirm pending invites and sharing boundaries
+12. Open Notifications, click "Send test email", and confirm the latest
+    `Delivery test` row matches the configured Resend posture.
+13. Download a proof packet PDF.
+14. Open the vault and upload a public-safe document.
+15. Add one recurring reminder and confirm the setup guide progress updates.
+16. Open Account & Sharing and confirm pending invites and sharing boundaries
     are understandable to a first-time owner.
-16. Resend and cancel a pending invite from Account & Sharing, then confirm the
+17. Resend and cancel a pending invite from Account & Sharing, then confirm the
     request page reflects the updated pending state.
-17. If `RESEND_API_KEY` is blank, confirm resend still shows a copyable invite
+18. If `RESEND_API_KEY` is blank, confirm resend still shows a copyable invite
     link fallback.
-18. Remove accepted vendor/collaborator access from Account & Sharing, then
+19. Remove accepted vendor/collaborator access from Account & Sharing, then
     sign in as that role and confirm the request is no longer visible.
-19. Open the owner's request detail page and confirm the Decision Log shows the
+20. Open the owner's request detail page and confirm the Decision Log shows the
     access-removal event with the removed account email.
 
 Run the automated hosted smoke scripts after Vercel reports the deployment as
@@ -180,7 +185,9 @@ and fails if `/api/blob-upload` cannot read `BLOB_READ_WRITE_TOKEN` at runtime.
 
 ## Current Known POC Gaps
 
-- No workspace/org model yet.
+- Workspace/org billing foundation exists, but team-seat policy, organization
+  invitation UI, paid checkout, and customer portal billing management are still
+  future work.
 - Request-level privacy controls are now visible in Account & Sharing; deeper
   account/org-level privacy policy controls are still future work.
 - Full `npm audit` still reports a dev-only Drizzle tooling finding through

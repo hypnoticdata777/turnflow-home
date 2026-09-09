@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   notificationDeliveryMetrics,
   notificationEntryGuidance,
+  notificationOpsChecks,
   notificationTypeLabel,
 } from "@/lib/notification-guidance";
 
@@ -20,6 +21,7 @@ describe("notificationTypeLabel", () => {
     expect(notificationTypeLabel("closeout_changes_requested")).toBe(
       "Closeout changes requested"
     );
+    expect(notificationTypeLabel("delivery_test")).toBe("Delivery test");
     expect(notificationTypeLabel("unknown_type")).toBe("unknown_type");
   });
 });
@@ -97,6 +99,90 @@ describe("notificationDeliveryMetrics", () => {
         tone: "attention",
       },
     ]);
+  });
+});
+
+describe("notificationOpsChecks", () => {
+  it("flags missing Resend and cron config before launch", () => {
+    expect(notificationOpsChecks({}, [])).toEqual([
+      expect.objectContaining({
+        label: "Resend key",
+        value: "Missing",
+        tone: "attention",
+      }),
+      expect.objectContaining({
+        label: "Sender address",
+        value: "Needs setup",
+        tone: "attention",
+      }),
+      expect.objectContaining({
+        label: "Test delivery",
+        value: "Not run",
+        tone: "progress",
+      }),
+      expect.objectContaining({
+        label: "Reminder cron",
+        value: "Needs secret",
+        tone: "attention",
+      }),
+    ]);
+  });
+
+  it("marks configured delivery and recent reminder posture as ready", () => {
+    const checks = notificationOpsChecks(
+      {
+        RESEND_API_KEY: "re_123",
+        NOTIFICATIONS_FROM_EMAIL: "notifications@example.com",
+        CRON_SECRET: "c".repeat(32),
+      },
+      [
+        {
+          type: "delivery_test",
+          status: "sent",
+          createdAt: "2026-09-08T12:00:00.000Z",
+        },
+        {
+          type: "reminder_due",
+          status: "sent",
+          createdAt: "2026-09-07T12:00:00.000Z",
+        },
+      ],
+      new Date("2026-09-09T12:00:00.000Z")
+    );
+
+    expect(checks).toEqual([
+      expect.objectContaining({ label: "Resend key", value: "Set", tone: "ready" }),
+      expect.objectContaining({ label: "Sender address", value: "Valid", tone: "ready" }),
+      expect.objectContaining({ label: "Test delivery", value: "Passed", tone: "ready" }),
+      expect.objectContaining({
+        label: "Reminder cron",
+        value: "Protected",
+        detail: "Reminder digest attempts are protected; latest reminder log is 2 days old.",
+        tone: "ready",
+      }),
+    ]);
+  });
+
+  it("surfaces a failed delivery test as the next thing to inspect", () => {
+    expect(
+      notificationOpsChecks(
+        {
+          RESEND_API_KEY: "re_123",
+          NOTIFICATIONS_FROM_EMAIL: "notifications@example.com",
+        },
+        [
+          {
+            type: "delivery_test",
+            status: "failed",
+            createdAt: "2026-09-08T12:00:00.000Z",
+          },
+        ]
+      )[2]
+    ).toMatchObject({
+      label: "Test delivery",
+      value: "Failed",
+      tone: "attention",
+    });
   });
 });
 
