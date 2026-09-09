@@ -2,6 +2,39 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - Portfolio Screenshot Refresh
+
+Scope: close the portfolio-ready screenshot gap after the Account & Sharing
+privacy-control pass.
+
+### Changed
+
+- `scripts/screenshot.ts` now uses the same semantic route-readiness pattern as
+  the UX smoke scripts instead of waiting for `networkidle`.
+- The screenshot script accepts `UX_BASE_URL`, `APP_URL`, `UX_OWNER_EMAIL`,
+  `UX_OWNER_PASSWORD`, `UX_VENDOR_EMAIL`, and `UX_VENDOR_PASSWORD` overrides.
+- The README screenshot set now includes Account & Sharing privacy controls as
+  `screenshots/08-account-sharing.png`.
+- Vendor portal moved to `screenshots/09-vendor-portal.png` so the screenshot
+  story includes public entry, owner workflow, privacy controls, and vendor
+  scope.
+- `README.md` now treats screenshots as current and keeps moderated manual user
+  testing as the remaining external-user gate.
+
+### Validation
+
+- `npm run typecheck` passed after the script update.
+- `npx tsx scripts/screenshot.ts` passed against the local dev server on
+  Next.js `16.3.4`.
+- Visually checked the new Account & Sharing and vendor screenshots.
+- `npm run verify` passed: lint, typecheck, 273 tests, production audit, Drizzle
+  generation/drift check, and production build.
+
+### Follow-Up
+
+- Re-run `npx tsx scripts/screenshot.ts` whenever visible route layout,
+  workflow copy, seeded demo data, or screenshot-script behavior changes.
+
 ## 2026-09-09 - Account Privacy Controls
 
 Scope: close the explicit POC gap that Account & Sharing explained privacy

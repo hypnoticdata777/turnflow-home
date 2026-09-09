@@ -19,8 +19,7 @@ with them.
 > vault, calendar, account sharing, backup, and the public homepage. A real
 > hosted POC now has production environment configuration, seeded demo data, and
 > live public/owner/helper smoke coverage against Vercel. It still needs
-> refreshed portfolio-ready signed-in screenshots and moderated manual user
-> testing before inviting external users.
+> moderated manual user testing before inviting external users.
 
 ## Product Direction
 
@@ -51,8 +50,10 @@ login, and signup screens under `screenshots/ux-public/`.
 | ![New request](screenshots/03-new-request-checklist.png) | ![Request detail](screenshots/04-request-detail.png) |
 | **Properties** | **Property document vault** |
 | ![Properties](screenshots/05-properties.png) | ![Vault](screenshots/06-vault.png) |
-| **Maintenance calendar** | **Vendor portal** |
-| ![Calendar](screenshots/07-calendar.png) | ![Vendor portal](screenshots/08-vendor-portal.png) |
+| **Maintenance calendar** | **Account & Sharing privacy controls** |
+| ![Calendar](screenshots/07-calendar.png) | ![Account & Sharing](screenshots/08-account-sharing.png) |
+| **Vendor portal** | |
+| ![Vendor portal](screenshots/09-vendor-portal.png) | |
 
 Regenerate screenshots after starting the dev server and seeding demo data:
 
@@ -303,7 +304,8 @@ Before inviting external users, the remaining launch steps are:
 - Seed public-safe demo data.
 - Run owner, first-owner workflow, and helper browser smoke tests against the
   hosted URL.
-- Refresh screenshots for README, portfolio, and case study.
+- Refresh screenshots for README, portfolio, and case study after visible UI or
+  seeded-demo changes.
 - Run a homeowner user-testing pass and log findings in `docs/UI_UX_FINDINGS.md`.
 
 ## Remaining Product Gaps
