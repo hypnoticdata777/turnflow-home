@@ -45,6 +45,7 @@ async function createInvite(
     .insert(invites)
     .values({
       ownerId: session.user.id,
+      workspaceId: req.workspaceId,
       requestId,
       role,
       email: trimmedEmail,

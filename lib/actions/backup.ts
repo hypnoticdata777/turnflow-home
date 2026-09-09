@@ -5,6 +5,7 @@ import { billingRecords, properties, requests } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
 import { REQUEST_CATEGORIES, REQUEST_URGENCIES, REQUEST_STATUSES } from "@/lib/utils";
 import { BILLING_RECORD_STATUSES, type BillingRecordStatus } from "@/lib/billing-records";
+import { ensureDefaultWorkspaceForOwner } from "@/lib/workspace";
 
 /** Portable owner backup data for JSON restore and CSV history export. */
 export async function getBackupDataAction() {
@@ -101,6 +102,7 @@ export async function restoreBackupAction(data: {
   billingRecords?: BackupBillingRecord[];
 }): Promise<RestoreResult> {
   const session = await requireRole("owner");
+  const workspace = await ensureDefaultWorkspaceForOwner(session.user.id);
 
   const propertyIdMap: Record<string, string> = {};
   const requestIdMap: Record<string, string> = {};
@@ -120,6 +122,7 @@ export async function restoreBackupAction(data: {
         .insert(properties)
         .values({
           ownerId: session.user.id,
+          workspaceId: workspace.id,
           address,
           unit: property.unit || null,
           nickname: property.nickname || null,
@@ -153,6 +156,7 @@ export async function restoreBackupAction(data: {
     try {
       const [created] = await db.insert(requests).values({
         ownerId: session.user.id,
+        workspaceId: workspace.id,
         propertyId: newPropertyId,
         title,
         category,
@@ -195,6 +199,7 @@ export async function restoreBackupAction(data: {
       await db.insert(billingRecords).values({
         requestId: newRequestId,
         ownerId: session.user.id,
+        workspaceId: workspace.id,
         vendorId: null,
         closeoutSubmissionId: null,
         amount: amount.toFixed(2),

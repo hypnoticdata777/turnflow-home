@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { requests, requestPhotos, decisionLog } from "@/lib/db/schema";
 import { requireRole, requireAnyRole } from "@/lib/auth/dal";
 import { sendNotification } from "@/lib/email";
+import { ensureDefaultWorkspaceForOwner } from "@/lib/workspace";
 import {
   REQUEST_CATEGORIES,
   REQUEST_STATUSES,
@@ -59,10 +60,13 @@ export async function createRequestAction(
     return { error: "Invalid property." };
   }
 
+  const workspace = await ensureDefaultWorkspaceForOwner(session.user.id);
+
   const [created] = await db
     .insert(requests)
     .values({
       ownerId: session.user.id,
+      workspaceId: property.workspaceId || workspace.id,
       propertyId,
       title,
       category,

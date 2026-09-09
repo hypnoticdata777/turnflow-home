@@ -2,6 +2,59 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - Workspace and Billing Foundation
+
+Scope: start the organization/workspace/billing architecture gap without forcing
+a risky rewrite of every owner authorization path in one pass.
+
+### Changed
+
+- `lib/db/schema.ts`:
+  - Added `workspaces`, `workspace_memberships`, and `billing_accounts`.
+  - Added plan/status enums for workspace billing posture.
+  - Added nullable `workspace_id` pointers to properties, requests, invites,
+    and billing records so existing data can migrate safely.
+- `lib/workspace.ts`:
+  - Added default owner-workspace creation.
+  - Ensures an active owner membership and POC billing account.
+  - Backfills an owner's existing properties, requests, invites, and billing
+    records with the default workspace id.
+- `lib/workspace-model.ts`:
+  - Added pure helper logic for workspace architecture flags, account-page
+    summary copy, and readiness cards.
+- Owner signup now creates the default workspace foundation immediately after
+  the owner account is created.
+- Property creation, request creation, request invites, backup restore, and
+  approved-closeout billing records now carry workspace context.
+- Account & Sharing now includes a Workspace & Billing Model section that shows
+  workspace ownership, record scope, request scope, POC plan state, and billing
+  record scope.
+- `scripts/migrate.ts` now runs migrations through the Neon HTTP migrator used
+  by the app runtime and can stamp historical migrations for databases that
+  were originally created before the Drizzle journal existed.
+- Added `__tests__/workspace-model.test.ts`.
+- Generated Drizzle migration `drizzle/0011_romantic_secret_warriors.sql`.
+- Updated README feature/gap language for the new foundation.
+
+### Validation
+
+- `npm run typecheck` passed.
+- `npm test -- __tests__\workspace-model.test.ts __tests__\owner-readiness.test.ts __tests__\billing-records.test.ts`
+  passed: 49 tests.
+- `npm test` passed: 28 files, 282 tests.
+- `npm run audit:prod` passed: 0 vulnerabilities.
+- `npm run build` passed.
+- `npm run db:migrate` applied the workspace migration to the configured
+  database after stamping the pre-existing migration history.
+- `npm run ux:owner` passed across owner routes at desktop and mobile.
+
+### Follow-Up
+
+- Add organization/team invitation policy and UI.
+- Add payment provider checkout/customer portal wiring.
+- Decide whether future authorization checks should move from direct owner-only
+  scope to workspace-membership scope.
+
 ## 2026-09-09 - Deep Health Runtime Checks
 
 Scope: reduce the production-observability gap without adding an external

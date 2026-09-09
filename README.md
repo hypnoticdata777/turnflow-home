@@ -116,6 +116,10 @@ CRON_SECRET=
 HEALTHCHECK_SECRET=
 ```
 
+`npm run db:migrate` uses the same Neon HTTP driver family as the app runtime
+and can baseline-stamp older databases that were created before the Drizzle
+migration journal existed.
+
 Before deploying or asking anyone to test a hosted POC, run:
 
 ```bash
@@ -258,6 +262,9 @@ Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
 - Owner Account & Sharing Center with profile context, invite activity, sharing
   boundary snapshot, active access controls, pending-link signals, and
   account-readiness guidance.
+- Workspace and billing foundation with default owner workspaces, active owner
+  memberships, POC plan state, and workspace-scoped properties, requests,
+  invites, and generated billing records.
 - Property vault for receipts, warranties, manuals, invoices, inspection
   reports, and other documents.
 - Vault value snapshot for saved records, property document coverage,
@@ -311,7 +318,9 @@ Before inviting external users, the remaining launch steps are:
 
 ## Remaining Product Gaps
 
-- No organization/workspace billing model yet.
+- Organization/workspace billing foundation now exists, but team-seat policy,
+  organization invites, paid subscription checkout, and customer-portal billing
+  management are still future product layers.
 - Vendor and collaborator accounts remain invite-driven or seeded for the POC;
   public signup stays homeowner-focused.
 - Open vendor opportunity bidding, automated trade matching, payment

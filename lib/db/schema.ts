@@ -17,6 +17,8 @@ import {
   integer,
   timestamp,
   jsonb,
+  index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -83,6 +85,35 @@ export const billingRecordStatusEnum = pgEnum("billing_record_status", [
   "disputed",
   "void",
 ]);
+export const workspaceKindEnum = pgEnum("workspace_kind", [
+  "personal",
+  "household",
+  "business",
+]);
+export const workspaceMemberRoleEnum = pgEnum("workspace_member_role", [
+  "owner",
+  "admin",
+  "member",
+  "billing_admin",
+]);
+export const workspaceMemberStatusEnum = pgEnum("workspace_member_status", [
+  "active",
+  "invited",
+  "removed",
+]);
+export const workspacePlanEnum = pgEnum("workspace_plan", [
+  "poc",
+  "homeowner",
+  "team",
+  "enterprise",
+]);
+export const billingAccountStatusEnum = pgEnum("billing_account_status", [
+  "trialing",
+  "active",
+  "past_due",
+  "paused",
+  "canceled",
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -93,11 +124,70 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const workspaces = pgTable("workspaces", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  ownerId: uuid("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 120 }).notNull().unique(),
+  kind: workspaceKindEnum("kind").default("personal").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const workspaceMemberships = pgTable(
+  "workspace_memberships",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: workspaceMemberRoleEnum("role").default("member").notNull(),
+    status: workspaceMemberStatusEnum("status").default("active").notNull(),
+    invitedById: uuid("invited_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("workspace_memberships_workspace_user_unique").on(
+      table.workspaceId,
+      table.userId
+    ),
+    index("workspace_memberships_user_idx").on(table.userId),
+  ]
+);
+
+export const billingAccounts = pgTable("billing_accounts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .unique()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  plan: workspacePlanEnum("plan").default("poc").notNull(),
+  status: billingAccountStatusEnum("status").default("trialing").notNull(),
+  billingEmail: varchar("billing_email", { length: 255 }),
+  externalCustomerId: varchar("external_customer_id", { length: 255 }),
+  externalSubscriptionId: varchar("external_subscription_id", { length: 255 }),
+  trialEndsAt: timestamp("trial_ends_at"),
+  currentPeriodEndsAt: timestamp("current_period_ends_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const properties = pgTable("properties", {
   id: uuid("id").defaultRandom().primaryKey(),
   ownerId: uuid("owner_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  workspaceId: uuid("workspace_id").references(() => workspaces.id, {
+    onDelete: "set null",
+  }),
   address: text("address").notNull(),
   unit: varchar("unit", { length: 100 }),
   nickname: varchar("nickname", { length: 255 }),
@@ -110,6 +200,9 @@ export const invites = pgTable("invites", {
   ownerId: uuid("owner_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  workspaceId: uuid("workspace_id").references(() => workspaces.id, {
+    onDelete: "set null",
+  }),
   // requestId is nullable at the type level to break the requests<->invites
   // circular FK; a request-scoped invite always has this set in practice.
   requestId: uuid("request_id"),
@@ -127,6 +220,9 @@ export const requests = pgTable("requests", {
   ownerId: uuid("owner_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  workspaceId: uuid("workspace_id").references(() => workspaces.id, {
+    onDelete: "set null",
+  }),
   propertyId: uuid("property_id")
     .notNull()
     .references(() => properties.id, { onDelete: "cascade" }),
@@ -279,6 +375,9 @@ export const billingRecords = pgTable("billing_records", {
   ownerId: uuid("owner_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  workspaceId: uuid("workspace_id").references(() => workspaces.id, {
+    onDelete: "set null",
+  }),
   vendorId: uuid("vendor_id").references(() => users.id),
   closeoutSubmissionId: uuid("closeout_submission_id")
     .references(() => closeoutSubmissions.id, { onDelete: "set null" })
@@ -386,10 +485,57 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   workSessions: many(workSessions),
   closeoutSubmissions: many(closeoutSubmissions),
   billingRecords: many(billingRecords),
+  ownedWorkspaces: many(workspaces),
+  workspaceMemberships: many(workspaceMemberships, {
+    relationName: "userWorkspaceMemberships",
+  }),
+  invitedWorkspaceMemberships: many(workspaceMemberships, {
+    relationName: "workspaceMembershipInvites",
+  }),
+}));
+
+export const workspacesRelations = relations(workspaces, ({ one, many }) => ({
+  owner: one(users, { fields: [workspaces.ownerId], references: [users.id] }),
+  memberships: many(workspaceMemberships),
+  billingAccount: one(billingAccounts),
+  properties: many(properties),
+  requests: many(requests),
+  billingRecords: many(billingRecords),
+}));
+
+export const workspaceMembershipsRelations = relations(
+  workspaceMemberships,
+  ({ one }) => ({
+    workspace: one(workspaces, {
+      fields: [workspaceMemberships.workspaceId],
+      references: [workspaces.id],
+    }),
+    user: one(users, {
+      fields: [workspaceMemberships.userId],
+      references: [users.id],
+      relationName: "userWorkspaceMemberships",
+    }),
+    invitedBy: one(users, {
+      fields: [workspaceMemberships.invitedById],
+      references: [users.id],
+      relationName: "workspaceMembershipInvites",
+    }),
+  })
+);
+
+export const billingAccountsRelations = relations(billingAccounts, ({ one }) => ({
+  workspace: one(workspaces, {
+    fields: [billingAccounts.workspaceId],
+    references: [workspaces.id],
+  }),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
   owner: one(users, { fields: [properties.ownerId], references: [users.id] }),
+  workspace: one(workspaces, {
+    fields: [properties.workspaceId],
+    references: [workspaces.id],
+  }),
   requests: many(requests),
   vaultDocuments: many(vaultDocuments),
   reminders: many(reminders),
@@ -400,6 +546,10 @@ export const requestsRelations = relations(requests, ({ one, many }) => ({
     fields: [requests.ownerId],
     references: [users.id],
     relationName: "ownerRequests",
+  }),
+  workspace: one(workspaces, {
+    fields: [requests.workspaceId],
+    references: [workspaces.id],
   }),
   property: one(properties, {
     fields: [requests.propertyId],
@@ -512,6 +662,10 @@ export const billingRecordsRelations = relations(billingRecords, ({ one }) => ({
     fields: [billingRecords.ownerId],
     references: [users.id],
   }),
+  workspace: one(workspaces, {
+    fields: [billingRecords.workspaceId],
+    references: [workspaces.id],
+  }),
   vendor: one(users, {
     fields: [billingRecords.vendorId],
     references: [users.id],
@@ -524,6 +678,10 @@ export const billingRecordsRelations = relations(billingRecords, ({ one }) => ({
 
 export const invitesRelations = relations(invites, ({ one }) => ({
   owner: one(users, { fields: [invites.ownerId], references: [users.id] }),
+  workspace: one(workspaces, {
+    fields: [invites.workspaceId],
+    references: [workspaces.id],
+  }),
   request: one(requests, {
     fields: [invites.requestId],
     references: [requests.id],
@@ -557,6 +715,9 @@ export const vendorProfilesRelations = relations(vendorProfiles, ({ one }) => ({
 }));
 
 export type User = typeof users.$inferSelect;
+export type Workspace = typeof workspaces.$inferSelect;
+export type WorkspaceMembership = typeof workspaceMemberships.$inferSelect;
+export type BillingAccount = typeof billingAccounts.$inferSelect;
 export type Property = typeof properties.$inferSelect;
 export type Request = typeof requests.$inferSelect;
 export type RequestPhoto = typeof requestPhotos.$inferSelect;

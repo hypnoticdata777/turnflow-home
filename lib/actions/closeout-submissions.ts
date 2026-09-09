@@ -186,6 +186,7 @@ export async function reviewCloseoutSubmissionAction(
       await db.insert(billingRecords).values({
         requestId,
         ownerId: req.ownerId,
+        workspaceId: req.workspaceId,
         vendorId: closeout.vendorId,
         closeoutSubmissionId: closeout.id,
         amount: closeout.finalAmount,

@@ -15,6 +15,7 @@ import {
 } from "@/lib/auth/forms";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
+import { ensureDefaultWorkspaceForOwner } from "@/lib/workspace";
 
 export type LoginState = { error?: string } | undefined;
 export type SignupState =
@@ -57,12 +58,16 @@ export async function signupAction(
   const passwordHash = await bcrypt.hash(parsed.data.password, 10);
 
   try {
-    await db.insert(users).values({
-      email: parsed.data.email,
-      passwordHash,
-      role: "owner",
-      name: parsed.data.name,
-    });
+    const [created] = await db
+      .insert(users)
+      .values({
+        email: parsed.data.email,
+        passwordHash,
+        role: "owner",
+        name: parsed.data.name,
+      })
+      .returning({ id: users.id });
+    await ensureDefaultWorkspaceForOwner(created.id);
   } catch (error) {
     console.error("Signup failed:", error);
     return { error: "Could not create that account. Please try again.", values };

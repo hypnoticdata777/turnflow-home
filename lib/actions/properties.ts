@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { properties } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
+import { ensureDefaultWorkspaceForOwner } from "@/lib/workspace";
 
 export type ActionState = { error?: string } | undefined;
 
@@ -23,8 +24,11 @@ export async function createProperty(
     return { error: "Address is required." };
   }
 
+  const workspace = await ensureDefaultWorkspaceForOwner(session.user.id);
+
   await db.insert(properties).values({
     ownerId: session.user.id,
+    workspaceId: workspace.id,
     address,
     unit,
     nickname,

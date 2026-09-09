@@ -5,7 +5,15 @@ import { OwnerProfileForm } from "@/components/OwnerProfileForm";
 import { PendingInviteControls } from "@/components/PendingInviteControls";
 import { SharedAccessControls } from "@/components/SharedAccessControls";
 import { db } from "@/lib/db";
-import { invites, properties, reminders, requests, users, vaultDocuments } from "@/lib/db/schema";
+import {
+  billingRecords,
+  invites,
+  properties,
+  reminders,
+  requests,
+  users,
+  vaultDocuments,
+} from "@/lib/db/schema";
 import {
   ownerAccountReadinessItems,
   ownerNextSetupStep,
@@ -15,6 +23,12 @@ import {
   ownerSetupSteps,
   ownerSetupSummary,
 } from "@/lib/owner-readiness";
+import {
+  workspaceArchitectureCards,
+  workspaceArchitectureSummary,
+  type WorkspaceSignalTone,
+} from "@/lib/workspace-model";
+import { ensureDefaultWorkspaceForOwner } from "@/lib/workspace";
 
 function CheckIcon() {
   return (
@@ -50,12 +64,32 @@ function sharingMetricClasses(tone: "attention" | "progress" | "ready" | "empty"
   }
 }
 
+function workspaceMetricClasses(tone: WorkspaceSignalTone) {
+  switch (tone) {
+    case "attention":
+      return "border-rose-200 bg-rose-50 text-rose-950";
+    case "progress":
+      return "border-blue-200 bg-blue-50 text-blue-950";
+    case "ready":
+      return "border-emerald-200 bg-emerald-50 text-emerald-950";
+    default:
+      return "border-gray-200 bg-white text-gray-900";
+  }
+}
+
 type PrivacyControlTone = "slate" | "cyan" | "rose" | "blue";
 
 export default async function OwnerAccountPage() {
   const session = await requireRole("owner");
+  const ownerWorkspace = await ensureDefaultWorkspaceForOwner(session.user.id);
 
-  const [ownerProfile, ownerProperties, ownerRequests, ownerInvites] = await Promise.all([
+  const [
+    ownerProfile,
+    ownerProperties,
+    ownerRequests,
+    ownerInvites,
+    ownerBillingRecords,
+  ] = await Promise.all([
     db.query.users.findFirst({
       where: eq(users.id, session.user.id),
       columns: { name: true, email: true },
@@ -73,6 +107,10 @@ export default async function OwnerAccountPage() {
       where: eq(invites.ownerId, session.user.id),
       orderBy: (i, { desc }) => desc(i.createdAt),
       with: { request: true },
+    }),
+    db.query.billingRecords.findMany({
+      where: eq(billingRecords.ownerId, session.user.id),
+      columns: { id: true, workspaceId: true },
     }),
   ]);
 
@@ -124,6 +162,44 @@ export default async function OwnerAccountPage() {
   const nextStep = ownerNextSetupStep(setupSteps);
   const { completedCount, totalCount, progress } = ownerSetupProgress(setupSteps);
   const sharingMetrics = ownerSharingMetrics(readinessInput);
+  const workspaceSummary = workspaceArchitectureSummary({
+    workspace: ownerWorkspace,
+    memberships: ownerWorkspace.memberships,
+    billingAccount: ownerWorkspace.billingAccount,
+    records: {
+      properties: ownerProperties.length,
+      workspaceProperties: ownerProperties.filter(
+        (property) => property.workspaceId === ownerWorkspace.id
+      ).length,
+      requests: ownerRequests.length,
+      workspaceRequests: ownerRequests.filter(
+        (request) => request.workspaceId === ownerWorkspace.id
+      ).length,
+      billingRecords: ownerBillingRecords.length,
+      workspaceBillingRecords: ownerBillingRecords.filter(
+        (record) => record.workspaceId === ownerWorkspace.id
+      ).length,
+    },
+  });
+  const workspaceCards = workspaceArchitectureCards({
+    workspace: ownerWorkspace,
+    memberships: ownerWorkspace.memberships,
+    billingAccount: ownerWorkspace.billingAccount,
+    records: {
+      properties: ownerProperties.length,
+      workspaceProperties: ownerProperties.filter(
+        (property) => property.workspaceId === ownerWorkspace.id
+      ).length,
+      requests: ownerRequests.length,
+      workspaceRequests: ownerRequests.filter(
+        (request) => request.workspaceId === ownerWorkspace.id
+      ).length,
+      billingRecords: ownerBillingRecords.length,
+      workspaceBillingRecords: ownerBillingRecords.filter(
+        (record) => record.workspaceId === ownerWorkspace.id
+      ).length,
+    },
+  });
   const primary = nextStep
     ? { href: nextStep.href, label: nextStep.cta }
     : { href: "/owner/requests/new", label: "Log another request" };
@@ -312,6 +388,40 @@ export default async function OwnerAccountPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
+              Workspace &amp; billing model
+            </p>
+            <h2 className="mt-1 text-xl font-semibold">{workspaceSummary.headline}</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+              {workspaceSummary.detail}
+            </p>
+          </div>
+          <span
+            className={`inline-flex min-h-9 items-center rounded-full border px-3 py-1 text-xs font-semibold ${workspaceMetricClasses(
+              workspaceSummary.tone
+            )}`}
+          >
+            {workspaceSummary.tone === "ready" ? "Foundation ready" : "Foundation in progress"}
+          </span>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {workspaceCards.map((card) => (
+            <article
+              key={card.label}
+              className={`rounded-lg border p-4 ${workspaceMetricClasses(card.tone)}`}
+            >
+              <p className="text-sm font-semibold">{card.label}</p>
+              <p className="mt-2 break-words text-2xl font-bold">{card.value}</p>
+              <p className="mt-2 text-sm leading-6">{card.detail}</p>
+            </article>
+          ))}
         </div>
       </section>
 
