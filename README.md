@@ -289,6 +289,7 @@ Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
 - [Deployment runbook](docs/DEPLOYMENT.md)
 - [Build log](docs/BUILD_LOG.md)
 - [POC QA checklist](docs/QA_CHECKLIST.md)
+- [User requirements and event matrix](docs/USER_REQUIREMENTS_EVENT_MATRIX.md)
 - [Homeowner user testing protocol](docs/USER_TESTING.md)
 - [Vendor lifecycle roadmap](docs/VENDOR_LIFECYCLE_ROADMAP.md)
 - [Endpoint experience map](docs/ENDPOINT_EXPERIENCE_MAP.md)
@@ -301,7 +302,8 @@ The codebase is in good shape for the next hosted POC preparation pass:
 
 - Automated verification passes locally.
 - Unit coverage includes owner readiness, request guidance, helper workspace,
-  POC readiness, utilities, exports, and submission helpers.
+  decision-log event copy, POC readiness, utilities, exports, and submission
+  helpers.
 - Database schema generation reports no drift.
 - Production dependency audit reports no vulnerabilities.
 - Browser smoke scripts exist for the public homepage/auth entry points, owner

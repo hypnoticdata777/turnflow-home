@@ -13,6 +13,18 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    env:
+      APP_URL: http://localhost:3000
+      AUTH_SECRET: ci-auth-secret-ci-auth-secret-ci-auth-secret
+      AUTH_TRUST_HOST: "true"
+      AUTH_URL: http://localhost:3000
+      BLOB_READ_WRITE_TOKEN: vercel_blob_rw_ci_placeholder
+      CRON_SECRET: ci-cron-secret-ci-cron-secret-ci-cron-secret
+      DATABASE_URL: postgres://placeholder:placeholder@localhost:5432/placeholder
+      HEALTHCHECK_SECRET: ci-health-secret-ci-health-secret-ci-health-secret
+      NEXTAUTH_SECRET: ci-auth-secret-ci-auth-secret-ci-auth-secret
+      NEXTAUTH_URL: http://localhost:3000
+      NOTIFICATIONS_FROM_EMAIL: notifications@example.com
 
     steps:
       - name: Checkout

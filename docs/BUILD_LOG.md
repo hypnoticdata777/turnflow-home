@@ -2,6 +2,37 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-09 - Requirements/Event Matrix and CI Env Fix
+
+Scope: make the multi-user loop auditable and address the likely GitHub CI
+failure caused by running `npm run verify` without local environment variables.
+
+### Changed
+
+- Added `docs/USER_REQUIREMENTS_EVENT_MATRIX.md`:
+  - Defines owner, vendor, and collaborator requirements.
+  - Lists every core event, its actor, its justification, and where to verify it.
+  - Turns manual testing into role-based loop audits instead of random page
+    clicking.
+  - Calls out remaining coverage gaps such as a dedicated invite-acceptance
+    browser smoke.
+- Linked the matrix from `README.md` and updated readiness language for
+  decision-log event copy coverage.
+- Updated `.github/workflows/ci.yml` with CI-only placeholder environment
+  variables so `next build` can import server modules during `npm run verify`
+  without relying on an uncommitted `.env.local`.
+
+### Validation
+
+- `npm run verify` passed locally: lint, typecheck, 28 test files / 286 tests,
+  production dependency audit, Drizzle drift check, and production build.
+
+### Follow-Up
+
+- Inspect the next GitHub Actions run after this commit lands. The public API
+  returned `404` for this private repository and `gh` is not installed locally,
+  so run details need the GitHub UI or an authenticated CLI.
+
 ## 2026-09-09 - Frictionless Invite Handoff and Lifecycle Logging
 
 Scope: mature the owner/vendor/collaborator loop without adding payment or
