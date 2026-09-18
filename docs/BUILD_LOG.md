@@ -2,6 +2,45 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-17 - Full Role Loop Smoke
+
+Scope: turn the event matrix's bid, work, closeout, billing, and scoped
+collaborator loops into executable coverage without adding payment or vendor
+marketplace dependencies.
+
+### Changed
+
+- Added `scripts/ux-full-loop-smoke.ts`.
+  - Creates temporary owner, vendor, collaborator, workspace, property,
+    request, task, and billing foundation rows.
+  - Uses the real browser UI for vendor bid submission, owner bid approval,
+    vendor closeout submission, owner closeout approval, owner billing update,
+    and collaborator scoped visibility.
+  - Seeds proof/task/work-session state deterministically so the smoke focuses
+    on the cross-role loop instead of external file upload dependencies.
+  - Verifies the decision log contains the required owner/vendor lifecycle
+    events.
+  - Cleans up the temporary rows after the run.
+- Added `npm run ux:full-loop`.
+- Updated `docs/USER_REQUIREMENTS_EVENT_MATRIX.md` and `docs/QA_CHECKLIST.md`
+  so the full role loop is a repeatable canary.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm run ux:full-loop` passed against local dev server and configured
+  database: vendor bid, owner approval, proof/work state, vendor closeout,
+  owner closeout approval, billing paid-outside-TurnFlow update, collaborator
+  scoped visibility, and required decision-log events.
+- `npm run verify` passed: lint, typecheck, 28 test files / 286 tests,
+  production dependency audit, Drizzle drift check, and production build.
+
+### Follow-Up
+
+- Add a second branch to the canary for owner-requested closeout changes once
+  the happy path stays stable.
+
 ## 2026-09-09 - Invite Acceptance Loop Smoke
 
 Scope: turn the requirements/event matrix into executable coverage for the

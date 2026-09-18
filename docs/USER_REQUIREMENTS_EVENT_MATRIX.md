@@ -85,16 +85,16 @@ Rows that are not event-log entries but still matter:
 | First owner setup | Sign up, land in onboarding, create property, create request, upload proof, land on detail. | User never needs to leave the guided path; request has `request_created`; proof appears. | Covered by `npm run ux:owner-flow` |
 | Owner to vendor invite | Owner invites vendor, copies link if needed, vendor opens invite and signs in. | Valid invite auto-claims, vendor lands in `/vendor?accepted=1`, owner sees active access, `invite_accepted` logs. | Covered by `npm run ux:invite` |
 | Owner to collaborator invite | Owner invites collaborator, collaborator opens invite and signs in. | Valid invite auto-claims, collaborator lands in `/collaborator?accepted=1`, only shared request appears. | Covered by `npm run ux:invite` |
-| Vendor bid loop | Owner sets Needs Quote, vendor submits bid, owner approves/declines. | Vendor is routed to bid action; owner sees private bid review; decision log captures both sides. | Covered by unit/helper smoke surfaces |
-| Vendor work loop | Owner schedules work, vendor starts/stops with proof and updates tasks. | Work timeline and decision log explain progress; missing proof blocks completion unless waived. | Covered by helper smoke surfaces |
-| Closeout loop | Vendor submits closeout, owner approves or requests changes. | Owner sees pending review; approval creates billing record; changes route vendor back to revision. | Covered by unit/helper smoke surfaces |
+| Vendor bid loop | Owner sets Needs Quote, vendor submits bid, owner approves/declines. | Vendor is routed to bid action; owner sees private bid review; decision log captures both sides. | Covered by `npm run ux:full-loop` plus unit/helper smoke surfaces |
+| Vendor work loop | Owner schedules work, vendor starts/stops with proof and updates tasks. | Work timeline and decision log explain progress; missing proof blocks completion unless waived. | Covered by `npm run ux:full-loop` plus helper smoke surfaces |
+| Closeout loop | Vendor submits closeout, owner approves or requests changes. | Owner sees pending review; approval creates billing record; changes route vendor back to revision. | Covered by `npm run ux:full-loop` plus unit/helper smoke surfaces |
 | Access removal loop | Owner removes accepted vendor/collaborator access. | Removed user loses request visibility; decision log names removed email. | Covered by QA checklist; manual smoke recommended |
-| Billing recordkeeping loop | Owner marks recorded billing paid/disputed outside TurnFlow. | Billing state is history only, not payment processing; event is logged. | Covered by unit tests |
+| Billing recordkeeping loop | Owner marks recorded billing paid/disputed outside TurnFlow. | Billing state is history only, not payment processing; event is logged. | Covered by `npm run ux:full-loop` plus unit tests |
 
 ## Open Coverage Gaps
 
-- Add an owner/vendor/collaborator manual script that follows one seeded repair
-  from request creation through closeout approval and billing status update.
+- Extend `npm run ux:full-loop` to cover the changes-requested closeout branch
+  after the happy path stays stable.
 - Decide whether photo upload should write a lightweight decision-log event, or
   whether the photo row itself is enough proof. Current state: photo rows are
   the source of truth, and the decision log avoids noisy entries for every file.

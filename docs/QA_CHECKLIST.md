@@ -83,6 +83,18 @@ invite links from signed-out browser contexts, verifies valid invites
 auto-claim after login, confirms the helper lands in the scoped workspace, and
 checks accepted invite state plus the `invite_accepted` decision-log event.
 
+For the owner/vendor/collaborator full-loop canary, run:
+
+```bash
+npm run ux:full-loop
+```
+
+This creates temporary scoped users and a seeded repair, has the vendor submit
+a private bid, has the owner approve it, verifies work/proof and task state,
+has the vendor submit closeout, has the owner approve closeout and mark the
+billing record paid outside TurnFlow, confirms the collaborator sees only
+shared context, and checks the required decision-log events.
+
 ## Vendor Smoke Test
 
 1. Sign in as the demo vendor and open `/vendor`.
