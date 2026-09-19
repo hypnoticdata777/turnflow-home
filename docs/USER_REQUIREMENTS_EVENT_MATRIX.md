@@ -93,8 +93,9 @@ Rows that are not event-log entries but still matter:
 
 ## Open Coverage Gaps
 
-- Extend `npm run ux:full-loop` to cover the changes-requested closeout branch
-  after the happy path stays stable.
+- Add a dedicated access-removal browser smoke that creates accepted vendor and
+  collaborator access, removes each from Account & Sharing, confirms the helper
+  loses request visibility, and verifies `shared_access_removed`.
 - Decide whether photo upload should write a lightweight decision-log event, or
   whether the photo row itself is enough proof. Current state: photo rows are
   the source of truth, and the decision log avoids noisy entries for every file.

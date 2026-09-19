@@ -91,9 +91,11 @@ npm run ux:full-loop
 
 This creates temporary scoped users and a seeded repair, has the vendor submit
 a private bid, has the owner approve it, verifies work/proof and task state,
-has the vendor submit closeout, has the owner approve closeout and mark the
-billing record paid outside TurnFlow, confirms the collaborator sees only
-shared context, and checks the required decision-log events.
+has the vendor submit closeout, has the owner request changes, confirms the
+vendor sees the revision state, has the vendor resubmit closeout, has the owner
+approve closeout and mark the billing record paid outside TurnFlow, confirms
+the collaborator sees only shared context, and checks the required decision-log
+events.
 
 ## Vendor Smoke Test
 

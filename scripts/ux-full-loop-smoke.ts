@@ -23,6 +23,7 @@ const PASSWORD = "Password123!";
 const BID_AMOUNT = "420.50";
 const FINAL_AMOUNT = "435.75";
 const INVOICE_REFERENCE = `INV-${RUN_ID}`;
+const CHANGE_REQUEST_NOTE = "Please clarify the receipt note before I approve this closeout.";
 
 type Fixture = {
   ownerId: string;
@@ -400,7 +401,32 @@ async function ownerApprovesBid(page: Page, fixture: Fixture) {
   await assertNoHorizontalOverflow(page, "owner quote approval detail");
 }
 
-async function vendorSubmitsCloseout(page: Page, fixture: Fixture) {
+async function latestCloseoutForRequest(requestId: string) {
+  const closeouts = await db.query.closeoutSubmissions.findMany({
+    where: (submission, { eq }) => eq(submission.requestId, requestId),
+    orderBy: (submission, { desc }) => desc(submission.submittedAt),
+    columns: {
+      finalAmount: true,
+      reviewNotes: true,
+      status: true,
+    },
+  });
+  return closeouts[0];
+}
+
+async function vendorSubmitsCloseout(
+  page: Page,
+  fixture: Fixture,
+  options: {
+    completionNotes: string;
+    materialsNotes: string;
+    waitLabel: string;
+  } = {
+    completionNotes: "Supply line replaced, leak tested, and cabinet left dry.",
+    materialsNotes: "Includes supply line, sealant, and cleanup.",
+    waitLabel: "vendor closeout submission",
+  }
+) {
   await page.goto(new URL("/vendor", BASE_URL).toString(), { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Open workflow controls" }).first().click();
   await page
@@ -413,22 +439,54 @@ async function vendorSubmitsCloseout(page: Page, fixture: Fixture) {
   });
   await closeoutPanel
     .getByLabel("Completion notes")
-    .fill("Supply line replaced, leak tested, and cabinet left dry.");
+    .fill(options.completionNotes);
   await closeoutPanel
     .getByLabel("Materials or receipt notes")
-    .fill("Includes supply line, sealant, and cleanup.");
+    .fill(options.materialsNotes);
   await closeoutPanel.getByLabel("Final amount").fill(FINAL_AMOUNT);
   await closeoutPanel.getByRole("button", { name: "Submit closeout" }).click();
   await closeoutPanel.getByText("Closeout submitted for owner review.").waitFor({
     timeout: 15000,
   });
-  await waitForDb("vendor closeout submission", async () => {
-    const closeout = await db.query.closeoutSubmissions.findFirst({
-      where: (submission, { eq }) => eq(submission.requestId, fixture.requestId),
-    });
+  await waitForDb(options.waitLabel, async () => {
+    const closeout = await latestCloseoutForRequest(fixture.requestId);
     return closeout?.finalAmount === FINAL_AMOUNT && closeout.status === "pending";
   });
   await assertNoHorizontalOverflow(page, "vendor closeout workspace");
+}
+
+async function ownerRequestsCloseoutChanges(page: Page, fixture: Fixture) {
+  await page.goto(new URL(`/owner/requests/${fixture.requestId}`, BASE_URL).toString(), {
+    waitUntil: "networkidle",
+  });
+  const closeoutPanel = page.locator("#closeout");
+  await closeoutPanel.getByText("Ready for owner decision").waitFor({ timeout: 15000 });
+  await closeoutPanel.getByLabel("Owner review note").fill(CHANGE_REQUEST_NOTE);
+  await closeoutPanel.getByRole("button", { name: "Request changes" }).click();
+  await closeoutPanel.getByText("Closeout changes requested.").waitFor({
+    timeout: 15000,
+  });
+  await waitForDb("owner closeout change request", async () => {
+    const closeout = await latestCloseoutForRequest(fixture.requestId);
+    return (
+      closeout?.status === "changes_requested" &&
+      closeout.reviewNotes === CHANGE_REQUEST_NOTE
+    );
+  });
+  await assertNoHorizontalOverflow(page, "owner closeout change request detail");
+}
+
+async function vendorSeesCloseoutChangesRequested(page: Page, fixture: Fixture) {
+  await page.goto(new URL("/vendor", BASE_URL).toString(), { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Open workflow controls" }).first().click();
+  await page
+    .getByRole("button", { name: "Hide workflow controls" })
+    .first()
+    .waitFor({ timeout: 5000 });
+  const closeoutPanel = page.locator(`[id="vendor-closeout-${fixture.requestId}"]`);
+  await closeoutPanel.getByText("Changes requested").first().waitFor({ timeout: 15000 });
+  await closeoutPanel.getByText(CHANGE_REQUEST_NOTE).waitFor({ timeout: 15000 });
+  await assertNoHorizontalOverflow(page, "vendor closeout changes requested workspace");
 }
 
 async function ownerApprovesCloseoutAndUpdatesBilling(page: Page, fixture: Fixture) {
@@ -439,9 +497,7 @@ async function ownerApprovesCloseoutAndUpdatesBilling(page: Page, fixture: Fixtu
   await closeoutPanel.getByText("Ready for owner decision").waitFor({ timeout: 15000 });
   await closeoutPanel.getByRole("button", { name: "Approve closeout" }).click();
   await waitForDb("owner closeout approval", async () => {
-    const closeout = await db.query.closeoutSubmissions.findFirst({
-      where: (submission, { eq }) => eq(submission.requestId, fixture.requestId),
-    });
+    const closeout = await latestCloseoutForRequest(fixture.requestId);
     const billingRecord = await db.query.billingRecords.findFirst({
       where: (record, { eq }) => eq(record.requestId, fixture.requestId),
     });
@@ -496,6 +552,7 @@ async function assertDecisionEvents(fixture: Fixture) {
     "vendor_bid_submitted",
     "quote_approved",
     "closeout_submitted",
+    "closeout_changes_requested",
     "closeout_approved",
     "billing_record_updated",
   ];
@@ -530,6 +587,14 @@ async function main() {
 
     await seedCompletedWork(fixture);
     await vendorSubmitsCloseout(vendorPage, fixture);
+    await ownerRequestsCloseoutChanges(ownerPage, fixture);
+    await vendorSeesCloseoutChangesRequested(vendorPage, fixture);
+    await vendorSubmitsCloseout(vendorPage, fixture, {
+      completionNotes:
+        "Supply line replaced, leak tested, cabinet left dry, and receipt note clarified.",
+      materialsNotes: "Receipt covers supply line, sealant, cleanup, and warranty note.",
+      waitLabel: "vendor revised closeout submission",
+    });
     await ownerApprovesCloseoutAndUpdatesBilling(ownerPage, fixture);
 
     const collaboratorContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });

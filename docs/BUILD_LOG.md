@@ -2,6 +2,41 @@
 
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
+## 2026-09-18 - Closeout Revision Loop Smoke
+
+Scope: extend the full role loop canary so owner-requested closeout changes
+are proven by the browser flow instead of left as manual follow-up.
+
+### Changed
+
+- Updated `scripts/ux-full-loop-smoke.ts`.
+  - The vendor now submits an initial closeout for owner review.
+  - The owner requests changes with a required review note.
+  - The vendor must see the `Changes requested` state and owner note.
+  - The vendor submits a revised closeout.
+  - The owner approves the latest closeout and records the paid-outside-
+    TurnFlow billing state.
+  - The decision-log assertion now requires `closeout_changes_requested`.
+- Updated `docs/USER_REQUIREMENTS_EVENT_MATRIX.md` and `docs/QA_CHECKLIST.md`
+  to show that closeout revision is scripted coverage.
+
+### Validation
+
+- `npm run lint` passed.
+- `npm run typecheck` passed.
+- `npm run ux:full-loop` passed against local dev server and configured
+  database with the closeout revision branch included: owner requested
+  changes, vendor saw the revision state and owner note, vendor resubmitted,
+  owner approved, billing was recorded as paid outside TurnFlow, and
+  `closeout_changes_requested` was present in the decision log.
+- `npm run verify` passed: lint, typecheck, 28 test files / 286 tests,
+  production dependency audit, Drizzle drift check, and production build.
+
+### Follow-Up
+
+- Add a dedicated access-removal browser smoke for accepted vendor and
+  collaborator access.
+
 ## 2026-09-17 - Full Role Loop Smoke
 
 Scope: turn the event matrix's bid, work, closeout, billing, and scoped
