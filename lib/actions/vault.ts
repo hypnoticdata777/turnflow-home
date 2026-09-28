@@ -7,6 +7,11 @@ import { db } from "@/lib/db";
 import { vaultDocuments } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
 import { VAULT_DOCUMENT_CATEGORIES } from "@/lib/utils";
+import {
+  fileUrlForPath,
+  isPropertyScopedPath,
+  validatePropertyUploadPath,
+} from "@/lib/blob-paths";
 
 async function requireOwnedProperty(propertyId: string, ownerId: string) {
   const property = await db.query.properties.findFirst({
@@ -30,11 +35,20 @@ export async function createVaultDocumentAction(
   const name = String(formData.get("name") || "").trim();
   const category = String(formData.get("category") || "");
   const requestId = String(formData.get("requestId") || "").trim() || null;
-  const url = String(formData.get("url") || "").trim();
   const blobPath = String(formData.get("blobPath") || "").trim();
 
-  if (!name || !url || !blobPath) {
+  if (!name || !blobPath) {
     return { error: "Name and a file are required." };
+  }
+
+  // P0: the file must be this owner's upload into this property's vault
+  // folder; the stored URL is derived here, never taken from the client.
+  const pathCheck = validatePropertyUploadPath(blobPath, {
+    propertyId,
+    uid: session.user.id,
+  });
+  if (!pathCheck.ok) {
+    return { error: pathCheck.reason };
   }
 
   if (requestId) {
@@ -60,7 +74,7 @@ export async function createVaultDocumentAction(
         ? (category as (typeof VAULT_DOCUMENT_CATEGORIES)[number])
         : "Other",
       requestId,
-      url,
+      url: fileUrlForPath(blobPath),
       blobPath,
       uploadedById: session.user.id,
     })
@@ -81,7 +95,9 @@ export async function deleteVaultDocumentAction(propertyId: string, documentId: 
     throw new Error("Document not found");
   }
 
-  await del(document.blobPath).catch(() => {});
+  if (isPropertyScopedPath(document.blobPath, propertyId)) {
+    await del(document.blobPath).catch(() => {});
+  }
   await db.delete(vaultDocuments).where(eq(vaultDocuments.id, documentId));
   revalidatePath("/owner/vault");
 }

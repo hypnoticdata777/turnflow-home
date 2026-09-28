@@ -379,7 +379,7 @@ export function RequestDetailView({
     try {
       const pathname = requestPhotoPath(request.id, type, userId, file.name);
       const blob = await uploadFileToBlob(pathname, file);
-      await recordRequestPhotoAction(request.id, type, blob.url, blob.pathname);
+      await recordRequestPhotoAction(request.id, type, blob.pathname);
       setPhotos((prev) => [...prev, { id: blob.pathname, type, url: blob.url }]);
       setUploadStatus(`Uploaded ${type}.`);
     } catch (err) {

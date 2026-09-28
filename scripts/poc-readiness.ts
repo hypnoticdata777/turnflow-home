@@ -11,6 +11,7 @@ const env: PocReadinessEnv = {
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   APP_URL: process.env.APP_URL,
   BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
+  BLOB_ACCESS: process.env.BLOB_ACCESS,
   HEALTHCHECK_SECRET: process.env.HEALTHCHECK_SECRET,
   CRON_SECRET: process.env.CRON_SECRET,
   RESEND_API_KEY: process.env.RESEND_API_KEY,

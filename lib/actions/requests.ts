@@ -10,8 +10,14 @@ import { requireRole, requireAnyRole } from "@/lib/auth/dal";
 import { sendNotification } from "@/lib/email";
 import { ensureDefaultWorkspaceForOwner } from "@/lib/workspace";
 import {
+  UPLOAD_PHOTO_TYPES,
+  fileUrlForPath,
+  isRequestScopedPath,
+  validateRequestUploadPath,
+} from "@/lib/blob-paths";
+import { evaluateStatusChange } from "@/lib/request-status-policy";
+import {
   REQUEST_CATEGORIES,
-  REQUEST_STATUSES,
   REQUEST_URGENCIES,
   CONTACT_METHODS,
   meetsCompletionRequirements,
@@ -103,14 +109,31 @@ export async function createRequestAction(
   return { requestId: created.id };
 }
 
-/** Owner or the assigned vendor may attach photos — matches storage.rules' original write scoping. */
+/**
+ * Owner or the assigned vendor may attach photos — matches storage.rules'
+ * original write scoping. P0 (2026-09-28): the browser only sends the blob
+ * path; the server checks it belongs to this request, this photo type, and
+ * this user, and derives the stored URL itself. A client can no longer point
+ * a row (and a later delete) at someone else's file.
+ */
 export async function recordRequestPhotoAction(
   requestId: string,
   type: "before" | "after" | "receipt" | "other",
-  url: string,
   blobPath: string
 ) {
   const session = await requireAnyRole(["owner", "vendor"]);
+
+  if (!(UPLOAD_PHOTO_TYPES as readonly string[]).includes(type)) {
+    throw new Error("Invalid photo type");
+  }
+  const pathCheck = validateRequestUploadPath(blobPath, {
+    requestId,
+    uid: session.user.id,
+    type,
+  });
+  if (!pathCheck.ok) {
+    throw new Error(pathCheck.reason);
+  }
 
   const req = await db.query.requests.findFirst({
     where: (r, { eq }) => eq(r.id, requestId),
@@ -126,7 +149,7 @@ export async function recordRequestPhotoAction(
     .values({
       requestId,
       type,
-      url,
+      url: fileUrlForPath(blobPath),
       blobPath,
       uploadedById: session.user.id,
     })
@@ -158,6 +181,12 @@ export async function updateRequestAction(
   const urgency = String(formData.get("urgency") || "");
   if (!title || !category || !urgency) {
     return { error: "Title, category, and urgency are required." };
+  }
+  if (
+    !(REQUEST_CATEGORIES as readonly string[]).includes(category) ||
+    !(REQUEST_URGENCIES as readonly string[]).includes(urgency)
+  ) {
+    return { error: "Choose a valid category and urgency." };
   }
 
   await db
@@ -194,7 +223,13 @@ export async function deleteRequestAction(requestId: string) {
     where: (p, { eq }) => eq(p.requestId, requestId),
     columns: { blobPath: true },
   });
-  await Promise.allSettled(photos.map((p) => del(p.blobPath)));
+  // Only delete files that really live under this request's folder, so a
+  // bad legacy row can never reach another record's file.
+  await Promise.allSettled(
+    photos
+      .filter((p) => isRequestScopedPath(p.blobPath, requestId))
+      .map((p) => del(p.blobPath))
+  );
 
   await db.delete(requests).where(eq(requests.id, requestId));
   revalidatePath("/owner/dashboard");
@@ -236,13 +271,15 @@ export async function updateCostAction(
 }
 
 /**
- * Owner or the assigned vendor may move a request's status — matches
- * firestore.rules' original two-way update rule. Every status change
- * writes an append-only decision-log entry (BRL2/BRL7); a transition to
- * Complete without the required proof on record (BRL2: final cost, an
- * "after" photo, an assigned vendor) is only permitted with an explicit
- * waiver reason. This action re-checks that server-side so callers cannot
- * bypass the client prompt.
+ * Owner or the assigned vendor may move a request's status, but only along
+ * the transitions in lib/request-status-policy.ts (P0, 2026-09-28): the
+ * owner may make any move; the vendor may only move between the working
+ * states and can never complete, waive, archive, or reopen. Every real
+ * change writes an append-only decision-log entry (BRL2/BRL7); a transition
+ * to Complete without the required proof on record (final cost, an "after"
+ * photo, an assigned vendor) is only permitted with an explicit waiver
+ * reason, which only the owner can give. Re-checked server-side so callers
+ * cannot bypass the client prompt.
  */
 export async function updateRequestStatusAction(
   requestId: string,
@@ -260,30 +297,30 @@ export async function updateRequestStatusAction(
     throw new Error("Not authorized to update this request");
   }
 
-  if (!(REQUEST_STATUSES as readonly string[]).includes(status)) {
-    throw new Error("Invalid request status");
+  const photos =
+    status === "Complete"
+      ? await db.query.requestPhotos.findMany({
+          where: (p, { eq }) => eq(p.requestId, requestId),
+          columns: { type: true },
+        })
+      : [];
+
+  const decision = evaluateStatusChange({
+    role: isOwner ? "owner" : "vendor",
+    current: req.status,
+    next: status,
+    meetsCompletionProof: meetsCompletionRequirements(req, photos),
+    waiverReason,
+  });
+
+  if (!decision.ok) {
+    throw new Error(decision.error);
+  }
+  if (decision.kind === "noop") {
+    return;
   }
 
   const nextStatus = status as RequestStatus;
-  let completionWaiverReason: string | undefined;
-
-  if (nextStatus === "Complete") {
-    const photos = await db.query.requestPhotos.findMany({
-      where: (p, { eq }) => eq(p.requestId, requestId),
-      columns: { type: true },
-    });
-
-    if (!meetsCompletionRequirements(req, photos)) {
-      const trimmedReason = waiverReason?.trim();
-      if (!trimmedReason) {
-        throw new Error(
-          'Cannot mark Complete without final cost, an "after" photo, and an assigned vendor unless a waiver reason is provided.'
-        );
-      }
-      completionWaiverReason = trimmedReason;
-    }
-  }
-
   const previousStatus = req.status;
 
   await db
@@ -292,7 +329,7 @@ export async function updateRequestStatusAction(
     .where(eq(requests.id, requestId));
 
   await db.insert(decisionLog).values(
-    completionWaiverReason
+    decision.logAction === "completion_waived"
       ? {
           requestId,
           actorId: session.user.id,
@@ -300,7 +337,7 @@ export async function updateRequestStatusAction(
           details: {
             from: previousStatus,
             to: nextStatus,
-            reason: completionWaiverReason,
+            reason: decision.waiverReason,
           },
         }
       : {

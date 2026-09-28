@@ -109,13 +109,13 @@ const vendorStatusGuidance: Record<string, Omit<StatusHandoffGuidance, "reminder
     eyebrow: "Vendor status",
     title: "Complete is a durable closeout state.",
     detail:
-      "Only move here when the work is done and proof/cost context is on record, unless the waiver explains why.",
+      "Only the owner marks a request Complete, after approving your closeout or recording a waiver.",
   },
   Archived: {
     eyebrow: "Vendor status",
     title: "Archived removes the job from active review.",
     detail:
-      "Use Archive only when the owner no longer needs the job in the active workflow.",
+      "Only the owner archives a request, once the job no longer needs to stay in the active workflow.",
   },
 };
 

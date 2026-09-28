@@ -7,11 +7,22 @@
 // 2026-09-02 "Blob Upload Proxy". The path-authorization checks mirror the
 // original storage.rules: turnflow/{requestId}/{type}/{uid}/... and
 // turnflow-property/{propertyId}/{uid}/...
+//
+// P0 security (2026-09-28): the store access mode comes from BLOB_ACCESS
+// (private once a private store is configured), a random suffix makes blob
+// names unguessable, files without a declared type are rejected, and the
+// response carries only the same-origin /api/files URL — never the raw Blob
+// URL. See docs/04-algorithms/02-file-upload-and-access.md.
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/config";
 import { db } from "@/lib/db";
-import { parseUploadPath } from "@/lib/blob-paths";
+import {
+  REQUEST_UPLOAD_TYPES,
+  blobAccessMode,
+  fileUrlForPath,
+  parseUploadPath,
+} from "@/lib/blob-paths";
 
 const ALLOWED_CONTENT_TYPES = [
   "image/jpeg",
@@ -62,9 +73,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  if (file.type && !ALLOWED_CONTENT_TYPES.includes(file.type)) {
+  if (!ALLOWED_CONTENT_TYPES.includes(file.type)) {
     return NextResponse.json(
-      { error: `Unsupported file type: ${file.type}` },
+      { error: `Unsupported file type: ${file.type || "unknown"}` },
       { status: 415 }
     );
   }
@@ -90,6 +101,13 @@ export async function POST(request: Request): Promise<NextResponse> {
       throw new UploadAccessError("Not authorized to upload to this path");
     }
 
+    if (
+      parsed.kind === "request" &&
+      !(REQUEST_UPLOAD_TYPES as readonly string[]).includes(parsed.type)
+    ) {
+      throw new UploadAccessError("Unknown upload folder");
+    }
+
     if (parsed.kind === "request") {
       const req = await db.query.requests.findFirst({
         where: (r, { eq }) => eq(r.id, parsed.requestId),
@@ -111,13 +129,13 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const blob = await put(pathname, file, {
-      access: "public",
+      access: blobAccessMode(process.env.BLOB_ACCESS),
       token,
-      addRandomSuffix: false,
-      contentType: file.type || undefined,
+      addRandomSuffix: true,
+      contentType: file.type,
     });
 
-    return NextResponse.json({ url: blob.url, pathname: blob.pathname });
+    return NextResponse.json({ url: fileUrlForPath(blob.pathname), pathname: blob.pathname });
   } catch (error) {
     if (error instanceof UploadAccessError) {
       return NextResponse.json({ error: error.message }, { status: 403 });

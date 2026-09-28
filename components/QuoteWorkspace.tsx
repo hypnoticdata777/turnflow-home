@@ -216,7 +216,6 @@ export function QuoteWorkspace({
         setFormStatus("Uploading attachment...");
         const pathname = requestPhotoPath(requestId, "quote", userId, attachment.name);
         const blob = await uploadFileToBlob(pathname, attachment);
-        formData.set("attachmentUrl", blob.url);
         formData.set("attachmentBlobPath", blob.pathname);
       }
 

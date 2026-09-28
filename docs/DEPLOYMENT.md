@@ -77,7 +77,9 @@ user data.
 
 ## Demo Accounts
 
-`npm run db:seed` creates or resets these local/demo accounts:
+`npm run db:seed` creates or resets these local/demo accounts (set
+`SEED_PASSWORD` to use something other than the local default before seeding
+any hosted database):
 
 | Role | Email | Password |
 |---|---|---|
@@ -99,9 +101,18 @@ owner/vendor/collaborator story:
 
 | Role | Email | Password |
 |---|---|---|
-| Owner | `investor.owner@turnflow.demo` | `TurnFlowDemo!2026` |
-| Vendor | `investor.vendor@turnflow.demo` | `TurnFlowDemo!2026` |
-| Collaborator | `investor.helper@turnflow.demo` | `TurnFlowDemo!2026` |
+| Owner | `investor.owner@turnflow.demo` | value of `INVESTOR_DEMO_PASSWORD` |
+| Vendor | `investor.vendor@turnflow.demo` | value of `INVESTOR_DEMO_PASSWORD` |
+| Collaborator | `investor.helper@turnflow.demo` | value of `INVESTOR_DEMO_PASSWORD` |
+
+> **Security update (2026-09-28, P0):** the demo password is no longer
+> hardcoded or published. Set `INVESTOR_DEMO_PASSWORD` (12+ characters) in
+> `.env.local` and in Vercel, and share it privately with each viewer. The old
+> published password is retired: reseeding with a new value invalidates it.
+> To wipe visitor changes every night, set `INVESTOR_DEMO_RESET_ENABLED=true`
+> on the demo deployment only; the `/api/cron/reset-investor-demo` cron in
+> `vercel.json` then rebuilds the story daily. See
+> `docs/04-algorithms/09-investor-demo-reset.md`.
 
 The investor seed includes multiple properties, assigned vendor work, scoped
 helper access, pending invites, proof photos, quotes, tasks, work sessions,

@@ -9,6 +9,7 @@ const readyEnv: PocReadinessEnv = {
   NEXTAUTH_URL: "https://turnflow-home.example.com",
   APP_URL: "https://turnflow-home.example.com",
   BLOB_READ_WRITE_TOKEN: `vercel_blob_rw_${"A".repeat(24)}`,
+  BLOB_ACCESS: "private",
   HEALTHCHECK_SECRET: "b".repeat(32),
   CRON_SECRET: "c".repeat(32),
   RESEND_API_KEY: "re_123",
@@ -42,6 +43,17 @@ describe("evaluatePocReadiness", () => {
         expect.objectContaining({ key: "HEALTHCHECK_SECRET", status: "blocked" }),
       ])
     );
+  });
+
+  it("warns when uploads are still stored in a public Blob store", () => {
+    for (const BLOB_ACCESS of [undefined, "", "public"]) {
+      const report = evaluatePocReadiness({ ...readyEnv, BLOB_ACCESS });
+
+      expect(report.status).toBe("warning");
+      expect(report.items).toEqual(
+        expect.arrayContaining([expect.objectContaining({ key: "BLOB_ACCESS", status: "warning" })])
+      );
+    }
   });
 
   it("warns when optional delivery automation is not configured", () => {

@@ -3,6 +3,16 @@
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { verifyPasswordTimingSafe } from "@/lib/auth/password";
+import { isRateLimited, recordAttempt } from "@/lib/auth/rate-limit";
+import {
+  LOGIN_EMAIL_RULE,
+  LOGIN_IP_RULE,
+  RATE_LIMITED_MESSAGE,
+  SIGNUP_IP_RULE,
+  clientIpFromHeaders,
+} from "@/lib/auth/rate-limit-policy";
 import { signIn, signOut } from "@/lib/auth/config";
 import { requireRole, roleHome } from "@/lib/auth/dal";
 import {
@@ -47,6 +57,14 @@ export async function signupAction(
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors, values };
   }
+
+  // P0 (2026-09-28): cap account creation per IP so signup cannot be
+  // scripted. Every validated attempt counts, successful or not.
+  const ip = clientIpFromHeaders(await headers());
+  if (await isRateLimited(SIGNUP_IP_RULE, ip)) {
+    return { error: RATE_LIMITED_MESSAGE, values };
+  }
+  await recordAttempt(SIGNUP_IP_RULE, ip);
 
   const existing = await db.query.users.findFirst({
     where: (u, { eq }) => eq(u.email, parsed.data.email),
@@ -115,15 +133,26 @@ export async function loginAction(
 
   const emailStr = String(email || "").trim().toLowerCase();
   const passwordStr = String(password || "");
+
+  // P0 (2026-09-28): same limits as the Auth.js authorize() gate, checked
+  // here first so the form can show a friendly message.
+  const ip = clientIpFromHeaders(await headers());
+  if (
+    (await isRateLimited(LOGIN_EMAIL_RULE, emailStr)) ||
+    (await isRateLimited(LOGIN_IP_RULE, ip))
+  ) {
+    return { error: RATE_LIMITED_MESSAGE };
+  }
+
   const user = await db.query.users.findFirst({
     where: (u, { eq }) => eq(u.email, emailStr),
   });
-  if (!user) {
-    return { error: "Invalid email or password." };
-  }
-
-  const passwordMatches = await bcrypt.compare(passwordStr, user.passwordHash);
-  if (!passwordMatches) {
+  // Always runs one bcrypt compare, so an unknown email takes as long as a
+  // wrong password and account existence cannot be timed.
+  const passwordMatches = await verifyPasswordTimingSafe(passwordStr, user?.passwordHash);
+  if (!user || !passwordMatches) {
+    await recordAttempt(LOGIN_EMAIL_RULE, emailStr);
+    await recordAttempt(LOGIN_IP_RULE, ip);
     return { error: "Invalid email or password." };
   }
 

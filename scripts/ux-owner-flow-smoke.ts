@@ -59,6 +59,7 @@ async function createRequest(page: Page, samplePhotoPath: string) {
     const url = response.url();
     const shouldTrace =
       url.includes("/api/blob-upload") ||
+      url.includes("/api/files") ||
       url.includes("vercel-storage.com") ||
       response.status() >= 400;
 

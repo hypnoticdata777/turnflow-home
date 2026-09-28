@@ -5,6 +5,7 @@ import { del } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { properties } from "@/lib/db/schema";
+import { isPropertyScopedPath, isRequestScopedPath } from "@/lib/blob-paths";
 import { requireRole } from "@/lib/auth/dal";
 import { ensureDefaultWorkspaceForOwner } from "@/lib/workspace";
 
@@ -66,16 +67,25 @@ export async function deletePropertyAction(propertyId: string) {
   if (requestIds.length > 0) {
     const photos = await db.query.requestPhotos.findMany({
       where: (p, { inArray }) => inArray(p.requestId, requestIds),
-      columns: { blobPath: true },
+      columns: { requestId: true, blobPath: true },
     });
-    await Promise.allSettled(photos.map((p) => del(p.blobPath)));
+    // P0: only delete paths that really belong to these requests.
+    await Promise.allSettled(
+      photos
+        .filter((p) => isRequestScopedPath(p.blobPath, p.requestId))
+        .map((p) => del(p.blobPath))
+    );
   }
 
   const vaultDocs = await db.query.vaultDocuments.findMany({
     where: (v, { eq }) => eq(v.propertyId, propertyId),
     columns: { blobPath: true },
   });
-  await Promise.allSettled(vaultDocs.map((v) => del(v.blobPath)));
+  await Promise.allSettled(
+    vaultDocs
+      .filter((v) => isPropertyScopedPath(v.blobPath, propertyId))
+      .map((v) => del(v.blobPath))
+  );
 
   await db.delete(properties).where(eq(properties.id, propertyId));
   revalidatePath("/owner/properties");

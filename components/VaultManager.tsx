@@ -49,7 +49,6 @@ export function VaultManager({
       const formData = new FormData();
       formData.set("name", name.trim());
       formData.set("category", category);
-      formData.set("url", blob.url);
       formData.set("blobPath", blob.pathname);
 
       setFormStatus("Saving...");

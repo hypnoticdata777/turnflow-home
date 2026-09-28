@@ -18,7 +18,8 @@ if (!process.env.DATABASE_URL) {
 const sql = neon(process.env.DATABASE_URL);
 const db = drizzle(sql, { schema });
 
-const SEED_PASSWORD = "password123";
+// Local default only; set SEED_PASSWORD before seeding any hosted database.
+const SEED_PASSWORD = process.env.SEED_PASSWORD || "password123";
 const DEMO_PROPERTY_ADDRESS = "123 Demo Lane";
 const DEMO_PROPERTY_NICKNAME = "Demo home";
 const DEMO_REQUEST_TITLE = "Kitchen faucet leaking";

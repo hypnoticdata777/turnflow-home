@@ -477,6 +477,20 @@ export const vendorProfiles = pgTable("vendor_profiles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Login/signup attempt ledger for rate limiting (P0 security, 2026-09-28).
+// One row per counted attempt; lib/auth/rate-limit.ts counts rows per key in
+// a sliding window and prunes rows older than a day. Keys look like
+// "login:email:<address>", "login:ip:<ip>", "signup:ip:<ip>".
+export const authAttempts = pgTable(
+  "auth_attempts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    key: varchar("key", { length: 320 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("auth_attempts_key_created_idx").on(table.key, table.createdAt)]
+);
+
 // ── Relations (for db.query.* relational API) ──────────────────────────
 export const usersRelations = relations(users, ({ one, many }) => ({
   properties: many(properties),

@@ -9,14 +9,15 @@ import { and, lte, or, isNull, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { reminders, properties } from "@/lib/db/schema";
 import { sendNotification } from "@/lib/email";
+import { authorizeCronRequest } from "@/lib/cron-auth";
 
 const NOTIFY_COOLDOWN_HOURS = 72;
 const DUE_SOON_DAYS = 3;
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authorization = authorizeCronRequest(request.headers.get("authorization"));
+  if (!authorization.ok) {
+    return NextResponse.json({ error: authorization.error }, { status: authorization.status });
   }
 
   const now = Date.now();

@@ -72,7 +72,6 @@ export function WorkSessionPanel({
         const photo = await recordRequestPhotoAction(
           requestId,
           photoType,
-          blob.url,
           blob.pathname
         );
         proofPhotoId = photo.photoId;

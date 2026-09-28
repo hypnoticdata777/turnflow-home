@@ -129,7 +129,7 @@ export function NewRequestForm({
       try {
         const pathname = requestPhotoPath(requestId, type, userId, file.name);
         const blob = await uploadFileToBlob(pathname, file);
-        await recordRequestPhotoAction(requestId, type, blob.url, blob.pathname);
+        await recordRequestPhotoAction(requestId, type, blob.pathname);
       } catch (err) {
         console.error(`Failed to upload ${type} photo:`, err);
         failedPhotoUploads++;

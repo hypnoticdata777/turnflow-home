@@ -8,6 +8,11 @@ import { decisionLog, quotes, requests } from "@/lib/db/schema";
 import { requireRole } from "@/lib/auth/dal";
 import { sendNotification } from "@/lib/email";
 import { vendorBidDecisionNotification } from "@/lib/vendor-bid-notification";
+import {
+  fileUrlForPath,
+  isRequestScopedPath,
+  validateRequestUploadPath,
+} from "@/lib/blob-paths";
 
 // Quote comparison remains owner-only. Assigned vendors can submit or update
 // their own bid through lib/actions/vendor-bids.ts, but they never receive the
@@ -36,12 +41,24 @@ export async function createQuoteAction(
   const vendorContact = String(formData.get("vendorContact") || "").trim();
   const amountRaw = String(formData.get("amount") || "");
   const notes = String(formData.get("notes") || "").trim();
-  const attachmentUrl = String(formData.get("attachmentUrl") || "").trim();
   const attachmentBlobPath = String(formData.get("attachmentBlobPath") || "").trim();
 
   const amount = Number.parseFloat(amountRaw);
   if (!vendorName || !Number.isFinite(amount)) {
     return { error: "Vendor name and a valid amount are required." };
+  }
+
+  // P0: the attachment path must be this owner's upload into this request's
+  // quote folder; the stored URL is derived here, never taken from the client.
+  if (attachmentBlobPath) {
+    const pathCheck = validateRequestUploadPath(attachmentBlobPath, {
+      requestId,
+      uid: session.user.id,
+      type: "quote",
+    });
+    if (!pathCheck.ok) {
+      return { error: pathCheck.reason };
+    }
   }
 
   const [created] = await db
@@ -52,7 +69,7 @@ export async function createQuoteAction(
       vendorContact: vendorContact || null,
       amount: amount.toFixed(2),
       notes: notes || null,
-      attachmentUrl: attachmentUrl || null,
+      attachmentUrl: attachmentBlobPath ? fileUrlForPath(attachmentBlobPath) : null,
       attachmentBlobPath: attachmentBlobPath || null,
     })
     .returning({ id: quotes.id });
@@ -152,7 +169,7 @@ export async function deleteQuoteAction(requestId: string, quoteId: string) {
     throw new Error("Quote not found");
   }
 
-  if (quote.attachmentBlobPath) {
+  if (quote.attachmentBlobPath && isRequestScopedPath(quote.attachmentBlobPath, requestId)) {
     await del(quote.attachmentBlobPath).catch(() => {});
   }
 

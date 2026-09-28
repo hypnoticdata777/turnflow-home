@@ -10,6 +10,7 @@ export type PocReadinessEnv = Partial<
     | "NEXTAUTH_URL"
     | "APP_URL"
     | "BLOB_READ_WRITE_TOKEN"
+    | "BLOB_ACCESS"
     | "HEALTHCHECK_SECRET"
     | "CRON_SECRET"
     | "RESEND_API_KEY"
@@ -202,6 +203,25 @@ export function evaluatePocReadiness(env: PocReadinessEnv): PocReadinessReport {
           nextStep:
             "Copy a fresh read/write token from the Vercel Blob store and set it for Production and local .env.local before real users upload files.",
         },
+    // P0 (2026-09-28): public stores expose receipts and home photos to
+    // anyone holding a URL. Uploads still work in public mode so an existing
+    // store keeps running, but the report flags it until BLOB_ACCESS=private.
+    env.BLOB_ACCESS?.trim().toLowerCase() === "private"
+      ? {
+          key: "BLOB_ACCESS",
+          label: "File privacy",
+          status: "ready",
+          detail: "Uploads are stored privately and served only through the authorized /api/files route.",
+        }
+      : {
+          key: "BLOB_ACCESS",
+          label: "File privacy",
+          status: "warning",
+          detail:
+            "BLOB_ACCESS is not \"private\"; uploaded photos and documents are readable by anyone with the raw Blob URL.",
+          nextStep:
+            "Create a Private Vercel Blob store, set its BLOB_READ_WRITE_TOKEN, set BLOB_ACCESS=private, and redeploy.",
+        },
     healthSecretStrength === "ready"
       ? {
           key: "HEALTHCHECK_SECRET",
@@ -232,7 +252,7 @@ export function evaluatePocReadiness(env: PocReadinessEnv): PocReadinessReport {
           status: "warning",
           detail:
             cronSecretStrength === "missing"
-              ? "CRON_SECRET is missing; local cron remains open when unset."
+              ? "CRON_SECRET is missing; cron routes stay open locally but refuse to run in production."
               : "CRON_SECRET is shorter than 32 characters.",
           nextStep: "Set CRON_SECRET before enabling hosted reminder automation.",
         },

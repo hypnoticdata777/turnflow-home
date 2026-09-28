@@ -3,17 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { uploadFileToBlob } from "@/lib/blob-upload-client";
-import {
-  REQUEST_STATUSES,
-  requestStatusBadgeClasses,
-} from "@/lib/utils";
+import { requestStatusBadgeClasses } from "@/lib/utils";
+import { statusOptionsFor } from "@/lib/request-status-policy";
 import {
   recordRequestPhotoAction,
   updateRequestStatusAction,
 } from "@/lib/actions/requests";
 import { requestPhotoPath } from "@/lib/blob-paths";
 import { CommentThread, type CommentData } from "@/components/CommentThread";
-import { CompletionWaiverReview } from "@/components/CompletionWaiverReview";
 import { HelperOnboardingChecklist } from "@/components/HelperOnboardingChecklist";
 import { HelperRequestReadiness } from "@/components/HelperRequestReadiness";
 import { HelperWorkspaceOverview } from "@/components/HelperWorkspaceOverview";
@@ -45,7 +42,6 @@ import {
   type VendorNextAction,
   type VendorWorkQueueMetric,
 } from "@/lib/vendor-lifecycle";
-import { missingCompletionProof } from "@/lib/request-guidance";
 
 const PHOTO_TYPES = ["before", "after", "receipt", "other"] as const;
 type PhotoType = (typeof PHOTO_TYPES)[number];
@@ -148,7 +144,7 @@ export function VendorPortal({
   const [savingId, setSavingId] = useState<string | null>(null);
   const [selectedRequestId, setSelectedRequestId] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
-  const [completionReviewRequestId, setCompletionReviewRequestId] = useState<string | null>(null);
+  const [statusErrorRequestId, setStatusErrorRequestId] = useState<string | null>(null);
   const [statusError, setStatusError] = useState("");
   const [expandedRequestId, setExpandedRequestId] = useState("");
   const guidance = helperWorkspaceGuidance("vendor", requests);
@@ -225,31 +221,22 @@ export function VendorPortal({
     focusRequestWorkflow(request.id, action.href);
   }
 
-  async function applyStatusChange(requestId: string, newStatus: string, waiverReason?: string) {
+  // Vendors can only pick the moves in lib/request-status-policy.ts; they
+  // finish work by submitting a closeout, never by marking Complete.
+  async function handleStatusChange(requestId: string, newStatus: string) {
     setStatusError("");
+    setStatusErrorRequestId(null);
     setSavingId(requestId);
     try {
-      await updateRequestStatusAction(requestId, newStatus, waiverReason);
-      setCompletionReviewRequestId(null);
+      await updateRequestStatusAction(requestId, newStatus);
       router.refresh();
     } catch (err) {
       console.error("Failed to update status:", err);
+      setStatusErrorRequestId(requestId);
       setStatusError("Failed to update status. Please try again.");
     } finally {
       setSavingId(null);
     }
-  }
-
-  async function handleStatusChange(requestId: string, newStatus: string) {
-    const req = requests.find((r) => r.id === requestId);
-    if (newStatus === "Complete" && req && missingCompletionProof(req).length > 0) {
-      setStatusError("");
-      setExpandedRequestId(requestId);
-      setCompletionReviewRequestId(requestId);
-      return;
-    }
-
-    await applyStatusChange(requestId, newStatus);
   }
 
   async function handleUpload(type: PhotoType, file: File | undefined) {
@@ -258,7 +245,7 @@ export function VendorPortal({
     try {
       const pathname = requestPhotoPath(selectedRequestId, type, userId, file.name);
       const blob = await uploadFileToBlob(pathname, file);
-      await recordRequestPhotoAction(selectedRequestId, type, blob.url, blob.pathname);
+      await recordRequestPhotoAction(selectedRequestId, type, blob.pathname);
       setUploadStatus(`Uploaded ${type}.`);
       router.refresh();
     } catch (err) {
@@ -425,7 +412,6 @@ export function VendorPortal({
                   ? `${r.property.nickname} - ${r.property.address}`
                   : r.property.address
                 : "Property not found";
-              const missingProof = missingCompletionProof(r);
               const readiness = helperRequestCardState("vendor", r);
               const nextAction = vendorNextAction(r);
               const isExpanded = expandedRequestId === r.id;
@@ -570,7 +556,7 @@ export function VendorPortal({
                           onChange={(e) => handleStatusChange(r.id, e.target.value)}
                           className="mt-1 w-full rounded border bg-white p-2 sm:max-w-xs"
                         >
-                          {REQUEST_STATUSES.map((s) => (
+                          {statusOptionsFor("vendor", r.status).map((s) => (
                             <option key={s} value={s}>
                               {s}
                             </option>
@@ -580,21 +566,12 @@ export function VendorPortal({
                       <StatusHandoffGuidance
                         guidance={statusHandoffGuidance("vendor", r)}
                       />
-                      {statusError && savingId === null && completionReviewRequestId === r.id && (
+                      <p className="text-xs text-gray-600">
+                        Only the owner can mark a request Complete or Archived. When the work
+                        is done, submit your closeout above for owner review.
+                      </p>
+                      {statusError && savingId === null && statusErrorRequestId === r.id && (
                         <p className="text-sm font-medium text-red-700">{statusError}</p>
-                      )}
-
-                      {completionReviewRequestId === r.id && (
-                        <CompletionWaiverReview
-                          missingProof={missingProof}
-                          guidance="You can complete this request with a written reason, but ask the owner to add final cost details when they are missing. The waiver is saved in the decision log."
-                          submitting={savingId === r.id}
-                          onCancel={() => {
-                            setCompletionReviewRequestId(null);
-                            setStatusError("");
-                          }}
-                          onConfirm={(reason) => applyStatusChange(r.id, "Complete", reason)}
-                        />
                       )}
 
                       <div id={`request-updates-${r.id}`} className="scroll-mt-6 border-t pt-3">
