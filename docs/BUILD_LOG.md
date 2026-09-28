@@ -1,5 +1,12 @@
 # TurnFlow Home Build Log
 
+> 📦 **Frozen archive (2026-09-28).** This file is kept exactly as it was so
+> old links keep working. The log is now split by month for easier reading:
+> **[`docs/07-refinement/build-log/`](07-refinement/build-log/README.md)**
+> ([September 2026](07-refinement/build-log/2026-09.md) ·
+> [August 2026](07-refinement/build-log/2026-08.md)). Add new entries there,
+> not here. Start at [docs/README.md](README.md) for the full documentation map.
+
 Keep this log tight: what changed, why it changed, validation, and what remains.
 
 ## 2026-09-18 - Closeout Revision Loop Smoke
