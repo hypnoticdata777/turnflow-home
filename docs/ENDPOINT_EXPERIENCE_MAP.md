@@ -1,5 +1,10 @@
 # TurnFlow Home Endpoint Experience Map
 
+> 📍 **Still current.** It is indexed under the **Requirements** step at
+> [`docs/02-requirements/`](02-requirements/README.md). For how each route's
+> logic works (algorithm, pseudocode, flowchart) see
+> [`docs/04-algorithms/`](04-algorithms/README.md). Map: [docs/README.md](README.md).
+
 Use this map as the product contract for each route before a hosted POC, user
 testing round, screenshot refresh, or UX hardening pass. Every endpoint should
 make the user's current job, trust boundary, and next action obvious without

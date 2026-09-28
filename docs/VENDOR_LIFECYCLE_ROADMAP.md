@@ -1,5 +1,10 @@
 # Vendor Lifecycle Roadmap
 
+> 📍 **Still current.** It is indexed under the **Refinement** step. The
+> vendor-side flows it describes are specified step by step in
+> [`docs/04-algorithms/`](04-algorithms/README.md) (flows 05–08).
+> Map: [docs/README.md](README.md).
+
 TurnFlow Home should treat vendors as a serious user group, not just invited
 photo uploaders. The long-term vendor experience should trace a job from
 matching and notification through bid, approval, work, closeout, billing, and

@@ -1,5 +1,9 @@
 # TurnFlow Home QA Checklist
 
+> 📍 **Still current.** It is indexed under the **Tests** step. See the
+> [test strategy](06-testing/test-strategy.md) for coverage by flow and the
+> planned authorization matrix. Map: [docs/README.md](README.md).
+
 Use this before deploying a POC build or asking a new tester to try the app.
 Keep failures in the build log with the commit, environment, and exact step.
 

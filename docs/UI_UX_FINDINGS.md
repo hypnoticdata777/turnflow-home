@@ -1,5 +1,10 @@
 # TurnFlow Home UI/UX Findings
 
+> 📍 **Still current** for UX findings. Engineering and security findings from
+> the 2026-09-28 review (F1–F12) are tracked in
+> [`docs/07-refinement/findings-and-roadmap.md`](07-refinement/findings-and-roadmap.md).
+> Map: [docs/README.md](README.md).
+
 Use this register to track product polish, trust, accessibility, and workflow
 friction found during `docs/UI_UX_REVIEW.md`, QA passes, demos, and moderated
 homeowner testing.

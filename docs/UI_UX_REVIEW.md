@@ -1,5 +1,9 @@
 # TurnFlow Home UI/UX Review Process
 
+> 📍 **Still current.** It is indexed under the **Refinement** step
+> ([findings and roadmap](07-refinement/findings-and-roadmap.md)).
+> Map: [docs/README.md](README.md).
+
 Use this review before public screenshots, hosted POC demos, and any feature
 that changes a homeowner-facing workflow.
 

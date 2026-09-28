@@ -1,345 +1,87 @@
 # TurnFlow Home
 
-A homeowner-first maintenance workspace for people who want to manage repair
-records, proof, costs, documents, reminders, and scoped help without handing the
-whole process to a property management company.
+**One calm record for every home repair: capture it, share just that job, prove the work, keep the history.**
 
-TurnFlow Home replaces the "text a photo and hope someone remembers" workflow
-with one shared record for each property. Homeowners can log an issue, attach
-photos or receipts, compare cost context, invite a vendor or trusted helper,
-track decisions, preserve property history, and schedule recurring care.
-Vendors and collaborators get scoped portals that show only the requests shared
-with them.
+![Owner dashboard](screenshots/02-dashboard.png)
 
-> **Status:** launch-oriented SaaS POC candidate. The original Firebase MVP has
-> been rebuilt on a real backend with Next.js, Postgres/Neon, Drizzle, Auth.js,
-> and Vercel Blob. Core homeowner, vendor, and collaborator workflows are in
-> place, automated verification passes, and the owner UI now includes
-> readiness/value guidance across setup, dashboard, request detail, properties,
-> vault, calendar, account sharing, backup, and the public homepage. A real
-> hosted POC now has production environment configuration, seeded demo data, and
-> live public/owner/helper smoke coverage against Vercel. It still needs
-> moderated manual user testing before inviting external users.
+## What it is
 
-## Product Direction
+Homeowners who manage their own repairs live in text threads, camera rolls and
+receipt drawers. TurnFlow Home gives each property one shared record. You log
+an issue with photos, compare quotes, invite a vendor or trusted helper to
+**that one request only**, and get before/after proof, a decision history and
+a cost record that stays with the house.
 
-TurnFlow Home is intentionally homeowner-focused. It is not trying to be a full
-PMC operations platform with dispatch, technician routing, payroll, or internal
-company reporting. The value is calmer ownership:
+It is intentionally **homeowner-first**: not property-management dispatch
+software, and not a payment processor.
 
-- Know what needs attention at each property.
-- Keep proof, costs, quotes, decisions, receipts, warranties, and reminders in
-  one home record.
-- Share only the right request with a vendor or trusted helper.
-- Keep exportable maintenance history after the work is done.
-- Catch recurring maintenance before it becomes a bigger repair.
+## How it works
 
-## Screenshots
-
-These screenshots were refreshed against the current owner, vendor, and public
-UI. Refresh them again before a public case study, portfolio update, or hosted
-POC only after changing visible route layout, workflow copy, seeded demo data,
-or the screenshot script. The public UX smoke script also captures the homepage,
-login, and signup screens under `screenshots/ux-public/`.
-
-| | |
-|---|---|
-| **Sign in** | **Owner dashboard - status filtering** |
-| ![Login](screenshots/01-login.png) | ![Dashboard](screenshots/02-dashboard.png) |
-| **Guided intake with safety checklist** | **Request detail - quotes, cost, decision log** |
-| ![New request](screenshots/03-new-request-checklist.png) | ![Request detail](screenshots/04-request-detail.png) |
-| **Properties** | **Property document vault** |
-| ![Properties](screenshots/05-properties.png) | ![Vault](screenshots/06-vault.png) |
-| **Maintenance calendar** | **Account & Sharing privacy controls** |
-| ![Calendar](screenshots/07-calendar.png) | ![Account & Sharing](screenshots/08-account-sharing.png) |
-| **Vendor portal** | |
-| ![Vendor portal](screenshots/09-vendor-portal.png) | |
-
-Regenerate screenshots after starting the dev server and seeding demo data:
-
-```bash
-npx tsx scripts/screenshot.ts
+```mermaid
+flowchart LR
+  O([Owner]) -->|creates| R[Repair request<br/>photos, urgency, access]
+  R -->|invites one person| V([Vendor])
+  R -->|invites one person| H([Helper])
+  V -->|bid| Q[Owner approves quote]
+  Q --> W[Work sessions<br/>before and after proof]
+  W --> C[Closeout]
+  C -->|owner approves| D[Complete + billing record]
+  D --> Hist[(Property history<br/>PDF, CSV, backup)]
+  H -->|updates| R
 ```
 
-## Why It Was Rebuilt
+Every step writes an entry to an append-only decision log, and helpers only
+ever see the request shared with them.
 
-The original MVP was a static, vanilla-JS site backed by Firebase: Firestore,
-Firebase Auth, Firebase Storage, and Firestore security rules. This version
-moves the product onto a stack with a real server boundary, relational data,
-server-side authorization checks, and deploy-ready verification.
+| Guided intake | Request detail | Vendor portal | Maintenance calendar |
+|---|---|---|---|
+| ![New request](screenshots/03-new-request-checklist.png) | ![Request detail](screenshots/04-request-detail.png) | ![Vendor portal](screenshots/09-vendor-portal.png) | ![Calendar](screenshots/07-calendar.png) |
 
-| Layer | Then | Now |
-|---|---|---|
-| Framework | Static HTML + vanilla JS | Next.js 16 App Router + TypeScript |
-| Database | Firestore | Neon serverless Postgres + Drizzle ORM |
-| File storage | Firebase Storage | Vercel Blob |
-| Auth | Firebase Auth | Auth.js / NextAuth v5 |
-| Authorization | Firestore security rules | Server Actions and role/ownership checks |
-| Hosting target | Firebase Hosting | Vercel |
+## Status
 
-## Tech Stack
+- **Built:** owner, vendor and collaborator workflows end to end, with 34 unit-test files (318 tests) and 6 browser smoke loops. CI runs lint, typecheck, tests, audit, schema-drift check and build.
+- **Hardened on 2026-09-28:** private file access, strict status rules, login limits, and a private demo password ([what changed](docs/09-changes/2026-09-28-p0-security.md)).
+- **Next:** invited vendors and helpers can sign up from their invite, transactional writes, and moderated homeowner testing ([roadmap](docs/07-refinement/findings-and-roadmap.md)).
 
-- Next.js 16, App Router, TypeScript, Server Actions
-- Neon serverless Postgres with Drizzle ORM
-- Vercel Blob for photos, quote attachments, and vault documents
-- Auth.js / NextAuth v5 with credentials auth and JWT sessions
-- Tailwind CSS v4
-- Vitest for unit tests
-- Playwright-based smoke scripts for public, owner, first-owner workflow, and
-  helper routes
+## Read more
 
-## Getting Started
+| I want to… | Go to |
+|---|---|
+| Understand the project in 10 minutes | [docs/README.md](docs/README.md) → [Problem](docs/01-problem/problem.md) → [System map](docs/00-overview/system-map.md) |
+| See how each feature works (algorithm, pseudocode, flowchart) | [docs/04-algorithms/](docs/04-algorithms/README.md) |
+| Find a file | [Code map](docs/05-implementation/code-map.md) |
+| Read the latest review (PDF) | [docs/review/](docs/review/2026-09-28-repo-review.pdf) |
+| Deploy or operate it | [Deployment](docs/DEPLOYMENT.md) · [P0 rollout runbook](docs/08-operations/p0-rollout-runbook.md) |
+| See the history of changes | [Build log](docs/07-refinement/build-log/README.md) |
+| Read the previous (long) README | [docs/history/README-2026-09-18.md](docs/history/README-2026-09-18.md) |
+
+## Quickstart
 
 ```bash
 npm install
+cp .env.local.example .env.local   # fill in DATABASE_URL, BLOB_READ_WRITE_TOKEN, AUTH_SECRET...
 npm run db:migrate
-npm run db:seed
-npm run db:seed:demo
+npm run db:seed                    # local demo accounts (see docs/DEPLOYMENT.md)
 npm run dev
 ```
 
-Environment variables live in `.env.local`; use `.env.local.example` as the
-template.
-
-```text
-DATABASE_URL=
-BLOB_READ_WRITE_TOKEN=
-AUTH_SECRET=
-NEXTAUTH_SECRET=
-AUTH_URL=http://localhost:3000
-NEXTAUTH_URL=http://localhost:3000
-AUTH_TRUST_HOST=true
-APP_URL=http://localhost:3000
-RESEND_API_KEY=
-NOTIFICATIONS_FROM_EMAIL=notifications@example.com
-CRON_SECRET=
-HEALTHCHECK_SECRET=
-```
-
-`npm run db:migrate` uses the same Neon HTTP driver family as the app runtime
-and can baseline-stamp older databases that were created before the Drizzle
-migration journal existed.
-
-Before deploying or asking anyone to test a hosted POC, run:
+Before deploying:
 
 ```bash
-npm run poc:ready
-npm run verify
+npm run poc:ready   # checks env values, including private file storage
+npm run verify      # lint, typecheck, tests, audit, schema drift, build
 ```
 
-`npm run poc:ready` checks whether the required auth, database, Blob, app URL,
-healthcheck, cron, and notification settings are ready for a user-facing POC. It
-validates shape as well as presence: a `BLOB_READ_WRITE_TOKEN` that is not a
-real `vercel_blob_rw_...` token is reported as a blocker, not a pass.
+The curated investor demo (`npm run db:seed:investor`) needs
+`INVESTOR_DEMO_PASSWORD` set. The password is shared privately and never
+committed.
 
-`npm run verify` runs lint, typecheck, unit tests, production dependency audit,
-Drizzle schema generation, schema drift check, and a production build.
+## Tech stack
 
-## Smoke Testing
+Next.js 16 (App Router, Server Actions, TypeScript) · Neon Postgres + Drizzle
+ORM · Auth.js v5 · Vercel Blob · Resend · Vercel Cron · Tailwind CSS v4 ·
+Vitest · Playwright.
 
-Run public route checks against a running local or preview server:
-
-```bash
-npm run ux:public
-```
-
-After configuring `AUTH_SECRET`, `NEXTAUTH_SECRET`, and `DATABASE_URL`, seed
-demo accounts and run signed-in owner/helper smoke checks:
-
-```bash
-npm run db:seed
-npm run ux:owner
-npm run ux:helper
-```
-
-For a resettable hosted investor walkthrough, seed the curated public-safe
-story and use the same password for all three lanes: `TurnFlowDemo!2026`.
-
-```bash
-npm run db:seed:investor
-```
-
-| Lane | Email |
-|---|---|
-| Owner | `investor.owner@turnflow.demo` |
-| Vendor | `investor.vendor@turnflow.demo` |
-| Collaborator | `investor.helper@turnflow.demo` |
-
-To verify the first useful homeowner workflow end-to-end against a local,
-preview, or production URL, run:
-
-```bash
-npm run ux:owner-flow
-```
-
-This creates a public-safe test owner account, adds a property, creates a
-request with a before-proof image, and fails if the request is saved but Blob
-proof upload is not working.
-
-The public smoke check covers `/`, `/login`, and `/signup` at desktop and mobile
-widths. The smoke scripts check responsive route behavior, active navigation,
-visible encoding artifacts, horizontal overflow, and key route-specific cues.
-Screenshots are saved under `screenshots/ux-public/`, `screenshots/ux-owner/`,
-`screenshots/ux-owner-flow/`, and `screenshots/ux-helper/`.
-
-## Core Features
-
-- Homeowner public signup and email/password login.
-- Public homepage that positions TurnFlow Home as a homeowner maintenance
-  record, shows current product UI, and sends visitors to signup or login.
-- Role-based owner, vendor, and collaborator portals.
-- Property records for multiple homes per owner.
-- Property care signals that summarize active work, history gaps, reminder gaps,
-  and ready property-care records.
-- Homeowner setup guide that tracks first-run progress across property, request,
-  evidence, helper sharing, saved history, and recurring care.
-- Owner dashboard with status filters, live counts, homeowner-value metrics, and
-  request-card next actions plus communication-health signals for quiet shared
-  threads and closeout review updates.
-- Guided request intake with category-specific safety checklist, urgency,
-  location, access instructions, contact preference, inline photo upload, quick
-  first-property creation, owner-controlled draft copy, and vendor handoff
-  readiness signals.
-- Request detail value snapshot for proof packet, cost clarity, scoped
-  coordination, and decision history.
-- Owner request-detail workflow rail that links intake, scope, cost, bids,
-  help, proof, work sessions, closeout, billing, updates, and decision history
-  so the repair record has a visible path instead of a long scroll.
-- Owner-visible vendor fit panel on request detail, comparing assigned vendor
-  trades and profile context against the repair category before approval/work.
-- Before, after, receipt, and other photo uploads per request.
-- Quote workspace with competing vendor quotes, attachments, approve/decline,
-  cost-copy actions, and homeowner-friendly comparison metrics.
-- Vendor-submitted bid flow for assigned vendors, with private owner review,
-  availability windows, scope notes, and decision-log history.
-- Owner bid-review guidance that explains pending vendor bids, approve/decline
-  impact, copied quoted cost, and revised pricing before owner decisions.
-- Quote comparison cues for active option count, lowest active price, price
-  spread, vendor-submitted ratio, and per-quote price position.
-- Vendor bid decision notifications for owner-approved or owner-declined
-  vendor-submitted bids.
-- Structured project task checklist with owner-created scope rows, expected
-  proof types, estimated/final task costs, owner/vendor task status updates,
-  owner acceptance for done tasks, and work-session task links.
-- Append-only decision log for request creation, invite handoff, status changes,
-  waivers, quote decisions, work events, closeout reviews, billing updates, and
-  access changes.
-- Completion gating that requires final cost, after-photo proof, and assigned
-  vendor, unless the owner records an explicit waiver reason.
-- Guided request updates shared by owner, assigned vendor, and shared
-  collaborator, with role-aware draft prompts for missing context, closeout
-  proof, and useful helper notes.
-- Status handoff guidance for owners and vendors so status changes explain
-  decision-log impact, owner notification, and missing closeout proof.
-- Vendor and collaborator invite flow with expiring links, copyable invite URLs,
-  automatic valid-invite claiming after login, pending invite management,
-  accepted-access removal, and scoped portals.
-- Vendor-owned matching profile for business name, trade categories, service
-  area, availability, notification preference, and license/insurance notes.
-- Vendor lifecycle tracker for assigned jobs, covering opportunity, bid/price
-  context, owner approval, scheduled/ready, work in progress, closeout proof,
-  and billing record stages.
-- Vendor work queue snapshot that summarizes bid queue, work start/stop needs,
-  closeout handoffs, and owner review waits before vendors open each job.
-- Vendor next-action panel on each assigned job, pointing vendors to the right
-  control for bid submission, owner approval waiting, job context, start/stop
-  proof, task progress, closeout submission, requested changes, billing context,
-  or settled history.
-- Vendor work-session events for start, pause, resume, and stop, with notes,
-  task/area labels, client and server gated before/after proof for start/stop,
-  owner-visible timeline history, decision-log entries, and owner notifications.
-- Vendor closeout submissions with completion notes, materials/receipt notes,
-  final amount, after-photo/task-completion/final-amount/completion-note
-  readiness checks, disabled submit until handoff is ready, owner-visible review
-  packet, owner closeout decision guidance, note-required change requests,
-  owner approve/request-changes decisions, final-cost copy, decision-log history,
-  and owner/vendor notifications. Approval marks the request complete and
-  accepts remaining done task rows.
-- Billing records generated from approved closeout, with owner-managed status
-  for recorded, paid outside TurnFlow, needs review, or voided charges, plus
-  invoice/reference notes, proof-packet table output, and backup/CSV export
-  coverage.
-- Vendor closeout snapshot showing ready-to-close jobs, owner-context gaps,
-  after-photo gaps, and final-cost gaps before owner review.
-- Owner Account & Sharing Center with profile context, invite activity, sharing
-  boundary snapshot, active access controls, pending-link signals, and
-  account-readiness guidance.
-- Workspace and billing foundation with default owner workspaces, active owner
-  memberships, POC plan state, and workspace-scoped properties, requests,
-  invites, and generated billing records.
-- Property vault for receipts, warranties, manuals, invoices, inspection
-  reports, and other documents.
-- Vault value snapshot for saved records, property document coverage,
-  repair-linked docs, and saved categories.
-- Maintenance calendar with overdue/due-soon signals, property coverage,
-  recurring cadence metrics, mark-done actions, and `.ics` export.
-- Per-request PDF proof packets, per-property PDF history rollups, CSV history
-  export, and JSON backup/restore with pre-restore file preview plus billing
-  record restore.
-- Email notifications through Resend for invites, status changes, vendor bid
-  updates, vendor bid decisions, work-session events, and reminder digests, with
-  log-only fallback, owner-triggered delivery tests, and owner-facing
-  delivery-health guidance when email is not configured.
-- Public `/api/health` endpoint and protected `/api/health/deep` database plus
-  runtime-configuration check.
-- Global browser security headers configured in `next.config.ts`.
-
-## Documentation
-
-- [Deployment runbook](docs/DEPLOYMENT.md)
-- [Build log](docs/BUILD_LOG.md)
-- [POC QA checklist](docs/QA_CHECKLIST.md)
-- [User requirements and event matrix](docs/USER_REQUIREMENTS_EVENT_MATRIX.md)
-- [Homeowner user testing protocol](docs/USER_TESTING.md)
-- [Vendor lifecycle roadmap](docs/VENDOR_LIFECYCLE_ROADMAP.md)
-- [Endpoint experience map](docs/ENDPOINT_EXPERIENCE_MAP.md)
-- [UI/UX review process](docs/UI_UX_REVIEW.md)
-- [UI/UX findings register](docs/UI_UX_FINDINGS.md)
-
-## Current POC Readiness
-
-The codebase is in good shape for the next hosted POC preparation pass:
-
-- Automated verification passes locally.
-- Unit coverage includes owner readiness, request guidance, helper workspace,
-  decision-log event copy, POC readiness, utilities, exports, and submission
-  helpers.
-- Database schema generation reports no drift.
-- Production dependency audit reports no vulnerabilities.
-- Browser smoke scripts exist for the public homepage/auth entry points, owner
-  routes, the first-owner create/upload flow, and helper routes.
-
-Before inviting external users, the remaining launch steps are:
-
-- Configure a real preview/production environment.
-- Run `npm run poc:ready` in that environment.
-- Seed public-safe demo data.
-- Run owner, first-owner workflow, and helper browser smoke tests against the
-  hosted URL.
-- Refresh screenshots for README, portfolio, and case study after visible UI or
-  seeded-demo changes.
-- Run a homeowner user-testing pass and log findings in `docs/UI_UX_FINDINGS.md`.
-
-## Remaining Product Gaps
-
-- Organization/workspace billing foundation now exists, but team-seat policy,
-  organization invites, paid subscription checkout, and customer-portal billing
-  management are still future product layers.
-- Vendor and collaborator accounts remain invite-driven or seeded for the POC;
-  public signup stays homeowner-focused.
-- Open vendor opportunity bidding, automated trade matching, payment
-  processing, and subscriptions are planned product layers. The current vendor
-  profile, assigned-vendor bid flow, lifecycle tracker, task-level
-  cost/acceptance flow, closeout submissions, billing records, and work-session
-  timeline make assigned jobs more traceable, but they do not yet create an
-  open vendor marketplace or payment system.
-- Email can run in log-only mode, but real launch testing should verify Resend
-  deliverability with the owner test-email action, sender domain setup, and
-  reminder cron behavior.
-- Request-level privacy controls and audit history are strong for invite links,
-  accepted access, request decisions, and access removals; deeper account/org
-  privacy policy controls are still future work.
-- Payments, subscriptions, and onboarding analytics are not wired yet.
-- Production observability now includes public and protected health endpoints
-  with database and monitor-safe runtime-configuration checks; external uptime
-  alerting/log aggregation is still future work.
+This is the fourth iteration. It was rebuilt from a static Firebase MVP onto a
+real server boundary with relational data and server-side authorization
+([why it was rebuilt](docs/history/README-2026-09-18.md#why-it-was-rebuilt)).

@@ -1,5 +1,10 @@
 # User Requirements And Event Matrix
 
+> 📍 **Still current.** It is indexed under the **Requirements** step at
+> [`docs/02-requirements/`](02-requirements/README.md). Each core flow's
+> numbered requirements, algorithm, pseudocode and flowchart are in
+> [`docs/04-algorithms/`](04-algorithms/README.md). Map: [docs/README.md](README.md).
+
 Purpose: keep TurnFlow's user loops testable without adding payments,
 marketplace, or other external dependencies too early. The product should guide
 each role to the next useful action, record important transitions as a byproduct

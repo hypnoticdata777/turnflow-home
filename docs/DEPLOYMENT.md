@@ -1,5 +1,10 @@
 # TurnFlow Home Deployment Runbook
 
+> 📍 **Still current.** It is indexed under **Operations**. Read the
+> [P0 rollout runbook](08-operations/p0-rollout-runbook.md) first: the
+> 2026-09-28 security release adds a migration and new environment variables.
+> Map: [docs/README.md](README.md).
+
 This runbook is the repeatable path for a public-safe POC deploy.
 
 ## Target

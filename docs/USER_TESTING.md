@@ -1,5 +1,9 @@
 # TurnFlow Home User Testing Protocol
 
+> 📍 **Still current.** It is indexed under the **Tests** step
+> ([test strategy](06-testing/test-strategy.md)). As of 2026-09-28, no moderated
+> sessions have been logged yet. Map: [docs/README.md](README.md).
+
 Use this protocol to validate TurnFlow Home as a middleweight SaaS for
 homeowners who self-manage maintenance and do not want a property management
 company.
