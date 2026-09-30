@@ -47,6 +47,7 @@ ever see the request shared with them.
 
 | I want to… | Go to |
 |---|---|
+| Start with the visual and narrative system guide | [PROJECT_SYSTEM_GUIDE.md](PROJECT_SYSTEM_GUIDE.md) |
 | Understand the project in 10 minutes | [docs/README.md](docs/README.md) → [Problem](docs/01-problem/problem.md) → [System map](docs/00-overview/system-map.md) |
 | See how each feature works (algorithm, pseudocode, flowchart) | [docs/04-algorithms/](docs/04-algorithms/README.md) |
 | Find a file | [Code map](docs/05-implementation/code-map.md) |
