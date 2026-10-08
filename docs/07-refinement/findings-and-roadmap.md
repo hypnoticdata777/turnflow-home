@@ -32,7 +32,7 @@
 | Broken reference to a sibling repo's `ARCHITECTURE.md` in `lib/blob-paths.ts` | ✅ Removed 2026-09-28 |
 | JWT role never refreshed; no session revocation | ⏳ Open, P3 |
 | About 20 MB of PNG screenshots in git, in two folders | ⏳ Open, P4 (move before/after pairs to an archive or LFS) |
-| Local seed password default `password123` | 🟡 Now overridable with `SEED_PASSWORD`; set it before seeding any hosted DB |
+| Local seed password default `password123` | ✅ Fixed 2026-10-08: `db:seed` refuses a hosted DB unless `SEED_PASSWORD` is set (12+ chars, not the default) |
 
 ## Roadmap
 

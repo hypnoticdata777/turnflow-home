@@ -135,11 +135,13 @@ export function fileUrlForPath(pathname: string) {
 export type BlobAccessMode = "private" | "public";
 
 /**
- * Which Blob store access mode the server writes with. Defaults to "public"
- * only so an existing public store keeps working after deploy; set
- * BLOB_ACCESS=private once a private store's token is configured (poc:ready
- * reports "public" as a warning).
+ * Which Blob store access mode the server writes with. Fails closed (Phase 0,
+ * 2026-10-08): only an explicit BLOB_ACCESS=public selects a public store.
+ * Unset, empty, or unrecognized values (including a typo like "pubic") all
+ * mean "private", so a forgotten or mistyped variable can never silently
+ * publish uploads. A deployment that still uses a legacy public store must now
+ * say so with BLOB_ACCESS=public (poc:ready blocks that on a hosted APP_URL).
  */
 export function blobAccessMode(value: string | undefined): BlobAccessMode {
-  return value?.trim().toLowerCase() === "private" ? "private" : "public";
+  return value?.trim().toLowerCase() === "public" ? "public" : "private";
 }

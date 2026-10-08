@@ -100,9 +100,17 @@ describe("file URLs and access mode", () => {
     );
   });
 
-  it("defaults to public and only switches on an explicit private value", () => {
-    expect(blobAccessMode(undefined)).toBe("public");
-    expect(blobAccessMode("public")).toBe("public");
+  it("defaults to private and only goes public on an explicit public value", () => {
+    expect(blobAccessMode(undefined)).toBe("private");
+    expect(blobAccessMode("")).toBe("private");
     expect(blobAccessMode(" Private ")).toBe("private");
+    expect(blobAccessMode("public")).toBe("public");
+    expect(blobAccessMode(" PUBLIC ")).toBe("public");
+  });
+
+  it("treats an unrecognized value as private, so a typo cannot publish uploads", () => {
+    for (const typo of ["pubic", "publc", "true", "1", "off"]) {
+      expect(blobAccessMode(typo)).toBe("private");
+    }
   });
 });

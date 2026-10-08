@@ -1,6 +1,6 @@
 # TurnFlow Home Documentation — Start Here
 
-**Last updated:** 2026-09-28 · Latest change: [P0 security release](09-changes/2026-09-28-p0-security.md) · Latest review: [PDF](review/2026-09-28-repo-review.pdf)
+**Last updated:** 2026-10-08 · Latest change: [Phase 0 hygiene](07-refinement/build-log/2026-10.md) · Previous: [P0 security release](09-changes/2026-09-28-p0-security.md) · Latest review: [PDF](review/2026-09-28-repo-review.pdf)
 
 This folder is organized as a chain. Each numbered folder is one step of the
 engineering loop, so you can read it in order or jump to the step you need:

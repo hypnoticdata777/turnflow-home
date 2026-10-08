@@ -23,7 +23,7 @@ its URL, including a vendor after their access was removed (**F2**).
 - **R6** Deleting a record deletes only files whose path lives under that record's folder.
 - **R7** Reading a file re-checks access every time: request files → owner, assigned vendor, collaborator; vault → owner.
 - **R8** Missing and forbidden files answer the same (404), so file names cannot be probed.
-- **R9** The store can run `private` (recommended) or `public` (legacy) via `BLOB_ACCESS`, without code changes.
+- **R9** The store can run `private` (the default, also when `BLOB_ACCESS` is unset or mistyped) or `public` (legacy, only when `BLOB_ACCESS=public` is set explicitly), without code changes.
 
 ## 3. Inputs / Outputs
 
@@ -180,11 +180,11 @@ flowchart TD
 | Browser helper | `lib/blob-upload-client.ts` | `uploadFileToBlob` (downscale + POST) |
 | Record actions | `lib/actions/requests.ts`, `vault.ts`, `quotes.ts` | `recordRequestPhotoAction`, `createVaultDocumentAction`, `createQuoteAction` |
 | Scoped deletes | `lib/actions/requests.ts`, `properties.ts`, `vault.ts`, `quotes.ts` | `deleteRequestAction`, `deletePropertyAction`, `deleteVaultDocumentAction`, `deleteQuoteAction` |
-| Readiness | `lib/poc-readiness.ts` | `BLOB_ACCESS` item (warning until `private`) |
+| Readiness | `lib/poc-readiness.ts` | `BLOB_ACCESS` item (ready when private or unset; `public` blocks on a hosted `APP_URL`, warns on localhost) |
 
 ## 9. Tests
 
-- **Unit:** `__tests__/blob-paths.test.ts` (shape rules, traversal, validators, delete scoping, URL encoding, access mode); `__tests__/file-access.test.ts` (who may read what, removed-vendor case, fail-closed cases); `__tests__/poc-readiness.test.ts` (`BLOB_ACCESS` warning).
+- **Unit:** `__tests__/blob-paths.test.ts` (shape rules, traversal, validators, delete scoping, URL encoding, access mode); `__tests__/file-access.test.ts` (who may read what, removed-vendor case, fail-closed cases); `__tests__/poc-readiness.test.ts` (`BLOB_ACCESS` ready / blocked / warning cases).
 - **Smoke:** `npm run ux:owner-flow` uploads a before-photo end to end; `ux:full-loop` covers vendor proof.
 - **Not yet covered:** a route-level test for `/api/files` with a real session (planned in the authorization matrix, [test strategy](../06-testing/test-strategy.md)).
 
@@ -194,6 +194,7 @@ flowchart TD
 |---|---|
 | 2026-09-02 | Browser → Blob upload replaced with a server proxy (CORS); store switched to Public (UX-001) |
 | 2026-09-28 | **F1, F2, F10 fixed** ([change record](../09-changes/2026-09-28-p0-security.md#1-uploads-and-deletes-f1-f10)) |
+| 2026-10-08 | **Fail-closed default**: `blobAccessMode` returns `private` unless `BLOB_ACCESS=public`; `poc:ready` blocks `public` on a hosted `APP_URL` ([build log](../07-refinement/build-log/2026-10.md)) |
 | next | Operator switches to a Private store (`BLOB_ACCESS=private`); optional one-time copy of legacy public files |
 | later | Delete quote attachments when a request is deleted (today only photos are removed) |
 

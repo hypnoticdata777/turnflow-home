@@ -30,8 +30,9 @@ flowchart LR
   H -->|updates| R
 ```
 
-Every step writes an entry to an append-only decision log, and helpers only
-ever see the request shared with them.
+Key steps (status changes, invites, quote and closeout decisions) write an
+entry to a decision log, and helpers only ever see the request shared with
+them.
 
 | Guided intake | Request detail | Vendor portal | Maintenance calendar |
 |---|---|---|---|
@@ -60,9 +61,9 @@ ever see the request shared with them.
 
 ```bash
 npm install
-cp .env.local.example .env.local   # fill in DATABASE_URL, BLOB_READ_WRITE_TOKEN, AUTH_SECRET...
+cp .env.local.example .env.local   # fill in DATABASE_URL, BLOB_READ_WRITE_TOKEN, AUTH_SECRET, SEED_PASSWORD...
 npm run db:migrate
-npm run db:seed                    # local demo accounts (see docs/DEPLOYMENT.md)
+npm run db:seed                    # demo accounts; needs SEED_PASSWORD unless the DB is on localhost (see docs/DEPLOYMENT.md)
 npm run dev
 ```
 

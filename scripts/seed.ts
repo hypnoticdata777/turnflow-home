@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import * as schema from "../lib/db/schema";
+import { resolveSeedPassword, seedPasswordProblem } from "../lib/seed-guard";
 
 config({ path: ".env.local" });
 
@@ -15,11 +16,20 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not set - see .env.local.example");
 }
 
+// Checked before any connection is made: a hosted database (Neon always is)
+// never gets the well-known default password.
+const passwordProblem = seedPasswordProblem({
+  DATABASE_URL: process.env.DATABASE_URL,
+  SEED_PASSWORD: process.env.SEED_PASSWORD,
+});
+if (passwordProblem) {
+  throw new Error(`${passwordProblem} Set SEED_PASSWORD in .env.local and run db:seed again.`);
+}
+
 const sql = neon(process.env.DATABASE_URL);
 const db = drizzle(sql, { schema });
 
-// Local default only; set SEED_PASSWORD before seeding any hosted database.
-const SEED_PASSWORD = process.env.SEED_PASSWORD || "password123";
+const SEED_PASSWORD = resolveSeedPassword({ SEED_PASSWORD: process.env.SEED_PASSWORD });
 const DEMO_PROPERTY_ADDRESS = "123 Demo Lane";
 const DEMO_PROPERTY_NICKNAME = "Demo home";
 const DEMO_REQUEST_TITLE = "Kitchen faucet leaking";
