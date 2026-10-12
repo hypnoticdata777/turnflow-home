@@ -1,3 +1,5 @@
+import { isLocalUrl } from "./local-host";
+
 export type PocReadinessStatus = "ready" | "warning" | "blocked";
 
 export type PocReadinessEnv = Partial<
@@ -75,6 +77,49 @@ function secretStrength(value: string | undefined) {
   if (!hasValue(value)) return "missing";
   if (value!.trim().length < 32) return "short";
   return "ready";
+}
+
+// P0 (2026-09-28): public stores expose receipts and home photos to anyone
+// holding a URL. Phase 0 (2026-10-08): the code now defaults to private, so an
+// unset BLOB_ACCESS is safe and only an explicit "public" is a finding. It is a
+// hard blocker on a hosted APP_URL and a warning on localhost, where a legacy
+// public store may still be in use during development.
+function blobAccessItem(env: PocReadinessEnv): PocReadinessItem {
+  const mode = env.BLOB_ACCESS?.trim().toLowerCase() ?? "";
+
+  if (mode === "public") {
+    const local = isLocalUrl(env.APP_URL);
+    return {
+      key: "BLOB_ACCESS",
+      label: "File privacy",
+      status: local ? "warning" : "blocked",
+      detail: local
+        ? "BLOB_ACCESS=public: uploaded photos and documents are readable by anyone with the raw Blob URL. Acceptable only for local development."
+        : "BLOB_ACCESS=public on a hosted target: uploaded photos and documents are readable by anyone with the raw Blob URL.",
+      nextStep:
+        "Create a Private Vercel Blob store, set its BLOB_READ_WRITE_TOKEN, remove BLOB_ACCESS or set it to private, and redeploy.",
+    };
+  }
+
+  if (mode !== "" && mode !== "private") {
+    return {
+      key: "BLOB_ACCESS",
+      label: "File privacy",
+      status: "warning",
+      detail: `BLOB_ACCESS has an unrecognized value; the app treats it as "private".`,
+      nextStep: 'Set BLOB_ACCESS to "private" (or "public" only for a legacy local store).',
+    };
+  }
+
+  return {
+    key: "BLOB_ACCESS",
+    label: "File privacy",
+    status: "ready",
+    detail:
+      mode === "private"
+        ? "Uploads are stored privately and served only through the authorized /api/files route."
+        : "BLOB_ACCESS is unset, so uploads default to private and are served only through the authorized /api/files route.",
+  };
 }
 
 export function evaluatePocReadiness(env: PocReadinessEnv): PocReadinessReport {
@@ -203,25 +248,7 @@ export function evaluatePocReadiness(env: PocReadinessEnv): PocReadinessReport {
           nextStep:
             "Copy a fresh read/write token from the Vercel Blob store and set it for Production and local .env.local before real users upload files.",
         },
-    // P0 (2026-09-28): public stores expose receipts and home photos to
-    // anyone holding a URL. Uploads still work in public mode so an existing
-    // store keeps running, but the report flags it until BLOB_ACCESS=private.
-    env.BLOB_ACCESS?.trim().toLowerCase() === "private"
-      ? {
-          key: "BLOB_ACCESS",
-          label: "File privacy",
-          status: "ready",
-          detail: "Uploads are stored privately and served only through the authorized /api/files route.",
-        }
-      : {
-          key: "BLOB_ACCESS",
-          label: "File privacy",
-          status: "warning",
-          detail:
-            "BLOB_ACCESS is not \"private\"; uploaded photos and documents are readable by anyone with the raw Blob URL.",
-          nextStep:
-            "Create a Private Vercel Blob store, set its BLOB_READ_WRITE_TOKEN, set BLOB_ACCESS=private, and redeploy.",
-        },
+    blobAccessItem(env),
     healthSecretStrength === "ready"
       ? {
           key: "HEALTHCHECK_SECRET",

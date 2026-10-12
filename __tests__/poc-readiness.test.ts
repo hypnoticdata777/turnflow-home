@@ -45,15 +45,64 @@ describe("evaluatePocReadiness", () => {
     );
   });
 
-  it("warns when uploads are still stored in a public Blob store", () => {
-    for (const BLOB_ACCESS of [undefined, "", "public"]) {
+  it("treats an unset BLOB_ACCESS as private, because the app defaults to private", () => {
+    for (const BLOB_ACCESS of [undefined, "", "  ", "private", "Private"]) {
       const report = evaluatePocReadiness({ ...readyEnv, BLOB_ACCESS });
 
-      expect(report.status).toBe("warning");
-      expect(report.items).toEqual(
-        expect.arrayContaining([expect.objectContaining({ key: "BLOB_ACCESS", status: "warning" })])
+      expect(report.status).toBe("ready");
+      expect(report.items).toContainEqual(
+        expect.objectContaining({ key: "BLOB_ACCESS", status: "ready" })
       );
     }
+  });
+
+  it("blocks a public Blob store on a hosted APP_URL", () => {
+    for (const BLOB_ACCESS of ["public", " PUBLIC "]) {
+      const report = evaluatePocReadiness({ ...readyEnv, BLOB_ACCESS });
+
+      expect(report.status).toBe("blocked");
+      expect(report.items).toContainEqual(
+        expect.objectContaining({ key: "BLOB_ACCESS", status: "blocked" })
+      );
+    }
+  });
+
+  it("only warns about a public Blob store when APP_URL is localhost", () => {
+    const localhost = "http://localhost:3000";
+    const report = evaluatePocReadiness({
+      ...readyEnv,
+      APP_URL: localhost,
+      AUTH_URL: localhost,
+      NEXTAUTH_URL: localhost,
+      BLOB_ACCESS: "public",
+    });
+
+    expect(report.status).toBe("warning");
+    expect(report.blockedCount).toBe(0);
+    expect(report.items).toContainEqual(
+      expect.objectContaining({ key: "BLOB_ACCESS", status: "warning" })
+    );
+  });
+
+  it("blocks a public Blob store when APP_URL is missing, since the target cannot be shown to be local", () => {
+    const report = evaluatePocReadiness({ ...readyEnv, APP_URL: undefined, BLOB_ACCESS: "public" });
+
+    expect(report.items).toContainEqual(
+      expect.objectContaining({ key: "BLOB_ACCESS", status: "blocked" })
+    );
+  });
+
+  it("warns about an unrecognized BLOB_ACCESS value instead of silently accepting a typo", () => {
+    const report = evaluatePocReadiness({ ...readyEnv, BLOB_ACCESS: "pubic" });
+
+    expect(report.status).toBe("warning");
+    expect(report.items).toContainEqual(
+      expect.objectContaining({
+        key: "BLOB_ACCESS",
+        status: "warning",
+        detail: expect.stringContaining("unrecognized"),
+      })
+    );
   });
 
   it("warns when optional delivery automation is not configured", () => {

@@ -82,15 +82,22 @@ user data.
 
 ## Demo Accounts
 
-`npm run db:seed` creates or resets these local/demo accounts (set
-`SEED_PASSWORD` to use something other than the local default before seeding
-any hosted database):
+`npm run db:seed` creates or resets these demo accounts. Since 2026-10-08 the
+script refuses to run against a hosted database (Neon always counts as hosted)
+unless `SEED_PASSWORD` is set to a value of 12+ characters that is not
+`password123`. Only a database on `localhost`/`127.0.0.1` may use the default.
 
 | Role | Email | Password |
 |---|---|---|
-| Owner | `owner@test.com` | `password123` |
-| Vendor | `vendor@test.com` | `password123` |
-| Collaborator | `collaborator@test.com` | `password123` |
+| Owner | `owner@test.com` | your `SEED_PASSWORD` (`password123` only on a local DB) |
+| Vendor | `vendor@test.com` | your `SEED_PASSWORD` (`password123` only on a local DB) |
+| Collaborator | `collaborator@test.com` | your `SEED_PASSWORD` (`password123` only on a local DB) |
+
+When running `ux:owner`, `ux:helper` or `scripts/screenshot.ts` against these
+accounts, set `UX_OWNER_PASSWORD`, `UX_VENDOR_PASSWORD` and
+`UX_COLLABORATOR_PASSWORD` to the same value; they fall back to `password123`
+otherwise. (`ux:owner-flow`, `ux:full-loop` and `ux:invite` create their own
+users and are unaffected.)
 
 Use only public-safe demo data for screenshots, portfolio links, and hosted POC
 walkthroughs.

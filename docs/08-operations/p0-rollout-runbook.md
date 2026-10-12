@@ -38,7 +38,7 @@ instead of running unauthenticated.
 
 1. Vercel → Storage → **Create Blob store** → access **Private**.
 2. Copy its read/write token into `BLOB_READ_WRITE_TOKEN` (Production and Preview).
-3. Add `BLOB_ACCESS=private`.
+3. Add `BLOB_ACCESS=private` (since 2026-10-08 this is also the default when the variable is unset).
 4. Redeploy.
 
 What happens to existing files: rows created before this release keep their
@@ -51,6 +51,11 @@ files first (a later script).
 
 > ⚠️ Do **not** set `BLOB_ACCESS=private` while the token still points at the
 > old **public** store. Uploads would fail with an access-mode error.
+>
+> ⚠️ Since 2026-10-08 the same failure happens if `BLOB_ACCESS` is simply
+> **unset** against a public store, because the default is now `private`.
+> Before deploying that change to an environment that still uses the public
+> store, set `BLOB_ACCESS=public` there explicitly (or finish this step first).
 
 ## 4. Rotate the demo password (closes F7)
 
@@ -88,6 +93,8 @@ Manual spot checks:
 
 Every step is config, except the migration, which only adds a table. To roll
 back file privacy, point `BLOB_READ_WRITE_TOKEN` back at the public store and
-unset `BLOB_ACCESS`. The code handles both modes.
+set `BLOB_ACCESS=public` explicitly (since 2026-10-08 an unset value means
+`private`, so *unsetting* it no longer rolls back). The code handles both
+modes, but `npm run poc:ready` blocks `public` on a hosted `APP_URL`.
 Files uploaded while the private store was active stay in that store,
 so they will not display after a rollback until you switch back.
