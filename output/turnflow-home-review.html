@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TurnFlow Home — Engineering Review, Architecture & Roadmap</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #111827;
+        --panel-2: #1f2937;
+        --soft: #f3f4f6;
+        --muted: #cbd5e1;
+        --text: #e5e7eb;
+        --heading: #f9fafb;
+        --accent: #60a5fa;
+        --accent-2: #22c55e;
+        --warning: #f59e0b;
+        --danger: #f87171;
+        --border: rgba(148, 163, 184, 0.25);
+        --code-bg: #020817;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #0b1020 0%, #0f172a 100%);
+        font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      a { color: var(--accent); }
+      a:hover { text-decoration: underline; }
+
+      .shell {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: 28px 20px;
+        border-right: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.94);
+        backdrop-filter: blur(6px);
+      }
+
+      .sidebar h1 {
+        font-size: 1.15rem;
+        margin: 0 0 18px 0;
+        color: var(--heading);
+      }
+
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .nav a {
+        color: var(--muted);
+        text-decoration: none;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+      }
+
+      .nav a:hover {
+        background: rgba(148, 163, 184, 0.08);
+        border-color: var(--border);
+        text-decoration: none;
+      }
+
+      .content {
+        padding: 32px 40px 80px 40px;
+      }
+
+      section {
+        background: rgba(17, 24, 39, 0.82);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 22px 24px;
+        margin-bottom: 22px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      }
+
+      h1, h2, h3, h4 {
+        color: var(--heading);
+        line-height: 1.2;
+        margin-top: 0;
+      }
+
+      h1 { font-size: 2.2rem; margin-bottom: 10px; }
+      h2 { font-size: 1.45rem; margin-bottom: 10px; }
+      h3 { font-size: 1.1rem; margin-bottom: 8px; }
+
+      p, li, td, th { color: var(--text); }
+      .muted {
+        color: var(--muted);
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 14px 0 20px 0;
+      }
+      .badge {
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        padding: 6px 10px;
+        font-size: 0.82rem;
+        background: rgba(96, 165, 250, 0.12);
+        color: var(--text);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 16px 0;
+      }
+      th, td {
+        text-align: left;
+        vertical-align: top;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        background: rgba(148, 163, 184, 0.06);
+        color: var(--heading);
+      }
+
+      pre, code {
+        font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+      }
+      pre {
+        overflow-x: auto;
+        background: var(--code-bg);
+        color: #dbeafe;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 18px;
+        margin: 14px 0 18px;
+      }
+      code {
+        color: #fef3c7;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .block {
+        background: rgba(148, 163, 184, 0.04);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+      }
+
+      .status-good { color: #86efac; }
+      .status-warn { color: #fbbf24; }
+      .status-danger { color: #fca5a5; }
+
+      .toc {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+      }
+      .toc li { margin: 8px 0; }
+
+      .hero {
+        margin-bottom: 20px;
+      }
+
+      .note {
+        border-left: 4px solid var(--warning);
+        background: rgba(245, 158, 11, 0.08);
+        padding: 12px 14px;
+        border-radius: 10px;
+      }
+
+      @media print {
+        .sidebar { display: none; }
+        .shell { display: block; }
+        .content { padding: 0; }
+        body { background: white; color: #111827; }
+        section { background: white; color: #111827; box-shadow: none; }
+        a { color: #0f172a; }
+        pre { background: #f8fafc; color: #0f172a; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <h1>TurnFlow Home</h1>
+        <div class="nav">
+          <a href="#overview">1. Executive overview</a>
+          <a href="#repo-evidence">2. Repo evidence</a>
+          <a href="#what-works">3. What works well</a>
+          <a href="#what-needs-work">4. What needs work</a>
+          <a href="#proposed-phases">5. Proposed phases</a>
+          <a href="#architecture">6. Architecture plan</a>
+          <a href="#implementation">7. Implementation plan</a>
+          <a href="#deployment">8. Deployment plan</a>
+          <a href="#supporting-material">9. Supporting material</a>
+          <a href="#appendix">10. Appendix / code excerpts</a>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="hero" id="overview">
+          <h1>TurnFlow Home — Engineering Review, Architecture Plan & Contributor Readiness Roadmap</h1>
+          <div class="muted">Prepared as a review artifact for an early-stage, user-ready product effort.</div>
+          <div class="badge-row">
+            <span class="badge">Repo: hypnoticdata777/turnflow-home</span>
+            <span class="badge">Primary language: TypeScript</span>
+            <span class="badge">Framework: Next.js 16</span>
+            <span class="badge">Database: Neon Postgres + Drizzle</span>
+          </div>
+
+          <p>
+            TurnFlow Home is a homeowner-first repair management product. It exists to capture a repair request,
+            share it with only the right vendor or helper, track decision history, prove work through before/after,
+            and keep a property-level record of cost and outcome. This is not a generic project tracker or payment app.
+            It is a narrow, high-trust workflow system for home repair coordination.
+          </p>
+
+          <div class="note">
+            This document is intentionally written like an engineering review and design brief: what the repo is, what it does well,
+            what still needs work to make it welcoming to other contributors, and how to move toward a user-ready product with a safe and scalable roadmap.
+          </div>
+        </section>
+
+        <section id="repo-evidence">
+          <h2>2. Repo evidence</h2>
+          <p>The repo is already quite mature in terms of documentation, structure, and systems thinking.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Evidence</th>
+                <th>What it tells us</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>README.md</td>
+                <td>Product positioning is clear: homeowner-first workflow for repair capture and shared history</td>
+              </tr>
+              <tr>
+                <td>docs/README.md</td>
+                <td>The project has a deliberate engineering documentation system: problem → requirements → design → algorithm → implementation → tests → refinement</td>
+              </tr>
+              <tr>
+                <td>package.json</td>
+                <td>It runs on Next.js 16 with TypeScript; scripts include lint, tests, db migrations, build, and verify</td>
+              </tr>
+              <tr>
+                <td>drizzle/</td>
+                <td>There is a real relational data model with migration-driven schema management</td>
+              </tr>
+              <tr>
+                <td>components/ and lib/</td>
+                <td>Large, feature-specific UI and business logic already exist for owner, vendor, helper and workflow management</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Repository shape</h3>
+          <pre>.
+├── app/                  # App Router pages and routes
+├── components/          # Large UI components for owner/vendor/helper flows
+├── lib/                 # Workflow logic and server-side operations
+├── drizzle/             # DB migrations
+├── docs/                # Architecture, algorithm, deployment, refinement docs
+├── __tests__/           # Test suite
+├── public/              # Static files
+├── scripts/             # Build and utility scripts
+├── README.md            # Product intro & quickstart
+├── package.json         # Scripts and dependencies
+├── next.config.ts       # Next config
+├── vercel.json          # Deployment config
+├── vitest.config.mts    # Test config
+├── .github/workflows/   # CI pipelines
+└── .env.local.example   # Example local environment</pre>
+        </section>
+
+        <section id="what-works">
+          <h2>3. What works well</h2>
+
+          <div class="grid">
+            <div class="block">
+              <h3>Strong product clarity</h3>
+              <p>The repo is not vague. The product has a clear job-to-be-done and a narrow user persona.</p>
+            </div>
+            <div class="block">
+              <h3>Strong engineering documentation</h3>
+              <p>The docs folder expresses a thoughtful engineering loop: problem, requirements, design, algorithm, implementation, testing, refinement.</p>
+            </div>
+            <div class="block">
+              <h3>Real system design</h3>
+              <p>Schema, migration, auth, email, blob storage, cron, and deployment doc patterns are in place. This is beyond a mock app.</p>
+            </div>
+            <div class="block">
+              <h3>Good baseline technical stack</h3>
+              <p>Next.js 16 + TypeScript + PostgreSQL + Drizzle + Auth.js + Blob Storage + Tailwind is a sound stack for a user-ready product.</p>
+            </div>
+          </div>
+
+          <h3>Why this matters</h3>
+          <p>
+            The repo has a serious foundation. It is not a toy prototype. It carries product vision, design language, technical stack,
+            and project operational discipline. That makes it especially promising for future contributors — if the project becomes easier to run and reason about.
+          </p>
+        </section>
+
+        <section id="what-needs-work">
+          <h2>4. What needs work</h2>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Issue</th>
+                <th>Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Onboarding</td>
+                <td>Contributors need a single contributor path and a simple startup experience</td>
+                <td>High</td>
+              </tr>
+              <tr>
+                <td>Code organization</td>
+                <td>Large monolithic UI components are harder to review and change</td>
+                <td>High</td>
+              </tr>
+              <tr>
+                <td>Contributor UX</td>
+                <td>No obvious CONTRIBUTING.md / issue templates / PR templates</td>
+                <td>High</td>
+              </tr>
+              <tr>
+                <td>Reproducibility</td>
+                <td>Local environment setup depends on a set of cloud/deployment assumptions</td>
+                <td>High</td>
+              </tr>
+              <tr>
+                <td>Security and operations docs</td>
+                <td>Need a clear security checklist and production runbook for non-core contributors</td>
+                <td>Medium</td>
+              </tr>
+              <tr>
+                <td>Feature completion</td>
+                <td>Invite flows, transactional writes, operational hardening and QA are still major milestones</td>
+                <td>Medium</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Short version</h3>
+          <p>
+            The repo is strong on product vision and engineering discipline, but it is still more of a carefully managed internal prototype than a truly contributor-ready open project.
+            To invite others, it needs a cleaner startup path, simpler code boundaries, clearer guardrails, and a more explicit definition of “done.”
+          </p>
+        </section>
+
+        <section id="proposed-phases">
+          <h2>5. Proposed roadmap in phases</h2>
+
+          <h3>Phase 0 — Contributor onboarding & hygiene</h3>
+          <ul>
+            <li>Create CONTRIBUTING.md, CODE_OF_CONDUCT.md, issue templates and PR templates</li>
+            <li>Add a single local development flow (docker compose + migration + seed)</li>
+            <li>Create “good first issue” tasks and explain where to begin</li>
+            <li>Document required env vars clearly and separate required vs optional</li>
+          </ul>
+
+          <h3>Phase 1 — Code quality & maintainability</h3>
+          <ul>
+            <li>Break large UI components into smaller pieces</li>
+            <li>Move complex rules into lib/ modules and test them directly</li>
+            <li>Increase unit test coverage on business logic and permissions</li>
+            <li>Create clearer developer scripts and CI checks</li>
+          </ul>
+
+          <h3>Phase 2 — Hardening & feature completion</h3>
+          <ul>
+            <li>Complete invite flow and signup flow</li>
+            <li>Harden transactional writes and permission boundaries</li>
+            <li>Add abuse controls, rate limiting, and access validation</li>
+            <li>Run a stricter QA loop and release checklist</li>
+          </ul>
+
+          <h3>Phase 3 — Production readiness</h3>
+          <ul>
+            <li>Production deploy and rollback playbooks</li>
+            <li>Monitoring, alerts, database backups and restore tests</li>
+            <li>Canary release, observability and incident response plan</li>
+          </ul>
+        </section>
+
+        <section id="architecture">
+          <h2>6. Architecture plan</h2>
+
+          <p>Recommended system architecture for scale and contributor comfort:</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>Recommendation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Frontend</td>
+                <td>Next.js 16 App Router</td>
+              </tr>
+              <tr>
+                <td>Backend</td>
+                <td>Server actions and route handlers with strict server-side permission checks</td>
+              </tr>
+              <tr>
+                <td>Data</td>
+                <td>Neon Postgres + Drizzle schema migrations</td>
+              </tr>
+              <tr>
+                <td>File storage</td>
+                <td>Vercel Blob with private, validated access paths</td>
+              </tr>
+              <tr>
+                <td>Auth</td>
+                <td>Auth.js + short-lived secure cookie model</td>
+              </tr>
+              <tr>
+                <td>Email</td>
+                <td>Resend with retry-aware notifications</td>
+              </tr>
+              <tr>
+                <td>Ops</td>
+                <td>Vercel deploys, CI GitHub Actions, Sentry, uptime checks, DB backups</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>Key architectural principle: keep all writes server-authorized, with per-request role and ownership validation. This is aligned with the repo’s own documentation and should remain a hard rule.</p>
+        </section>
+
+        <section id="implementation">
+          <h2>7. Implementation plan</h2>
+
+          <h3>Priority 1: make the repo easy to run</h3>
+          <pre># local dev script idea
+npm install
+cp .env.local.example .env.local
+npm run db:migrate
+npm run db:seed
+npm run dev</pre>
+
+          <h3>Priority 2: improve contribution structure</h3>
+          <pre># proposed project scripts
+"scripts": {
+  "dev:local": "docker compose up -d db && npm run dev",
+  "verify": "npm run lint && npm run typecheck && npm run test && npm run build",
+  "generate:doc": "node scripts/generate-doc.js"
+}</pre>
+
+          <h3>Priority 3: keep UI simple but modular</h3>
+          <p>Large components should be split so the view layer is simple and the data/business rules live in the lib modules.</p>
+        </section>
+
+        <section id="deployment">
+          <h2>8. Deployment & rollout plan</h2>
+
+          <ul>
+            <li>Deploy to staging first; run Playwright smoke tests on a seeded environment</li>
+            <li>Run security and environment checks before production</li>
+            <li>Use staging verification prior to any production migration</li>
+            <li>Use Vercel rollback path for quick recovery</li>
+            <li>Keep DB backups and migration rollback scripts ready before production</li>
+          </ul>
+
+          <h3>Pre-deploy check</h3>
+          <pre>npm run poc:ready
+npm run verify</pre>
+
+          <h3>Production principle</h3>
+          <p>Ship small, testable changes, monitor closely, and only then increase user exposure. Do not do a large, risky release with no partial rollout.</p>
+        </section>
+
+        <section id="supporting-material">
+          <h2>9. Supporting material</h2>
+
+          <h3>Repo summary from README</h3>
+          <pre># TurnFlow Home
+
+**One calm record for every home repair: capture it, share just that job, prove the work, keep the history.**
+
+Homeowners who manage their own repairs live in text threads, camera rolls and receipt drawers. TurnFlow Home gives each property one shared record. You log an issue with photos, compare quotes, invite a vendor or trusted helper to that one request only, and get before/after proof, a decision history and a cost record that stays with the house.</pre>
+
+          <h3>Package scripts evidence</h3>
+          <pre>{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts"
+  }
+}</pre>
+
+          <h3>Documentation orientation</h3>
+          <pre># TurnFlow Home Documentation — Start Here
+
+This folder is organized as a chain.
+Problem → Requirements → Inputs/Outputs → Constraints → Algorithm → Pseudocode → Flowchart → Implementation → Tests → Refinement → Documentation</pre>
+        </section>
+
+        <section id="appendix">
+          <h2>10. Appendix — code excerpts</h2>
+
+          <h3>Excerpt A: README quickstart</h3>
+          <pre>npm install
+cp .env.local.example .env.local   # fill in DATABASE_URL, BLOB_READ_WRITE_TOKEN, AUTH_SECRET, SEED_PASSWORD...
+npm run db:migrate
+npm run db:seed                    # demo accounts; needs SEED_PASSWORD unless the DB is on localhost
+npm run dev</pre>
+
+          <h3>Excerpt B: package.json feature scripts</h3>
+          <pre>"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "eslint .",
+  "typecheck": "tsc --noEmit",
+  "test": "vitest run",
+  "verify": "npm run lint && npm run typecheck && npm run test && npm run build",
+  "poc:ready": "tsx scripts/poc-readiness.ts",
+  "db:generate": "drizzle-kit generate",
+  "db:migrate": "tsx scripts/migrate.ts",
+  "db:seed": "tsx scripts/seed.ts"
+}</pre>
+
+          <h3>Excerpt C: design philosophy from docs</h3>
+          <pre>Every write re-checks role and record ownership on the server.
+Every meaningful state change writes an append-only decision-log row.
+Helpers see only the requests shared with them.
+The browser never decides what the server stores.</pre>
+
+          <h3>Main takeaway</h3>
+          <p>
+            This repo is strong enough to support a serious, user-facing product, but it still needs a more contributor-friendly layer:
+            simpler local startup, clearer contribution structure, modularized code, and a safer release process.
+            That is the work to do before it becomes a broad collaboration project.
+          </p>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
