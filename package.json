@@ -36,12 +36,12 @@
     "drizzle-orm": "^0.45.2",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
-    "next": "16.3.8",
+    "next": "16.4.3",
     "next-auth": "5.0.0-beta.32",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "resend": "^6.18.1",
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -52,11 +52,14 @@
     "drizzle-kit": "^0.31.10",
     "esbuild": "^0.28.2",
     "eslint": "^9",
-    "eslint-config-next": "16.3.8",
+    "eslint-config-next": "16.4.3",
     "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "zod": "$zod"
   }
 }
