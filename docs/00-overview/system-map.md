@@ -1,9 +1,8 @@
 # System Map
 
-> Chain step: **the big picture**, a zoomable map of the whole product.
-> Level 0 fits on one page. Level 1 zooms into each lane. Level 2 zooms into
-> how one click travels through the code. Every flow doc in
-> [`04-algorithms/`](../04-algorithms/README.md) names its box on this map.
+> Sequence: **the big picture**, a zoomable map of the whole product.
+> Level 0 is one page long. Each lane is zoomed in on at Level 1. Level 2 focuses on the path a single click takes through the code. Each flow document in
+> [`04-algorithms/`](../04-algorithms/README.md) is given a name for its location on this map.
 >
 > **Finding pins** (`F1`–`F12`) mark where each issue from the
 > [2026-09-28 review](../review/2026-09-28-repo-review.md) lives. Status for
