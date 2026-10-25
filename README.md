@@ -40,9 +40,10 @@ them.
 
 ## Status
 
-- **Built:** owner, vendor and collaborator workflows end to end, with 34 unit-test files (318 tests) and 6 browser smoke loops. CI runs lint, typecheck, tests, audit, schema-drift check and build.
+- **Built:** owner, vendor and collaborator workflows end to end, with 36 unit-test files (342 tests) and 7 browser smoke loops. CI runs lint, typecheck, tests, audit, schema-drift check and build.
 - **Hardened on 2026-09-28:** private file access, strict status rules, login limits, and a private demo password ([what changed](docs/09-changes/2026-09-28-p0-security.md)).
-- **Next:** invited vendors and helpers can sign up from their invite, transactional writes, and moderated homeowner testing ([roadmap](docs/07-refinement/findings-and-roadmap.md)).
+- **New on 2026-10-25:** invited vendors and helpers create their account straight from the invite link, so a real person can run the full loop ([what changed](docs/09-changes/2026-10-25-f4-invite-signup.md)).
+- **Next:** password reset, transactional writes, and moderated homeowner testing ([roadmap](docs/07-refinement/findings-and-roadmap.md)).
 
 ## Read more
 

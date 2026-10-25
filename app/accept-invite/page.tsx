@@ -2,6 +2,14 @@ import { redirect } from "next/navigation";
 import { getSession, roleHome } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
 import { AcceptInviteButton } from "@/components/AcceptInviteButton";
+import { InviteSignupForm } from "@/components/InviteSignupForm";
+import {
+  INVITE_PROBLEM_MESSAGES,
+  inviteAccountMismatch,
+  inviteRoleLabel,
+  inviteValidityProblem,
+  signedOutInviteEntry,
+} from "@/lib/invites/claim";
 
 export default async function AcceptInvitePage({
   searchParams,
@@ -10,15 +18,11 @@ export default async function AcceptInvitePage({
 }) {
   const { invite: inviteId } = await searchParams;
   const session = await getSession();
-
-  // Unauthenticated visitors are sent to login, but the invite id is kept so
-  // the acceptance flow can resume after sign-in.
-  if (!session?.user) {
-    const callbackUrl = `/accept-invite${inviteId ? `?invite=${inviteId}` : ""}`;
-    redirect(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
-  }
+  const callbackUrl = `/accept-invite${inviteId ? `?invite=${encodeURIComponent(inviteId)}` : ""}`;
+  const loginHref = `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
   if (!inviteId) {
+    if (!session?.user) redirect(loginHref);
     return <Shell status="No invite was specified. Check the link and try again." />;
   }
 
@@ -26,31 +30,59 @@ export default async function AcceptInvitePage({
     where: (i, { eq }) => eq(i.id, inviteId),
   });
 
-  if (!invite) {
-    return <Shell status="This invite does not exist or is no longer valid." />;
-  }
-  if (invite.role !== session.user.role) {
+  // F4 (2026-10-25): signed-out visitors no longer always bounce to login.
+  // With a valid invite and no account for the invited email, they create
+  // their vendor/helper account right here; with an account, they log in and
+  // the invite auto-claims afterwards (the original flow).
+  if (!session?.user) {
+    const accountExists = invite
+      ? Boolean(
+          await db.query.users.findFirst({
+            where: (u, { eq }) => eq(u.email, invite.email),
+            columns: { id: true },
+          })
+        )
+      : false;
+    const entry = signedOutInviteEntry(invite, accountExists);
+
+    if (entry.kind === "login") redirect(loginHref);
+    if (entry.kind === "invalid" || !invite) {
+      return (
+        <Shell status={entry.kind === "invalid" ? entry.message : INVITE_PROBLEM_MESSAGES.missing} />
+      );
+    }
+
+    const request = invite.requestId
+      ? await db.query.requests.findFirst({
+          where: (r, { eq }) => eq(r.id, invite.requestId!),
+          columns: { title: true },
+        })
+      : null;
+    const roleLabel = inviteRoleLabel(invite.role);
+
     return (
       <Shell
-        status={`This invite is for a ${invite.role} account. You are signed in as a ${session.user.role}. Sign out and sign in with the right account to accept it.`}
-      />
+        status={`You've been invited as a ${roleLabel}${
+          request ? ` on "${request.title}"` : ""
+        }. Create your account to open it.`}
+      >
+        <InviteSignupForm
+          inviteId={inviteId}
+          email={invite.email}
+          roleLabel={roleLabel}
+          loginHref={loginHref}
+        />
+      </Shell>
     );
   }
-  if (invite.status !== "pending") {
-    return <Shell status="This invite has already been used or is no longer valid." />;
+
+  const problem = inviteValidityProblem(invite);
+  if (problem || !invite) {
+    return <Shell status={INVITE_PROBLEM_MESSAGES[problem ?? "missing"]} />;
   }
-  if (invite.expiresAt < new Date()) {
-    return <Shell status="This invite has expired. Ask the property owner to send a new one." />;
-  }
-  if (invite.email !== (session.user.email || "").toLowerCase()) {
-    return (
-      <Shell
-        status={`This invite was sent to ${invite.email}. Sign out and sign in with that address to accept it.`}
-      />
-    );
-  }
-  if (!invite.requestId) {
-    return <Shell status="This invite is missing its request." />;
+  const mismatch = inviteAccountMismatch(invite, session.user);
+  if (mismatch) {
+    return <Shell status={mismatch} />;
   }
 
   const req = await db.query.requests.findFirst({

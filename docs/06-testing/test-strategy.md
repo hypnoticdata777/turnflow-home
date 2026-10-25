@@ -9,9 +9,9 @@
 ```mermaid
 flowchart TD
   M["Moderated homeowner sessions<br/>protocol written, 0 sessions logged"]:::gap
-  S["Browser smoke loops (Playwright)<br/>6 scripts, need a real DB + Blob, not in CI"]
+  S["Browser smoke loops (Playwright)<br/>7 scripts, need a real DB + Blob, not in CI"]
   I["Server integration / authorization matrix<br/>not built yet (F9)"]:::gap
-  U["Unit tests (Vitest)<br/>34 files, 318 tests, run in CI"]
+  U["Unit tests (Vitest)<br/>36 files, 342 tests, run in CI"]
   M --> S --> I --> U
   classDef gap fill:#fdecec,stroke:#c53030,color:#742a2a
 ```
@@ -31,7 +31,7 @@ flowchart TD
 | 02 Files | blob-paths, file-access, readiness | owner-flow upload | `/api/files` with a real session |
 | 03 Intake | intake, submit, guidance | owner-flow | cross-owner property rejection |
 | 04 Status | **request-status-policy**, status-handoff | full-loop | vendor call against a DB |
-| 05 Invite | invite-forms, links | invite, full-loop | access-removal smoke |
+| 05 Invite | invite-claim, invite-forms, links | invite, **invite-signup**, full-loop | access-removal smoke |
 | 06 Quotes | bid-review, vendor-bid, notification | full-loop | cross-vendor isolation |
 | 07 Work | work-sessions, project-tasks | full-loop | foreign proof photo |
 | 08 Closeout | closeout-submissions, billing-records | full-loop (revision loop) | partial-failure behavior |

@@ -11,6 +11,11 @@ export type SignupFieldErrors = {
   password?: string[];
 };
 
+export type InviteSignupFieldErrors = {
+  name?: string[];
+  password?: string[];
+};
+
 export type ProfileFieldErrors = {
   name?: string[];
 };
@@ -50,4 +55,15 @@ export function signupValuesFromFormData(formData: FormData): SignupFields {
 
 export function parseOwnerProfileFields(input: { name: FormDataEntryValue | null }) {
   return ownerProfileSchema.safeParse({ name: input.name });
+}
+
+// F4: invite signup takes only name + password. Email and role come from the
+// invite row, so they are deliberately not part of this schema.
+const inviteSignupSchema = signupSchema.pick({ name: true, password: true });
+
+export function parseInviteSignupFields(input: {
+  name: FormDataEntryValue | null;
+  password: FormDataEntryValue | null;
+}) {
+  return inviteSignupSchema.safeParse({ name: input.name, password: input.password });
 }

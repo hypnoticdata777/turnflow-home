@@ -31,10 +31,10 @@ flowchart TD
     C([Collaborator / helper])
   end
 
-  A["[A] Sign in and accounts<br/>signup, login, roles<br/>F6 fixed, F4 open"]
+  A["[A] Sign in and accounts<br/>signup, login, roles<br/>F6 fixed, F4 fixed"]
   B["[B] Request intake<br/>property, issue, safety checklist"]
   Cf["[C] Files and proof<br/>photos, receipts, vault docs<br/>F1 fixed, F2 fixed"]
-  D["[D] Sharing<br/>invite one request, accept, revoke<br/>F4 open"]
+  D["[D] Sharing<br/>invite one request, sign up, accept, revoke<br/>F4 fixed"]
   E["[E] Quotes and bids<br/>compare, approve, decline<br/>F11 open"]
   F["[F] Status lifecycle<br/>Draft to Complete<br/>F3 fixed"]
   G["[G] Work and tasks<br/>work sessions, task checklist"]
@@ -117,8 +117,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  EM[Invite email or copied link] --> ACC{"Has a vendor account?<br/>F4 open"}
-  ACC -- no --> DEAD["Dead end today:<br/>no vendor signup"]:::bad
+  EM[Invite email or copied link] --> ACC{"Has a vendor account?"}
+  ACC -- no --> SIGNUP["Sign up on the invite page<br/>email + role locked [A] [D]<br/>F4 fixed 2026-10-25"]:::good
+  SIGNUP --> CLAIM
   ACC -- yes --> LOGIN["Log in<br/>[A] F6 fixed"]
   LOGIN --> CLAIM["Invite auto-claims<br/>[D]"]
   CLAIM --> QUEUE[Vendor work queue]
@@ -135,6 +136,7 @@ flowchart TD
   QUEUE --> ST["Change status: working states only<br/>[F] F3 fixed"]
 
   classDef bad fill:#fdecec,stroke:#c53030,color:#742a2a
+  classDef good fill:#e6f6ec,stroke:#2f855a,color:#1c4532
 ```
 
 ### 1c. Collaborator lane
@@ -244,7 +246,7 @@ flowchart TD
 | F1 | Any user could delete other people's files via a client-supplied blob path | `[C]` | fixed | [02](../04-algorithms/02-file-upload-and-access.md) |
 | F2 | All uploads were public, forever | `[C]` | fixed in code; ops step to switch store | [02](../04-algorithms/02-file-upload-and-access.md) |
 | F3 | Vendors could complete, waive, archive or reopen | `[F]` | fixed | [04](../04-algorithms/04-request-status-lifecycle.md) |
-| F4 | Invited vendors and helpers cannot create an account | `[A]` `[D]` | open (P1) | [05](../04-algorithms/05-invite-and-access.md) |
+| F4 | Invited vendors and helpers cannot create an account | `[A]` `[D]` | fixed 2026-10-25 | [05](../04-algorithms/05-invite-and-access.md) |
 | F5 | Multi-step writes are not atomic | `[H]` `[D]` `[E]` | open (P2) | [08](../04-algorithms/08-closeout-and-billing.md) |
 | F6 | No login/signup limits; account existence could be timed | `[A]` | fixed (reset and verification still open) | [01](../04-algorithms/01-auth-and-rate-limiting.md) |
 | F7 | Demo password published in README | `[K]` | fixed; ops step to rotate | [09](../04-algorithms/09-investor-demo-reset.md) |

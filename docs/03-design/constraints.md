@@ -29,7 +29,7 @@
 
 - Homeowner-first. No PMC dispatch, technician routing, payroll, or company reporting.
 - No payment processing in the POC. Billing records say "paid outside TurnFlow".
-- Public signup is for owners only. Helpers join through invites (the signup-from-invite gap is **F4**).
+- Public signup is for owners only. Vendors and helpers create their account from an invite, with email and role locked to the invite (F4 fixed 2026-10-25).
 - Guidance explains and policy enforces (see [12 Guidance layer](../04-algorithms/12-guidance-layer.md)).
 
 ```mermaid

@@ -80,8 +80,10 @@ flowchart TD
 ### `[D]` Sharing: [flow 05](../04-algorithms/05-invite-and-access.md)
 | File | Role |
 |---|---|
-| `lib/actions/invites.ts` | create, resend, cancel, accept, revoke |
+| `lib/actions/invites.ts` | create, resend, cancel, accept, revoke, **sign up from invite** (`signupFromInviteAction`); shared internal `claimInviteForUser` |
+| `lib/invites/claim.ts` | pure invite rules: validity, account mismatch, signed-out entry (signup / login / invalid) |
 | `lib/invites/links.ts`, `lib/invites/forms.ts` | link builder, form parsing |
+| `components/InviteSignupForm.tsx` | invite signup form (read-only email, name, password) |
 | `app/accept-invite/page.tsx`, `components/AcceptInviteButton.tsx`, `InviteSection.tsx`, `PendingInviteControls.tsx`, `SharedAccessControls.tsx`, `CopyableInviteLink.tsx`, `InviteAcceptedBanner.tsx` | UI |
 
 ### `[E]` Quotes: [flow 06](../04-algorithms/06-bid-and-quote-decision.md)
@@ -145,7 +147,7 @@ flowchart TD
 |---|---|---|
 | `scripts/seed.ts`, `seed-demo.ts` | `db:seed`, `db:seed:demo` | local demo data |
 | `scripts/seed-investor-demo.ts` | `db:seed:investor` | curated demo (needs `INVESTOR_DEMO_PASSWORD`) |
-| `scripts/ux-*-smoke.ts` | `ux:public`, `ux:owner`, `ux:owner-flow`, `ux:helper`, `ux:invite`, `ux:full-loop` | browser smoke loops |
+| `scripts/ux-*-smoke.ts` | `ux:public`, `ux:owner`, `ux:owner-flow`, `ux:helper`, `ux:invite`, `ux:invite-signup`, `ux:full-loop` | browser smoke loops |
 | `scripts/screenshot.ts` | `npx tsx scripts/screenshot.ts` | README screenshots |
 | `scripts/poc-readiness.ts` | `poc:ready` | env readiness |
 | `scripts/migrate.ts` | `db:migrate` | apply migrations |

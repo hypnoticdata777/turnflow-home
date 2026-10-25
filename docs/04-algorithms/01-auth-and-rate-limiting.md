@@ -2,7 +2,7 @@
 
 > Map node: `[A] Sign in and accounts` on the [system map](../00-overview/system-map.md)
 > Roles: everyone (owner signup is public; vendor/collaborator accounts are seeded today)
-> Findings: **F6 fixed** (attempt limits, timing-safe compare) · **F4 open** (no invite signup) · **F12** stale JWT role (open)
+> Findings: **F6 fixed** (attempt limits, timing-safe compare) · **F4 fixed 2026-10-25** (signup from invite, see [flow 05](05-invite-and-access.md)) · **F12** stale JWT role (open)
 
 ## 1. Problem
 
@@ -41,7 +41,7 @@ including their address, access instructions, and receipts.
 
 - Serverless: there is no shared memory between instances, so counters live in Postgres (`auth_attempts`).
 - The `neon-http` driver has no transactions; counting is "good enough", not exact under a burst.
-- Only owners can sign up publicly. Vendors and collaborators come from seed scripts (F4).
+- Only owners can sign up publicly. Vendors and collaborators sign up from their invite ([flow 05](05-invite-and-access.md)); the same signup rate limit applies there.
 - There is no email verification or password reset yet (roadmap P1).
 
 ## 5. Algorithm
@@ -159,7 +159,8 @@ flowchart TD
 |---|---|
 | 2026-08 | Auth.js v5 credentials + JWT replaces Firebase Auth |
 | 2026-09-28 | **F6 fixed:** attempt limits and timing-safe compare ([change record](../09-changes/2026-09-28-p0-security.md#3-login-and-signup-limits-f6)) |
-| next (P1) | Invite-based vendor/collaborator signup (**F4**), password reset, optional email verification |
+| 2026-10-25 | Invite-based vendor/collaborator signup (**F4**) shipped; uses `SIGNUP_IP_RULE` |
+| next (P1) | Password reset, optional email verification |
 | next (P3) | Refresh `role` from the database on each request, or shorten JWT lifetime (**F12**) |
 
 ## 11. Documentation

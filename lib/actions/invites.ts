@@ -1,10 +1,25 @@
 "use server";
 
+import bcrypt from "bcryptjs";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
-import { decisionLog, invites, requests } from "@/lib/db/schema";
-import { requireRole, requireAnyRole } from "@/lib/auth/dal";
+import { decisionLog, invites, requests, users } from "@/lib/db/schema";
+import { requireRole, requireAnyRole, roleHome } from "@/lib/auth/dal";
+import { signIn } from "@/lib/auth/config";
+import { isRateLimited, recordAttempt } from "@/lib/auth/rate-limit";
+import {
+  RATE_LIMITED_MESSAGE,
+  SIGNUP_IP_RULE,
+  clientIpFromHeaders,
+} from "@/lib/auth/rate-limit-policy";
+import { parseInviteSignupFields, type InviteSignupFieldErrors } from "@/lib/auth/forms";
+import {
+  INVITE_PROBLEM_MESSAGES,
+  inviteAccountMismatch,
+  inviteValidityProblem,
+} from "@/lib/invites/claim";
 import { sendNotification } from "@/lib/email";
 import { inviteIdFromFormData, sharedAccessFromFormData } from "@/lib/invites/forms";
 import { buildInviteLink } from "@/lib/invites/links";
@@ -299,6 +314,65 @@ export async function resendInviteAction(
 
 export type AcceptInviteResult = { error: string } | { success: true };
 
+type ClaimableInvite = {
+  id: string;
+  role: "vendor" | "collaborator";
+  email: string;
+  requestId: string;
+};
+
+/**
+ * Assigns the user to the invite's request and marks the invite accepted.
+ * Shared by acceptInviteAction (existing account) and signupFromInviteAction
+ * (account created from the invite, F4). Not exported, so it is never
+ * callable as a Server Action on its own.
+ *
+ * The invite row is claimed first with a conditional update
+ * (status = pending), which is one atomic statement: if two tabs accept at
+ * once, only one wins and the other gets "already used".
+ */
+async function claimInviteForUser(
+  invite: ClaimableInvite,
+  userId: string,
+  options: { viaSignup?: boolean } = {}
+): Promise<AcceptInviteResult> {
+  const acceptedAt = new Date();
+  const claimed = await db
+    .update(invites)
+    .set({ status: "accepted", acceptedById: userId, acceptedAt })
+    .where(and(eq(invites.id, invite.id), eq(invites.status, "pending")))
+    .returning({ id: invites.id });
+  if (claimed.length === 0) {
+    return { error: INVITE_PROBLEM_MESSAGES.used };
+  }
+
+  await db
+    .update(requests)
+    .set(
+      invite.role === "vendor"
+        ? { assignedVendorId: userId, pendingVendorInviteId: null, updatedAt: acceptedAt }
+        : { collaboratorId: userId, pendingCollaboratorInviteId: null, updatedAt: acceptedAt }
+    )
+    .where(eq(requests.id, invite.requestId));
+
+  await db.insert(decisionLog).values({
+    requestId: invite.requestId,
+    actorId: userId,
+    action: "invite_accepted",
+    details: {
+      role: invite.role,
+      email: invite.email,
+      inviteId: invite.id,
+      acceptedById: userId,
+      ...(options.viaSignup ? { viaSignup: true } : {}),
+    },
+  });
+
+  revalidateInviteSurfaces(invite.requestId);
+  revalidatePath(invite.role === "vendor" ? "/vendor" : "/collaborator");
+  return { success: true };
+}
+
 /**
  * The invited vendor or collaborator claims the request themselves once
  * signed in with a matching-email account of the right role — this
@@ -306,7 +380,7 @@ export type AcceptInviteResult = { error: string } | { success: true };
  * isAcceptingOwnVendorInvite()/isAcceptingOwnCollaboratorInvite() from
  * the Firebase build: same checks (pending, unexpired, matching
  * email/role), just as plain application code instead of a
- * security-rule function.
+ * security-rule function. Rules live in lib/invites/claim.ts.
  */
 export async function acceptInviteAction(inviteId: string): Promise<AcceptInviteResult> {
   const session = await requireAnyRole(["vendor", "collaborator"]);
@@ -315,44 +389,104 @@ export async function acceptInviteAction(inviteId: string): Promise<AcceptInvite
     where: (i, { eq }) => eq(i.id, inviteId),
   });
 
-  if (!invite) return { error: "This invite doesn't exist or is no longer valid." };
-  if (invite.status !== "pending") return { error: "This invite has already been used or is no longer valid." };
-  if (invite.expiresAt < new Date()) return { error: "This invite has expired. Ask the property owner to send a new one." };
-  if (invite.role !== session.user.role) {
-    return { error: `This invite is not for a ${session.user.role} account.` };
+  const problem = inviteValidityProblem(invite);
+  if (problem || !invite?.requestId) {
+    return { error: INVITE_PROBLEM_MESSAGES[problem ?? "no_request"] };
   }
-  if (invite.email !== (session.user.email || "").toLowerCase()) {
-    return { error: `This invite was sent to ${invite.email}. Sign out and sign in with that address to accept it.` };
-  }
-  if (!invite.requestId) return { error: "This invite is missing its request." };
+  const mismatch = inviteAccountMismatch(invite, session.user);
+  if (mismatch) return { error: mismatch };
 
-  await db
-    .update(requests)
-    .set(
-      invite.role === "vendor"
-        ? { assignedVendorId: session.user.id, pendingVendorInviteId: null, updatedAt: new Date() }
-        : { collaboratorId: session.user.id, pendingCollaboratorInviteId: null, updatedAt: new Date() }
-    )
-    .where(eq(requests.id, invite.requestId));
+  return claimInviteForUser({ ...invite, requestId: invite.requestId }, session.user.id);
+}
 
-  await db
-    .update(invites)
-    .set({ status: "accepted", acceptedById: session.user.id, acceptedAt: new Date() })
-    .where(eq(invites.id, inviteId));
+export type InviteSignupState =
+  | {
+      error?: string;
+      fieldErrors?: InviteSignupFieldErrors;
+      name?: string;
+    }
+  | undefined;
 
-  await db.insert(decisionLog).values({
-    requestId: invite.requestId,
-    actorId: session.user.id,
-    action: "invite_accepted",
-    details: {
-      role: invite.role,
-      email: invite.email,
-      inviteId,
-      acceptedById: session.user.id,
-    },
+/**
+ * F4 (2026-10-25): an invited vendor or helper with no account creates one
+ * straight from the invite. The email and role come from the invite row and
+ * are never read from the form, so nobody can register as a vendor or helper
+ * without having been invited, and nobody can choose a different email.
+ * Then the invite is claimed and the user is signed in.
+ */
+export async function signupFromInviteAction(
+  inviteId: string,
+  _prevState: InviteSignupState,
+  formData: FormData
+): Promise<InviteSignupState> {
+  const name = String(formData.get("name") || "").trim();
+  const parsed = parseInviteSignupFields({
+    name: formData.get("name"),
+    password: formData.get("password"),
   });
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors, name };
+  }
 
-  revalidateInviteSurfaces(invite.requestId);
-  revalidatePath(invite.role === "vendor" ? "/vendor" : "/collaborator");
-  return { success: true };
+  // Same per-IP cap as owner signup (P0, F6).
+  const ip = clientIpFromHeaders(await headers());
+  if (await isRateLimited(SIGNUP_IP_RULE, ip)) {
+    return { error: RATE_LIMITED_MESSAGE, name };
+  }
+  await recordAttempt(SIGNUP_IP_RULE, ip);
+
+  const invite = await db.query.invites.findFirst({
+    where: (i, { eq }) => eq(i.id, inviteId),
+  });
+  const problem = inviteValidityProblem(invite);
+  if (problem || !invite?.requestId) {
+    return { error: INVITE_PROBLEM_MESSAGES[problem ?? "no_request"], name };
+  }
+
+  const existing = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.email, invite.email),
+    columns: { id: true },
+  });
+  if (existing) {
+    return {
+      error: `An account already exists for ${invite.email}. Log in to accept this invite.`,
+      name,
+    };
+  }
+
+  let userId: string;
+  try {
+    const [created] = await db
+      .insert(users)
+      .values({
+        email: invite.email,
+        passwordHash: await bcrypt.hash(parsed.data.password, 10),
+        role: invite.role,
+        name: parsed.data.name,
+      })
+      .returning({ id: users.id });
+    userId = created.id;
+  } catch (error) {
+    // Most likely a duplicate email from a double submit.
+    console.error("Invite signup failed:", error);
+    return { error: "Could not create that account. Please try again.", name };
+  }
+
+  const claim = await claimInviteForUser(
+    { ...invite, requestId: invite.requestId },
+    userId,
+    { viaSignup: true }
+  );
+  // The account exists either way; if the claim lost a race, the user still
+  // signs in and sees the invite page explain what happened.
+  const redirectTo =
+    "error" in claim
+      ? `/accept-invite?invite=${encodeURIComponent(inviteId)}`
+      : `${roleHome(invite.role)}?accepted=1`;
+
+  await signIn("credentials", {
+    email: invite.email,
+    password: parsed.data.password,
+    redirectTo,
+  });
 }
