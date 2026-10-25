@@ -21,9 +21,7 @@
 
 ## Level 0 — the whole product on one page
 
-**In one sentence:** a homeowner opens a repair record, shares just that record
-with a vendor or helper, the work and money get proven step by step, and the
-finished record becomes permanent property history.
+**In one sentence:**  a homeowner starts a repair record, gives it to a vendor or helper, and then checks the work and costs one step at a time. The completed record is then preserved as permanent property history.
 
 ```mermaid
 flowchart TD
