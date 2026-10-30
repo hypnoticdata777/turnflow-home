@@ -1,0 +1,20 @@
+meta {
+  name: Files - someone else's or missing record (404, not 403)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/files?path=turnflow/00000000-0000-0000-0000-000000000000/before/00000000-0000-0000-0000-000000000000/x.png
+  body: none
+  auth: none
+}
+
+docs {
+  Missing and not-yours give the same 404 so file names can't be probed (app/api/files/route.ts:44-47).
+}
+
+assert {
+  res.status: eq 404
+  res.body.error: eq File not found.
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Blob upload - own uid but property not owned (403)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/blob-upload
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  pathname: turnflow-property/00000000-0000-0000-0000-000000000000/{{ownerId}}/pixel.png
+  file: @file(fixtures/pixel.png)
+}
+
+assert {
+  res.status: eq 403
+  res.body.error: eq Not authorized to upload to this property
+}

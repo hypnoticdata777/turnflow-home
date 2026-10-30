@@ -1,0 +1,1194 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "name": "TurnFlow Home",
+    "repoUrl": "https://github.com/hypnoticdata777/turnflow-home.git",
+    "commit": "b45b1ac",
+    "stack": "TS",
+    "framework": "Next.js 16.4 (App Router, Server Actions)",
+    "keyLibraries": [
+      "next@16.4.3",
+      "react@19.2.4",
+      "next-auth@5.0.0-beta.32",
+      "drizzle-orm@0.45.2",
+      "drizzle-kit@0.31.10",
+      "@neondatabase/serverless@1.1.0",
+      "zod@4.6.6",
+      "@vercel/blob@2.8.0",
+      "resend@6.18.1",
+      "bcryptjs@3.0.3",
+      "jspdf@4.2.1",
+      "tailwindcss@4",
+      "vitest@4.1.11",
+      "playwright@1.62.1"
+    ],
+    "auditDate": "2026-10-30",
+    "auditedBy": "Claude (Reverse-Engineering Prompt v1, files mode)",
+    "notes": "Audited the root app at b45b1ac (application code identical to 6a86af5; later commits only add audit-system/). Shell, git history, and GitHub issue access were available. The app could not be started: no Neon database or Docker daemon was reachable, so the Bruno collection is parse-verified but not executed. Unit tests and coverage were run."
+  },
+  "tools": {
+    "figjam": {
+      "status": "Partial",
+      "planned": [
+        {
+          "text": "Primary persona is the self-managing homeowner; vendor and collaborator are request-scoped secondary roles.",
+          "evidence": [
+            "docs/01-problem/problem.md:15-21"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Six jobs-to-be-done define the backbone: capture once, compare prices, share one repair, prove the work, keep history, get reminders.",
+          "evidence": [
+            "docs/01-problem/problem.md:23-30"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Core loop: request -> invite one vendor/helper -> bid -> approve -> work sessions -> closeout -> billing record -> property history.",
+          "evidence": [
+            "README.md:20-31"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Per-role requirements with a 'done when' statement and decision-log event for each.",
+          "evidence": [
+            "docs/USER_REQUIREMENTS_EVENT_MATRIX.md:27-48"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Password reset is the next planned story.",
+          "evidence": [
+            "README.md:46",
+            "docs/07-refinement/findings-and-roadmap.md:58"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Out of scope by choice: PMC dispatch, payment processing, open vendor marketplace.",
+          "evidence": [
+            "docs/01-problem/problem.md:32-50",
+            "docs/03-design/constraints.md:28-32"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "POC success is judged by moderated homeowner sessions against time and proof targets.",
+          "evidence": [
+            "docs/01-problem/problem.md:52-60",
+            "docs/USER_TESTING.md"
+          ],
+          "inferred": false
+        }
+      ],
+      "built": [
+        {
+          "text": "Owner signup and role-routed, rate-limited login.",
+          "evidence": [
+            "app/signup/page.tsx",
+            "lib/actions/auth.ts:46",
+            "lib/auth/config.ts:36-69",
+            "lib/auth/dal.ts:12-21"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Guided onboarding, properties, and request intake with photos.",
+          "evidence": [
+            "app/owner/onboarding/page.tsx",
+            "lib/actions/properties.ts:14",
+            "lib/actions/requests.ts:38",
+            "lib/actions/requests.ts:119"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Request-scoped invites with signup-from-invite, resend, cancel, and access removal.",
+          "evidence": [
+            "lib/actions/invites.ts:107",
+            "lib/actions/invites.ts:131",
+            "lib/actions/invites.ts:385",
+            "lib/actions/invites.ts:417"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Vendor bids, owner quotes, and approve/decline.",
+          "evidence": [
+            "lib/actions/vendor-bids.ts:14",
+            "lib/actions/quotes.ts:33",
+            "lib/actions/quotes.ts:81",
+            "lib/actions/quotes.ts:126"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Phased tasks, work sessions with proof, and a status policy.",
+          "evidence": [
+            "lib/actions/request-tasks.ts:53",
+            "lib/actions/work-sessions.ts:32",
+            "lib/actions/requests.ts:284"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Closeout submission and owner review that generates a billing record.",
+          "evidence": [
+            "lib/actions/closeout-submissions.ts:26",
+            "lib/actions/closeout-submissions.ts:116"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "History and care: decision log, proof packet PDF, vault, backup/restore, reminders with a daily digest.",
+          "evidence": [
+            "lib/pdf/proofPacket.ts",
+            "lib/actions/vault.ts:28",
+            "lib/actions/backup.ts:11",
+            "lib/actions/reminders.ts:25",
+            "app/api/cron/reminder-digest/route.ts:17"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Workspace plan and billing-account tables exist without any user-facing story.",
+          "evidence": [
+            "lib/db/schema.ts:166-181",
+            "commit:2461065"
+          ],
+          "inferred": true
+        }
+      ],
+      "gaps": [
+        {
+          "id": "GAP-FIGJAM-01",
+          "text": "Password reset is planned as the next story but not built, so a tester who forgets their password has no way back in.",
+          "impact": "medium",
+          "evidence": [
+            "README.md:46",
+            "docs/07-refinement/findings-and-roadmap.md:58",
+            "search:reset.?password|forgot"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-FIGJAM-02",
+          "text": "The backbone has never been validated with real homeowners: 0 moderated sessions logged and the POC success targets are not measured.",
+          "impact": "medium",
+          "evidence": [
+            "docs/06-testing/test-strategy.md:24",
+            "docs/01-problem/problem.md:52-60"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-FIGJAM-03",
+          "text": "Workspace plan and billing-account tables (plans, trials, subscription ids) map to no story while payments are out of scope, adding schema to maintain with no user value yet.",
+          "impact": "low",
+          "evidence": [
+            "lib/db/schema.ts:166-181",
+            "commit:2461065",
+            "docs/03-design/constraints.md:31"
+          ],
+          "inferred": true
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "User story map outline with MVP cut-line",
+          "format": "markdown",
+          "filename": "01-figjam/story-map.md",
+          "content": "# TurnFlow Home: user story map (reverse-engineered)\n\nAudit commit `b45b1ac` (application code identical to `6a86af5`). Tags: `[MVP]`/`[LATER]` priority, `{built|partial|missing|unplanned}` state, `@` evidence.\n\n```text\nPERSONA: Self-managing homeowner who runs repairs through texts, camera rolls and receipt drawers.\n         Goal: capture a repair once, share just that job, prove the work, keep the history.\n         @ docs/01-problem/problem.md:16-21, README.md:3\nSECONDARY ROLES:\n  - Vendor (plumber, handyman): quote, do, prove and close out one invited job   @ docs/01-problem/problem.md:20, app/vendor/page.tsx\n  - Collaborator (family, friend, tenant): help with one shared job only          @ docs/01-problem/problem.md:21, app/collaborator/page.tsx\n\nBACKBONE (left -> right)  -- order from README flow + problem.md jobs-to-be-done  @ README.md:20-31, docs/01-problem/problem.md:23-30\n\n1. Join\n   - Task: Create an owner account\n     - [MVP] {built} Sign up with name, email, password (owners only)          @ app/signup/page.tsx, lib/actions/auth.ts:46\n   - Task: Sign in to my role's workspace\n     - [MVP] {built} Log in and land in the right portal by role                @ app/login/page.tsx, lib/actions/auth.ts:126, lib/auth/dal.ts:12-21\n     - [MVP] {built} Rate-limited, timing-safe login                            @ lib/auth/config.ts:36-69\n     - [MVP] {missing} Reset a forgotten password                               @ README.md:46, docs/07-refinement/findings-and-roadmap.md:58, search:reset.?password|forgot\n     - [LATER] {missing} Verify email address                                   @ docs/07-refinement/findings-and-roadmap.md:18\n\n2. Set up my home\n   - Task: Guided first run\n     - [MVP] {built} Onboarding checklist (property, request, proof, share, history, reminder)  @ app/owner/onboarding/page.tsx, docs/ENDPOINT_EXPERIENCE_MAP.md:53\n   - Task: Add a property\n     - [MVP] {built} Add / update / delete a property                           @ app/owner/properties/page.tsx, lib/actions/properties.ts:14, lib/actions/properties.ts:51\n\n3. Capture a repair\n   - Task: Create a repair request\n     - [MVP] {built} Title, category, urgency, location, access, contact preference  @ app/owner/requests/new/page.tsx, lib/actions/requests.ts:38-117\n     - [MVP] {built} Attach before / receipt / other photos                     @ lib/actions/requests.ts:119, app/api/blob-upload/route.ts:45\n     - [MVP] {built} Inline property creation when none exists                  @ components/NewRequestForm.tsx:200\n   - Task: Triage my repairs\n     - [MVP] {built} Dashboard filtered by status with next action             @ app/owner/dashboard/page.tsx\n\n4. Share and get quotes\n   - Task: Invite exactly one vendor / one helper to this request\n     - [MVP] {built} Create expiring invite with copyable link                  @ lib/actions/invites.ts:107, lib/actions/invites.ts:111\n     - [MVP] {built} Invitee signs up or logs in from the invite (email + role locked)  @ lib/actions/invites.ts:385, lib/actions/invites.ts:417, app/accept-invite/page.tsx\n     - [MVP] {built} Resend / cancel pending invite; remove accepted access     @ lib/actions/invites.ts:252, lib/actions/invites.ts:192, lib/actions/invites.ts:131\n   - Task: Compare prices and decide\n     - [MVP] {built} Vendor submits / updates own bid (no competitor prices)    @ lib/actions/vendor-bids.ts:14\n     - [MVP] {built} Owner adds private quotes                                  @ lib/actions/quotes.ts:33\n     - [MVP] {partial} Owner approves ONE quote, declines the rest              @ lib/actions/quotes.ts:81-125  -- several quotes can be approved (F11), approval not atomic (F5)\n\n5. Get the work done\n   - Task: Plan phased scope\n     - [MVP] {built} Create tasks, track status and cost, accept done tasks     @ lib/actions/request-tasks.ts:53, lib/actions/request-tasks.ts:177\n   - Task: Prove the visit\n     - [MVP] {built} Vendor starts / pauses / resumes / stops work with proof   @ lib/actions/work-sessions.ts:32, components/WorkSessionPanel.tsx\n   - Task: Move status forward\n     - [MVP] {built} Status policy: owner any, vendor only working states       @ lib/actions/requests.ts:284, lib/request-status-policy.ts\n   - Task: Keep everyone informed\n     - [MVP] {built} Comment thread for owner, vendor, helper                   @ lib/actions/comments.ts:9, app/collaborator/page.tsx\n\n6. Close out and record\n   - Task: Vendor hands off\n     - [MVP] {built} Submit closeout: notes, final amount, materials, proof     @ lib/actions/closeout-submissions.ts:26\n   - Task: Owner reviews\n     - [MVP] {partial} Approve (creates billing record) or request changes      @ lib/actions/closeout-submissions.ts:116-237  -- a decided closeout can be re-reviewed; multi-write not atomic\n   - Task: Record payment outside TurnFlow\n     - [MVP] {built} Mark billing recorded / paid / disputed / void             @ lib/actions/billing-records.ts:17, docs/03-design/constraints.md:31\n\n7. Keep history and maintain\n   - Task: Preserve the record\n     - [MVP] {built} Decision log on every meaningful change                    @ docs/02-requirements/README.md:19, lib/actions/quotes.ts:107\n     - [MVP] {partial} History survives deleting a request                      @ docs/03-design/data-model.md:83, lib/db/schema.ts:286-291, lib/actions/requests.ts:234  -- cascade deletes the log (F8)\n     - [MVP] {built} Proof packet PDF, property history PDF/CSV                 @ lib/pdf/proofPacket.ts, lib/pdf/propertyHistory.ts, lib/actions/properties.ts:96\n     - [MVP] {built} Vault for warranties, receipts, manuals                    @ app/owner/vault/page.tsx, lib/actions/vault.ts:28\n     - [MVP] {built} JSON backup and add-only restore                           @ app/owner/backup/page.tsx, lib/actions/backup.ts:11, lib/actions/backup.ts:99\n   - Task: Prevent repairs\n     - [MVP] {built} Recurring reminders, mark done, .ics export                @ app/owner/calendar/page.tsx, lib/actions/reminders.ts:25\n     - [MVP] {built} Daily reminder digest email                                @ app/api/cron/reminder-digest/route.ts:17, vercel.json\n\n--- MVP CUT-LINE ---  (placed from the docs: everything in problem.md jobs 1-6 and the POC scope is MVP;\n                       \"is NOT\" items and email verification are below the line)  @ docs/01-problem/problem.md:23-30, docs/01-problem/problem.md:32-50\n\n[LATER] {missing} Payment processing        (explicitly out of scope)  @ docs/03-design/constraints.md:31\n[LATER] {missing} Open vendor marketplace   (explicitly out of scope)  @ docs/01-problem/problem.md:32-50\n[LATER] {missing} Read-only event explorer  (idea)                     @ docs/USER_REQUIREMENTS_EVENT_MATRIX.md:99\n\nORPHANS (built, map to no activity):\n  - Workspace plans and billing accounts (plan, trial, subscription ids)  @ lib/db/schema.ts:166-181, commit:2461065\n    (inferred) Groundwork for paid plans; no user story or screen uses plan state, and payments are out of scope.\n  - Investor demo reset cron                                              @ app/api/cron/reset-investor-demo/route.ts\n    Operational, documented in docs/04-algorithms/09-investor-demo-reset.md; not a user story (expected).\n\nQUESTIONS / RISKS:\n  - What happens to a tester who forgets their password? No recovery path today.  @ README.md:46\n  - Are the jobs-to-be-done right? 0 moderated homeowner sessions logged.          @ docs/06-testing/test-strategy.md:24\n  - Success targets (< 5 min to a complete request, majority closed with proof) are not measured anywhere.  @ docs/01-problem/problem.md:52-60\n```\n\n## Notes for building the FigJam board\n\n- Use 7 yellow activity stickies (Join → Keep history and maintain). Put vendor and collaborator tasks on separate swim lanes under \"Share and get quotes\", \"Get the work done\", and \"Close out and record\".\n- Color `{partial}` stories orange and `{missing}` stories red, so the board doubles as a gap map.\n"
+        }
+      ],
+      "evidence": [
+        "README.md",
+        "docs/01-problem/problem.md",
+        "docs/USER_REQUIREMENTS_EVENT_MATRIX.md",
+        "docs/07-refinement/findings-and-roadmap.md",
+        "docs/03-design/constraints.md",
+        "docs/06-testing/test-strategy.md",
+        "app/**/page.tsx",
+        "lib/actions",
+        "search:reset.?password|forgot"
+      ],
+      "notes": "Story map reconstructed from docs plus 15 pages and 44 server actions. The repo's own requirement matrix is unusually complete; the gaps are about recovery, validation with users, and orphan scope."
+    },
+    "eraser": {
+      "status": "Partial",
+      "planned": [
+        {
+          "text": "Documented ERD of the core entities with delete behavior and status enums.",
+          "evidence": [
+            "docs/03-design/data-model.md:7-97"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Cross-cutting rules X1-X6: ownership re-check, append-only decision log, scoped helpers, server-decided paths, email never breaks a flow, no payments.",
+          "evidence": [
+            "docs/02-requirements/README.md:14-23"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Route-level contracts for the operational and API endpoints.",
+          "evidence": [
+            "docs/ENDPOINT_EXPERIENCE_MAP.md:76-84"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Atomic multi-write actions and archive-instead-of-delete with an insert-only log (P2).",
+          "evidence": [
+            "docs/07-refinement/findings-and-roadmap.md:59",
+            "docs/IMPLEMENTATION_BACKLOG.md:76-79"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Only one approved quote per request (auto-decline the rest, F11).",
+          "evidence": [
+            "docs/07-refinement/findings-and-roadmap.md:23",
+            "docs/07-refinement/findings-and-roadmap.md:59"
+          ],
+          "inferred": false
+        }
+      ],
+      "built": [
+        {
+          "text": "21 Drizzle tables, 17 Postgres enums, 50 foreign-key relationships; migrations consistent with the schema.",
+          "evidence": [
+            "lib/db/schema.ts",
+            "drizzle",
+            "cmd:npx drizzle-kit check"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "7 HTTP route handlers sharing a consistent { error } JSON envelope.",
+          "evidence": [
+            "app/api/files/route.ts:17-19",
+            "app/api/blob-upload/route.ts:51-54"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "44 server actions; zod only in auth and invite forms, hand-written checks elsewhere; 61 return { error } and 21 throw.",
+          "evidence": [
+            "lib/actions",
+            "lib/auth/forms.ts",
+            "lib/invites/forms.ts"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Multi-write actions run without transactions on the neon-http driver.",
+          "evidence": [
+            "lib/db/index.ts:2",
+            "lib/actions/closeout-submissions.ts:147-208"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Decision log cascades on request delete, and requests are hard-deleted.",
+          "evidence": [
+            "lib/db/schema.ts:286-291",
+            "lib/actions/requests.ts:234"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Quote approval checks neither the quote's status nor other approved quotes.",
+          "evidence": [
+            "lib/actions/quotes.ts:81-112"
+          ],
+          "inferred": false
+        }
+      ],
+      "gaps": [
+        {
+          "id": "GAP-ERASER-01",
+          "text": "Multi-write actions are not atomic (neon-http, no db.transaction): quote approval and closeout review can half-apply, e.g. a closeout approved with no billing record or a request left in the wrong status.",
+          "impact": "high",
+          "evidence": [
+            "lib/db/index.ts:2",
+            "lib/actions/quotes.ts:93-112",
+            "lib/actions/closeout-submissions.ts:147-208",
+            "docs/07-refinement/findings-and-roadmap.md:17"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-ERASER-02",
+          "text": "The decision log is deleted with its request (ON DELETE CASCADE plus hard delete), breaking the product's permanent-history promise.",
+          "impact": "high",
+          "evidence": [
+            "lib/db/schema.ts:286-291",
+            "lib/actions/requests.ts:234",
+            "docs/03-design/data-model.md:83",
+            "docs/07-refinement/findings-and-roadmap.md:20"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-ERASER-03",
+          "text": "Several quotes can be approved for one request because approval neither checks status nor declines the others, so the quoted cost record can contradict itself.",
+          "impact": "medium",
+          "evidence": [
+            "lib/actions/quotes.ts:81-112",
+            "docs/07-refinement/findings-and-roadmap.md:23"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-ERASER-04",
+          "text": "A closeout can be reviewed again after a decision (no pending check), so an approved closeout can become changes_requested while the request stays Complete.",
+          "impact": "medium",
+          "evidence": [
+            "lib/actions/closeout-submissions.ts:136-158"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-ERASER-05",
+          "text": "Server actions have no single input/result contract: hand-parsed FormData, 21 throwing actions next to 61 returning { error }, and a restore action with no top-level shape check, so failures surface inconsistently.",
+          "impact": "medium",
+          "evidence": [
+            "lib/actions/quotes.ts:26",
+            "lib/actions/requests.ts:219",
+            "lib/actions/backup.ts:99-114",
+            "lib/auth/forms.ts"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-ERASER-06",
+          "text": "The endpoint contract map omits /api/files and /api/cron/reset-investor-demo, so 2 of 7 route handlers have no written contract.",
+          "impact": "low",
+          "evidence": [
+            "docs/ENDPOINT_EXPERIENCE_MAP.md:76-84",
+            "app/api/files/route.ts",
+            "app/api/cron/reset-investor-demo/route.ts"
+          ],
+          "inferred": false
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "ERD (21 tables, every FK)",
+          "format": "eraser",
+          "filename": "02-eraser/erd.eraser",
+          "content": "title TurnFlow Home data model (from lib/db/schema.ts @ b45b1ac)\n\nusers [icon: user, color: blue] {\n  id uuid pk\n  email varchar\n  password_hash text\n  role user_role\n  name varchar\n  created_at timestamp\n}\n\nworkspaces [icon: briefcase, color: gray] {\n  id uuid pk\n  owner_id uuid\n  name varchar\n  slug varchar\n  kind workspace_kind\n  created_at timestamp\n  updated_at timestamp\n}\n\nworkspace_memberships [icon: users, color: gray] {\n  id uuid pk\n  workspace_id uuid\n  user_id uuid\n  role workspace_member_role\n  status workspace_member_status\n  invited_by_id uuid\n  created_at timestamp\n  updated_at timestamp\n}\n\nbilling_accounts [icon: credit-card, color: gray] {\n  id uuid pk\n  workspace_id uuid\n  plan workspace_plan\n  status billing_account_status\n  billing_email varchar\n  external_customer_id varchar\n  external_subscription_id varchar\n  trial_ends_at timestamp\n  current_period_ends_at timestamp\n  created_at timestamp\n  updated_at timestamp\n}\n\nproperties [icon: home, color: green] {\n  id uuid pk\n  owner_id uuid\n  workspace_id uuid\n  address text\n  unit varchar\n  nickname varchar\n  created_at timestamp\n  updated_at timestamp\n}\n\ninvites [icon: mail, color: purple] {\n  id uuid pk\n  owner_id uuid\n  workspace_id uuid\n  request_id uuid\n  role invite_role\n  email varchar\n  status invite_status\n  expires_at timestamp\n  accepted_by_id uuid\n  accepted_at timestamp\n  created_at timestamp\n}\n\nrequests [icon: tool, color: orange] {\n  id uuid pk\n  owner_id uuid\n  workspace_id uuid\n  property_id uuid\n  title varchar\n  category varchar\n  urgency varchar\n  location text\n  contact_method varchar\n  access_instructions text\n  notes text\n  status request_status\n  assigned_vendor_id uuid\n  collaborator_id uuid\n  estimated_cost numeric\n  quoted_cost numeric\n  final_cost numeric\n  pending_vendor_invite_id uuid\n  pending_collaborator_invite_id uuid\n  created_at timestamp\n  updated_at timestamp\n}\n\nrequest_photos [icon: camera, color: orange] {\n  id uuid pk\n  request_id uuid\n  type photo_type\n  url text\n  blob_path text\n  uploaded_by_id uuid\n  created_at timestamp\n}\n\nquotes [icon: dollar-sign, color: orange] {\n  id uuid pk\n  request_id uuid\n  submitted_by_vendor_id uuid\n  vendor_name varchar\n  vendor_contact varchar\n  amount numeric\n  availability_window text\n  notes text\n  attachment_url text\n  attachment_blob_path text\n  status quote_status\n  approved_by_id uuid\n  approved_at timestamp\n  created_at timestamp\n  updated_at timestamp\n}\n\ndecision_log [icon: list, color: red] {\n  id uuid pk\n  request_id uuid\n  actor_id uuid\n  action varchar\n  details jsonb\n  created_at timestamp\n}\n\ncomments [icon: message-square, color: orange] {\n  id uuid pk\n  request_id uuid\n  author_id uuid\n  text text\n  created_at timestamp\n}\n\nrequest_tasks [icon: check-square, color: orange] {\n  id uuid pk\n  request_id uuid\n  title varchar\n  description text\n  status request_task_status\n  estimated_cost numeric\n  final_cost numeric\n  accepted_by_id uuid\n  accepted_at timestamp\n  sort_order integer\n  required_photo_types jsonb\n  created_by_id uuid\n  created_at timestamp\n  updated_at timestamp\n}\n\nwork_sessions [icon: clock, color: orange] {\n  id uuid pk\n  request_id uuid\n  vendor_id uuid\n  proof_photo_id uuid\n  request_task_id uuid\n  task_label varchar\n  event work_session_event\n  notes text\n  created_at timestamp\n}\n\ncloseout_submissions [icon: flag, color: orange] {\n  id uuid pk\n  request_id uuid\n  vendor_id uuid\n  completion_notes text\n  materials_notes text\n  final_amount numeric\n  status closeout_submission_status\n  review_notes text\n  reviewed_by_id uuid\n  reviewed_at timestamp\n  submitted_at timestamp\n  created_at timestamp\n  updated_at timestamp\n}\n\nbilling_records [icon: file-text, color: orange] {\n  id uuid pk\n  request_id uuid\n  owner_id uuid\n  workspace_id uuid\n  vendor_id uuid\n  closeout_submission_id uuid\n  amount numeric\n  status billing_record_status\n  invoice_reference varchar\n  notes text\n  recorded_at timestamp\n  paid_at timestamp\n  created_at timestamp\n  updated_at timestamp\n}\n\nvault_documents [icon: archive, color: green] {\n  id uuid pk\n  property_id uuid\n  name varchar\n  category vault_category\n  request_id uuid\n  url text\n  blob_path text\n  uploaded_by_id uuid\n  created_at timestamp\n}\n\nreminders [icon: calendar, color: green] {\n  id uuid pk\n  property_id uuid\n  title varchar\n  interval_days integer\n  last_completed_at timestamp\n  next_due_at timestamp\n  last_notified_at timestamp\n  notes text\n  created_at timestamp\n  updated_at timestamp\n}\n\ncontacts [icon: book, color: blue] {\n  id uuid pk\n  owner_id uuid\n  name varchar\n  email varchar\n  phone varchar\n  property_address text\n  created_at timestamp\n}\n\nnotification_log [icon: bell, color: blue] {\n  id uuid pk\n  owner_id uuid\n  request_id uuid\n  property_id uuid\n  type varchar\n  recipient_email varchar\n  subject varchar\n  status notification_status\n  error text\n  created_at timestamp\n}\n\nvendor_profiles [icon: user-check, color: blue] {\n  id uuid pk\n  user_id uuid\n  business_name varchar\n  trades jsonb\n  service_area text\n  availability text\n  notification_preference varchar\n  license_insurance_notes text\n  created_at timestamp\n  updated_at timestamp\n}\n\nauth_attempts [icon: shield, color: gray] {\n  id uuid pk\n  key varchar\n  created_at timestamp\n}\n\nusers.id < workspaces.owner_id\nworkspaces.id < workspace_memberships.workspace_id\nusers.id < workspace_memberships.user_id\nusers.id < workspace_memberships.invited_by_id\nworkspaces.id - billing_accounts.workspace_id\nusers.id < properties.owner_id\nworkspaces.id < properties.workspace_id\nusers.id < invites.owner_id\nworkspaces.id < invites.workspace_id\nusers.id < invites.accepted_by_id\nusers.id < requests.owner_id\nworkspaces.id < requests.workspace_id\nproperties.id < requests.property_id\nusers.id < requests.assigned_vendor_id\nusers.id < requests.collaborator_id\ninvites.id < requests.pending_vendor_invite_id\ninvites.id < requests.pending_collaborator_invite_id\nrequests.id < request_photos.request_id\nusers.id < request_photos.uploaded_by_id\nrequests.id < quotes.request_id\nusers.id < quotes.submitted_by_vendor_id\nusers.id < quotes.approved_by_id\nrequests.id < decision_log.request_id\nusers.id < decision_log.actor_id\nrequests.id < comments.request_id\nusers.id < comments.author_id\nrequests.id < request_tasks.request_id\nusers.id < request_tasks.accepted_by_id\nusers.id < request_tasks.created_by_id\nrequests.id < work_sessions.request_id\nusers.id < work_sessions.vendor_id\nrequest_photos.id < work_sessions.proof_photo_id\nrequest_tasks.id < work_sessions.request_task_id\nrequests.id < closeout_submissions.request_id\nusers.id < closeout_submissions.vendor_id\nusers.id < closeout_submissions.reviewed_by_id\nrequests.id < billing_records.request_id\nusers.id < billing_records.owner_id\nworkspaces.id < billing_records.workspace_id\nusers.id < billing_records.vendor_id\ncloseout_submissions.id - billing_records.closeout_submission_id\nproperties.id < vault_documents.property_id\nrequests.id < vault_documents.request_id\nusers.id < vault_documents.uploaded_by_id\nproperties.id < reminders.property_id\nusers.id < contacts.owner_id\nusers.id < notification_log.owner_id\nrequests.id < notification_log.request_id\nproperties.id < notification_log.property_id\nusers.id - vendor_profiles.user_id\n"
+        },
+        {
+          "name": "Sequence: owner approves a closeout (as built)",
+          "format": "eraser",
+          "filename": "02-eraser/sequence-closeout-approval.eraser",
+          "content": "title Owner approves a vendor closeout (as built @ b45b1ac, lib/actions/closeout-submissions.ts:116-237)\n\nOwner [icon: user]\nWeb [icon: monitor]\nAction [label: reviewCloseoutSubmissionAction, icon: server]\nDB [label: Neon Postgres (neon-http, no transactions), icon: database]\nEmail [label: Resend, icon: mail]\n\nOwner > Web: Click \"Approve closeout\"\nWeb > Action: server action (requestId, closeoutId, \"approved\", reviewNotes)\nAction > DB: SELECT request (owner check)\nAction > DB: SELECT closeout (belongs to request?)\nalt [label: not owner / closeout not found] {\n  Action --> Web: { error }\n}\nelse [label: authorized] {\n  Action > DB: UPDATE closeout_submissions SET status = approved   (write 1)\n  Action > DB: UPDATE requests SET final_cost, status = Complete   (write 2)\n  Action > DB: UPDATE request_tasks SET accepted_at WHERE done    (write 3)\n  Action > DB: SELECT billing_records by closeout_submission_id\n  Action > DB: INSERT billing_records                              (write 4)\n  Action > DB: INSERT decision_log closeout_approved               (write 5)\n  alt [label: any write 2..5 fails (network, cold start, constraint)] {\n    Action --> Web: thrown error, generic Next.js error screen (no error.tsx)\n    DB --> DB: earlier writes stay committed, record is half-applied (F5)\n  }\n  else [label: all writes succeed] {\n    Action > Email: notify vendor (failure is logged, never thrown)\n    Action --> Web: { ok: true, decision: approved }\n  }\n}\n"
+        },
+        {
+          "name": "API payload contracts: 7 routes + 44 server actions",
+          "format": "markdown",
+          "filename": "02-eraser/contracts.md",
+          "content": "# TurnFlow Home: API payload contracts (as built @ b45b1ac)\n\nTurnFlow has **two API surfaces**:\n\n1. **7 HTTP route handlers** under `app/api/`. These are real HTTP contracts and are testable with Bruno.\n2. **44 Server Actions** under `lib/actions/`. These are RPC calls that Next.js serializes. They're the main write API, but they aren't stable HTTP endpoints (the action id changes per build), so they're tested by calling them in-process (authorization matrix) or through the UI (Playwright).\n\nEverything below comes from the code. Items marked **PROPOSED** are recommendations, not current behavior.\n\n## Error envelopes in use\n\n| Surface | Shape | Evidence |\n|---|---|---|\n| HTTP routes | `{ \"error\": \"<human message>\" }` with an HTTP status | `app/api/files/route.ts:17-19`, `app/api/blob-upload/route.ts:51-54` |\n| Server actions, style A (61 sites) | returns `{ error: string }` (or a form state with `error`) | `lib/actions/invites.ts`, `lib/actions/closeout-submissions.ts:121-145` |\n| Server actions, style B (21 sites) | `throw new Error(\"...\")`. Reaches the client as a generic error, and there's no `error.tsx` to catch it | `lib/actions/quotes.ts:26`, `lib/actions/requests.ts:219`, `missing:app/error.tsx` |\n| Server actions, style C | `redirect()` from `requireRole` when the role is wrong or the user is signed out | `lib/auth/dal.ts:25-30` |\n\n**PROPOSED** single contract: every action returns `{ ok: true, data } | { ok: false, code, message, fieldErrors? }`. Codes: `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_FAILED`, `CONFLICT`, `INTERNAL`. Inputs are parsed with zod at the top of each action.\n\n## HTTP route handlers\n\n```text\nGET /api/health                       Auth: none                                   @ app/api/health/route.ts:6\n  Request   none                                           validated by: n/a\n  200       buildHealthPayload()  (public status, no secrets)    Cache-Control: no-store   @ lib/health.ts\n\nGET /api/health/deep                  Auth: Bearer HEALTHCHECK_SECRET               @ app/api/health/deep/route.ts:17\n  Request   header Authorization: Bearer <secret>          validated by: lib/health.ts (authorizeDeepHealth)\n  200       { status: \"ok\", auth: \"ok\", database: \"ok\", operational: [...], latencyMs }\n  401|503   { status: \"unauthorized\" | \"not_configured\", auth }       (503 when secret not configured)\n  503       { status: \"degraded\", database: \"ok\"|\"error\", operational, latencyMs }\n  Notes     raw infrastructure errors are never returned\n\nGET|POST /api/auth/[...nextauth]      Auth.js v5 runtime                            @ app/api/auth/[...nextauth]/route.ts:1, lib/auth/config.ts:18-88\n  GET  /api/auth/csrf                 200 { csrfToken }\n  GET  /api/auth/session              200 { user: { id, email, name, role }, expires } | {} when signed out\n  POST /api/auth/callback/credentials form-urlencoded: csrfToken, email, password (+ json=true for a JSON reply)\n                                      validated by: zod credentialsSchema   @ lib/auth/config.ts:13-16\n           success -> Set-Cookie session (JWT strategy), role baked into token   @ lib/auth/config.ts:73-79\n           failure -> no session (wrong password, unknown email, and rate-limited all look the same)  @ lib/auth/config.ts:36-60\n  Notes     rate limits: per email + per IP, counted in auth_attempts    @ lib/auth/rate-limit-policy.ts\n            rate limiter FAILS OPEN when the DB check errors             @ lib/auth/rate-limit.ts:34-36\n\nPOST /api/blob-upload                 Auth: session (owner, or assigned vendor for request paths)   @ app/api/blob-upload/route.ts:45\n  Request   multipart/form-data: file (File), pathname (string)\n            pathname: turnflow/{requestId}/{type}/{uid}/... | turnflow-property/{propertyId}/{uid}/...\n            validated by: content-type allowlist :27-33, 4 MB cap :39, parseUploadPath + ownership :99-129\n  200       { url: \"/api/files?path=<pathname>\", pathname }\n  400       { error: \"Malformed upload request.\" | \"Upload request is missing the file or its target path.\" }\n  403       { error: \"Not signed in\" | \"Not authorized to upload to this path\" | \"Unknown upload folder\" | ... }\n  413       { error: \"This file is too large to upload here (limit ~4 MB)...\" }\n  415       { error: \"Unsupported file type: <type>\" }\n  502       { error: \"File storage rejected the upload. Try again shortly.\" }\n  503       { error: \"File uploads are not configured on the server.\" }\n  Notes     random suffix makes blob names unguessable (:134). Order of checks: token -> form -> type -> size -> auth\n\nGET /api/files?path=<pathname>        Auth: session + canReadUpload                 @ app/api/files/route.ts:21\n  200       file stream, Content-Type from blob, Cache-Control: private, no-store, X-Content-Type-Options: nosniff\n  400       { error: \"Unknown file.\" }\n  401       { error: \"Sign in to view this file.\" }\n  404       { error: \"File not found.\" }   (same answer for missing and not-yours, so paths can't be probed)\n  502       { error: \"File storage could not return this file.\" }\n  503       { error: \"File storage is not configured on the server.\" }\n  Notes     NOT listed in docs/ENDPOINT_EXPERIENCE_MAP.md (GAP-ERASER-06)\n\nGET /api/cron/reminder-digest         Auth: Bearer CRON_SECRET (Vercel Cron)        @ app/api/cron/reminder-digest/route.ts:17\n  200       { ownersNotified: number, remindersConsidered: number }\n  401       { error: \"Unauthorized\" }\n  503       { error: \"CRON_SECRET is not configured\" }   (production only)    @ lib/cron-auth.ts:12-25\n  Notes     idempotent per 72 h cooldown (last_notified_at). No try/catch: a DB error becomes an unlogged 500\n\nGET /api/cron/reset-investor-demo     Auth: Bearer CRON_SECRET                      @ app/api/cron/reset-investor-demo/route.ts:15\n  200       { reset: true } | { skipped: true, reason }\n  401|503   { error }\n  503       { skipped: true, reason: <password problem> }\n  500       { error: \"Investor demo reset failed\" }\n  Notes     NOT listed in docs/ENDPOINT_EXPERIENCE_MAP.md (GAP-ERASER-06)\n```\n\n## Server actions (44)\n\nLegend: **Role** is the `requireRole`/`requireAnyRole` gate. **Owns** is the record-level check inside the action. **Validation**: `zod` = schema, `manual` = hand-written checks, `none` = takes raw values. **Errors**: R = returns `{error}`, T = throws, D = redirect.\n\n| Action | File:line | Role | Inputs | Validation | Success | Errors | Writes (rows) |\n|---|---|---|---|---|---|---|---|\n| signupAction | lib/actions/auth.ts:46 | public | form: name, email, password | zod (lib/auth/forms.ts) + rate limit | redirect to onboarding | R | users, auth_attempts |\n| updateOwnerProfileAction | lib/actions/auth.ts:101 | owner | form: name | manual | state ok | R | users |\n| loginAction | lib/actions/auth.ts:126 | public | form: email, password, callbackUrl | zod | redirect to role home | R | auth_attempts |\n| logoutAction | lib/actions/auth.ts:175 | any | none | n/a | redirect | n/a | none |\n| getBackupDataAction | lib/actions/backup.ts:11 | owner | none | n/a | backup JSON | D | none (read) |\n| restoreBackupAction | lib/actions/backup.ts:99 | owner | object {properties[], requests[], billingRecords?[]} | manual per row; **no top-level shape or size check** | counts + errors[] | R/T | properties, requests, billing_records (add-only) |\n| updateBillingRecordAction | lib/actions/billing-records.ts:17 | owner | ids + form: amount, status, invoiceReference, notes | manual | ok | R | billing_records, decision_log |\n| submitCloseoutAction | lib/actions/closeout-submissions.ts:26 | vendor (assigned) | requestId + form: completionNotes, finalAmount, materialsNotes | manual | ok | R | closeout_submissions, requests, decision_log, notification_log |\n| reviewCloseoutSubmissionAction | lib/actions/closeout-submissions.ts:116 | owner (owns) | ids, decision, form: reviewNotes | manual; **no check that closeout is still pending** | {ok, decision} | R | closeout_submissions, requests, request_tasks, billing_records, decision_log (5 writes, not atomic) |\n| createCommentAction | lib/actions/comments.ts:9 | owner / vendor / collaborator (on request) | requestId, text | manual | ok | T | comments |\n| createVendorInviteAction | lib/actions/invites.ts:107 | owner (owns) | requestId, email | zod (lib/invites/forms.ts) | ok + link | R | invites, requests, decision_log, notification_log |\n| createCollaboratorInviteAction | lib/actions/invites.ts:111 | owner (owns) | requestId, email | zod | ok + link | R | same as above |\n| removeSharedAccessAction | lib/actions/invites.ts:131 | owner (owns) | form | manual | state ok | R | requests, decision_log |\n| cancelInviteAction | lib/actions/invites.ts:192 | owner (owns) | form | manual | state ok | R | invites (delete), requests, decision_log |\n| resendInviteAction | lib/actions/invites.ts:252 | owner (owns) | form | manual | state ok | R | invites, decision_log, notification_log |\n| acceptInviteAction | lib/actions/invites.ts:385 | vendor / collaborator | inviteId | manual (lib/invites/claim.ts) | redirect target | R | invites, requests, decision_log |\n| signupFromInviteAction | lib/actions/invites.ts:417 | public (invite-locked) | inviteId + form: name, password | zod | signed in + claimed | R | users, invites, requests, decision_log |\n| sendTestNotificationAction | lib/actions/notifications.ts:7 | owner | none | n/a | ok | n/a | notification_log |\n| createProperty | lib/actions/properties.ts:14 | owner | form: address, unit, nickname | manual | state ok | R | properties |\n| deletePropertyAction | lib/actions/properties.ts:51 | owner (owns) | propertyId | manual | ok | T | properties (cascade: requests, logs, documents) |\n| getPropertyRequestsForExportAction | lib/actions/properties.ts:96 | owner (owns) | propertyId | manual | rows | T | none (read) |\n| createQuoteAction | lib/actions/quotes.ts:33 | owner (owns) | requestId + form: vendorName, vendorContact, amount, notes, attachmentBlobPath | manual + path validation | {quoteId} | R/T | quotes |\n| approveQuoteAction | lib/actions/quotes.ts:81 | owner (owns) | requestId, quoteId | **no status check; others not declined** | void | T | quotes, requests, decision_log (3 writes, not atomic) |\n| declineQuoteAction | lib/actions/quotes.ts:126 | owner (owns) | requestId, quoteId | manual | void | T | quotes, decision_log |\n| deleteQuoteAction | lib/actions/quotes.ts:161 | owner (owns) | requestId, quoteId | manual | void | T | quotes, blob |\n| createReminderAction | lib/actions/reminders.ts:25 | owner (owns property) | propertyId + form: title, intervalDays, notes | manual | ok | R/T | reminders |\n| markReminderDoneAction | lib/actions/reminders.ts:56 | owner (owns) | ids | manual | void | T | reminders |\n| deleteReminderAction | lib/actions/reminders.ts:80 | owner (owns) | ids | manual | void | T | reminders |\n| createRequestTaskAction | lib/actions/request-tasks.ts:53 | owner (owns) | requestId + form: title, description, estimatedCost | manual | ok | R | request_tasks, decision_log |\n| updateRequestTaskStatusAction | lib/actions/request-tasks.ts:98 | owner / assigned vendor | ids, status | manual (enum) | ok | R | request_tasks, decision_log |\n| updateRequestTaskCostAction | lib/actions/request-tasks.ts:143 | owner (owns) | ids + form: estimatedCost, finalCost | manual | ok | R | request_tasks, decision_log |\n| acceptRequestTaskAction | lib/actions/request-tasks.ts:177 | owner (owns) | ids | manual | ok | R | request_tasks, decision_log |\n| deleteRequestTaskAction | lib/actions/request-tasks.ts:215 | owner (owns) | ids | manual | ok | R/T | request_tasks, decision_log |\n| createRequestAction | lib/actions/requests.ts:38 | owner (owns property) | form: propertyId, title, category, urgency, location, contactMethod, accessInstructions, notes | manual (allowlists) | {requestId} | R | requests, decision_log (2 writes, not atomic) |\n| recordRequestPhotoAction | lib/actions/requests.ts:119 | owner / assigned vendor | requestId, type, blobPath | path validation | ok | R/T | request_photos |\n| updateRequestAction | lib/actions/requests.ts:165 | owner (owns) | form fields as create | manual (allowlists) | redirect | R | requests |\n| deleteRequestAction | lib/actions/requests.ts:212 | owner (owns) | requestId | manual | void | T | requests (**cascade deletes decision_log**, F8) + blobs |\n| updateCostAction | lib/actions/requests.ts:239 | owner (owns) | requestId, {estimatedCost, quotedCost, finalCost} | manual | ok | R/T | requests, decision_log |\n| updateRequestStatusAction | lib/actions/requests.ts:284 | owner / assigned vendor | requestId, status, waiverReason? | policy (lib/request-status-policy.ts) | ok | R/T | requests, decision_log, notification_log |\n| createVaultDocumentAction | lib/actions/vault.ts:28 | owner (owns property) | propertyId + form: name, category, requestId, blobPath | manual + path validation | ok | R | vault_documents |\n| deleteVaultDocumentAction | lib/actions/vault.ts:87 | owner (owns) | ids | manual | void | T | vault_documents, blob |\n| submitVendorBidAction | lib/actions/vendor-bids.ts:14 | vendor (assigned) | requestId + form: amount, availabilityWindow, notes | manual (lib/vendor-bid.ts) | ok | R | quotes, decision_log, notification_log |\n| updateVendorProfileAction | lib/actions/vendor-profile.ts:13 | vendor | form: businessName, serviceArea, availability, notificationPreference, licenseInsuranceNotes | manual | ok | R | vendor_profiles |\n| recordWorkSessionEventAction | lib/actions/work-sessions.ts:32 | vendor (assigned) | requestId, event, notes, taskLabel, proofPhotoId?, requestTaskId? | manual (lib/work-sessions.ts) | ok | R | work_sessions, requests, decision_log |\n\nColumns marked \"manual\" were read from the files listed. The success and error shapes of the R-style actions follow each file's exported `*Result` / `*State` type (inferred for the ones not opened line by line).\n"
+        },
+        {
+          "name": "Business rules and enforcement",
+          "format": "markdown",
+          "filename": "02-eraser/business-rules.md",
+          "content": "# TurnFlow Home: business rules and where they're enforced (@ b45b1ac)\n\n| # | Rule | Enforced in | Evidence | Status |\n|---|---|---|---|---|\n| B1 | Every write re-checks role **and** record ownership | handler (each action) | docs/02-requirements/README.md:18, lib/auth/dal.ts:25-36 | built, **untested against a DB** (GAP-BRUNO-01) |\n| B2 | Helpers see only requests shared with them | handler (page queries filter by assignment) | docs/02-requirements/README.md:20, app/collaborator/page.tsx | built |\n| B3 | The browser never decides stored paths, URLs, or statuses | handler (path validation, status policy) | lib/blob-paths.ts, lib/request-status-policy.ts, app/api/blob-upload/route.ts:99-129 | built |\n| B4 | One user per email | db constraint (`users.email UNIQUE`) | lib/db/schema.ts:120 | built |\n| B5 | One vendor profile per user; one billing account per workspace; one billing record per closeout | db constraint (UNIQUE FKs) | lib/db/schema.ts:170, lib/db/schema.ts:384, lib/db/schema.ts:468 | built |\n| B6 | Only one approved quote per request | **NOT ENFORCED** (no status check, no constraint) | lib/actions/quotes.ts:81-112, docs/07-refinement/findings-and-roadmap.md:23 | GAP-ERASER-03 |\n| B7 | A closeout is reviewed exactly once | **NOT ENFORCED** (`reviewCloseoutSubmissionAction` doesn't require `status = pending`) | lib/actions/closeout-submissions.ts:136-158 | GAP-ERASER-04 |\n| B8 | Approval / closeout state changes and their decision-log row commit together | **NOT ENFORCED** (neon-http driver, no `db.transaction`) | lib/db/index.ts:2, docs/03-design/constraints.md:13 | GAP-ERASER-01 |\n| B9 | Decision history is permanent and append-only | **NOT ENFORCED**: `ON DELETE CASCADE` from requests, plus hard delete | lib/db/schema.ts:286-291, lib/actions/requests.ts:234, docs/03-design/constraints.md:26 | GAP-ERASER-02 |\n| B10 | A request-scoped invite always points at a real request | convention only (`invites.request_id` has no FK) | lib/db/schema.ts:206-208 | GAP-PRISMA-02 |\n| B11 | Vendors never see competing prices | handler (vendor query filters `submittedByVendorId = me`) | docs/03-design/constraints.md:23, lib/actions/quotes.ts:17-19 | built |\n| B12 | Vendors can only move working statuses; owner can set any status | handler (status policy) | lib/request-status-policy.ts, docs/07-refinement/findings-and-roadmap.md:15 | built, unit-tested |\n| B13 | Completion needs proof (after photo + final cost) unless waived with a reason | handler | lib/actions/requests.ts:284, lib/utils.ts (meetsCompletionRequirements) | built |\n| B14 | Login and signup are rate-limited per email and IP | db table (`auth_attempts`) + handler; **fails open** on DB error | lib/auth/config.ts:42-47, lib/auth/rate-limit.ts:34-36 | built |\n| B15 | No payment processing; billing is record-keeping only | product constraint | docs/03-design/constraints.md:31 | built (billing_accounts tables unused, GAP-FIGJAM-03) |\n| B16 | Email failures never break a flow | handler (caught + logged to notification_log) | docs/02-requirements/README.md:22, lib/email.ts:53 | built |\n\n## Enum values (database enums)\n\n| Enum | Values | Evidence |\n|---|---|---|\n| user_role | owner, vendor, collaborator | lib/db/schema.ts:25-29 |\n| request_status | Draft, Needs Quote, Waiting, Scheduled, In Progress, Needs Review, Complete, Archived | lib/db/schema.ts:30-39 |\n| photo_type | before, after, receipt, other | lib/db/schema.ts:40-45 |\n| quote_status | pending, approved, declined | lib/db/schema.ts:46-50 |\n| invite_role / invite_status | vendor, collaborator / pending, accepted | lib/db/schema.ts:51-52 |\n| vault_category | Receipt, Warranty, Manual, Invoice, Inspection Report, Other | lib/db/schema.ts:53-60 |\n| notification_status | sent, failed | lib/db/schema.ts:61-64 |\n| work_session_event | started, paused, resumed, stopped | lib/db/schema.ts:65-70 |\n| request_task_status | todo, in_progress, blocked, done | lib/db/schema.ts:71-76 |\n| closeout_submission_status | pending, approved, changes_requested | lib/db/schema.ts:77-81 |\n| billing_record_status | recorded, paid, disputed, void | lib/db/schema.ts:82-87 |\n| workspace_kind / member_role / member_status / plan / billing_account_status | personal, household, business / owner, admin, member, billing_admin / active, invited, removed / poc, homeowner, team, enterprise / trialing, active, past_due, paused, canceled | lib/db/schema.ts:88-116 |\n\n`requests.category` and `requests.urgency` are free `varchar` columns. Their allowed values live in code (`REQUEST_CATEGORIES`, `REQUEST_URGENCIES` in `lib/utils.ts`), checked by `createRequestAction` (lib/actions/requests.ts:55-60) and restore (lib/actions/backup.ts:146-151).\n"
+        }
+      ],
+      "evidence": [
+        "docs/03-design/data-model.md",
+        "docs/02-requirements/README.md",
+        "docs/ENDPOINT_EXPERIENCE_MAP.md",
+        "lib/db/schema.ts",
+        "lib/db/index.ts",
+        "drizzle",
+        "app/api",
+        "lib/actions",
+        "search:db.transaction",
+        "cmd:npx drizzle-kit check"
+      ],
+      "notes": "Two API surfaces: HTTP route handlers (stable contracts) and server actions (RPC). Most writes are server actions. GAP-ERASER-04 is new; it is not in the repo's findings register."
+    },
+    "bruno": {
+      "status": "Partial",
+      "planned": [
+        {
+          "text": "Server integration and authorization-matrix tests: every action as every actor against a real Postgres (P3).",
+          "evidence": [
+            "docs/06-testing/test-strategy.md:43-64",
+            "docs/07-refinement/findings-and-roadmap.md:60"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Contracts for the operational API endpoints (auth, upload, health, deep health, cron).",
+          "evidence": [
+            "docs/ENDPOINT_EXPERIENCE_MAP.md:76-84"
+          ],
+          "inferred": false
+        }
+      ],
+      "built": [
+        {
+          "text": "Route policy helpers are unit-tested: cron auth, health payloads, file-access rules, upload path parsing.",
+          "evidence": [
+            "__tests__/cron-auth.test.ts",
+            "__tests__/health.test.ts",
+            "__tests__/file-access.test.ts",
+            "__tests__/blob-paths.test.ts"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Routes are exercised indirectly through the manual Playwright smoke loops.",
+          "evidence": [
+            "scripts/ux-full-loop-smoke.ts",
+            "package.json:22"
+          ],
+          "inferred": true
+        }
+      ],
+      "gaps": [
+        {
+          "id": "GAP-BRUNO-01",
+          "text": "No integration or authorization test runs any of the 44 server actions against a database (lib/actions coverage 0%), so a broken ownership check would ship unnoticed.",
+          "impact": "high",
+          "evidence": [
+            "docs/06-testing/test-strategy.md:13",
+            "docs/06-testing/test-strategy.md:23",
+            "docs/07-refinement/findings-and-roadmap.md:21",
+            "cmd:npx vitest run --coverage"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-BRUNO-02",
+          "text": "No HTTP contract tests for the 7 route handlers (file reads, uploads, cron, health), so status codes and payloads can change without any check failing.",
+          "impact": "medium",
+          "evidence": [
+            "search:**/*.bru",
+            "search:**/*.http",
+            "search:**/postman*.json",
+            "app/api"
+          ],
+          "inferred": false
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "Collection README (tree, run, coverage, authorization matrix)",
+          "format": "markdown",
+          "filename": "03-bruno/README.md",
+          "content": "# TurnFlow Home: Bruno collection (generated by the audit, @ b45b1ac)\n\n```text\n03-bruno/\n├── bruno.json\n├── environments/local.bru          baseUrl, ownerEmail; secrets: seedPassword, cronSecret, healthcheckSecret\n├── fixtures/pixel.png, note.txt    upload fixtures (1x1 PNG, plain text)\n├── 01-public/                      runs signed out (cookie jar still empty)\n│   ├── 01-health.bru                         200, no secrets in body\n│   ├── 02-health-deep-unauthorized.bru       401\n│   ├── 03-health-deep.bru                    200|503 with HEALTHCHECK_SECRET\n│   ├── 04-files-signed-out.bru               401\n│   ├── 05-upload-signed-out.bru              403 \"Not signed in\"\n│   ├── 06-cron-digest-unauthorized.bru       401 (needs CRON_SECRET set on the server)\n│   ├── 07-cron-digest.bru                    200 {ownersNotified, remindersConsidered}\n│   └── 08-cron-demo-reset-unauthorized.bru   401\n├── 02-auth/                        Auth.js credentials flow (cookie session)\n│   ├── 01-csrf.bru                           saves {{csrfToken}}\n│   ├── 02-login-wrong-password.bru           PROPOSED negative: rejected\n│   ├── 03-session-still-anonymous.bru        no user\n│   ├── 04-login-owner.bru                    sets the session cookie (Bruno's cookie jar keeps it)\n│   └── 05-session-owner.bru                  role = owner, saves {{ownerId}}\n└── 03-signed-in/                   runs with the owner's session cookie\n    ├── 01-files-unknown-path.bru             400\n    ├── 02-files-not-mine.bru                 404 (same answer as missing: no probing)\n    ├── 03-upload-unsupported-type.bru        415\n    ├── 04-upload-other-users-folder.bru      403\n    └── 05-upload-unknown-property.bru        403\n```\n\n## Run it\n\n1. Put the app on a database with the seed loaded (`npm run db:migrate && npm run db:seed`). Set `CRON_SECRET` and `HEALTHCHECK_SECRET` in `.env.local`. Run `npm run dev`.\n2. In the Bruno app: **Open Collection** → this folder → environment `local` → set the secret values (`seedPassword` = your `SEED_PASSWORD`, `cronSecret` = `CRON_SECRET`, `healthcheckSecret` = `HEALTHCHECK_SECRET`).\n3. Right-click the collection → **Run**. Or headless:\n\n```bash\ncd audit-system/audits/turnflow-home/03-bruno && npx @usebruno/cli run --env local\n```\n\nFolder order matters: `01-public` must run before `02-auth`, because after login the cookie jar is authenticated.\n\n**Verification status:** all 22 `.bru` files parse with `@usebruno/lang` (`bruToJsonV2`). The collection has **not** been executed against a running app during the audit, because no Neon database was reachable from the audit environment. Expected statuses are taken from the handler code cited in `02-eraser/contracts.md`.\n\n## Coverage map\n\n| Route | Requests | Not covered (needs data the seed doesn't expose over HTTP) |\n|---|---|---|\n| `/api/health` | 01-public/01 | none |\n| `/api/health/deep` | 01-public/02, 03 | `not_configured` (503) needs a server without the secret |\n| `/api/auth/*` | 02-auth/01–05 | rate-limit lockout after N failures (PROPOSED: loop the wrong-password request and expect the correct password to also fail, then clear `auth_attempts`) |\n| `/api/blob-upload` | 01-public/05, 03-signed-in/03–05 | happy path and 413 (need a real `propertyId`/`requestId` and a >4 MB file) |\n| `/api/files` | 01-public/04, 03-signed-in/01–02 | 200 for an owned file (needs a stored blob path) |\n| `/api/cron/reminder-digest` | 01-public/06, 07 | none |\n| `/api/cron/reset-investor-demo` | 01-public/08 | authorized run (only on a demo database) |\n\n## What Bruno can't test here: the 44 server actions\n\nEvery write in TurnFlow is a Next.js Server Action (`lib/actions/*.ts`). Server actions are called by an internal action id that changes between builds, so they aren't a stable HTTP contract and don't belong in Bruno. They need the **authorization matrix** the repo already planned (`docs/06-testing/test-strategy.md:43-64`): run each action as each actor against a real database. That's ticket **Build the server-action authorization matrix** (GAP-BRUNO-01) in `06-plane/tickets.md`.\n\nPROPOSED shape (Vitest, real Postgres; requires a driver that can reach a local or branch database, see GAP-PRISMA-04):\n\n```ts\n// __tests__/integration/authorization-matrix.test.ts  (PROPOSED)\nconst ACTORS = [\"owner\", \"otherOwner\", \"assignedVendor\", \"unassignedVendor\", \"collaborator\", \"signedOut\"] as const;\n\nconst MATRIX: Record<string, Partial<Record<(typeof ACTORS)[number], \"allow\" | \"deny\">>> = {\n  approveQuoteAction:             { owner: \"allow\", otherOwner: \"deny\", assignedVendor: \"deny\", collaborator: \"deny\", signedOut: \"deny\" },\n  submitVendorBidAction:          { assignedVendor: \"allow\", unassignedVendor: \"deny\", owner: \"deny\", collaborator: \"deny\" },\n  reviewCloseoutSubmissionAction: { owner: \"allow\", otherOwner: \"deny\", assignedVendor: \"deny\" },\n  recordRequestPhotoAction:       { owner: \"allow\", assignedVendor: \"allow\", unassignedVendor: \"deny\", collaborator: \"deny\" },\n  createCommentAction:            { owner: \"allow\", assignedVendor: \"allow\", collaborator: \"allow\", otherOwner: \"deny\", unassignedVendor: \"deny\" },\n  // ... one row per exported action in lib/actions/*.ts (44 total)\n};\n\n// for each action x actor: mock auth() to return the actor's session, call the action\n// on a seeded record, then assert either success or \"rejected AND row counts unchanged\".\n```\n"
+        },
+        {
+          "name": "bruno.json",
+          "format": "json",
+          "filename": "03-bruno/bruno.json",
+          "content": "{\n  \"version\": \"1\",\n  \"name\": \"TurnFlow Home\",\n  \"type\": \"collection\",\n  \"ignore\": [\"node_modules\", \".git\"]\n}\n"
+        },
+        {
+          "name": "Environment: local",
+          "format": "bru",
+          "filename": "03-bruno/environments/local.bru",
+          "content": "vars {\n  baseUrl: http://localhost:3000\n  ownerEmail: owner@test.com\n}\nvars:secret [\n  seedPassword,\n  cronSecret,\n  healthcheckSecret\n]\n"
+        },
+        {
+          "name": "01-public/01-health.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/01-health.bru",
+          "content": "meta {\n  name: Health - public status (200)\n  type: http\n  seq: 1\n}\n\nget {\n  url: {{baseUrl}}/api/health\n  body: none\n  auth: none\n}\n\nassert {\n  res.status: eq 200\n  res.headers[\"cache-control\"]: eq no-store\n}\n\ntests {\n  test(\"never exposes secrets or database details\", function () {\n    const body = JSON.stringify(res.body).toLowerCase();\n    expect(body).to.not.contain(\"database_url\");\n    expect(body).to.not.contain(\"secret\");\n  });\n}\n"
+        },
+        {
+          "name": "01-public/02-health-deep-unauthorized.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/02-health-deep-unauthorized.bru",
+          "content": "meta {\n  name: Health deep - no bearer (401)\n  type: http\n  seq: 2\n}\n\nget {\n  url: {{baseUrl}}/api/health/deep\n  body: none\n  auth: none\n}\n\nassert {\n  res.status: eq 401\n  res.body.status: eq unauthorized\n}\n"
+        },
+        {
+          "name": "01-public/03-health-deep.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/03-health-deep.bru",
+          "content": "meta {\n  name: Health deep - with HEALTHCHECK_SECRET (200 or 503)\n  type: http\n  seq: 3\n}\n\nget {\n  url: {{baseUrl}}/api/health/deep\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{healthcheckSecret}}\n}\n\nassert {\n  res.status: in [200, 503]\n  res.body.auth: eq ok\n  res.body.latencyMs: isNumber\n}\n"
+        },
+        {
+          "name": "01-public/04-files-signed-out.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/04-files-signed-out.bru",
+          "content": "meta {\n  name: Files - signed out (401)\n  type: http\n  seq: 4\n}\n\nget {\n  url: {{baseUrl}}/api/files?path=turnflow/00000000-0000-0000-0000-000000000000/before/x/y.png\n  body: none\n  auth: none\n}\n\nassert {\n  res.status: eq 401\n  res.body.error: eq Sign in to view this file.\n}\n"
+        },
+        {
+          "name": "01-public/05-upload-signed-out.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/05-upload-signed-out.bru",
+          "content": "meta {\n  name: Blob upload - signed out (403)\n  type: http\n  seq: 5\n}\n\npost {\n  url: {{baseUrl}}/api/blob-upload\n  body: multipartForm\n  auth: none\n}\n\nbody:multipart-form {\n  pathname: turnflow-property/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000/pixel.png\n  file: @file(fixtures/pixel.png)\n}\n\nassert {\n  res.status: eq 403\n  res.body.error: eq Not signed in\n}\n"
+        },
+        {
+          "name": "01-public/06-cron-digest-unauthorized.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/06-cron-digest-unauthorized.bru",
+          "content": "meta {\n  name: Cron reminder digest - no bearer (401)\n  type: http\n  seq: 6\n}\n\nget {\n  url: {{baseUrl}}/api/cron/reminder-digest\n  body: none\n  auth: none\n}\n\ndocs {\n  Expects CRON_SECRET to be set on the server. Without it, local dev answers 200 (open) by design: lib/cron-auth.ts:16-21.\n}\n\nassert {\n  res.status: eq 401\n  res.body.error: eq Unauthorized\n}\n"
+        },
+        {
+          "name": "01-public/07-cron-digest.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/07-cron-digest.bru",
+          "content": "meta {\n  name: Cron reminder digest - authorized (200)\n  type: http\n  seq: 7\n}\n\nget {\n  url: {{baseUrl}}/api/cron/reminder-digest\n  body: none\n  auth: bearer\n}\n\nauth:bearer {\n  token: {{cronSecret}}\n}\n\nassert {\n  res.status: eq 200\n  res.body.ownersNotified: isNumber\n  res.body.remindersConsidered: isNumber\n}\n"
+        },
+        {
+          "name": "01-public/08-cron-demo-reset-unauthorized.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/08-cron-demo-reset-unauthorized.bru",
+          "content": "meta {\n  name: Cron investor demo reset - no bearer (401)\n  type: http\n  seq: 8\n}\n\nget {\n  url: {{baseUrl}}/api/cron/reset-investor-demo\n  body: none\n  auth: none\n}\n\nassert {\n  res.status: eq 401\n}\n"
+        },
+        {
+          "name": "01-public/folder.bru",
+          "format": "bru",
+          "filename": "03-bruno/01-public/folder.bru",
+          "content": "meta {\n  name: 01-public\n  seq: 1\n}\n"
+        },
+        {
+          "name": "02-auth/01-csrf.bru",
+          "format": "bru",
+          "filename": "03-bruno/02-auth/01-csrf.bru",
+          "content": "meta {\n  name: Auth.js - get CSRF token\n  type: http\n  seq: 1\n}\n\nget {\n  url: {{baseUrl}}/api/auth/csrf\n  body: none\n  auth: none\n}\n\nvars:post-response {\n  csrfToken: res.body.csrfToken\n}\n\nassert {\n  res.status: eq 200\n  res.body.csrfToken: isString\n}\n"
+        },
+        {
+          "name": "02-auth/02-login-wrong-password.bru",
+          "format": "bru",
+          "filename": "03-bruno/02-auth/02-login-wrong-password.bru",
+          "content": "meta {\n  name: Login - wrong password gives no session (PROPOSED negative)\n  type: http\n  seq: 2\n}\n\npost {\n  url: {{baseUrl}}/api/auth/callback/credentials\n  body: formUrlEncoded\n  auth: none\n}\n\nbody:form-urlencoded {\n  csrfToken: {{csrfToken}}\n  email: {{ownerEmail}}\n  password: definitely-not-the-password\n  json: true\n}\n\ntests {\n  test(\"sign-in is rejected\", function () {\n    const target = String((res.body && res.body.url) || res.getHeader(\"location\") || \"\");\n    expect(target).to.contain(\"error\");\n  });\n}\n"
+        },
+        {
+          "name": "02-auth/03-session-still-anonymous.bru",
+          "format": "bru",
+          "filename": "03-bruno/02-auth/03-session-still-anonymous.bru",
+          "content": "meta {\n  name: Session - still anonymous after failed login\n  type: http\n  seq: 3\n}\n\nget {\n  url: {{baseUrl}}/api/auth/session\n  body: none\n  auth: none\n}\n\ntests {\n  test(\"no user in session\", function () {\n    expect(res.getStatus()).to.equal(200);\n    expect(res.body && res.body.user).to.equal(undefined);\n  });\n}\n"
+        },
+        {
+          "name": "02-auth/04-login-owner.bru",
+          "format": "bru",
+          "filename": "03-bruno/02-auth/04-login-owner.bru",
+          "content": "meta {\n  name: Login - seeded owner (sets session cookie)\n  type: http\n  seq: 4\n}\n\npost {\n  url: {{baseUrl}}/api/auth/callback/credentials\n  body: formUrlEncoded\n  auth: none\n}\n\nbody:form-urlencoded {\n  csrfToken: {{csrfToken}}\n  email: {{ownerEmail}}\n  password: {{seedPassword}}\n  json: true\n}\n\ntests {\n  test(\"sign-in is accepted\", function () {\n    const target = String((res.body && res.body.url) || res.getHeader(\"location\") || \"\");\n    expect(target).to.not.contain(\"error\");\n  });\n}\n"
+        },
+        {
+          "name": "02-auth/05-session-owner.bru",
+          "format": "bru",
+          "filename": "03-bruno/02-auth/05-session-owner.bru",
+          "content": "meta {\n  name: Session - signed in as owner\n  type: http\n  seq: 5\n}\n\nget {\n  url: {{baseUrl}}/api/auth/session\n  body: none\n  auth: none\n}\n\nvars:post-response {\n  ownerId: res.body.user.id\n}\n\nassert {\n  res.status: eq 200\n  res.body.user.role: eq owner\n  res.body.user.email: eq {{ownerEmail}}\n  res.body.user.id: isString\n}\n"
+        },
+        {
+          "name": "02-auth/folder.bru",
+          "format": "bru",
+          "filename": "03-bruno/02-auth/folder.bru",
+          "content": "meta {\n  name: 02-auth\n  seq: 2\n}\n"
+        },
+        {
+          "name": "03-signed-in/01-files-unknown-path.bru",
+          "format": "bru",
+          "filename": "03-bruno/03-signed-in/01-files-unknown-path.bru",
+          "content": "meta {\n  name: Files - unknown path shape (400)\n  type: http\n  seq: 1\n}\n\nget {\n  url: {{baseUrl}}/api/files?path=not-a-turnflow-path.png\n  body: none\n  auth: none\n}\n\nassert {\n  res.status: eq 400\n  res.body.error: eq Unknown file.\n}\n"
+        },
+        {
+          "name": "03-signed-in/02-files-not-mine.bru",
+          "format": "bru",
+          "filename": "03-bruno/03-signed-in/02-files-not-mine.bru",
+          "content": "meta {\n  name: Files - someone else's or missing record (404, not 403)\n  type: http\n  seq: 2\n}\n\nget {\n  url: {{baseUrl}}/api/files?path=turnflow/00000000-0000-0000-0000-000000000000/before/00000000-0000-0000-0000-000000000000/x.png\n  body: none\n  auth: none\n}\n\ndocs {\n  Missing and not-yours give the same 404 so file names can't be probed (app/api/files/route.ts:44-47).\n}\n\nassert {\n  res.status: eq 404\n  res.body.error: eq File not found.\n}\n"
+        },
+        {
+          "name": "03-signed-in/03-upload-unsupported-type.bru",
+          "format": "bru",
+          "filename": "03-bruno/03-signed-in/03-upload-unsupported-type.bru",
+          "content": "meta {\n  name: Blob upload - unsupported type (415)\n  type: http\n  seq: 3\n}\n\npost {\n  url: {{baseUrl}}/api/blob-upload\n  body: multipartForm\n  auth: none\n}\n\nbody:multipart-form {\n  pathname: turnflow-property/00000000-0000-0000-0000-000000000000/{{ownerId}}/note.txt\n  file: @file(fixtures/note.txt)\n}\n\nassert {\n  res.status: eq 415\n  res.body.error: startsWith Unsupported file type\n}\n"
+        },
+        {
+          "name": "03-signed-in/04-upload-other-users-folder.bru",
+          "format": "bru",
+          "filename": "03-bruno/03-signed-in/04-upload-other-users-folder.bru",
+          "content": "meta {\n  name: Blob upload - another user's folder (403)\n  type: http\n  seq: 4\n}\n\npost {\n  url: {{baseUrl}}/api/blob-upload\n  body: multipartForm\n  auth: none\n}\n\nbody:multipart-form {\n  pathname: turnflow-property/00000000-0000-0000-0000-000000000000/11111111-1111-1111-1111-111111111111/pixel.png\n  file: @file(fixtures/pixel.png)\n}\n\nassert {\n  res.status: eq 403\n  res.body.error: eq Not authorized to upload to this path\n}\n"
+        },
+        {
+          "name": "03-signed-in/05-upload-unknown-property.bru",
+          "format": "bru",
+          "filename": "03-bruno/03-signed-in/05-upload-unknown-property.bru",
+          "content": "meta {\n  name: Blob upload - own uid but property not owned (403)\n  type: http\n  seq: 5\n}\n\npost {\n  url: {{baseUrl}}/api/blob-upload\n  body: multipartForm\n  auth: none\n}\n\nbody:multipart-form {\n  pathname: turnflow-property/00000000-0000-0000-0000-000000000000/{{ownerId}}/pixel.png\n  file: @file(fixtures/pixel.png)\n}\n\nassert {\n  res.status: eq 403\n  res.body.error: eq Not authorized to upload to this property\n}\n"
+        },
+        {
+          "name": "03-signed-in/folder.bru",
+          "format": "bru",
+          "filename": "03-bruno/03-signed-in/folder.bru",
+          "content": "meta {\n  name: 03-signed-in\n  seq: 3\n}\n"
+        }
+      ],
+      "evidence": [
+        "app/api",
+        "docs/06-testing/test-strategy.md",
+        "docs/ENDPOINT_EXPERIENCE_MAP.md",
+        "__tests__",
+        "search:**/*.bru",
+        "search:**/*.http",
+        "search:**/postman*.json",
+        "cmd:npx vitest run --coverage"
+      ],
+      "notes": "Auth is Auth.js credentials with a cookie session, so the collection uses the CSRF -> callback flow and runs negative tests before logging in. 22 .bru files parse with @usebruno/lang; not executed against a live app during the audit (no reachable database)."
+    },
+    "figma": {
+      "status": "Partial",
+      "planned": [
+        {
+          "text": "Every route specifies success, empty/error states, trust cues, and next handoff.",
+          "evidence": [
+            "docs/ENDPOINT_EXPERIENCE_MAP.md:42-74"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Empty, loading, and error states are a UX review criterion.",
+          "evidence": [
+            "docs/UI_UX_REVIEW.md:40"
+          ],
+          "inferred": false
+        }
+      ],
+      "built": [
+        {
+          "text": "Idle/empty states on 11 of 15 key screens with a next action.",
+          "evidence": [
+            "app/owner/dashboard/page.tsx:436-459",
+            "components/VendorPortal.tsx:405-406",
+            "app/collaborator/page.tsx:105-110",
+            "components/NewRequestForm.tsx:200"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Expected domain errors are rendered for invites and auth forms.",
+          "evidence": [
+            "app/accept-invite/page.tsx:26",
+            "app/login/page.tsx:87-89",
+            "app/signup/page.tsx:131-133"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Action-level pending and disabled states guard against double submits.",
+          "evidence": [
+            "components/QuoteWorkspace.tsx:137-154",
+            "components/CloseoutSubmissionPanel.tsx:260-322",
+            "components/VendorPortal.tsx:555"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Populated states exist for every key screen.",
+          "evidence": [
+            "app/owner/requests/[id]/page.tsx",
+            "components/RequestDetailView.tsx",
+            "components/VendorPortal.tsx"
+          ],
+          "inferred": false
+        }
+      ],
+      "gaps": [
+        {
+          "id": "GAP-FIGMA-01",
+          "text": "No error boundary anywhere (no error.tsx or global-error.tsx): any unexpected server error or thrown action shows the generic Next.js error screen with no app chrome and no Try again.",
+          "impact": "high",
+          "evidence": [
+            "missing:app/error.tsx",
+            "missing:app/global-error.tsx",
+            "missing:app/owner/error.tsx",
+            "lib/actions/quotes.ts:88-90"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-FIGMA-02",
+          "text": "No route-level loading states (no loading.tsx; the only Suspense fallback wraps the sidebar), so slow navigations give no feedback.",
+          "impact": "medium",
+          "evidence": [
+            "missing:app/owner/loading.tsx",
+            "app/owner/layout.tsx:14-20"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-FIGMA-03",
+          "text": "States exist only as prose in the endpoint map; there is no visual design source (Figma or similar) for Idle, Loading, or Error.",
+          "impact": "low",
+          "evidence": [
+            "docs/ENDPOINT_EXPERIENCE_MAP.md:42",
+            "search:figma"
+          ],
+          "inferred": false
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "Screen x state matrix (15 screens)",
+          "format": "markdown",
+          "filename": "04-figma/state-matrix.md",
+          "content": "# TurnFlow Home: key screen × UI state matrix (@ b45b1ac)\n\nDefinitions:\n- **Idle** = empty / first-run / zero results.\n- **Loading** = feedback while the *route* loads (`loading.tsx` or a Suspense fallback around page content).\n- **Populated** = data rendered.\n- **Error** = an *unexpected* failure (DB down, thrown action error), caught by `error.tsx` / `global-error.tsx`.\n\nExpected domain errors (invalid invite, validation messages) and action-level pending states are listed separately in the last two columns, because they're built well.\n\nRepo-wide facts behind the Loading and Error columns:\n- `missing:app/**/loading.tsx` and `missing:app/**/error.tsx`, `missing:app/global-error.tsx`, `missing:app/not-found.tsx`. No route segment has them.\n- The only Suspense fallback wraps the owner **sidebar**, not page content: `app/owner/layout.tsx:14-20`.\n- `notFound()` is called once (`app/owner/requests/[id]/page.tsx:45`) and renders Next's default 404.\n\n| Screen (route) | MVP story | Idle | Loading | Populated | Error (unexpected) | Domain errors (built) | Action pending (built) |\n|---|---|---|---|---|---|---|---|\n| Sign up `/signup` | Join | n/a (form) | n/a (form) | n/a | **missing** | built @ app/signup/page.tsx:131-133 | built @ app/signup/page.tsx:9 |\n| Log in `/login` | Join | n/a (form) | n/a (form) | n/a | **missing** | built @ app/login/page.tsx:87-89 | built @ app/login/page.tsx:18 |\n| Accept invite `/accept-invite` | Share | n/a | **missing** | built @ app/accept-invite/page.tsx | **missing** | built @ app/accept-invite/page.tsx:26, :49-51, :81, :85, :92 | built @ components/AcceptInviteButton.tsx:17, :49 |\n| Onboarding `/owner/onboarding` | Set up my home | built (0/N progress) @ app/owner/onboarding/page.tsx:63-84 | **missing** | built @ app/owner/onboarding/page.tsx | **missing** | n/a | n/a |\n| Dashboard `/owner/dashboard` | Capture → triage | built @ app/owner/dashboard/page.tsx:436-447 (first request), :448-459 (empty filter) | **missing** | built @ app/owner/dashboard/page.tsx:462 | **missing** | n/a | n/a |\n| New request `/owner/requests/new` | Capture | built (no property) @ components/NewRequestForm.tsx:200 | **missing** | n/a (form) | **missing** | built (inline `{error}`) @ lib/actions/requests.ts:52-66 | built @ components/NewRequestForm.tsx:79 |\n| Request detail `/owner/requests/[id]` | Share, Work, Close out | partial: no photos @ components/RequestDetailView.tsx:657 | **missing** | built @ components/RequestDetailView.tsx | **missing** (only default 404 @ app/owner/requests/[id]/page.tsx:45) | built per panel (quotes, closeout) | built @ components/QuoteWorkspace.tsx:137-154, components/CloseoutSubmissionPanel.tsx:260-322, components/RequestDetailView.tsx:237, :499 |\n| Properties `/owner/properties` | Set up my home | built @ app/owner/properties/page.tsx:81 | **missing** | built | **missing** | built @ components/PropertyForm.tsx:8 | built @ components/DeletePropertyButton.tsx:7 |\n| Vault `/owner/vault` | Keep history | built @ app/owner/vault/page.tsx:86, components/VaultManager.tsx:139-141 | **missing** | built | **missing** | built | n/a |\n| Calendar `/owner/calendar` | Keep history | built @ app/owner/calendar/page.tsx:15, components/ReminderManager.tsx:214-215 | **missing** | built | **missing** | built | n/a |\n| Account & sharing `/owner/account` | Share | built @ app/owner/account/page.tsx:509, :611 | **missing** | built | **missing** | built @ components/SharedAccessControls.tsx:13, components/PendingInviteControls.tsx:8-12 | built (same lines) |\n| Notifications `/owner/notifications` | Keep history | built @ app/owner/notifications/page.tsx:110-112 | **missing** | built | **missing** | n/a | n/a |\n| Backup `/owner/backup` | Keep history | n/a (actions page) | **missing** | built | **missing** | built (restore errors list) @ components/BackupManager.tsx:194 | built |\n| Vendor portal `/vendor` | Quote, Work, Close out | built @ components/VendorPortal.tsx:405-406 | **missing** | built @ components/VendorPortal.tsx | **missing** | built (gated actions, per docs) @ docs/ENDPOINT_EXPERIENCE_MAP.md:68 | built @ components/VendorPortal.tsx:144, :555 |\n| Collaborator portal `/collaborator` | Share (helper) | built @ app/collaborator/page.tsx:105-110 | **missing** | built | **missing** | n/a | n/a |\n\n## Totals\n\n| State | Built | Missing | n/a |\n|---|---|---|---|\n| Idle | 11 (1 partial) | 0 | 4 |\n| Loading (route) | 0 | 13 | 2 |\n| Populated | 12 | 0 | 3 |\n| Error (unexpected) | 0 | 15 | 0 |\n\n## What the user sees today when something unexpected fails (inferred from Next.js defaults)\n\n- **A server component throws** (for example, a Neon timeout while loading the dashboard): with no `error.tsx` anywhere, Next.js renders its built-in error screen. In production that's a generic message with no TurnFlow chrome, no \"Try again\", and no way back except the browser.\n- **A server action throws** (21 `throw new Error` sites, such as `approveQuoteAction` when the quote isn't found, `lib/actions/quotes.ts:88-90`): the client component's `await` rejects. Without a local `try/catch` or an error boundary, the same generic screen appears.\n- **Slow navigation** (Neon cold start): the previous page stays on screen with no progress feedback until the server responds, because no `loading.tsx` exists.\n"
+        },
+        {
+          "name": "PROPOSED specs for missing states",
+          "format": "markdown",
+          "filename": "04-figma/missing-state-specs.md",
+          "content": "# TurnFlow Home: PROPOSED specs for the missing states\n\nEverything here is **PROPOSED** design work (it doesn't exist yet). Copy follows the product voice in `docs/ENDPOINT_EXPERIENCE_MAP.md:13-29`: say why you're here, what you can safely do, and what happens next.\n\n## 1. Error state (one shared design, 3 variants)\n\n**Frame names in Figma:** `Shell / State=Error`, `Owner / State=Error`, `Helper / State=Error`.\n\n| Element | Spec |\n|---|---|\n| Chrome | Keep the role's chrome (owner sidebar from `components/OwnerSidebar.tsx`, helper shell from `components/HelperPortalShell.tsx`). The user must still be able to navigate. |\n| Heading | \"This page didn't load.\" |\n| Body | \"Your record is safe. Nothing was changed. This is usually a short connection problem.\" |\n| Primary action | **Try again** (calls Next's `reset()`) |\n| Secondary action | Owner: \"Back to dashboard\" → `/owner/dashboard`. Vendor: \"Back to my jobs\" → `/vendor`. Collaborator: \"Back to shared requests\" → `/collaborator`. |\n| Diagnostics | Small muted text: \"Reference: {error.digest}\" so a tester can quote it (and match it in Sentry once GAP-CODE-01 is closed). |\n| Never shown | Stack traces, SQL, raw error messages. |\n\n**Global variant** (`app/global-error.tsx`, when the root layout itself fails): the same copy on a bare page with the TurnFlow wordmark only.\n\n**Action-failure toast** (for the 21 throwing server actions until they return `{ error }`): an inline banner above the panel that was acting: \"That didn't go through. Nothing was saved. Try again.\" It disappears on the next successful action.\n\n## 2. Loading state (route level)\n\n| Screen | Skeleton contents (same sizes as the Populated layout) |\n|---|---|\n| Owner dashboard | Status-filter pill row; 3 request cards (title bar 60%, two meta lines, a status chip block) |\n| Request detail | Title + status chip; left column of 4 panel skeletons (Quotes, Tasks, Work sessions, Closeout); right column for decision log (6 lines) |\n| Vendor portal | Work-queue snapshot strip (4 counters); 2 job cards with a next-action panel block |\n| Collaborator portal | 1 shared-request card with a readiness checklist (5 lines) |\n| Properties / Vault / Calendar / Account / Notifications | Page heading + 3 row skeletons |\n\nRules: gray blocks with `animate-pulse`, `aria-busy=\"true\"` on the container, no spinner-only screens, and keep the chrome visible (put `loading.tsx` inside `app/owner/`, `app/vendor/`, `app/collaborator/` so layouts stay mounted).\n\n## 3. Idle refinement (only one partial cell)\n\nRequest detail with zero photos (`components/RequestDetailView.tsx:657`): replace the plain empty text with \"No proof yet. Add a **before** photo now so the vendor sees what you saw,\" plus an **Add photo** button that opens the existing upload control.\n\n## Figma build checklist for these specs\n\n1. Component set `Page state` with property `State = Idle | Loading | Populated | Error` and property `Role = Owner | Vendor | Collaborator`.\n2. One frame per key screen × state for the screens in `state-matrix.md` whose Loading or Error cell is \"missing\" (13 Loading + 15 Error). Reuse the shared Error and Loading components instead of drawing 28 unique frames.\n3. Annotate each frame with the file that will implement it (`app/owner/loading.tsx`, `app/owner/error.tsx`, `app/vendor/error.tsx`, `app/collaborator/error.tsx`, `app/global-error.tsx`).\n"
+        }
+      ],
+      "evidence": [
+        "app",
+        "components",
+        "docs/ENDPOINT_EXPERIENCE_MAP.md",
+        "docs/UI_UX_REVIEW.md",
+        "missing:app/error.tsx",
+        "missing:app/global-error.tsx",
+        "missing:app/not-found.tsx",
+        "missing:app/owner/loading.tsx"
+      ],
+      "notes": "Idle and action-pending states are a strength. The missing layer is route-level Loading and unexpected Error handling."
+    },
+    "prisma": {
+      "status": "Partial",
+      "equivalentTool": "Drizzle ORM + drizzle-kit (Drizzle Studio)",
+      "planned": [
+        {
+          "text": "The Drizzle schema and SQL migrations are the source of truth for the data model.",
+          "evidence": [
+            "docs/03-design/data-model.md:4-5"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Deterministic, guarded dev seed with owner, vendor, and collaborator demo accounts.",
+          "evidence": [
+            "docs/DEPLOYMENT.md:88-94"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Local Postgres through docker-compose and scripts/dev-local.sh.",
+          "evidence": [
+            "CONTRIBUTING.md:23-26",
+            "docs/IMPLEMENTATION_BACKLOG.md:37-40"
+          ],
+          "inferred": false
+        }
+      ],
+      "built": [
+        {
+          "text": "21 tables in Drizzle with 13 migrations; drizzle-kit check passes; drift gate in CI.",
+          "evidence": [
+            "lib/db/schema.ts",
+            "drizzle/0012_clumsy_ozymandias.sql",
+            "cmd:npx drizzle-kit check",
+            "package.json:25"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Seed is deterministic and idempotent (upserts) with 3 personas.",
+          "evidence": [
+            "scripts/seed.ts:37-60",
+            "scripts/seed.ts:173-178"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Seed refuses hosted databases without a strong SEED_PASSWORD, and that rule is unit-tested.",
+          "evidence": [
+            "lib/seed-guard.ts:13-35",
+            "__tests__/seed-guard.test.ts"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Curated investor demo seed with a nightly reset.",
+          "evidence": [
+            "lib/demo/investor-seed.ts",
+            "app/api/cron/reset-investor-demo/route.ts"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Only two indexes beyond primary keys and unique constraints.",
+          "evidence": [
+            "drizzle/0011_romantic_secret_warriors.sql:52-53",
+            "drizzle/0012_clumsy_ozymandias.sql:7"
+          ],
+          "inferred": false
+        }
+      ],
+      "gaps": [
+        {
+          "id": "GAP-PRISMA-04",
+          "text": "The documented local setup does not work: CONTRIBUTING points to a missing scripts/dev-local.sh, and plain local Postgres cannot serve the neon-http driver without a proxy, so contributors and CI integration tests need a Neon account.",
+          "impact": "medium",
+          "evidence": [
+            "CONTRIBUTING.md:26",
+            "CONTRIBUTING.md:37",
+            "missing:scripts/dev-local.sh",
+            "missing:docker-compose.local.yml",
+            "lib/db/index.ts:2-11"
+          ],
+          "inferred": true
+        },
+        {
+          "id": "GAP-PRISMA-02",
+          "text": "invites.request_id has no foreign key (circular-reference workaround), so an invite can point at a request that no longer exists.",
+          "impact": "low",
+          "evidence": [
+            "lib/db/schema.ts:206-208"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-PRISMA-01",
+          "text": "Foreign keys used by every page query (requests.owner_id, property_id, assigned_vendor_id, collaborator_id, decision_log.request_id) have no indexes; fine at POC scale, slow as history grows.",
+          "impact": "low",
+          "evidence": [
+            "drizzle/0011_romantic_secret_warriors.sql:52-53",
+            "drizzle/0012_clumsy_ozymandias.sql:7",
+            "lib/db/schema.ts:218-250"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-PRISMA-03",
+          "text": "The seed has no idle owner, second owner, or unassigned vendor, so Idle states and the planned authorization matrix cannot be reproduced from seed data.",
+          "impact": "low",
+          "evidence": [
+            "scripts/seed.ts:173-178",
+            "docs/06-testing/test-strategy.md:45-53"
+          ],
+          "inferred": false
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "Data model, seed, inspection, personas, local DB finding",
+          "format": "markdown",
+          "filename": "05-prisma/README.md",
+          "content": "# TurnFlow Home: data models, seed, and inspection (step 5)\n\n**Equivalent tool in this repo:** Drizzle ORM + drizzle-kit (Drizzle Studio). The app doesn't use Prisma.\n\n| Artifact | What it is |\n|---|---|\n| `schema.prisma` | Inspection-only Prisma schema equivalent to the 21 Drizzle tables. **Validated with Prisma 7.10.1** (`prisma validate`). Never migrate with it. |\n| `seed-authz-personas.ts` | PROPOSED seed additions in the project's own Drizzle style. Passes the repo's `tsc --noEmit` and ESLint as-is. |\n\n## Built state (verified)\n\n| Check | Result | Evidence |\n|---|---|---|\n| Models ↔ migrations consistent | `drizzle-kit check`: \"Everything's fine\" | `cmd:npx drizzle-kit check`, `drizzle/` (13 migrations, 0000–0012) |\n| Drift guard in CI | `db:generate` + `git diff --exit-code -- drizzle` inside `npm run verify` | `package.json:25`, `.github/workflows/ci.yml:42-43` |\n| Seed deterministic | Yes: fixed fixtures, no randomness | `scripts/seed.ts:33-35` |\n| Seed idempotent | Yes: upsert by email, address, and title | `scripts/seed.ts:37-60` |\n| Seed guarded | Yes: hosted DB needs a non-default `SEED_PASSWORD` of 12+ characters, unit-tested | `lib/seed-guard.ts:13-35`, `__tests__/seed-guard.test.ts` |\n| Personas | owner@test.com, vendor@test.com, collaborator@test.com (+ curated investor demo) | `scripts/seed.ts:173-178`, `lib/demo/investor-seed.ts` |\n| Faker | Not used (hand-written fixtures). Fine for determinism. | `search:faker` |\n\n## How to inspect the database\n\n**Native (recommended):** run this with `DATABASE_URL` set in `.env.local`, then open the URL it prints:\n\n```bash\nnpx drizzle-kit studio\n```\n\n**Prisma Studio on the same database (optional, read-mostly):**\n\n```bash\nmkdir -p tools/prisma-inspect && cp audit-system/audits/turnflow-home/05-prisma/schema.prisma tools/prisma-inspect/\ncd tools/prisma-inspect && npm init -y && npm i -D prisma@7\ncat > prisma.config.ts <<'EOF'\nimport \"dotenv/config\";\nimport { defineConfig, env } from \"prisma/config\";\nexport default defineConfig({ schema: \"schema.prisma\", datasource: { url: env(\"DATABASE_URL\") } });\nEOF\nDATABASE_URL=\"<your Neon URL>\" npx prisma studio\n```\n\nIn Studio, open **Request**. Filter `status = Complete`, then open its `decisionLog` relation. Keep this in mind: deleting a request here deletes its log too (GAP-ERASER-02).\n\n## Persona table (for Gherkin \"Given\" steps)\n\n| Persona | Exists today? | UI state it reproduces | Used by |\n|---|---|---|---|\n| owner@test.com | yes (`scripts/seed.ts:173`) | Populated: one shared request \"Kitchen faucet leaking\" | Bruno `02-auth`, smoke scripts |\n| vendor@test.com | yes (`scripts/seed.ts:174`) | Vendor Populated | smoke scripts |\n| collaborator@test.com | yes (`scripts/seed.ts:175-179`) | Collaborator Populated | smoke scripts |\n| idle@test.com | **PROPOSED** | every owner Idle state | Figma/Plane Idle scenarios |\n| other-owner@test.com | **PROPOSED** | \"other owner\" row of the authorization matrix | GAP-BRUNO-01 |\n| stranger-vendor@test.com | **PROPOSED** | \"unassigned vendor\" row | GAP-BRUNO-01 |\n| busy@test.com | **PROPOSED** | Populated with 25 requests and a 200-char title | dashboard layout and pagination |\n\nDev password for all of them: your `SEED_PASSWORD` (`password123` only on a localhost database, `lib/seed-guard.ts:9`).\n\n## Reset\n\nThere's no single reset command. Neon branches are the practical way: create a branch, `npm run db:migrate && npm run db:seed`, and delete the branch afterward. There's no `migrate reset` equivalent in drizzle-kit.\n\n## GAP-PRISMA-04: the local database path in CONTRIBUTING doesn't work as written\n\n- `CONTRIBUTING.md:23-26` says to run `./scripts/dev-local.sh`, which doesn't exist (`missing:scripts/dev-local.sh`, `missing:docker-compose.local.yml`; planned as backlog Task 0.5 at `docs/IMPLEMENTATION_BACKLOG.md:37-40`).\n- The fallback, \"run Postgres manually\" (`CONTRIBUTING.md:37`), can't work with the current driver. `lib/db/index.ts:2-11` and `scripts/migrate.ts:2-4` use `@neondatabase/serverless` over **HTTP**, which needs a Neon endpoint or a local Neon HTTP proxy in front of plain Postgres (inferred from the driver choice).\n- Meanwhile `lib/seed-guard.ts` and `docs/DEPLOYMENT.md:88-94` describe localhost databases as a supported case. So a new contributor (or a CI integration job) currently needs a Neon account to run anything.\n- PROPOSED fix: add `docker-compose.local.yml` with `postgres:17` plus a Neon local HTTP proxy, and a `scripts/dev-local.sh` that waits for it, migrates, and seeds.\n"
+        },
+        {
+          "name": "Inspection-only Prisma schema (validated with Prisma 7.10.1)",
+          "format": "prisma",
+          "filename": "05-prisma/schema.prisma",
+          "content": "// Inspection only. The app uses Drizzle ORM (lib/db/schema.ts). Generated from lib/db/schema.ts\n// and drizzle/0000..0012 @ b45b1ac so you can browse the same Postgres database in Prisma Studio\n// without changing the app's ORM. Never run `prisma migrate` or `prisma db push` with this file.\n// Recommended native equivalent: `npx drizzle-kit studio`.\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"./generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nenum UserRole {\n  owner\n  vendor\n  collaborator\n\n  @@map(\"user_role\")\n}\n\nenum RequestStatus {\n  Draft\n  NeedsQuote  @map(\"Needs Quote\")\n  Waiting\n  Scheduled\n  InProgress  @map(\"In Progress\")\n  NeedsReview @map(\"Needs Review\")\n  Complete\n  Archived\n\n  @@map(\"request_status\")\n}\n\nenum PhotoType {\n  before\n  after\n  receipt\n  other\n\n  @@map(\"photo_type\")\n}\n\nenum QuoteStatus {\n  pending\n  approved\n  declined\n\n  @@map(\"quote_status\")\n}\n\nenum InviteRole {\n  vendor\n  collaborator\n\n  @@map(\"invite_role\")\n}\n\nenum InviteStatus {\n  pending\n  accepted\n\n  @@map(\"invite_status\")\n}\n\nenum VaultCategory {\n  Receipt\n  Warranty\n  Manual\n  Invoice\n  InspectionReport @map(\"Inspection Report\")\n  Other\n\n  @@map(\"vault_category\")\n}\n\nenum NotificationStatus {\n  sent\n  failed\n\n  @@map(\"notification_status\")\n}\n\nenum WorkSessionEvent {\n  started\n  paused\n  resumed\n  stopped\n\n  @@map(\"work_session_event\")\n}\n\nenum RequestTaskStatus {\n  todo\n  in_progress\n  blocked\n  done\n\n  @@map(\"request_task_status\")\n}\n\nenum CloseoutSubmissionStatus {\n  pending\n  approved\n  changes_requested\n\n  @@map(\"closeout_submission_status\")\n}\n\nenum BillingRecordStatus {\n  recorded\n  paid\n  disputed\n  void\n\n  @@map(\"billing_record_status\")\n}\n\nenum WorkspaceKind {\n  personal\n  household\n  business\n\n  @@map(\"workspace_kind\")\n}\n\nenum WorkspaceMemberRole {\n  owner\n  admin\n  member\n  billing_admin\n\n  @@map(\"workspace_member_role\")\n}\n\nenum WorkspaceMemberStatus {\n  active\n  invited\n  removed\n\n  @@map(\"workspace_member_status\")\n}\n\nenum WorkspacePlan {\n  poc\n  homeowner\n  team\n  enterprise\n\n  @@map(\"workspace_plan\")\n}\n\nenum BillingAccountStatus {\n  trialing\n  active\n  past_due\n  paused\n  canceled\n\n  @@map(\"billing_account_status\")\n}\n\nmodel User {\n  id           String   @id @default(uuid()) @db.Uuid\n  email        String   @unique @db.VarChar(255)\n  passwordHash String   @map(\"password_hash\")\n  role         UserRole\n  name         String?  @db.VarChar(255)\n  createdAt    DateTime @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  ownedWorkspaces          Workspace[]           @relation(\"WorkspaceOwner\")\n  memberships              WorkspaceMembership[] @relation(\"MembershipUser\")\n  membershipInvitesSent    WorkspaceMembership[] @relation(\"MembershipInvitedBy\")\n  properties               Property[]            @relation(\"PropertyOwner\")\n  invitesSent              Invite[]              @relation(\"InviteOwner\")\n  invitesAccepted          Invite[]              @relation(\"InviteAcceptedBy\")\n  ownedRequests            Request[]             @relation(\"RequestOwner\")\n  assignedRequests         Request[]             @relation(\"RequestAssignedVendor\")\n  collaboratingRequests    Request[]             @relation(\"RequestCollaborator\")\n  uploadedPhotos           RequestPhoto[]        @relation(\"PhotoUploadedBy\")\n  submittedQuotes          Quote[]               @relation(\"QuoteSubmittedBy\")\n  approvedQuotes           Quote[]               @relation(\"QuoteApprovedBy\")\n  decisions                DecisionLog[]         @relation(\"DecisionActor\")\n  comments                 Comment[]             @relation(\"CommentAuthor\")\n  acceptedTasks            RequestTask[]         @relation(\"TaskAcceptedBy\")\n  createdTasks             RequestTask[]         @relation(\"TaskCreatedBy\")\n  workSessions             WorkSession[]         @relation(\"WorkSessionVendor\")\n  closeoutsSubmitted       CloseoutSubmission[]  @relation(\"CloseoutVendor\")\n  closeoutsReviewed        CloseoutSubmission[]  @relation(\"CloseoutReviewedBy\")\n  billingRecordsOwned      BillingRecord[]       @relation(\"BillingOwner\")\n  billingRecordsAsVendor   BillingRecord[]       @relation(\"BillingVendor\")\n  vaultDocumentsUploaded   VaultDocument[]       @relation(\"VaultUploadedBy\")\n  contacts                 Contact[]             @relation(\"ContactOwner\")\n  notifications            NotificationLog[]     @relation(\"NotificationOwner\")\n  vendorProfile            VendorProfile?        @relation(\"VendorProfileUser\")\n\n  @@map(\"users\")\n}\n\nmodel Workspace {\n  id        String        @id @default(uuid()) @db.Uuid\n  ownerId   String        @map(\"owner_id\") @db.Uuid\n  owner     User          @relation(\"WorkspaceOwner\", fields: [ownerId], references: [id], onDelete: Cascade)\n  name      String        @db.VarChar(255)\n  slug      String        @unique @db.VarChar(120)\n  kind      WorkspaceKind @default(personal)\n  createdAt DateTime      @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt DateTime      @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  memberships    WorkspaceMembership[]\n  billingAccount BillingAccount?\n  properties     Property[]\n  invites        Invite[]\n  requests       Request[]\n  billingRecords BillingRecord[]\n\n  @@map(\"workspaces\")\n}\n\nmodel WorkspaceMembership {\n  id          String                @id @default(uuid()) @db.Uuid\n  workspaceId String                @map(\"workspace_id\") @db.Uuid\n  workspace   Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)\n  userId      String                @map(\"user_id\") @db.Uuid\n  user        User                  @relation(\"MembershipUser\", fields: [userId], references: [id], onDelete: Cascade)\n  role        WorkspaceMemberRole   @default(member)\n  status      WorkspaceMemberStatus @default(active)\n  invitedById String?               @map(\"invited_by_id\") @db.Uuid\n  invitedBy   User?                 @relation(\"MembershipInvitedBy\", fields: [invitedById], references: [id], onDelete: SetNull)\n  createdAt   DateTime              @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt   DateTime              @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  @@unique([workspaceId, userId], map: \"workspace_memberships_workspace_user_unique\")\n  @@index([userId], map: \"workspace_memberships_user_idx\")\n  @@map(\"workspace_memberships\")\n}\n\nmodel BillingAccount {\n  id                     String               @id @default(uuid()) @db.Uuid\n  workspaceId            String               @unique @map(\"workspace_id\") @db.Uuid\n  workspace              Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)\n  plan                   WorkspacePlan        @default(poc)\n  status                 BillingAccountStatus @default(trialing)\n  billingEmail           String?              @map(\"billing_email\") @db.VarChar(255)\n  externalCustomerId     String?              @map(\"external_customer_id\") @db.VarChar(255)\n  externalSubscriptionId String?              @map(\"external_subscription_id\") @db.VarChar(255)\n  trialEndsAt            DateTime?            @map(\"trial_ends_at\") @db.Timestamp(6)\n  currentPeriodEndsAt    DateTime?            @map(\"current_period_ends_at\") @db.Timestamp(6)\n  createdAt              DateTime             @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt              DateTime             @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  @@map(\"billing_accounts\")\n}\n\nmodel Property {\n  id          String     @id @default(uuid()) @db.Uuid\n  ownerId     String     @map(\"owner_id\") @db.Uuid\n  owner       User       @relation(\"PropertyOwner\", fields: [ownerId], references: [id], onDelete: Cascade)\n  workspaceId String?    @map(\"workspace_id\") @db.Uuid\n  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)\n  address     String\n  unit        String?    @db.VarChar(100)\n  nickname    String?    @db.VarChar(255)\n  createdAt   DateTime   @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt   DateTime   @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  requests      Request[]\n  vaultDocs     VaultDocument[]\n  reminders     Reminder[]\n  notifications NotificationLog[]\n\n  @@map(\"properties\")\n}\n\nmodel Invite {\n  id           String       @id @default(uuid()) @db.Uuid\n  ownerId      String       @map(\"owner_id\") @db.Uuid\n  owner        User         @relation(\"InviteOwner\", fields: [ownerId], references: [id], onDelete: Cascade)\n  workspaceId  String?      @map(\"workspace_id\") @db.Uuid\n  workspace    Workspace?   @relation(fields: [workspaceId], references: [id], onDelete: SetNull)\n  // No FK in the database (circular requests<->invites); see GAP-PRISMA-02.\n  requestId    String?      @map(\"request_id\") @db.Uuid\n  role         InviteRole\n  email        String       @db.VarChar(255)\n  status       InviteStatus @default(pending)\n  createdAt    DateTime     @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  expiresAt    DateTime     @map(\"expires_at\") @db.Timestamp(6)\n  acceptedById String?      @map(\"accepted_by_id\") @db.Uuid\n  acceptedBy   User?        @relation(\"InviteAcceptedBy\", fields: [acceptedById], references: [id], onDelete: NoAction)\n  acceptedAt   DateTime?    @map(\"accepted_at\") @db.Timestamp(6)\n\n  pendingVendorForRequests       Request[] @relation(\"RequestPendingVendorInvite\")\n  pendingCollaboratorForRequests Request[] @relation(\"RequestPendingCollaboratorInvite\")\n\n  @@map(\"invites\")\n}\n\nmodel Request {\n  id                          String        @id @default(uuid()) @db.Uuid\n  ownerId                     String        @map(\"owner_id\") @db.Uuid\n  owner                       User          @relation(\"RequestOwner\", fields: [ownerId], references: [id], onDelete: Cascade)\n  workspaceId                 String?       @map(\"workspace_id\") @db.Uuid\n  workspace                   Workspace?    @relation(fields: [workspaceId], references: [id], onDelete: SetNull)\n  propertyId                  String        @map(\"property_id\") @db.Uuid\n  property                    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)\n  title                       String        @db.VarChar(255)\n  category                    String        @db.VarChar(100)\n  urgency                     String        @db.VarChar(50)\n  location                    String?\n  contactMethod               String?       @map(\"contact_method\") @db.VarChar(50)\n  accessInstructions          String?       @map(\"access_instructions\")\n  notes                       String?\n  status                      RequestStatus @default(Draft)\n  assignedVendorId            String?       @map(\"assigned_vendor_id\") @db.Uuid\n  assignedVendor              User?         @relation(\"RequestAssignedVendor\", fields: [assignedVendorId], references: [id], onDelete: NoAction)\n  collaboratorId              String?       @map(\"collaborator_id\") @db.Uuid\n  collaborator                User?         @relation(\"RequestCollaborator\", fields: [collaboratorId], references: [id], onDelete: NoAction)\n  estimatedCost               Decimal?      @map(\"estimated_cost\") @db.Decimal(10, 2)\n  quotedCost                  Decimal?      @map(\"quoted_cost\") @db.Decimal(10, 2)\n  finalCost                   Decimal?      @map(\"final_cost\") @db.Decimal(10, 2)\n  pendingVendorInviteId       String?       @map(\"pending_vendor_invite_id\") @db.Uuid\n  pendingVendorInvite         Invite?       @relation(\"RequestPendingVendorInvite\", fields: [pendingVendorInviteId], references: [id], onDelete: NoAction)\n  pendingCollaboratorInviteId String?       @map(\"pending_collaborator_invite_id\") @db.Uuid\n  pendingCollaboratorInvite   Invite?       @relation(\"RequestPendingCollaboratorInvite\", fields: [pendingCollaboratorInviteId], references: [id], onDelete: NoAction)\n  createdAt                   DateTime      @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt                   DateTime      @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  photos         RequestPhoto[]\n  quotes         Quote[]\n  decisionLog    DecisionLog[]\n  comments       Comment[]\n  tasks          RequestTask[]\n  workSessions   WorkSession[]\n  closeouts      CloseoutSubmission[]\n  billingRecords BillingRecord[]\n  vaultDocuments VaultDocument[]\n  notifications  NotificationLog[]\n\n  @@map(\"requests\")\n}\n\nmodel RequestPhoto {\n  id           String    @id @default(uuid()) @db.Uuid\n  requestId    String    @map(\"request_id\") @db.Uuid\n  request      Request   @relation(fields: [requestId], references: [id], onDelete: Cascade)\n  type         PhotoType\n  url          String\n  blobPath     String    @map(\"blob_path\")\n  uploadedById String    @map(\"uploaded_by_id\") @db.Uuid\n  uploadedBy   User      @relation(\"PhotoUploadedBy\", fields: [uploadedById], references: [id], onDelete: NoAction)\n  createdAt    DateTime  @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  workSessions WorkSession[]\n\n  @@map(\"request_photos\")\n}\n\nmodel Quote {\n  id                  String      @id @default(uuid()) @db.Uuid\n  requestId           String      @map(\"request_id\") @db.Uuid\n  request             Request     @relation(fields: [requestId], references: [id], onDelete: Cascade)\n  submittedByVendorId String?     @map(\"submitted_by_vendor_id\") @db.Uuid\n  submittedByVendor   User?       @relation(\"QuoteSubmittedBy\", fields: [submittedByVendorId], references: [id], onDelete: NoAction)\n  vendorName          String      @map(\"vendor_name\") @db.VarChar(255)\n  vendorContact       String?     @map(\"vendor_contact\") @db.VarChar(255)\n  amount              Decimal     @db.Decimal(10, 2)\n  availabilityWindow  String?     @map(\"availability_window\")\n  notes               String?\n  attachmentUrl       String?     @map(\"attachment_url\")\n  attachmentBlobPath  String?     @map(\"attachment_blob_path\")\n  status              QuoteStatus @default(pending)\n  approvedById        String?     @map(\"approved_by_id\") @db.Uuid\n  approvedBy          User?       @relation(\"QuoteApprovedBy\", fields: [approvedById], references: [id], onDelete: NoAction)\n  approvedAt          DateTime?   @map(\"approved_at\") @db.Timestamp(6)\n  createdAt           DateTime    @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt           DateTime    @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  @@map(\"quotes\")\n}\n\nmodel DecisionLog {\n  id        String   @id @default(uuid()) @db.Uuid\n  requestId String   @map(\"request_id\") @db.Uuid\n  request   Request  @relation(fields: [requestId], references: [id], onDelete: Cascade) // GAP-ERASER-02\n  actorId   String   @map(\"actor_id\") @db.Uuid\n  actor     User     @relation(\"DecisionActor\", fields: [actorId], references: [id], onDelete: NoAction)\n  action    String   @db.VarChar(100)\n  details   Json?    @default(\"{}\")\n  createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  @@map(\"decision_log\")\n}\n\nmodel Comment {\n  id        String   @id @default(uuid()) @db.Uuid\n  requestId String   @map(\"request_id\") @db.Uuid\n  request   Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)\n  authorId  String   @map(\"author_id\") @db.Uuid\n  author    User     @relation(\"CommentAuthor\", fields: [authorId], references: [id], onDelete: NoAction)\n  text      String\n  createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  @@map(\"comments\")\n}\n\nmodel RequestTask {\n  id                 String            @id @default(uuid()) @db.Uuid\n  requestId          String            @map(\"request_id\") @db.Uuid\n  request            Request           @relation(fields: [requestId], references: [id], onDelete: Cascade)\n  title              String            @db.VarChar(255)\n  description        String?\n  status             RequestTaskStatus @default(todo)\n  estimatedCost      Decimal?          @map(\"estimated_cost\") @db.Decimal(10, 2)\n  finalCost          Decimal?          @map(\"final_cost\") @db.Decimal(10, 2)\n  acceptedById       String?           @map(\"accepted_by_id\") @db.Uuid\n  acceptedBy         User?             @relation(\"TaskAcceptedBy\", fields: [acceptedById], references: [id], onDelete: NoAction)\n  acceptedAt         DateTime?         @map(\"accepted_at\") @db.Timestamp(6)\n  sortOrder          Int               @default(0) @map(\"sort_order\")\n  requiredPhotoTypes Json              @default(\"[]\") @map(\"required_photo_types\")\n  createdById        String?           @map(\"created_by_id\") @db.Uuid\n  createdBy          User?             @relation(\"TaskCreatedBy\", fields: [createdById], references: [id], onDelete: NoAction)\n  createdAt          DateTime          @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt          DateTime          @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  workSessions WorkSession[]\n\n  @@map(\"request_tasks\")\n}\n\nmodel WorkSession {\n  id            String           @id @default(uuid()) @db.Uuid\n  requestId     String           @map(\"request_id\") @db.Uuid\n  request       Request          @relation(fields: [requestId], references: [id], onDelete: Cascade)\n  vendorId      String           @map(\"vendor_id\") @db.Uuid\n  vendor        User             @relation(\"WorkSessionVendor\", fields: [vendorId], references: [id], onDelete: NoAction)\n  proofPhotoId  String?          @map(\"proof_photo_id\") @db.Uuid\n  proofPhoto    RequestPhoto?    @relation(fields: [proofPhotoId], references: [id], onDelete: SetNull)\n  requestTaskId String?          @map(\"request_task_id\") @db.Uuid\n  requestTask   RequestTask?     @relation(fields: [requestTaskId], references: [id], onDelete: SetNull)\n  taskLabel     String?          @map(\"task_label\") @db.VarChar(255)\n  event         WorkSessionEvent\n  notes         String?\n  createdAt     DateTime         @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  @@map(\"work_sessions\")\n}\n\nmodel CloseoutSubmission {\n  id              String                   @id @default(uuid()) @db.Uuid\n  requestId       String                   @map(\"request_id\") @db.Uuid\n  request         Request                  @relation(fields: [requestId], references: [id], onDelete: Cascade)\n  vendorId        String                   @map(\"vendor_id\") @db.Uuid\n  vendor          User                     @relation(\"CloseoutVendor\", fields: [vendorId], references: [id], onDelete: NoAction)\n  completionNotes String                   @map(\"completion_notes\")\n  materialsNotes  String?                  @map(\"materials_notes\")\n  finalAmount     Decimal                  @map(\"final_amount\") @db.Decimal(10, 2)\n  status          CloseoutSubmissionStatus @default(pending)\n  reviewNotes     String?                  @map(\"review_notes\")\n  reviewedById    String?                  @map(\"reviewed_by_id\") @db.Uuid\n  reviewedBy      User?                    @relation(\"CloseoutReviewedBy\", fields: [reviewedById], references: [id], onDelete: NoAction)\n  reviewedAt      DateTime?                @map(\"reviewed_at\") @db.Timestamp(6)\n  submittedAt     DateTime                 @default(now()) @map(\"submitted_at\") @db.Timestamp(6)\n  createdAt       DateTime                 @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt       DateTime                 @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  billingRecord BillingRecord?\n\n  @@map(\"closeout_submissions\")\n}\n\nmodel BillingRecord {\n  id                   String              @id @default(uuid()) @db.Uuid\n  requestId            String              @map(\"request_id\") @db.Uuid\n  request              Request             @relation(fields: [requestId], references: [id], onDelete: Cascade)\n  ownerId              String              @map(\"owner_id\") @db.Uuid\n  owner                User                @relation(\"BillingOwner\", fields: [ownerId], references: [id], onDelete: Cascade)\n  workspaceId          String?             @map(\"workspace_id\") @db.Uuid\n  workspace            Workspace?          @relation(fields: [workspaceId], references: [id], onDelete: SetNull)\n  vendorId             String?             @map(\"vendor_id\") @db.Uuid\n  vendor               User?               @relation(\"BillingVendor\", fields: [vendorId], references: [id], onDelete: NoAction)\n  closeoutSubmissionId String?             @unique @map(\"closeout_submission_id\") @db.Uuid\n  closeoutSubmission   CloseoutSubmission? @relation(fields: [closeoutSubmissionId], references: [id], onDelete: SetNull)\n  amount               Decimal             @db.Decimal(10, 2)\n  status               BillingRecordStatus @default(recorded)\n  invoiceReference     String?             @map(\"invoice_reference\") @db.VarChar(120)\n  notes                String?\n  recordedAt           DateTime            @default(now()) @map(\"recorded_at\") @db.Timestamp(6)\n  paidAt               DateTime?           @map(\"paid_at\") @db.Timestamp(6)\n  createdAt            DateTime            @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt            DateTime            @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  @@map(\"billing_records\")\n}\n\nmodel VaultDocument {\n  id           String        @id @default(uuid()) @db.Uuid\n  propertyId   String        @map(\"property_id\") @db.Uuid\n  property     Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)\n  name         String        @db.VarChar(255)\n  category     VaultCategory @default(Other)\n  requestId    String?       @map(\"request_id\") @db.Uuid\n  request      Request?      @relation(fields: [requestId], references: [id], onDelete: SetNull)\n  url          String\n  blobPath     String        @map(\"blob_path\")\n  uploadedById String        @map(\"uploaded_by_id\") @db.Uuid\n  uploadedBy   User          @relation(\"VaultUploadedBy\", fields: [uploadedById], references: [id], onDelete: NoAction)\n  createdAt    DateTime      @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  @@map(\"vault_documents\")\n}\n\nmodel Reminder {\n  id              String    @id @default(uuid()) @db.Uuid\n  propertyId      String    @map(\"property_id\") @db.Uuid\n  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)\n  title           String    @db.VarChar(255)\n  intervalDays    Int       @map(\"interval_days\")\n  lastCompletedAt DateTime? @map(\"last_completed_at\") @db.Timestamp(6)\n  nextDueAt       DateTime  @map(\"next_due_at\") @db.Timestamp(6)\n  lastNotifiedAt  DateTime? @map(\"last_notified_at\") @db.Timestamp(6)\n  notes           String?\n  createdAt       DateTime  @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt       DateTime  @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  @@map(\"reminders\")\n}\n\nmodel Contact {\n  id              String   @id @default(uuid()) @db.Uuid\n  ownerId         String   @map(\"owner_id\") @db.Uuid\n  owner           User     @relation(\"ContactOwner\", fields: [ownerId], references: [id], onDelete: Cascade)\n  name            String   @db.VarChar(255)\n  email           String?  @db.VarChar(255)\n  phone           String?  @db.VarChar(50)\n  propertyAddress String?  @map(\"property_address\")\n  createdAt       DateTime @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  @@map(\"contacts\")\n}\n\nmodel NotificationLog {\n  id             String             @id @default(uuid()) @db.Uuid\n  ownerId        String             @map(\"owner_id\") @db.Uuid\n  owner          User               @relation(\"NotificationOwner\", fields: [ownerId], references: [id], onDelete: Cascade)\n  requestId      String?            @map(\"request_id\") @db.Uuid\n  request        Request?           @relation(fields: [requestId], references: [id], onDelete: SetNull)\n  propertyId     String?            @map(\"property_id\") @db.Uuid\n  property       Property?          @relation(fields: [propertyId], references: [id], onDelete: SetNull)\n  type           String             @db.VarChar(50)\n  recipientEmail String?            @map(\"recipient_email\") @db.VarChar(255)\n  subject        String?            @db.VarChar(255)\n  status         NotificationStatus\n  error          String?\n  createdAt      DateTime           @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  @@map(\"notification_log\")\n}\n\nmodel VendorProfile {\n  id                      String   @id @default(uuid()) @db.Uuid\n  userId                  String   @unique @map(\"user_id\") @db.Uuid\n  user                    User     @relation(\"VendorProfileUser\", fields: [userId], references: [id], onDelete: Cascade)\n  businessName            String?  @map(\"business_name\") @db.VarChar(255)\n  trades                  Json     @default(\"[]\")\n  serviceArea             String?  @map(\"service_area\")\n  availability            String?\n  notificationPreference  String?  @map(\"notification_preference\") @db.VarChar(50)\n  licenseInsuranceNotes   String?  @map(\"license_insurance_notes\")\n  createdAt               DateTime @default(now()) @map(\"created_at\") @db.Timestamp(6)\n  updatedAt               DateTime @default(now()) @map(\"updated_at\") @db.Timestamp(6)\n\n  @@map(\"vendor_profiles\")\n}\n\nmodel AuthAttempt {\n  id        String   @id @default(uuid()) @db.Uuid\n  key       String   @db.VarChar(320)\n  createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamp(6)\n\n  @@index([key, createdAt], map: \"auth_attempts_key_created_idx\")\n  @@map(\"auth_attempts\")\n}\n"
+        },
+        {
+          "name": "PROPOSED seed additions (Drizzle, deterministic, idempotent, guarded)",
+          "format": "typescript",
+          "filename": "05-prisma/seed-authz-personas.ts",
+          "content": "// PROPOSED seed additions (audit 2026-10-30, GAP-PRISMA-03). Not wired into package.json.\n//\n// Adds the personas the existing seed (scripts/seed.ts) does not create:\n//   - idle@test.com          owner with zero properties -> every Idle state\n//   - other-owner@test.com   second owner with a property and a request -> \"other owner\" row of the\n//                            authorization matrix (docs/06-testing/test-strategy.md:45-53)\n//   - stranger-vendor@test.com vendor assigned to nothing -> \"unassigned vendor\" row\n//   - busy@test.com          owner with 25 generated requests (long titles included) -> Populated / pagination\n//\n// Deterministic: a fixed-seed PRNG (same idea as faker.seed(42)) generates the busy owner's requests,\n// so every run produces identical rows. Idempotent: users are upserted by email, and the busy owner's\n// generated requests are deleted and recreated. Guarded: reuses lib/seed-guard.ts.\n//\n// To adopt: copy to scripts/seed-authz-personas.ts and add \"db:seed:authz\": \"tsx scripts/seed-authz-personas.ts\".\n\nimport { config } from \"dotenv\";\nimport bcrypt from \"bcryptjs\";\nimport { eq } from \"drizzle-orm\";\nimport { drizzle } from \"drizzle-orm/neon-http\";\nimport { neon } from \"@neondatabase/serverless\";\nimport * as schema from \"../../../../lib/db/schema\";\nimport { resolveSeedPassword, seedPasswordProblem } from \"../../../../lib/seed-guard\";\n\nconfig({ path: \".env.local\" });\n\nconst DATABASE_URL = process.env.DATABASE_URL;\nif (!DATABASE_URL) {\n  throw new Error(\"DATABASE_URL is not set - see .env.local.example\");\n}\nconst passwordProblem = seedPasswordProblem({ DATABASE_URL, SEED_PASSWORD: process.env.SEED_PASSWORD });\nif (passwordProblem) {\n  throw new Error(`${passwordProblem} Set SEED_PASSWORD in .env.local and run again.`);\n}\n\nconst db = drizzle(neon(DATABASE_URL), { schema });\nconst SEED_PASSWORD = resolveSeedPassword({ SEED_PASSWORD: process.env.SEED_PASSWORD });\n\n// mulberry32: tiny deterministic PRNG. Seed 42 -> same sequence on every run.\nfunction prng(seed: number) {\n  let a = seed;\n  return () => {\n    a |= 0;\n    a = (a + 0x6d2b79f5) | 0;\n    let t = Math.imul(a ^ (a >>> 15), 1 | a);\n    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;\n    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;\n  };\n}\nconst rand = prng(42);\nconst pick = <T,>(items: readonly T[]): T => items[Math.floor(rand() * items.length)];\n\nconst CATEGORIES = [\"Plumbing\", \"Electrical\", \"HVAC\", \"Appliance\", \"Other\"] as const;\nconst URGENCIES = [\"Low\", \"Medium\", \"High\", \"Emergency\"] as const;\nconst STATUSES = [\"Draft\", \"Needs Quote\", \"Scheduled\", \"In Progress\", \"Needs Review\", \"Complete\"] as const;\nconst SUBJECTS = [\"Kitchen sink\", \"Garage door\", \"Upstairs AC\", \"Water heater\", \"Back deck\", \"Dryer vent\"];\nconst PROBLEMS = [\"leaks after use\", \"makes a grinding noise\", \"stopped working\", \"needs annual service\"];\nconst BUSY_PREFIX = \"[seed:busy]\";\n\nasync function upsertUser(email: string, role: \"owner\" | \"vendor\", name: string) {\n  const passwordHash = await bcrypt.hash(SEED_PASSWORD, 10);\n  const existing = await db.query.users.findFirst({ where: (u, { eq }) => eq(u.email, email) });\n  if (existing) {\n    const [user] = await db\n      .update(schema.users)\n      .set({ passwordHash, role, name })\n      .where(eq(schema.users.id, existing.id))\n      .returning();\n    return user;\n  }\n  const [user] = await db.insert(schema.users).values({ email, passwordHash, role, name }).returning();\n  return user;\n}\n\nasync function upsertProperty(ownerId: string, address: string, nickname: string) {\n  const existing = await db.query.properties.findFirst({ where: (p, { eq }) => eq(p.address, address) });\n  if (existing) return existing;\n  const [property] = await db.insert(schema.properties).values({ ownerId, address, nickname }).returning();\n  return property;\n}\n\nasync function main() {\n  // 1. Idle owner: account only. Every owner page shows its empty state.\n  const idle = await upsertUser(\"idle@test.com\", \"owner\", \"Idle Owner\");\n\n  // 2. Other owner: owns a property + request that the main demo users must never reach.\n  const otherOwner = await upsertUser(\"other-owner@test.com\", \"owner\", \"Other Owner\");\n  const otherProperty = await upsertProperty(otherOwner.id, \"9 Elsewhere Court\", \"Other owner's home\");\n  const otherTitle = \"Other owner's private repair\";\n  const otherRequest =\n    (await db.query.requests.findFirst({ where: (r, { eq }) => eq(r.title, otherTitle) })) ??\n    (\n      await db\n        .insert(schema.requests)\n        .values({\n          ownerId: otherOwner.id,\n          propertyId: otherProperty.id,\n          title: otherTitle,\n          category: \"Plumbing\",\n          urgency: \"Medium\",\n          status: \"Needs Quote\",\n        })\n        .returning()\n    )[0];\n\n  // 3. Unassigned vendor: a real vendor account that is assigned to nothing.\n  const stranger = await upsertUser(\"stranger-vendor@test.com\", \"vendor\", \"Stranger Vendor\");\n\n  // 4. Busy owner: 25 deterministic requests, one with a 200-character title.\n  const busy = await upsertUser(\"busy@test.com\", \"owner\", \"Busy Owner\");\n  const busyProperty = await upsertProperty(busy.id, \"500 Many Repairs Way\", \"Busy home\");\n  const oldRows = await db.query.requests.findMany({ where: (r, { eq }) => eq(r.ownerId, busy.id) });\n  for (const row of oldRows.filter((r) => r.title.startsWith(BUSY_PREFIX))) {\n    await db.delete(schema.requests).where(eq(schema.requests.id, row.id));\n  }\n  for (let i = 0; i < 25; i++) {\n    const title =\n      i === 0\n        ? `${BUSY_PREFIX} ${\"Very long title to test wrapping \".repeat(6)}`.slice(0, 200)\n        : `${BUSY_PREFIX} ${pick(SUBJECTS)} ${pick(PROBLEMS)} #${i}`;\n    await db.insert(schema.requests).values({\n      ownerId: busy.id,\n      propertyId: busyProperty.id,\n      title,\n      category: pick(CATEGORIES),\n      urgency: pick(URGENCIES),\n      status: pick(STATUSES),\n    });\n  }\n\n  console.log(\"Authorization-matrix personas ready:\");\n  console.log(`  idle owner:        ${idle.email} (no data)`);\n  console.log(`  other owner:       ${otherOwner.email} (request ${otherRequest.id})`);\n  console.log(`  unassigned vendor: ${stranger.email}`);\n  console.log(`  busy owner:        ${busy.email} (25 requests)`);\n}\n\nmain()\n  .then(() => process.exit(0))\n  .catch((err) => {\n    console.error(\"Seed failed:\", err);\n    process.exit(1);\n  });\n"
+        }
+      ],
+      "evidence": [
+        "lib/db/schema.ts",
+        "lib/db/index.ts",
+        "drizzle",
+        "scripts/seed.ts",
+        "scripts/migrate.ts",
+        "lib/seed-guard.ts",
+        "lib/demo/investor-seed.ts",
+        "CONTRIBUTING.md",
+        "docs/DEPLOYMENT.md",
+        "cmd:npx drizzle-kit check",
+        "search:faker"
+      ],
+      "notes": "The app uses Drizzle, not Prisma. schema.prisma is an inspection-only equivalent. The generated seed additions pass the repo's tsc and ESLint as-is."
+    },
+    "plane": {
+      "status": "Partial",
+      "planned": [
+        {
+          "text": "Create one GitHub issue per backlog task with epic, priority, and difficulty labels.",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:11-13"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Findings register with severity, status, and roadmap phases P0-P5.",
+          "evidence": [
+            "docs/07-refinement/findings-and-roadmap.md:5-62"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Each backlog task carries a prose acceptance statement.",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:20"
+          ],
+          "inferred": false
+        }
+      ],
+      "built": [
+        {
+          "text": "One open GitHub issue.",
+          "evidence": [
+            "issue:#2"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "A bug report issue template.",
+          "evidence": [
+            ".github/ISSUE_TEMPLATE/bug_report.md"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Requirements carry prose 'Done When' criteria; there are no Gherkin feature files.",
+          "evidence": [
+            "docs/USER_REQUIREMENTS_EVENT_MATRIX.md:29-48",
+            "search:**/*.feature"
+          ],
+          "inferred": false
+        }
+      ],
+      "gaps": [
+        {
+          "id": "GAP-PLANE-01",
+          "text": "The backlog and open findings live only in Markdown (1 GitHub issue for 16 backlog tasks and 6 open findings), so priorities and progress are invisible without reading docs.",
+          "impact": "medium",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:12",
+            "issue:#2",
+            "docs/07-refinement/findings-and-roadmap.md:17-33"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-PLANE-02",
+          "text": "Acceptance criteria are prose rather than Given/When/Then, so they cannot be mapped one-to-one to tests.",
+          "impact": "low",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:20",
+            "docs/USER_REQUIREMENTS_EVENT_MATRIX.md:29-48"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-PLANE-03",
+          "text": "The backlog is stale: last updated 2026-10-16, shipped Task 2.1 not marked done, and 11 of 14 listed deliverable files do not exist.",
+          "impact": "low",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:3",
+            "commit:6a86af5",
+            "missing:docker-compose.local.yml",
+            "missing:.github/PULL_REQUEST_TEMPLATE/pull_request_template.md"
+          ],
+          "inferred": false
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "One ticket per gap with Gherkin (topGaps order)",
+          "format": "markdown",
+          "filename": "06-plane/tickets.md",
+          "content": "# TurnFlow Home: Plane tickets (one per gap, in `topGaps` order)\n\nSuggested Plane setup:\n- **Project identifier:** `TURN`.\n- **Modules:** Join · Set up my home · Capture a repair · Share and get quotes · Get the work done · Close out and record · Keep history and maintain · Platform.\n- **Labels:** `gap`, `figjam`, `eraser`, `bruno`, `figma`, `db`, `plane`, `observability`.\n- **Estimates:** 1 point ≈ 1 focused hour.\n\nPersonas in Givens come from `05-prisma/README.md`. Personas marked (P) are PROPOSED in `seed-authz-personas.ts`.\n\n---\n\n### 1a. Switch DB access to a transaction-capable driver and add a `withTransaction` helper\n- Gap: GAP-ERASER-01   Priority: Urgent   Labels: gap, eraser, db   Module: Platform   Estimate: 2 pts\n- Context: `lib/db/index.ts:2` uses `drizzle-orm/neon-http`, which can't run interactive transactions (`docs/03-design/constraints.md:13`). No action uses `db.transaction` (`search:transaction`). Add a second client on `drizzle-orm/neon-serverless` (WebSocket Pool) used only for multi-write actions.\n\n```gherkin\nFeature: Transactions are available to server actions\n\n  Scenario: A failing write rolls back earlier writes\n    Given a test that opens withTransaction and inserts a decision_log row\n    When the next statement in the same transaction throws\n    Then no decision_log row from that transaction exists\n\n  Scenario: Single-statement reads keep using the HTTP driver\n    When the owner dashboard loads\n    Then it uses the existing neon-http client\n```\n- Out of scope: converting every action (1b).\n\n### 1b. Make quote approval and closeout review atomic\n- Gap: GAP-ERASER-01   Priority: Urgent   Labels: gap, eraser, db   Module: Close out and record   Estimate: 3 pts\n- Context: `approveQuoteAction` makes 3 sequential writes (`lib/actions/quotes.ts:93-112`). `reviewCloseoutSubmissionAction` makes up to 5 (`lib/actions/closeout-submissions.ts:147-208`). A failure in the middle half-applies the decision (F5, `docs/07-refinement/findings-and-roadmap.md:17`).\n\n```gherkin\nFeature: Owner decisions apply completely or not at all\n\n  Background:\n    Given I am signed in as \"owner@test.com\"\n    And the request \"Kitchen faucet leaking\" has a pending closeout from \"vendor@test.com\"\n\n  Scenario: Approval succeeds\n    When I approve the closeout\n    Then the closeout is \"approved\"\n    And the request is \"Complete\" with final cost set\n    And exactly one billing record exists for that closeout\n    And the decision log has one \"closeout_approved\" entry\n\n  Scenario: Approval fails midway\n    Given inserting the billing record will fail\n    When I approve the closeout\n    Then I see \"That didn't go through. Nothing was saved.\"\n    And the closeout is still \"pending\"\n    And the request status is unchanged\n    And no \"closeout_approved\" entry exists\n```\n- Out of scope: the other multi-write actions (follow-up ticket per action file).\n\n### 2. Keep the decision log when a request is deleted (archive instead of delete)\n- Gap: GAP-ERASER-02   Priority: Urgent   Labels: gap, eraser, db   Module: Keep history and maintain   Estimate: 3 pts\n- Context: `decision_log.request_id` is `ON DELETE CASCADE` (`lib/db/schema.ts:286-291`), and `deleteRequestAction` hard-deletes (`lib/actions/requests.ts:234`). The \"permanent history\" promise breaks (F8, `docs/03-design/data-model.md:83`).\n\n```gherkin\nFeature: Repair history survives removal\n\n  Background:\n    Given I am signed in as \"owner@test.com\"\n    And the request \"Kitchen faucet leaking\" has 5 decision log entries\n\n  Scenario: Removing a request archives it\n    When I remove the request\n    Then it no longer appears on my dashboard\n    And its status is \"Archived\"\n    And its 5 decision log entries still exist\n\n  Scenario: The log cannot be deleted directly\n    When any code runs \"DELETE FROM decision_log\"\n    Then the database rejects it\n```\n- Out of scope: a UI to restore archived requests.\n\n### 3a. Test database harness for integration tests\n- Gap: GAP-BRUNO-01   Priority: High   Labels: gap, bruno   Module: Platform   Estimate: 3 pts\n- Context: there's no integration layer (`docs/06-testing/test-strategy.md:13`, `:23`). Coverage of `lib/actions` is 0% (`cmd:npx vitest run --coverage`). Depends on GAP-PRISMA-04 (a local or branch database the driver can reach).\n\n```gherkin\nFeature: Integration tests run against a real database\n\n  Scenario: Fresh seeded database per test run\n    Given CI starts Postgres with the Neon HTTP proxy\n    When \"npm run test:integration\" runs\n    Then migrations and the seed (including the authorization personas) are applied first\n    And each test file runs inside a rolled-back transaction or a truncated schema\n```\n\n### 3b. Authorization matrix for quotes, closeout, and requests actions\n- Gap: GAP-BRUNO-01   Priority: High   Labels: gap, bruno   Module: Platform   Estimate: 3 pts\n- Context: the planned matrix (`docs/06-testing/test-strategy.md:43-64`). Sketch: `03-bruno/README.md`.\n\n```gherkin\nFeature: Only the right actor can call each action\n\n  Scenario Outline: approveQuoteAction by each actor\n    Given a pending quote on \"Kitchen faucet leaking\" owned by \"owner@test.com\"\n    When <actor> calls approveQuoteAction\n    Then the result is <result>\n    And if denied, the quotes, requests, and decision_log row counts are unchanged\n\n    Examples:\n      | actor                      | result  |\n      | owner@test.com             | allowed |\n      | other-owner@test.com (P)   | denied  |\n      | vendor@test.com            | denied  |\n      | collaborator@test.com      | denied  |\n      | signed out                 | denied  |\n```\n\n### 3c. Authorization matrix for the remaining action files\n- Gap: GAP-BRUNO-01   Priority: High   Labels: gap, bruno   Module: Platform   Estimate: 3 pts\n- Context: the other 13 files in `lib/actions/` (invites, tasks, work sessions, vault, reminders, backup, ...). Same outline as 3b, one table per action. Done when every exported action has a row.\n\n### 4. Add error boundaries for every portal and the root\n- Gap: GAP-FIGMA-01   Priority: High   Labels: gap, figma   Module: Platform   Estimate: 2 pts\n- Context: no `error.tsx` or `global-error.tsx` anywhere (`missing:app/error.tsx`, `missing:app/global-error.tsx`). 21 server actions throw (`02-eraser/contracts.md`). Spec: `04-figma/missing-state-specs.md` §1.\n\n```gherkin\nFeature: Unexpected failures are recoverable\n\n  Scenario: A page fails to load\n    Given I am signed in as \"owner@test.com\"\n    And the database is unreachable\n    When I open the dashboard\n    Then I see \"This page didn't load.\"\n    And I see the owner sidebar\n    And I see a \"Try again\" button and a reference code\n\n  Scenario: Retry recovers\n    Given the database is reachable again\n    When I click \"Try again\"\n    Then I see my requests\n```\n- Out of scope: converting thrown action errors into `{ error }` returns (ticket 10).\n\n### 5. Capture server and client errors in Sentry with alerts\n- Gap: GAP-CODE-01   Priority: High   Labels: gap, observability   Module: Platform   Estimate: 3 pts\n- Context: planned in `docs/IMPLEMENTATION_BACKLOG.md:96-97`, not installed (`missing:instrumentation.ts`, `search:@sentry/`). Today errors only reach `console.error` (24 sites). The rate limiter fails open on DB errors and only logs it (`lib/auth/rate-limit.ts:34-36`).\n\n```gherkin\nFeature: Production errors reach a human\n\n  Scenario: Unhandled server error is captured\n    Given Sentry is configured for environment \"preview\"\n    When a server action throws during approveQuoteAction\n    Then a Sentry issue appears with a readable stack trace for lib/actions/quotes.ts\n    And it is tagged with the deploy's git SHA as the release\n\n  Scenario: Rate limiter failure is visible\n    When the auth_attempts query fails during login\n    Then a Sentry event \"rate-limit check failed; allowing request\" is recorded\n\n  Scenario: No personal data leaves the app\n    When an error occurs during sign-in\n    Then the Sentry event contains no password, email, or request body\n```\n- Out of scope: performance tracing beyond the default sample rate.\n\n### 6. Approve exactly one quote per request\n- Gap: GAP-ERASER-03   Priority: High   Labels: gap, eraser   Module: Share and get quotes   Estimate: 2 pts\n- Context: `approveQuoteAction` doesn't check the current status or decline the others (`lib/actions/quotes.ts:81-112`). F11, `docs/07-refinement/findings-and-roadmap.md:23`.\n\n```gherkin\nFeature: One approved quote per request\n\n  Background:\n    Given I am signed in as \"owner@test.com\"\n    And the request has pending quotes from \"Ace Plumbing\" and \"Bay Pipes\"\n\n  Scenario: Approving one declines the others\n    When I approve \"Ace Plumbing\"\n    Then \"Ace Plumbing\" is approved\n    And \"Bay Pipes\" is declined\n    And the decision log records both decisions\n\n  Scenario: A second approval is rejected\n    Given \"Ace Plumbing\" is already approved\n    When I try to approve \"Bay Pipes\"\n    Then I see \"A quote is already approved for this request.\"\n    And only one quote is approved\n```\n\n### 7. Review a closeout only while it is pending\n- Gap: GAP-ERASER-04   Priority: High   Labels: gap, eraser   Module: Close out and record   Estimate: 1 pt\n- Context: `reviewCloseoutSubmissionAction` never checks `closeout.status` (`lib/actions/closeout-submissions.ts:136-158`). An approved closeout can later get `changes_requested` while the request stays `Complete`.\n\n```gherkin\nFeature: A closeout decision is final\n\n  Scenario: Reviewing an already-approved closeout\n    Given I am signed in as \"owner@test.com\"\n    And the closeout for \"Kitchen faucet leaking\" is approved\n    When I request changes on that closeout\n    Then I see \"This closeout was already reviewed.\"\n    And the closeout stays \"approved\"\n```\n\n### 8. HTTP contract tests for the 7 route handlers in CI\n- Gap: GAP-BRUNO-02   Priority: Medium   Labels: gap, bruno   Module: Platform   Estimate: 2 pts\n- Context: no `.bru`, `.http`, or Postman files (`search:**/*.bru`). The collection is generated in `03-bruno/`. Adopt it at `bruno/` and run it in CI after the app boots.\n\n```gherkin\nFeature: Route contracts are checked on every PR\n\n  Scenario: Collection passes against a seeded app\n    Given the app runs on a freshly seeded database\n    When \"npx @usebruno/cli run --env ci\" runs in bruno/\n    Then all 18 requests pass\n\n  Scenario: A contract change fails CI\n    Given /api/files returns 403 instead of 404 for someone else's file\n    When the collection runs\n    Then \"Files - someone else's or missing record\" fails\n```\n\n### 9. Password reset by email\n- Gap: GAP-FIGJAM-01   Priority: Medium   Labels: gap, figjam   Module: Join   Estimate: 3 pts (split UI vs token logic if larger)\n- Context: listed as next in `README.md:46` and P1 in `docs/07-refinement/findings-and-roadmap.md:58`. Not built (`search:reset.?password|forgot`).\n\n```gherkin\nFeature: Recover a forgotten password\n\n  Scenario: Reset link works once\n    Given \"owner@test.com\" requested a reset link\n    When they open the link within 60 minutes and set a new password\n    Then they can log in with the new password\n    And the same link no longer works\n\n  Scenario: Unknown emails get the same answer\n    When someone requests a reset for \"nobody@test.com\"\n    Then they see \"If that email has an account, a link is on its way.\"\n    And no email is sent\n```\n\n### 10. One validated input/result contract for server actions\n- Gap: GAP-ERASER-05   Priority: Medium   Labels: gap, eraser   Module: Platform   Estimate: 3 pts (first 3 action files; repeat per file)\n- Context: zod is used only for auth and invite forms (`lib/auth/forms.ts`, `lib/invites/forms.ts`). The rest parse FormData by hand, mixing 21 throws with 61 `{ error }` returns. Restore has no top-level shape check (`lib/actions/backup.ts:99-114`).\n\n```gherkin\nFeature: Server actions reject bad input the same way\n\n  Scenario: Invalid amount on a vendor bid\n    Given I am signed in as \"vendor@test.com\"\n    When I submit a bid with amount \"abc\"\n    Then the action returns code \"VALIDATION_FAILED\" with a field error on \"amount\"\n    And nothing is written\n\n  Scenario: Malformed backup file\n    Given I am signed in as \"owner@test.com\"\n    When I restore a backup whose \"properties\" is not a list\n    Then I see \"This file is not a TurnFlow backup.\"\n    And nothing is imported\n```\n\n### 11. Route-level loading states for owner, vendor, and collaborator portals\n- Gap: GAP-FIGMA-02   Priority: Medium   Labels: gap, figma   Module: Platform   Estimate: 2 pts\n- Context: no `loading.tsx` anywhere. The only Suspense fallback covers the sidebar (`app/owner/layout.tsx:14-20`). Spec: `04-figma/missing-state-specs.md` §2.\n\n```gherkin\nFeature: Navigation shows progress\n\n  Scenario: Slow dashboard load\n    Given I am signed in as \"busy@test.com\" (P)\n    And the database responds after 2 seconds\n    When I open the dashboard\n    Then I see request card skeletons with the sidebar still visible\n    And then the 25 requests replace the skeletons\n```\n\n### 12. Run the browser smoke loops in CI on preview deploys\n- Gap: GAP-CODE-02   Priority: Medium   Labels: gap, observability   Module: Platform   Estimate: 3 pts\n- Context: 7 Playwright smoke scripts (`package.json:16-22`) need a real DB + Blob and aren't in CI (`docs/06-testing/test-strategy.md:12`). Roadmap P3 (`docs/07-refinement/findings-and-roadmap.md:60`).\n\n```gherkin\nFeature: Full role loop runs on every preview\n\n  Scenario: Preview deploy is smoke-tested\n    Given a Vercel preview deploy with a seeded Neon branch\n    When the \"smoke\" workflow runs \"npm run ux:full-loop\"\n    Then the owner, vendor, and collaborator loop completes\n    And screenshots are uploaded as artifacts if it fails\n```\n\n### 13. Run and log three moderated homeowner sessions\n- Gap: GAP-FIGJAM-02   Priority: Medium   Labels: gap, figjam   Module: Capture a repair   Estimate: 3 pts per session batch\n- Context: protocol exists (`docs/USER_TESTING.md`), with 0 sessions logged (`docs/06-testing/test-strategy.md:24`). Success targets are unmeasured (`docs/01-problem/problem.md:52-60`).\n\n```gherkin\nFeature: The backbone is validated with real homeowners\n\n  Scenario: Session produces evidence\n    Given a tester who manages their own repairs\n    When they capture a real repair from scratch\n    Then the time from start to a complete request is recorded\n    And every \"what happens next?\" moment is logged as a finding\n```\n\n### 14. Make local development work without a Neon account\n- Gap: GAP-PRISMA-04   Priority: Medium   Labels: gap, db   Module: Platform   Estimate: 2 pts\n- Context: `CONTRIBUTING.md:26` references a missing `scripts/dev-local.sh`. Plain Postgres can't serve the neon-http driver without a proxy (`lib/db/index.ts:2-11`, inferred). See `05-prisma/README.md`.\n\n```gherkin\nFeature: One-command local setup\n\n  Scenario: Fresh clone runs locally\n    Given a machine with Docker and no Neon account\n    When I run \"./scripts/dev-local.sh\"\n    Then Postgres and the Neon HTTP proxy start\n    And migrations and the seed run\n    And \"npm run dev\" serves the dashboard for \"owner@test.com\"\n```\n\n### 15. Move the backlog and open findings into the tracker\n- Gap: GAP-PLANE-01   Priority: Medium   Labels: gap, plane   Module: Platform   Estimate: 1 pt\n- Context: the backlog asks for one issue per task (`docs/IMPLEMENTATION_BACKLOG.md:12`). GitHub has 1 issue (`issue:#2`). This file is the import source.\n\n```gherkin\nFeature: Every known gap is tracked\n\n  Scenario: Import the audit\n    Given the 25 gaps in audit.json\n    When the tickets in this file are created in Plane\n    Then every gap's ticketRef points to a TURN-n key\n    And the \"Open gaps\" view lists all of them by priority\n```\n\n### 16. Add the missing foreign key on invites.request_id\n- Gap: GAP-PRISMA-02   Priority: Low   Labels: gap, db   Module: Share and get quotes   Estimate: 1 pt\n- Context: no FK, to avoid a circular reference (`lib/db/schema.ts:206-208`). Add it in a follow-up migration (`ON DELETE CASCADE` for pending invites), since both tables exist by then.\n\n```gherkin\nFeature: Invites always point at a real request\n\n  Scenario: Deleting a request removes its pending invites\n    Given a pending invite for \"Kitchen faucet leaking\"\n    When the request row is removed\n    Then the invite row is removed too\n```\n\n### 17. Refresh the role in the session (JWT) or verify it per request\n- Gap: GAP-CODE-04   Priority: Low   Labels: gap, observability   Module: Join   Estimate: 2 pts\n- Context: the role is set once at sign-in (`lib/auth/config.ts:73-79`). F12, `docs/07-refinement/findings-and-roadmap.md:33`.\n\n```gherkin\nFeature: Role changes take effect\n\n  Scenario: Deleted user loses access\n    Given \"vendor@test.com\" has a session\n    When the account is deleted\n    Then the next request from that session is treated as signed out\n```\n\n### 18. Index the foreign keys used by every page query\n- Gap: GAP-PRISMA-01   Priority: Low   Labels: gap, db   Module: Platform   Estimate: 1 pt\n- Context: only 2 indexes besides PKs and uniques (`drizzle/0011_romantic_secret_warriors.sql:52-53`, `drizzle/0012_clumsy_ozymandias.sql:7`). Add indexes on `requests(owner_id)`, `requests(property_id)`, `requests(assigned_vendor_id)`, `requests(collaborator_id)`, and `decision_log(request_id)`.\n\n```gherkin\nFeature: Dashboard stays fast as history grows\n\n  Scenario: Owner with many requests\n    Given \"busy@test.com\" (P) owns 25 requests among 10,000 rows\n    When EXPLAIN runs on the dashboard query\n    Then it uses an index scan on requests.owner_id\n```\n\n### 19. Seed the authorization-matrix and Idle personas\n- Gap: GAP-PRISMA-03   Priority: Low   Labels: gap, db   Module: Platform   Estimate: 1 pt\n- Context: the seed only has owner, vendor, and collaborator (`scripts/seed.ts:173-178`). The draft is `05-prisma/seed-authz-personas.ts` (typechecks today).\n\n```gherkin\nFeature: Seed covers every test actor\n\n  Scenario: Personas exist after seeding\n    When \"npm run db:seed && npm run db:seed:authz\" runs twice\n    Then idle@test.com, other-owner@test.com, stranger-vendor@test.com and busy@test.com exist once each\n    And busy@test.com has exactly 25 requests\n```\n\n### 20. Decide the fate of workspace plans and billing accounts\n- Gap: GAP-FIGJAM-03   Priority: Low   Labels: gap, figjam   Module: Platform   Estimate: 1 pt\n- Context: the `billing_accounts` plan/subscription tables (`lib/db/schema.ts:166-181`, `commit:2461065`) map to no story. Payments are out of scope (`docs/03-design/constraints.md:31`).\n\n```gherkin\nFeature: Every table serves a story\n\n  Scenario: Decision recorded\n    When the team reviews billing_accounts\n    Then a story is added to the map below the cut-line, or the tables are scheduled for removal\n```\n\n### 21. Add /api/files and the demo-reset cron to the endpoint map\n- Gap: GAP-ERASER-06   Priority: Low   Labels: gap, eraser   Module: Platform   Estimate: 1 pt\n- Context: `docs/ENDPOINT_EXPERIENCE_MAP.md:76-84` lists 5 of the 7 route handlers.\n\n```gherkin\nFeature: The endpoint map is complete\n\n  Scenario: Every route handler is documented\n    When I compare app/api/**/route.ts with the endpoint map\n    Then all 7 routes appear with audience, purpose, and contract\n```\n\n### 22. Create the shared state components in Figma\n- Gap: GAP-FIGMA-03   Priority: Low   Labels: gap, figma   Module: Platform   Estimate: 2 pts\n- Context: states are specified only in prose (`docs/ENDPOINT_EXPERIENCE_MAP.md:42`). There's no design file (`search:figma`).\n\n```gherkin\nFeature: States have a visual source of truth\n\n  Scenario: Designer hands off states\n    When the \"Page state\" component set exists with State and Role properties\n    Then every missing cell in state-matrix.md links to a frame\n```\n\n### 23. Rewrite backlog acceptance criteria as Gherkin\n- Gap: GAP-PLANE-02   Priority: Low   Labels: gap, plane   Module: Platform   Estimate: 1 pt\n- Context: acceptance is prose (`docs/IMPLEMENTATION_BACKLOG.md:20`, `docs/USER_REQUIREMENTS_EVENT_MATRIX.md:29-48`).\n\n```gherkin\nFeature: Acceptance criteria are executable\n\n  Scenario: Requirement becomes a test name\n    Given the requirement \"Owner | Create a repair record\"\n    When it is rewritten as Given/When/Then\n    Then a Vitest or Playwright test with the scenario's name exists\n```\n\n### 24. Refresh the stale backlog\n- Gap: GAP-PLANE-03   Priority: Low   Labels: gap, plane   Module: Platform   Estimate: 1 pt\n- Context: last updated 2026-10-16 (`docs/IMPLEMENTATION_BACKLOG.md:3`). Task 2.1 (invite signup) shipped 2026-10-25 (`commit:6a86af5`) but isn't marked done. 11 of 14 listed files don't exist.\n\n```gherkin\nFeature: The backlog reflects reality\n\n  Scenario: Shipped work is closed\n    When the backlog is reviewed\n    Then Task 2.1 is marked done with commit 6a86af5\n    And every remaining task has a TURN-n ticket\n```\n\n### 25. Report coverage in CI\n- Gap: GAP-CODE-03   Priority: Low   Labels: gap, observability   Module: Platform   Estimate: 1 pt\n- Context: planned as Task 1.2 (`docs/IMPLEMENTATION_BACKLOG.md:52-54`). Measured during the audit: 38.53% lines, `lib/actions` 0%.\n\n```gherkin\nFeature: Coverage is visible\n\n  Scenario: PR shows coverage\n    When CI runs \"vitest run --coverage\"\n    Then the job summary shows line coverage per folder\n    And lib/actions coverage is listed separately\n```\n"
+        }
+      ],
+      "evidence": [
+        "docs/IMPLEMENTATION_BACKLOG.md",
+        "docs/07-refinement/findings-and-roadmap.md",
+        "docs/USER_REQUIREMENTS_EVENT_MATRIX.md",
+        ".github/ISSUE_TEMPLATE/bug_report.md",
+        "issue:#2",
+        "search:**/*.feature"
+      ],
+      "notes": "GitHub issues and PRs were read through the GitHub API (1 issue, 2 closed PRs). Plane itself is external and not verifiable from the repo."
+    },
+    "codeSentry": {
+      "status": "Partial",
+      "planned": [
+        {
+          "text": "Sentry integration with alerts for 5xx rate and DB errors, plus an uptime check.",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:96-98"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Coverage reporting and a badge in CI.",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:52-54"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Run ux:full-loop on previews and refresh the JWT role (P3).",
+          "evidence": [
+            "docs/07-refinement/findings-and-roadmap.md:60",
+            "docs/07-refinement/findings-and-roadmap.md:33"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Test pyramid: unit, smoke, integration, moderated sessions.",
+          "evidence": [
+            "docs/06-testing/test-strategy.md:7-24"
+          ],
+          "inferred": false
+        }
+      ],
+      "built": [
+        {
+          "text": "342 unit tests in 36 files, all passing, run in CI by npm run verify.",
+          "evidence": [
+            "__tests__",
+            "cmd:npx vitest run",
+            ".github/workflows/ci.yml:42-43",
+            "package.json:25"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Line coverage 38.53%; lib/actions 0%.",
+          "evidence": [
+            "cmd:npx vitest run --coverage"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "7 Playwright smoke scripts cover every role loop and are run by hand.",
+          "evidence": [
+            "package.json:16-22",
+            "scripts/ux-full-loop-smoke.ts"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Public and protected health endpoints for monitoring.",
+          "evidence": [
+            "app/api/health/route.ts:6",
+            "app/api/health/deep/route.ts:17"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "Errors go to console.error only; no error tracker is installed.",
+          "evidence": [
+            "lib/auth/rate-limit.ts:35",
+            "search:@sentry/"
+          ],
+          "inferred": false
+        },
+        {
+          "text": "The JWT role is set once at sign-in and never refreshed.",
+          "evidence": [
+            "lib/auth/config.ts:73-79"
+          ],
+          "inferred": false
+        }
+      ],
+      "gaps": [
+        {
+          "id": "GAP-CODE-01",
+          "text": "No error tracking although Sentry is planned: server-action, route, and rate-limiter failures only reach console.error, so production errors are invisible and nobody is alerted.",
+          "impact": "high",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:96-97",
+            "missing:instrumentation.ts",
+            "missing:instrumentation-client.ts",
+            "lib/auth/rate-limit.ts:34-36"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-CODE-02",
+          "text": "The 7 browser smoke loops (including the full three-role loop) need a real DB and Blob and are not run in CI, so end-to-end regressions are caught only when someone runs them by hand.",
+          "impact": "medium",
+          "evidence": [
+            "docs/06-testing/test-strategy.md:12",
+            "package.json:16-22",
+            ".github/workflows/ci.yml:42-43"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-CODE-04",
+          "text": "The JWT role is never refreshed and sessions cannot be revoked, so a role change or deleted account keeps a valid session until it expires.",
+          "impact": "low",
+          "evidence": [
+            "lib/auth/config.ts:73-79",
+            "docs/07-refinement/findings-and-roadmap.md:33"
+          ],
+          "inferred": false
+        },
+        {
+          "id": "GAP-CODE-03",
+          "text": "Coverage is not reported in CI (planned Task 1.2), so the 38.5% line coverage and the 0% on server actions are invisible on every PR.",
+          "impact": "low",
+          "evidence": [
+            "docs/IMPLEMENTATION_BACKLOG.md:52-54",
+            "cmd:npx vitest run --coverage"
+          ],
+          "inferred": false
+        }
+      ],
+      "artifacts": [
+        {
+          "name": "Test, error-handling, Sentry inventories and top risks",
+          "format": "markdown",
+          "filename": "07-code-sentry/inventories.md",
+          "content": "# TurnFlow Home: Code + Sentry inventories (@ b45b1ac)\n\n## 1. Test coverage inventory\n\nMeasured during the audit:\n- `npx vitest run`: **36 files, 342 tests, all passing, 2.8 s** (`cmd:npx vitest run`).\n- `npx vitest run --coverage` (v8, `lib/**` + `app/**`): **38.53% lines, 40.08% statements, 47.65% branches, 41.52% functions**. `lib/actions` 0%, `app/api/files` 0%, `lib/auth` 22.97% lines (`cmd:npx vitest run --coverage`).\n\n### Unit (Vitest, runs in CI through `npm run verify`, `package.json:25`)\n\n| File | Tests | Covers (inferred from file and module names; counts measured) | Level |\n|---|---|---|---|\n| `__tests__/owner-readiness.test.ts` | 36 | onboarding progress and next step | unit (guidance) |\n| `__tests__/utils.test.ts` | 36 | cost labels, completion requirements, enums | unit |\n| `__tests__/helper-workspace.test.ts` | 24 | vendor/helper next-action logic | unit (guidance) |\n| `__tests__/vendor-lifecycle.test.ts` | 15 | vendor job stages | unit |\n| `__tests__/work-sessions.test.ts` | 15 | start/pause/resume/stop rules, proof gating | unit (domain rule) |\n| `__tests__/request-guidance.test.ts` | 13 | request guidance copy | unit (guidance) |\n| `__tests__/blob-paths.test.ts` | 12 | upload path parsing and validation (P0) | unit (security rule) |\n| `__tests__/closeout-submissions.test.ts` | 12 | closeout readiness and decisions | unit (domain rule) |\n| `__tests__/health.test.ts` | 12 | health payloads, deep-health auth | unit (route helper) |\n| `__tests__/poc-readiness.test.ts` | 12 | env readiness report | unit |\n| `__tests__/bid-review.test.ts` | 11 | bid comparison | unit |\n| `__tests__/invite-claim.test.ts` | 11 | invite claim and mismatch rules | unit (security rule) |\n| `__tests__/invite-forms.test.ts` | 9 | invite form validation (zod) | unit |\n| `__tests__/notification-guidance.test.ts` | 9 | notification copy | unit (guidance) |\n| `__tests__/decision-log.test.ts` | 8 | decision-log formatting | unit |\n| `__tests__/request-intake.test.ts` | 8 | intake readiness | unit |\n| `__tests__/request-status-policy.test.ts` | 8 | who may set which status (P0, F3) | unit (security rule) |\n| `__tests__/request-submit.test.ts` | 8 | submit readiness | unit |\n| `__tests__/seed-guard.test.ts` | 8 | hosted-DB seed password rules | unit (security rule) |\n| `__tests__/vendor-fit.test.ts` | 8 | vendor fit scoring | unit |\n| `__tests__/billing-records.test.ts` | 7 | billing status rules | unit |\n| `__tests__/backup-guidance.test.ts` | 6 | backup copy | unit (guidance) |\n| `__tests__/vendor-profile.test.ts` | 6 | profile normalization | unit |\n| `__tests__/workspace-model.test.ts` | 6 | workspace defaults | unit |\n| `__tests__/auth-forms.test.ts` | 5 | signup/login validation (zod) | unit |\n| `__tests__/comment-guidance.test.ts` | 5 | comment copy | unit (guidance) |\n| `__tests__/project-tasks.test.ts` | 5 | task status and acceptance | unit |\n| `__tests__/file-access.test.ts` | 4 | who may read a file (P0) | unit (security rule) |\n| `__tests__/rate-limit-policy.test.ts` | 4 | rate-limit windows and IP parsing | unit (security rule) |\n| `__tests__/status-handoff.test.ts` | 4 | status handoff copy | unit (guidance) |\n| `__tests__/vendor-bid.test.ts` | 4 | bid validation | unit |\n| `__tests__/cron-auth.test.ts` | 3 | cron bearer, fail-closed in production | unit (security rule) |\n| `__tests__/request-workflow.test.ts` | 3 | workflow helpers | unit |\n| `__tests__/security-headers.test.ts` | 2 | CSP and security headers | unit |\n| `__tests__/vendor-bid-notification.test.ts` | 2 | bid decision email | unit |\n| `__tests__/investor-demo.test.ts` | 1 | demo password problem | unit |\n\n### Browser smoke (Playwright scripts, manual only, not in CI)\n\n| Script | Lines | Loop | Evidence |\n|---|---|---|---|\n| `ux:public` | 114 | landing → signup/login | `scripts/ux-public-smoke.ts`, `package.json:16` |\n| `ux:owner` | 176 | owner pages render | `scripts/ux-owner-smoke.ts`, `package.json:17` |\n| `ux:owner-flow` | 170 | signup → property → request → upload | `scripts/ux-owner-flow-smoke.ts`, `package.json:18` |\n| `ux:helper` | 204 | vendor/collaborator portals | `scripts/ux-helper-smoke.ts`, `package.json:19` |\n| `ux:invite` | 279 | invite → accept (existing account) | `scripts/ux-invite-acceptance-smoke.ts`, `package.json:20` |\n| `ux:invite-signup` | 308 | invite → signup from invite (F4) | `scripts/ux-invite-signup-smoke.ts`, `package.json:21` |\n| `ux:full-loop` | 622 | owner → vendor bid → work → closeout revision → approval → billing | `scripts/ux-full-loop-smoke.ts`, `package.json:22` |\n\n### Totals by level\n\n| Level | Count | In CI? |\n|---|---|---|\n| Unit | 36 files / 342 tests | yes |\n| Integration (server action or route against a real DB) | **0** | n/a (GAP-BRUNO-01) |\n| HTTP contract (Bruno or similar) | **0** (18 generated in `03-bruno/`) | n/a (GAP-BRUNO-02) |\n| End-to-end (browser) | 7 scripts | **no** (GAP-CODE-02) |\n| Moderated human sessions | 0 logged | n/a (GAP-FIGJAM-02) |\n\nWalking skeleton end-to-end: **covered** by `ux:full-loop`, but only when someone runs it by hand.\n\n## 2. Error-handling inventory\n\n| Area | Finding | Evidence |\n|---|---|---|\n| Write-boundary validation | zod in 3 files (auth forms, invite forms, Auth.js credentials). The other 13 action files validate by hand. Allowlists for category, urgency, and status are present. | `lib/auth/forms.ts`, `lib/invites/forms.ts`, `lib/auth/config.ts:13-16`, `lib/actions/requests.ts:52-66` |\n| Action error style | 61 × `return { error }`, 21 × `throw new Error`, plus redirects from `requireRole` | `02-eraser/contracts.md`, `lib/auth/dal.ts:25-36` |\n| Restore input | Per-row checks, but no top-level array/shape or size check. A malformed file throws. | `lib/actions/backup.ts:99-114` |\n| HTTP routes | Consistent `{ error }` JSON with correct statuses. Storage failures caught and mapped to 502/503. | `app/api/blob-upload/route.ts:139-149`, `app/api/files/route.ts:68-71` |\n| Cron digest | No try/catch: a DB failure becomes an unhandled 500 with no structured log | `app/api/cron/reminder-digest/route.ts:17-82` |\n| Swallowed errors | **0 empty catch blocks** | `search:catch\\s*(\\(...\\))?\\s*\\{\\s*\\}` |\n| Logging | 24 `console.error` call sites, which reach Vercel function logs only | `lib/auth/rate-limit.ts:35`, `lib/email.ts:53`, `app/api/files/route.ts:69` |\n| Fail-open paths | Rate-limit check allows the request when its DB query fails (deliberate availability choice, but invisible) | `lib/auth/rate-limit.ts:34-36` |\n| Email | Failures caught and logged to `notification_log`, never thrown (meets X5) | `lib/email.ts:53`, `docs/02-requirements/README.md:22` |\n| Error UI | No `error.tsx`, `global-error.tsx`, or `not-found.tsx` (see `04-figma/state-matrix.md`) | `missing:app/error.tsx`, `missing:app/global-error.tsx` |\n| Atomicity | No transactions (neon-http) | `lib/db/index.ts:2`, `search:db.transaction` |\n\n## 3. Sentry setup status\n\n| Item | Status | Evidence |\n|---|---|---|\n| SDK installed | **no** | `search:@sentry/` (only a transitive mention in package-lock.json) |\n| Client init | **no** | `missing:instrumentation-client.ts` |\n| Server init | **no** | `missing:instrumentation.ts`, `missing:sentry.server.config.ts` |\n| Edge / proxy runtime init | **no** | `missing:sentry.edge.config.ts`, `proxy.ts` |\n| environment / release tagging | **no** (but `/api/health` already exposes `VERCEL_ENV` and the commit SHA, which Sentry can reuse) | `lib/health.ts:79-80` |\n| Source maps uploaded in CI | **no** | `.github/workflows/ci.yml:29-43` |\n| PII scrubbing | n/a until installed | |\n| Alert rules | not verifiable from the repo | |\n| Planned? | **yes**: \"Add Sentry integration (if not present) and basic alerts for 5xx rate and DB connection errors; add uptime check.\" | `docs/IMPLEMENTATION_BACKLOG.md:96-97` |\n| Existing observability | `/api/health` (public), `/api/health/deep` (bearer, DB + runtime config), notification_log for email | `app/api/health/route.ts`, `app/api/health/deep/route.ts`, `docs/DEPLOYMENT.md:56` |\n\n**PROPOSED setup** (Next.js 16): run `npx @sentry/wizard@latest -i nextjs`. Keep the existing `next.config.ts` headers when the wizard wraps it with `withSentryConfig`. Add Sentry's ingest host to `connect-src` in `lib/security-headers.ts` if the CSP blocks it. Set `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`, and `SENTRY_AUTH_TOKEN` (CI only). Set `sendDefaultPii: false`, and add a `beforeSend` that drops request bodies for `/api/auth/*`.\n\n## 4. Top risks (likelihood × impact, 1–3 each)\n\n| Rank | Risk | L | I | Score | Gap |\n|---|---|---|---|---|---|\n| 1 | A production failure (DB timeout, thrown action) goes unnoticed, and the user sees a dead-end error page | 3 | 3 | 9 | GAP-CODE-01, GAP-FIGMA-01 |\n| 2 | Approval or closeout half-applies on a mid-sequence failure (e.g. request Complete without a billing record) | 2 | 3 | 6 | GAP-ERASER-01 |\n| 3 | An authorization regression in one of 44 server actions ships, because none is tested against a DB | 2 | 3 | 6 | GAP-BRUNO-01 |\n| 4 | An owner deletes a request and loses its permanent history | 2 | 3 | 6 | GAP-ERASER-02 |\n| 5 | Two quotes approved, or a decided closeout re-reviewed, leaving contradictory cost and status records | 2 | 2 | 4 | GAP-ERASER-03, GAP-ERASER-04 |\n| 6 | Rate limiting silently disabled during a DB incident | 1 | 3 | 3 | GAP-CODE-01 |\n\n## CI pipeline (what a bad PR still gets past)\n\n`npm run verify` = lint → typecheck → unit tests → `npm audit --omit=dev` → `drizzle-kit generate` + `git diff --exit-code -- drizzle` → build (`package.json:25`, `.github/workflows/ci.yml:42-43`).\n\nA PR can still: break an ownership check in a server action, break any route's HTTP contract, break the end-to-end loop, or drop coverage, and CI stays green.\n"
+        }
+      ],
+      "evidence": [
+        "__tests__",
+        "scripts",
+        ".github/workflows/ci.yml",
+        "package.json",
+        "lib/auth",
+        "lib/email.ts",
+        "app/api",
+        "docs/IMPLEMENTATION_BACKLOG.md",
+        "docs/06-testing/test-strategy.md",
+        "missing:instrumentation.ts",
+        "missing:instrumentation-client.ts",
+        "search:@sentry/",
+        "cmd:npx vitest run",
+        "cmd:npx vitest run --coverage"
+      ],
+      "notes": "Tests were run during the audit (npm ci, then vitest; coverage via a --no-save install of @vitest/coverage-v8). Sentry alert rules are not verifiable from the repo."
+    }
+  },
+  "topGaps": [
+    "GAP-ERASER-01",
+    "GAP-ERASER-02",
+    "GAP-BRUNO-01",
+    "GAP-FIGMA-01",
+    "GAP-CODE-01",
+    "GAP-ERASER-03",
+    "GAP-ERASER-04",
+    "GAP-BRUNO-02",
+    "GAP-FIGJAM-01",
+    "GAP-ERASER-05",
+    "GAP-FIGMA-02",
+    "GAP-CODE-02",
+    "GAP-FIGJAM-02",
+    "GAP-PRISMA-04",
+    "GAP-PLANE-01",
+    "GAP-PRISMA-02",
+    "GAP-CODE-04",
+    "GAP-PRISMA-01",
+    "GAP-PRISMA-03",
+    "GAP-FIGJAM-03",
+    "GAP-ERASER-06",
+    "GAP-FIGMA-03",
+    "GAP-PLANE-02",
+    "GAP-PLANE-03",
+    "GAP-CODE-03"
+  ]
+}

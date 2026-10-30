@@ -796,7 +796,11 @@ def check_evidence(doc, repo, errors, warnings):
         if m:
             path, start, end = m.group(1), int(m.group(2)), int(m.group(3) or m.group(2))
         full = os.path.join(repo, path)
-        matches = glob.glob(full, recursive=True) if any(c in path for c in "*?[") else ([full] if os.path.exists(full) else [])
+        # Literal first: Next.js routes like app/x/[id]/page.tsx contain glob characters.
+        if os.path.exists(full):
+            matches = [full]
+        else:
+            matches = glob.glob(full, recursive=True) if any(c in path for c in "*?[") else []
         if not matches:
             errors.append(f"evidence: {where}: path not found: {path}")
             continue

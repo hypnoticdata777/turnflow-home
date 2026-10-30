@@ -1,0 +1,24 @@
+meta {
+  name: Health - public status (200)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/health
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.headers["cache-control"]: eq no-store
+}
+
+tests {
+  test("never exposes secrets or database details", function () {
+    const body = JSON.stringify(res.body).toLowerCase();
+    expect(body).to.not.contain("database_url");
+    expect(body).to.not.contain("secret");
+  });
+}

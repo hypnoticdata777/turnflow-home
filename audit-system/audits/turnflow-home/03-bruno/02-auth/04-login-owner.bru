@@ -1,0 +1,25 @@
+meta {
+  name: Login - seeded owner (sets session cookie)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/auth/callback/credentials
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  csrfToken: {{csrfToken}}
+  email: {{ownerEmail}}
+  password: {{seedPassword}}
+  json: true
+}
+
+tests {
+  test("sign-in is accepted", function () {
+    const target = String((res.body && res.body.url) || res.getHeader("location") || "");
+    expect(target).to.not.contain("error");
+  });
+}

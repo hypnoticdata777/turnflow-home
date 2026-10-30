@@ -1,0 +1,583 @@
+// Inspection only. The app uses Drizzle ORM (lib/db/schema.ts). Generated from lib/db/schema.ts
+// and drizzle/0000..0012 @ b45b1ac so you can browse the same Postgres database in Prisma Studio
+// without changing the app's ORM. Never run `prisma migrate` or `prisma db push` with this file.
+// Recommended native equivalent: `npx drizzle-kit studio`.
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  owner
+  vendor
+  collaborator
+
+  @@map("user_role")
+}
+
+enum RequestStatus {
+  Draft
+  NeedsQuote  @map("Needs Quote")
+  Waiting
+  Scheduled
+  InProgress  @map("In Progress")
+  NeedsReview @map("Needs Review")
+  Complete
+  Archived
+
+  @@map("request_status")
+}
+
+enum PhotoType {
+  before
+  after
+  receipt
+  other
+
+  @@map("photo_type")
+}
+
+enum QuoteStatus {
+  pending
+  approved
+  declined
+
+  @@map("quote_status")
+}
+
+enum InviteRole {
+  vendor
+  collaborator
+
+  @@map("invite_role")
+}
+
+enum InviteStatus {
+  pending
+  accepted
+
+  @@map("invite_status")
+}
+
+enum VaultCategory {
+  Receipt
+  Warranty
+  Manual
+  Invoice
+  InspectionReport @map("Inspection Report")
+  Other
+
+  @@map("vault_category")
+}
+
+enum NotificationStatus {
+  sent
+  failed
+
+  @@map("notification_status")
+}
+
+enum WorkSessionEvent {
+  started
+  paused
+  resumed
+  stopped
+
+  @@map("work_session_event")
+}
+
+enum RequestTaskStatus {
+  todo
+  in_progress
+  blocked
+  done
+
+  @@map("request_task_status")
+}
+
+enum CloseoutSubmissionStatus {
+  pending
+  approved
+  changes_requested
+
+  @@map("closeout_submission_status")
+}
+
+enum BillingRecordStatus {
+  recorded
+  paid
+  disputed
+  void
+
+  @@map("billing_record_status")
+}
+
+enum WorkspaceKind {
+  personal
+  household
+  business
+
+  @@map("workspace_kind")
+}
+
+enum WorkspaceMemberRole {
+  owner
+  admin
+  member
+  billing_admin
+
+  @@map("workspace_member_role")
+}
+
+enum WorkspaceMemberStatus {
+  active
+  invited
+  removed
+
+  @@map("workspace_member_status")
+}
+
+enum WorkspacePlan {
+  poc
+  homeowner
+  team
+  enterprise
+
+  @@map("workspace_plan")
+}
+
+enum BillingAccountStatus {
+  trialing
+  active
+  past_due
+  paused
+  canceled
+
+  @@map("billing_account_status")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash")
+  role         UserRole
+  name         String?  @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  ownedWorkspaces          Workspace[]           @relation("WorkspaceOwner")
+  memberships              WorkspaceMembership[] @relation("MembershipUser")
+  membershipInvitesSent    WorkspaceMembership[] @relation("MembershipInvitedBy")
+  properties               Property[]            @relation("PropertyOwner")
+  invitesSent              Invite[]              @relation("InviteOwner")
+  invitesAccepted          Invite[]              @relation("InviteAcceptedBy")
+  ownedRequests            Request[]             @relation("RequestOwner")
+  assignedRequests         Request[]             @relation("RequestAssignedVendor")
+  collaboratingRequests    Request[]             @relation("RequestCollaborator")
+  uploadedPhotos           RequestPhoto[]        @relation("PhotoUploadedBy")
+  submittedQuotes          Quote[]               @relation("QuoteSubmittedBy")
+  approvedQuotes           Quote[]               @relation("QuoteApprovedBy")
+  decisions                DecisionLog[]         @relation("DecisionActor")
+  comments                 Comment[]             @relation("CommentAuthor")
+  acceptedTasks            RequestTask[]         @relation("TaskAcceptedBy")
+  createdTasks             RequestTask[]         @relation("TaskCreatedBy")
+  workSessions             WorkSession[]         @relation("WorkSessionVendor")
+  closeoutsSubmitted       CloseoutSubmission[]  @relation("CloseoutVendor")
+  closeoutsReviewed        CloseoutSubmission[]  @relation("CloseoutReviewedBy")
+  billingRecordsOwned      BillingRecord[]       @relation("BillingOwner")
+  billingRecordsAsVendor   BillingRecord[]       @relation("BillingVendor")
+  vaultDocumentsUploaded   VaultDocument[]       @relation("VaultUploadedBy")
+  contacts                 Contact[]             @relation("ContactOwner")
+  notifications            NotificationLog[]     @relation("NotificationOwner")
+  vendorProfile            VendorProfile?        @relation("VendorProfileUser")
+
+  @@map("users")
+}
+
+model Workspace {
+  id        String        @id @default(uuid()) @db.Uuid
+  ownerId   String        @map("owner_id") @db.Uuid
+  owner     User          @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String        @db.VarChar(255)
+  slug      String        @unique @db.VarChar(120)
+  kind      WorkspaceKind @default(personal)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime      @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  memberships    WorkspaceMembership[]
+  billingAccount BillingAccount?
+  properties     Property[]
+  invites        Invite[]
+  requests       Request[]
+  billingRecords BillingRecord[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMembership {
+  id          String                @id @default(uuid()) @db.Uuid
+  workspaceId String                @map("workspace_id") @db.Uuid
+  workspace   Workspace             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String                @map("user_id") @db.Uuid
+  user        User                  @relation("MembershipUser", fields: [userId], references: [id], onDelete: Cascade)
+  role        WorkspaceMemberRole   @default(member)
+  status      WorkspaceMemberStatus @default(active)
+  invitedById String?               @map("invited_by_id") @db.Uuid
+  invitedBy   User?                 @relation("MembershipInvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime              @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@unique([workspaceId, userId], map: "workspace_memberships_workspace_user_unique")
+  @@index([userId], map: "workspace_memberships_user_idx")
+  @@map("workspace_memberships")
+}
+
+model BillingAccount {
+  id                     String               @id @default(uuid()) @db.Uuid
+  workspaceId            String               @unique @map("workspace_id") @db.Uuid
+  workspace              Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  plan                   WorkspacePlan        @default(poc)
+  status                 BillingAccountStatus @default(trialing)
+  billingEmail           String?              @map("billing_email") @db.VarChar(255)
+  externalCustomerId     String?              @map("external_customer_id") @db.VarChar(255)
+  externalSubscriptionId String?              @map("external_subscription_id") @db.VarChar(255)
+  trialEndsAt            DateTime?            @map("trial_ends_at") @db.Timestamp(6)
+  currentPeriodEndsAt    DateTime?            @map("current_period_ends_at") @db.Timestamp(6)
+  createdAt              DateTime             @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt              DateTime             @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@map("billing_accounts")
+}
+
+model Property {
+  id          String     @id @default(uuid()) @db.Uuid
+  ownerId     String     @map("owner_id") @db.Uuid
+  owner       User       @relation("PropertyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  workspaceId String?    @map("workspace_id") @db.Uuid
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  address     String
+  unit        String?    @db.VarChar(100)
+  nickname    String?    @db.VarChar(255)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  requests      Request[]
+  vaultDocs     VaultDocument[]
+  reminders     Reminder[]
+  notifications NotificationLog[]
+
+  @@map("properties")
+}
+
+model Invite {
+  id           String       @id @default(uuid()) @db.Uuid
+  ownerId      String       @map("owner_id") @db.Uuid
+  owner        User         @relation("InviteOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  workspaceId  String?      @map("workspace_id") @db.Uuid
+  workspace    Workspace?   @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  // No FK in the database (circular requests<->invites); see GAP-PRISMA-02.
+  requestId    String?      @map("request_id") @db.Uuid
+  role         InviteRole
+  email        String       @db.VarChar(255)
+  status       InviteStatus @default(pending)
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  expiresAt    DateTime     @map("expires_at") @db.Timestamp(6)
+  acceptedById String?      @map("accepted_by_id") @db.Uuid
+  acceptedBy   User?        @relation("InviteAcceptedBy", fields: [acceptedById], references: [id], onDelete: NoAction)
+  acceptedAt   DateTime?    @map("accepted_at") @db.Timestamp(6)
+
+  pendingVendorForRequests       Request[] @relation("RequestPendingVendorInvite")
+  pendingCollaboratorForRequests Request[] @relation("RequestPendingCollaboratorInvite")
+
+  @@map("invites")
+}
+
+model Request {
+  id                          String        @id @default(uuid()) @db.Uuid
+  ownerId                     String        @map("owner_id") @db.Uuid
+  owner                       User          @relation("RequestOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  workspaceId                 String?       @map("workspace_id") @db.Uuid
+  workspace                   Workspace?    @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  propertyId                  String        @map("property_id") @db.Uuid
+  property                    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  title                       String        @db.VarChar(255)
+  category                    String        @db.VarChar(100)
+  urgency                     String        @db.VarChar(50)
+  location                    String?
+  contactMethod               String?       @map("contact_method") @db.VarChar(50)
+  accessInstructions          String?       @map("access_instructions")
+  notes                       String?
+  status                      RequestStatus @default(Draft)
+  assignedVendorId            String?       @map("assigned_vendor_id") @db.Uuid
+  assignedVendor              User?         @relation("RequestAssignedVendor", fields: [assignedVendorId], references: [id], onDelete: NoAction)
+  collaboratorId              String?       @map("collaborator_id") @db.Uuid
+  collaborator                User?         @relation("RequestCollaborator", fields: [collaboratorId], references: [id], onDelete: NoAction)
+  estimatedCost               Decimal?      @map("estimated_cost") @db.Decimal(10, 2)
+  quotedCost                  Decimal?      @map("quoted_cost") @db.Decimal(10, 2)
+  finalCost                   Decimal?      @map("final_cost") @db.Decimal(10, 2)
+  pendingVendorInviteId       String?       @map("pending_vendor_invite_id") @db.Uuid
+  pendingVendorInvite         Invite?       @relation("RequestPendingVendorInvite", fields: [pendingVendorInviteId], references: [id], onDelete: NoAction)
+  pendingCollaboratorInviteId String?       @map("pending_collaborator_invite_id") @db.Uuid
+  pendingCollaboratorInvite   Invite?       @relation("RequestPendingCollaboratorInvite", fields: [pendingCollaboratorInviteId], references: [id], onDelete: NoAction)
+  createdAt                   DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                   DateTime      @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  photos         RequestPhoto[]
+  quotes         Quote[]
+  decisionLog    DecisionLog[]
+  comments       Comment[]
+  tasks          RequestTask[]
+  workSessions   WorkSession[]
+  closeouts      CloseoutSubmission[]
+  billingRecords BillingRecord[]
+  vaultDocuments VaultDocument[]
+  notifications  NotificationLog[]
+
+  @@map("requests")
+}
+
+model RequestPhoto {
+  id           String    @id @default(uuid()) @db.Uuid
+  requestId    String    @map("request_id") @db.Uuid
+  request      Request   @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  type         PhotoType
+  url          String
+  blobPath     String    @map("blob_path")
+  uploadedById String    @map("uploaded_by_id") @db.Uuid
+  uploadedBy   User      @relation("PhotoUploadedBy", fields: [uploadedById], references: [id], onDelete: NoAction)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  workSessions WorkSession[]
+
+  @@map("request_photos")
+}
+
+model Quote {
+  id                  String      @id @default(uuid()) @db.Uuid
+  requestId           String      @map("request_id") @db.Uuid
+  request             Request     @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  submittedByVendorId String?     @map("submitted_by_vendor_id") @db.Uuid
+  submittedByVendor   User?       @relation("QuoteSubmittedBy", fields: [submittedByVendorId], references: [id], onDelete: NoAction)
+  vendorName          String      @map("vendor_name") @db.VarChar(255)
+  vendorContact       String?     @map("vendor_contact") @db.VarChar(255)
+  amount              Decimal     @db.Decimal(10, 2)
+  availabilityWindow  String?     @map("availability_window")
+  notes               String?
+  attachmentUrl       String?     @map("attachment_url")
+  attachmentBlobPath  String?     @map("attachment_blob_path")
+  status              QuoteStatus @default(pending)
+  approvedById        String?     @map("approved_by_id") @db.Uuid
+  approvedBy          User?       @relation("QuoteApprovedBy", fields: [approvedById], references: [id], onDelete: NoAction)
+  approvedAt          DateTime?   @map("approved_at") @db.Timestamp(6)
+  createdAt           DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime    @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@map("quotes")
+}
+
+model DecisionLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  requestId String   @map("request_id") @db.Uuid
+  request   Request  @relation(fields: [requestId], references: [id], onDelete: Cascade) // GAP-ERASER-02
+  actorId   String   @map("actor_id") @db.Uuid
+  actor     User     @relation("DecisionActor", fields: [actorId], references: [id], onDelete: NoAction)
+  action    String   @db.VarChar(100)
+  details   Json?    @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("decision_log")
+}
+
+model Comment {
+  id        String   @id @default(uuid()) @db.Uuid
+  requestId String   @map("request_id") @db.Uuid
+  request   Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  authorId  String   @map("author_id") @db.Uuid
+  author    User     @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: NoAction)
+  text      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("comments")
+}
+
+model RequestTask {
+  id                 String            @id @default(uuid()) @db.Uuid
+  requestId          String            @map("request_id") @db.Uuid
+  request            Request           @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  title              String            @db.VarChar(255)
+  description        String?
+  status             RequestTaskStatus @default(todo)
+  estimatedCost      Decimal?          @map("estimated_cost") @db.Decimal(10, 2)
+  finalCost          Decimal?          @map("final_cost") @db.Decimal(10, 2)
+  acceptedById       String?           @map("accepted_by_id") @db.Uuid
+  acceptedBy         User?             @relation("TaskAcceptedBy", fields: [acceptedById], references: [id], onDelete: NoAction)
+  acceptedAt         DateTime?         @map("accepted_at") @db.Timestamp(6)
+  sortOrder          Int               @default(0) @map("sort_order")
+  requiredPhotoTypes Json              @default("[]") @map("required_photo_types")
+  createdById        String?           @map("created_by_id") @db.Uuid
+  createdBy          User?             @relation("TaskCreatedBy", fields: [createdById], references: [id], onDelete: NoAction)
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt          DateTime          @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  workSessions WorkSession[]
+
+  @@map("request_tasks")
+}
+
+model WorkSession {
+  id            String           @id @default(uuid()) @db.Uuid
+  requestId     String           @map("request_id") @db.Uuid
+  request       Request          @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  vendorId      String           @map("vendor_id") @db.Uuid
+  vendor        User             @relation("WorkSessionVendor", fields: [vendorId], references: [id], onDelete: NoAction)
+  proofPhotoId  String?          @map("proof_photo_id") @db.Uuid
+  proofPhoto    RequestPhoto?    @relation(fields: [proofPhotoId], references: [id], onDelete: SetNull)
+  requestTaskId String?          @map("request_task_id") @db.Uuid
+  requestTask   RequestTask?     @relation(fields: [requestTaskId], references: [id], onDelete: SetNull)
+  taskLabel     String?          @map("task_label") @db.VarChar(255)
+  event         WorkSessionEvent
+  notes         String?
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("work_sessions")
+}
+
+model CloseoutSubmission {
+  id              String                   @id @default(uuid()) @db.Uuid
+  requestId       String                   @map("request_id") @db.Uuid
+  request         Request                  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  vendorId        String                   @map("vendor_id") @db.Uuid
+  vendor          User                     @relation("CloseoutVendor", fields: [vendorId], references: [id], onDelete: NoAction)
+  completionNotes String                   @map("completion_notes")
+  materialsNotes  String?                  @map("materials_notes")
+  finalAmount     Decimal                  @map("final_amount") @db.Decimal(10, 2)
+  status          CloseoutSubmissionStatus @default(pending)
+  reviewNotes     String?                  @map("review_notes")
+  reviewedById    String?                  @map("reviewed_by_id") @db.Uuid
+  reviewedBy      User?                    @relation("CloseoutReviewedBy", fields: [reviewedById], references: [id], onDelete: NoAction)
+  reviewedAt      DateTime?                @map("reviewed_at") @db.Timestamp(6)
+  submittedAt     DateTime                 @default(now()) @map("submitted_at") @db.Timestamp(6)
+  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime                 @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  billingRecord BillingRecord?
+
+  @@map("closeout_submissions")
+}
+
+model BillingRecord {
+  id                   String              @id @default(uuid()) @db.Uuid
+  requestId            String              @map("request_id") @db.Uuid
+  request              Request             @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  ownerId              String              @map("owner_id") @db.Uuid
+  owner                User                @relation("BillingOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  workspaceId          String?             @map("workspace_id") @db.Uuid
+  workspace            Workspace?          @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  vendorId             String?             @map("vendor_id") @db.Uuid
+  vendor               User?               @relation("BillingVendor", fields: [vendorId], references: [id], onDelete: NoAction)
+  closeoutSubmissionId String?             @unique @map("closeout_submission_id") @db.Uuid
+  closeoutSubmission   CloseoutSubmission? @relation(fields: [closeoutSubmissionId], references: [id], onDelete: SetNull)
+  amount               Decimal             @db.Decimal(10, 2)
+  status               BillingRecordStatus @default(recorded)
+  invoiceReference     String?             @map("invoice_reference") @db.VarChar(120)
+  notes                String?
+  recordedAt           DateTime            @default(now()) @map("recorded_at") @db.Timestamp(6)
+  paidAt               DateTime?           @map("paid_at") @db.Timestamp(6)
+  createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt            DateTime            @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@map("billing_records")
+}
+
+model VaultDocument {
+  id           String        @id @default(uuid()) @db.Uuid
+  propertyId   String        @map("property_id") @db.Uuid
+  property     Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name         String        @db.VarChar(255)
+  category     VaultCategory @default(Other)
+  requestId    String?       @map("request_id") @db.Uuid
+  request      Request?      @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  url          String
+  blobPath     String        @map("blob_path")
+  uploadedById String        @map("uploaded_by_id") @db.Uuid
+  uploadedBy   User          @relation("VaultUploadedBy", fields: [uploadedById], references: [id], onDelete: NoAction)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("vault_documents")
+}
+
+model Reminder {
+  id              String    @id @default(uuid()) @db.Uuid
+  propertyId      String    @map("property_id") @db.Uuid
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  title           String    @db.VarChar(255)
+  intervalDays    Int       @map("interval_days")
+  lastCompletedAt DateTime? @map("last_completed_at") @db.Timestamp(6)
+  nextDueAt       DateTime  @map("next_due_at") @db.Timestamp(6)
+  lastNotifiedAt  DateTime? @map("last_notified_at") @db.Timestamp(6)
+  notes           String?
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@map("reminders")
+}
+
+model Contact {
+  id              String   @id @default(uuid()) @db.Uuid
+  ownerId         String   @map("owner_id") @db.Uuid
+  owner           User     @relation("ContactOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  name            String   @db.VarChar(255)
+  email           String?  @db.VarChar(255)
+  phone           String?  @db.VarChar(50)
+  propertyAddress String?  @map("property_address")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("contacts")
+}
+
+model NotificationLog {
+  id             String             @id @default(uuid()) @db.Uuid
+  ownerId        String             @map("owner_id") @db.Uuid
+  owner          User               @relation("NotificationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  requestId      String?            @map("request_id") @db.Uuid
+  request        Request?           @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  propertyId     String?            @map("property_id") @db.Uuid
+  property       Property?          @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  type           String             @db.VarChar(50)
+  recipientEmail String?            @map("recipient_email") @db.VarChar(255)
+  subject        String?            @db.VarChar(255)
+  status         NotificationStatus
+  error          String?
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("notification_log")
+}
+
+model VendorProfile {
+  id                      String   @id @default(uuid()) @db.Uuid
+  userId                  String   @unique @map("user_id") @db.Uuid
+  user                    User     @relation("VendorProfileUser", fields: [userId], references: [id], onDelete: Cascade)
+  businessName            String?  @map("business_name") @db.VarChar(255)
+  trades                  Json     @default("[]")
+  serviceArea             String?  @map("service_area")
+  availability            String?
+  notificationPreference  String?  @map("notification_preference") @db.VarChar(50)
+  licenseInsuranceNotes   String?  @map("license_insurance_notes")
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt               DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  @@map("vendor_profiles")
+}
+
+model AuthAttempt {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @db.VarChar(320)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([key, createdAt], map: "auth_attempts_key_created_idx")
+  @@map("auth_attempts")
+}

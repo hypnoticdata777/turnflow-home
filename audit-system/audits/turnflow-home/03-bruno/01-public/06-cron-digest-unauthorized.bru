@@ -1,0 +1,20 @@
+meta {
+  name: Cron reminder digest - no bearer (401)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/cron/reminder-digest
+  body: none
+  auth: none
+}
+
+docs {
+  Expects CRON_SECRET to be set on the server. Without it, local dev answers 200 (open) by design: lib/cron-auth.ts:16-21.
+}
+
+assert {
+  res.status: eq 401
+  res.body.error: eq Unauthorized
+}
