@@ -63,7 +63,7 @@
       ],
       "built": [],
       "gaps": [
-        { "id": "GAP-BRUNO-01", "text": "No API test collection of any kind (no .bru, Postman, or HTTP test files).", "impact": "medium", "evidence": [] }
+        { "id": "GAP-BRUNO-01", "text": "No API test collection of any kind (no .bru, Postman, or HTTP test files).", "impact": "medium", "evidence": ["search:**/*.bru", "search:**/*.http", "search:**/postman*.json"] }
       ],
       "artifacts": [
         {
@@ -73,7 +73,7 @@
           "content": "meta {\n  name: List tools\n  type: http\n  seq: 1\n}\n\nget {\n  url: {{baseUrl}}/api/tools\n  body: none\n  auth: none\n}\n\nassert {\n  res.status: eq 200\n}"
         }
       ],
-      "evidence": ["README.md", "app/api/tools/route.ts", "app/api/loans/route.ts"],
+      "evidence": ["README.md", "app/api/tools/route.ts", "app/api/loans/route.ts", "search:**/*.bru", "search:**/*.http", "search:**/postman*.json"],
       "notes": "Searched for **/*.bru, **/*.http, **/postman*.json: none found."
     },
     "figma": {
@@ -140,10 +140,10 @@
         { "text": "3 unit tests, 0 tests for API routes.", "evidence": ["__tests__/format.test.ts"] }
       ],
       "gaps": [
-        { "id": "GAP-CODE-01", "text": "Server-side Sentry not initialized: API route errors are invisible.", "impact": "high", "evidence": ["instrumentation.ts"], "ticketRef": "LEND-7" }
+        { "id": "GAP-CODE-01", "text": "Server-side Sentry not initialized: API route errors are invisible.", "impact": "high", "evidence": ["missing:instrumentation.ts"], "ticketRef": "LEND-7" }
       ],
       "artifacts": [],
-      "evidence": ["package.json", "instrumentation-client.ts", "__tests__/"],
+      "evidence": ["package.json", "instrumentation-client.ts", "__tests__/", "missing:instrumentation.ts"],
       "notes": "instrumentation.ts does not exist (searched repo root and src/)."
     }
   },
