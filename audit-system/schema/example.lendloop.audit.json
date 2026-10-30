@@ -6,7 +6,7 @@
     "commit": "3f9c2ab",
     "stack": "TS",
     "framework": "Next.js 16 (App Router)",
-    "keyLibraries": ["prisma@6", "next-auth@5", "zod@4", "@faker-js/faker@9", "@sentry/nextjs@9"],
+    "keyLibraries": ["prisma@7", "jose@6", "zod@4", "@faker-js/faker@10", "@sentry/nextjs@10"],
     "auditDate": "2026-10-30",
     "auditedBy": "Carlos (manual, Field Manual worked example)",
     "notes": "Fictional neighborhood tool library: members list tools, borrow them, and return them. Used as the worked example in every step of the Field Manual."
