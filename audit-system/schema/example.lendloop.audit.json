@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "name": "LendLoop",
+    "repoUrl": "https://github.com/example/lendloop.git",
+    "commit": "3f9c2ab",
+    "stack": "TS",
+    "framework": "Next.js 16 (App Router)",
+    "keyLibraries": ["prisma@6", "next-auth@5", "zod@4", "@faker-js/faker@9", "@sentry/nextjs@9"],
+    "auditDate": "2026-10-30",
+    "auditedBy": "Carlos (manual, Field Manual worked example)",
+    "notes": "Fictional neighborhood tool library: members list tools, borrow them, and return them. Used as the worked example in every step of the Field Manual."
+  },
+  "tools": {
+    "figjam": {
+      "status": "Partial",
+      "planned": [
+        { "text": "Members browse tools, request a loan, pick up, and return.", "evidence": ["README.md:5"] },
+        { "text": "Owners approve or decline loan requests.", "evidence": ["README.md:9"] }
+      ],
+      "built": [
+        { "text": "Catalog, tool detail, and 'My loans' pages exist.", "evidence": ["app/tools/page.tsx", "app/tools/[id]/page.tsx", "app/loans/page.tsx"] },
+        { "text": "No owner approval screen; loans are auto-approved.", "evidence": ["app/api/loans/route.ts:22"] }
+      ],
+      "gaps": [
+        { "id": "GAP-FIGJAM-01", "text": "No MVP cut-line: owner approval is described as core in README but never built and never explicitly deferred.", "impact": "medium", "evidence": ["README.md:9", "app/api/loans/route.ts:22"] }
+      ],
+      "artifacts": [
+        {
+          "name": "Backbone + MVP cut-line",
+          "format": "markdown",
+          "content": "Backbone: Discover -> Request -> Pick up -> Return\n\nDiscover: browse catalog | view tool detail\nRequest: request loan | (owner) approve/decline\nPick up: see pickup info\nReturn: mark returned\n\n--- MVP cut-line ---\nBelow: ratings, waitlist, owner approval (deferred to v2)"
+        }
+      ],
+      "evidence": ["README.md", "app/tools/page.tsx", "app/tools/[id]/page.tsx", "app/loans/page.tsx", "app/api/loans/route.ts"],
+      "notes": ""
+    },
+    "eraser": {
+      "status": "Partial",
+      "planned": [
+        { "text": "Entities: User, Tool, Loan.", "evidence": ["docs/data.md:3"] }
+      ],
+      "built": [
+        { "text": "User 1-N Tool (owner), Tool 1-N Loan, User 1-N Loan (borrower).", "evidence": ["prisma/schema.prisma"] }
+      ],
+      "gaps": [
+        { "id": "GAP-ERASER-01", "text": "No written API payload contracts; POST /api/loans accepts fields not validated by any zod schema.", "impact": "high", "evidence": ["app/api/loans/route.ts:10"] }
+      ],
+      "artifacts": [
+        {
+          "name": "ERD",
+          "format": "eraser",
+          "content": "users [icon: user] {\n  id string pk\n  email string\n}\ntools [icon: tool] {\n  id string pk\n  ownerId string\n  name string\n}\nloans [icon: repeat] {\n  id string pk\n  toolId string\n  borrowerId string\n  returnedAt datetime\n}\nusers.id < tools.ownerId\ntools.id < loans.toolId\nusers.id < loans.borrowerId"
+        }
+      ],
+      "evidence": ["docs/data.md", "prisma/schema.prisma", "app/api/loans/route.ts"],
+      "notes": ""
+    },
+    "bruno": {
+      "status": "Missing",
+      "planned": [
+        { "text": "API endpoints will be covered by request tests.", "evidence": ["README.md:21"] }
+      ],
+      "built": [],
+      "gaps": [
+        { "id": "GAP-BRUNO-01", "text": "No API test collection of any kind (no .bru, Postman, or HTTP test files).", "impact": "medium", "evidence": [] }
+      ],
+      "artifacts": [
+        {
+          "name": "List tools",
+          "format": "bru",
+          "filename": "bruno/tools/list-tools.bru",
+          "content": "meta {\n  name: List tools\n  type: http\n  seq: 1\n}\n\nget {\n  url: {{baseUrl}}/api/tools\n  body: none\n  auth: none\n}\n\nassert {\n  res.status: eq 200\n}"
+        }
+      ],
+      "evidence": ["README.md", "app/api/tools/route.ts", "app/api/loans/route.ts"],
+      "notes": "Searched for **/*.bru, **/*.http, **/postman*.json: none found."
+    },
+    "figma": {
+      "status": "Partial",
+      "planned": [
+        { "text": "Catalog shows a spinner while loading and an empty state.", "evidence": ["docs/ui.md:4"] }
+      ],
+      "built": [
+        { "text": "Catalog has Populated and Idle (empty) states.", "evidence": ["app/tools/page.tsx:30"] },
+        { "text": "No loading.tsx or error.tsx for /tools.", "evidence": ["app/tools/"] }
+      ],
+      "gaps": [
+        { "id": "GAP-FIGMA-01", "text": "Catalog has no Loading and no Error state; a failed fetch shows a blank page.", "impact": "high", "evidence": ["app/tools/"] }
+      ],
+      "artifacts": [
+        {
+          "name": "Screen x state inventory",
+          "format": "markdown",
+          "content": "| Screen | Idle | Loading | Populated | Error |\n|---|---|---|---|---|\n| Catalog | built | MISSING | built | MISSING |\n| Tool detail | n/a | MISSING | built | built |\n| My loans | built | MISSING | built | MISSING |"
+        }
+      ],
+      "evidence": ["docs/ui.md", "app/tools/page.tsx", "app/tools/[id]/page.tsx", "app/loans/page.tsx"],
+      "notes": ""
+    },
+    "prisma": {
+      "status": "Matches",
+      "planned": [
+        { "text": "Seed script with realistic fake data for demos.", "evidence": ["README.md:25"] }
+      ],
+      "built": [
+        { "text": "Prisma schema with 3 models and a Faker seed creating 10 users, 30 tools, 50 loans.", "evidence": ["prisma/schema.prisma", "prisma/seed.ts"] }
+      ],
+      "gaps": [
+        { "id": "GAP-PRISMA-01", "text": "Seed is not idempotent: running it twice duplicates rows.", "impact": "low", "evidence": ["prisma/seed.ts:8"] }
+      ],
+      "artifacts": [],
+      "evidence": ["prisma/schema.prisma", "prisma/seed.ts", "package.json"],
+      "notes": "Schema and seed already exist in the repo, so no new artifact was generated."
+    },
+    "plane": {
+      "status": "Not planned",
+      "planned": [],
+      "built": [],
+      "gaps": [
+        { "id": "GAP-PLANE-01", "text": "No tickets, issues, or acceptance criteria anywhere; scope lives only in the README.", "impact": "medium", "evidence": [], "inferred": true }
+      ],
+      "artifacts": [
+        {
+          "name": "Ticket for GAP-FIGMA-01",
+          "format": "gherkin",
+          "content": "Feature: Catalog loading and error states\n\n  Scenario: Catalog fetch fails\n    Given the tools API returns 500\n    When I open /tools\n    Then I see \"Could not load tools\"\n    And I see a \"Try again\" button"
+        }
+      ],
+      "evidence": [".github/", "README.md"],
+      "notes": "No .github/ISSUE_TEMPLATE, no linked tracker."
+    },
+    "codeSentry": {
+      "status": "Partial",
+      "planned": [
+        { "text": "Errors reported to Sentry in production.", "evidence": ["README.md:30"] }
+      ],
+      "built": [
+        { "text": "@sentry/nextjs installed and initialized on the client only.", "evidence": ["package.json", "instrumentation-client.ts"] },
+        { "text": "3 unit tests, 0 tests for API routes.", "evidence": ["__tests__/format.test.ts"] }
+      ],
+      "gaps": [
+        { "id": "GAP-CODE-01", "text": "Server-side Sentry not initialized: API route errors are invisible.", "impact": "high", "evidence": ["instrumentation.ts"], "ticketRef": "LEND-7" }
+      ],
+      "artifacts": [],
+      "evidence": ["package.json", "instrumentation-client.ts", "__tests__/"],
+      "notes": "instrumentation.ts does not exist (searched repo root and src/)."
+    }
+  },
+  "topGaps": ["GAP-FIGMA-01", "GAP-CODE-01", "GAP-ERASER-01", "GAP-FIGJAM-01", "GAP-BRUNO-01", "GAP-PLANE-01", "GAP-PRISMA-01"]
+}

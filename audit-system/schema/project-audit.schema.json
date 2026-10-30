@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hypnoticdata777/turnflow-home/audit-system/schema/project-audit.schema.json",
+  "title": "Project Audit",
+  "description": "One reverse-engineering audit of one software project, mapped onto the 7-tool design pipeline (FigJam -> Eraser.io -> Bruno -> Figma -> Prisma Studio -> Plane -> Code + Sentry). Shared by the Field Manual (import/export), the Reverse-Engineering Prompt (agent output), and every audit run.",
+  "type": "object",
+  "required": ["schemaVersion", "project", "tools"],
+  "additionalProperties": false,
+  "patternProperties": { "^x-": {} },
+  "properties": {
+    "schemaVersion": {
+      "description": "Integer version of THIS schema. Bump only on breaking changes. Importers must refuse versions higher than they know.",
+      "const": 1
+    },
+    "project": { "$ref": "#/$defs/project" },
+    "tools": {
+      "description": "Exactly the 7 pipeline steps, keyed by tool, in pipeline order.",
+      "type": "object",
+      "required": ["figjam", "eraser", "bruno", "figma", "prisma", "plane", "codeSentry"],
+      "additionalProperties": false,
+      "properties": {
+        "figjam":     { "$ref": "#/$defs/toolAudit", "description": "Step 1 - FigJam: backbone user journey + MVP cut-line." },
+        "eraser":     { "$ref": "#/$defs/toolAudit", "description": "Step 2 - Eraser.io: data ERD + API payload contracts." },
+        "bruno":      { "$ref": "#/$defs/toolAudit", "description": "Step 3 - Bruno: Git-tracked API test collection (auth + endpoints)." },
+        "figma":      { "$ref": "#/$defs/toolAudit", "description": "Step 4 - Figma: 4 UI states (Idle, Loading, Populated, Error) per key screen." },
+        "prisma":     { "$ref": "#/$defs/toolAudit", "description": "Step 5 - Prisma Studio: database models + Faker seed data (or the stack's ORM equivalent)." },
+        "plane":      { "$ref": "#/$defs/toolAudit", "description": "Step 6 - Plane: discrete tickets with Gherkin acceptance criteria." },
+        "codeSentry": { "$ref": "#/$defs/toolAudit", "description": "Step 7 - Code + Sentry: implementation, automated tests, error observability." }
+      }
+    },
+    "topGaps": {
+      "description": "Optional. Gap ids ranked by impact, highest first. Every id must exist in some tools.*.gaps[].id.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/gapId" },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "project": {
+      "type": "object",
+      "required": ["name", "repoUrl", "stack", "framework", "keyLibraries", "auditDate"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "name":         { "type": "string", "minLength": 1, "description": "Human name of the project." },
+        "repoUrl":      { "type": "string", "description": "Clone URL or web URL of the repo. Empty string if not hosted." },
+        "commit":       { "type": "string", "pattern": "^[0-9a-f]{7,40}$", "description": "Optional. Git SHA the audit was run against. Makes the audit reproducible." },
+        "stack":        { "enum": ["JS", "TS", "Python"], "description": "Primary language. Mixed repos: pick the language of the main app; list the rest in keyLibraries/notes." },
+        "framework":    { "type": "string", "description": "Main framework, with version when known. e.g. 'Next.js 16.4 (App Router)', 'FastAPI 0.115', 'Django 5.1'. 'none' if none." },
+        "keyLibraries": { "type": "array", "items": { "type": "string" }, "description": "Load-bearing libraries as 'name@version' (version optional). e.g. 'drizzle-orm@0.45.2'." },
+        "auditDate":    { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "ISO date YYYY-MM-DD." },
+        "auditedBy":    { "type": "string", "description": "Optional. Who produced this audit: a person or an agent name." },
+        "notes":        { "type": "string", "description": "Optional. Free text about scope, access limits, monorepo layout, etc." }
+      }
+    },
+    "toolAudit": {
+      "type": "object",
+      "required": ["status", "planned", "built", "gaps", "artifacts", "evidence", "notes"],
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "status": {
+          "enum": ["Matches", "Partial", "Missing", "Not planned"],
+          "description": "Decision rule: no planning evidence -> 'Not planned'; planned but nothing built -> 'Missing'; both, with >=1 high/medium gap -> 'Partial'; both, no high/medium gaps -> 'Matches'."
+        },
+        "equivalentTool": {
+          "type": "string",
+          "description": "Optional. Set when the project uses a different tool for this step. e.g. prisma step in a Drizzle project -> 'Drizzle ORM + drizzle-kit'; in a Django project -> 'Django ORM + migrations'."
+        },
+        "planned":   { "type": "array", "items": { "$ref": "#/$defs/finding" }, "description": "What the project INTENDED (from README, docs, TODO/FIXME, issues, commit messages)." },
+        "built":     { "type": "array", "items": { "$ref": "#/$defs/finding" }, "description": "What the CODE actually does (routes, models, components, tests, config)." },
+        "gaps":      { "type": "array", "items": { "$ref": "#/$defs/gap" }, "description": "Differences between planned and built, plus missing design artifacts for this step." },
+        "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" }, "description": "Paste-ready outputs for this tool (outline, diagram-as-code, .bru files, schema, tickets...)." },
+        "evidence":  { "type": "array", "items": { "type": "string" }, "description": "Every file path (optionally path:line) consulted for this step, including where something was searched for and NOT found." },
+        "notes":     { "type": "string", "description": "Free text. Empty string if nothing to add." }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": ["text"],
+      "additionalProperties": false,
+      "properties": {
+        "text":     { "type": "string", "minLength": 1, "description": "One claim, one sentence." },
+        "evidence": { "type": "array", "items": { "type": "string" }, "default": [], "description": "File paths (path or path:line, or 'commit:<sha>', 'issue:#12') that prove this claim." },
+        "inferred": { "type": "boolean", "default": false, "description": "true when the claim is a reasoned guess rather than directly stated/visible in the evidence." }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "required": ["id", "text", "impact"],
+      "additionalProperties": false,
+      "properties": {
+        "id":        { "$ref": "#/$defs/gapId" },
+        "text":      { "type": "string", "minLength": 1, "description": "What is missing or mismatched, and the consequence." },
+        "impact":    { "enum": ["high", "medium", "low"], "description": "high = breaks users, data, or security; medium = slows the team or hides bugs; low = cosmetic or documentation-only." },
+        "evidence":  { "type": "array", "items": { "type": "string" }, "default": [] },
+        "inferred":  { "type": "boolean", "default": false },
+        "ticketRef": { "type": "string", "description": "Optional. Plane ticket key that closes this gap, e.g. 'TURN-14'." }
+      }
+    },
+    "gapId": {
+      "type": "string",
+      "pattern": "^GAP-(FIGJAM|ERASER|BRUNO|FIGMA|PRISMA|PLANE|CODE)-\\d{2,3}$",
+      "description": "Stable id: GAP-<STEP>-<NN>. e.g. GAP-BRUNO-03. Never renumber; retire instead."
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["name", "format", "content"],
+      "additionalProperties": false,
+      "properties": {
+        "name":     { "type": "string", "minLength": 1, "description": "Human label, e.g. 'Auth: login request'." },
+        "format":   {
+          "enum": ["markdown", "eraser", "bru", "prisma", "gherkin", "typescript", "javascript", "python", "sql", "json", "yaml", "text"],
+          "description": "How to render/paste the content."
+        },
+        "filename": { "type": "string", "description": "Optional. Suggested path when saved, e.g. 'bruno/auth/login.bru'." },
+        "content":  { "type": "string", "description": "The paste-ready artifact body." }
+      }
+    }
+  }
+}
