@@ -1,0 +1,21 @@
+meta {
+  name: Blob upload - unsupported type (415)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/blob-upload
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  pathname: turnflow-property/00000000-0000-0000-0000-000000000000/{{ownerId}}/note.txt
+  file: @file(fixtures/note.txt)
+}
+
+assert {
+  res.status: eq 415
+  res.body.error: startsWith Unsupported file type
+}

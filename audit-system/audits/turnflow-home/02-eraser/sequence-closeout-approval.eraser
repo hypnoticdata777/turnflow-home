@@ -1,0 +1,31 @@
+title Owner approves a vendor closeout (as built @ b45b1ac, lib/actions/closeout-submissions.ts:116-237)
+
+Owner [icon: user]
+Web [icon: monitor]
+Action [label: reviewCloseoutSubmissionAction, icon: server]
+DB [label: Neon Postgres (neon-http, no transactions), icon: database]
+Email [label: Resend, icon: mail]
+
+Owner > Web: Click "Approve closeout"
+Web > Action: server action (requestId, closeoutId, "approved", reviewNotes)
+Action > DB: SELECT request (owner check)
+Action > DB: SELECT closeout (belongs to request?)
+alt [label: not owner / closeout not found] {
+  Action --> Web: { error }
+}
+else [label: authorized] {
+  Action > DB: UPDATE closeout_submissions SET status = approved   (write 1)
+  Action > DB: UPDATE requests SET final_cost, status = Complete   (write 2)
+  Action > DB: UPDATE request_tasks SET accepted_at WHERE done    (write 3)
+  Action > DB: SELECT billing_records by closeout_submission_id
+  Action > DB: INSERT billing_records                              (write 4)
+  Action > DB: INSERT decision_log closeout_approved               (write 5)
+  alt [label: any write 2..5 fails (network, cold start, constraint)] {
+    Action --> Web: thrown error, generic Next.js error screen (no error.tsx)
+    DB --> DB: earlier writes stay committed, record is half-applied (F5)
+  }
+  else [label: all writes succeed] {
+    Action > Email: notify vendor (failure is logged, never thrown)
+    Action --> Web: { ok: true, decision: approved }
+  }
+}

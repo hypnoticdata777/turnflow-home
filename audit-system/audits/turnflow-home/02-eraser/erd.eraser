@@ -1,0 +1,319 @@
+title TurnFlow Home data model (from lib/db/schema.ts @ b45b1ac)
+
+users [icon: user, color: blue] {
+  id uuid pk
+  email varchar
+  password_hash text
+  role user_role
+  name varchar
+  created_at timestamp
+}
+
+workspaces [icon: briefcase, color: gray] {
+  id uuid pk
+  owner_id uuid
+  name varchar
+  slug varchar
+  kind workspace_kind
+  created_at timestamp
+  updated_at timestamp
+}
+
+workspace_memberships [icon: users, color: gray] {
+  id uuid pk
+  workspace_id uuid
+  user_id uuid
+  role workspace_member_role
+  status workspace_member_status
+  invited_by_id uuid
+  created_at timestamp
+  updated_at timestamp
+}
+
+billing_accounts [icon: credit-card, color: gray] {
+  id uuid pk
+  workspace_id uuid
+  plan workspace_plan
+  status billing_account_status
+  billing_email varchar
+  external_customer_id varchar
+  external_subscription_id varchar
+  trial_ends_at timestamp
+  current_period_ends_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+properties [icon: home, color: green] {
+  id uuid pk
+  owner_id uuid
+  workspace_id uuid
+  address text
+  unit varchar
+  nickname varchar
+  created_at timestamp
+  updated_at timestamp
+}
+
+invites [icon: mail, color: purple] {
+  id uuid pk
+  owner_id uuid
+  workspace_id uuid
+  request_id uuid
+  role invite_role
+  email varchar
+  status invite_status
+  expires_at timestamp
+  accepted_by_id uuid
+  accepted_at timestamp
+  created_at timestamp
+}
+
+requests [icon: tool, color: orange] {
+  id uuid pk
+  owner_id uuid
+  workspace_id uuid
+  property_id uuid
+  title varchar
+  category varchar
+  urgency varchar
+  location text
+  contact_method varchar
+  access_instructions text
+  notes text
+  status request_status
+  assigned_vendor_id uuid
+  collaborator_id uuid
+  estimated_cost numeric
+  quoted_cost numeric
+  final_cost numeric
+  pending_vendor_invite_id uuid
+  pending_collaborator_invite_id uuid
+  created_at timestamp
+  updated_at timestamp
+}
+
+request_photos [icon: camera, color: orange] {
+  id uuid pk
+  request_id uuid
+  type photo_type
+  url text
+  blob_path text
+  uploaded_by_id uuid
+  created_at timestamp
+}
+
+quotes [icon: dollar-sign, color: orange] {
+  id uuid pk
+  request_id uuid
+  submitted_by_vendor_id uuid
+  vendor_name varchar
+  vendor_contact varchar
+  amount numeric
+  availability_window text
+  notes text
+  attachment_url text
+  attachment_blob_path text
+  status quote_status
+  approved_by_id uuid
+  approved_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+decision_log [icon: list, color: red] {
+  id uuid pk
+  request_id uuid
+  actor_id uuid
+  action varchar
+  details jsonb
+  created_at timestamp
+}
+
+comments [icon: message-square, color: orange] {
+  id uuid pk
+  request_id uuid
+  author_id uuid
+  text text
+  created_at timestamp
+}
+
+request_tasks [icon: check-square, color: orange] {
+  id uuid pk
+  request_id uuid
+  title varchar
+  description text
+  status request_task_status
+  estimated_cost numeric
+  final_cost numeric
+  accepted_by_id uuid
+  accepted_at timestamp
+  sort_order integer
+  required_photo_types jsonb
+  created_by_id uuid
+  created_at timestamp
+  updated_at timestamp
+}
+
+work_sessions [icon: clock, color: orange] {
+  id uuid pk
+  request_id uuid
+  vendor_id uuid
+  proof_photo_id uuid
+  request_task_id uuid
+  task_label varchar
+  event work_session_event
+  notes text
+  created_at timestamp
+}
+
+closeout_submissions [icon: flag, color: orange] {
+  id uuid pk
+  request_id uuid
+  vendor_id uuid
+  completion_notes text
+  materials_notes text
+  final_amount numeric
+  status closeout_submission_status
+  review_notes text
+  reviewed_by_id uuid
+  reviewed_at timestamp
+  submitted_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+billing_records [icon: file-text, color: orange] {
+  id uuid pk
+  request_id uuid
+  owner_id uuid
+  workspace_id uuid
+  vendor_id uuid
+  closeout_submission_id uuid
+  amount numeric
+  status billing_record_status
+  invoice_reference varchar
+  notes text
+  recorded_at timestamp
+  paid_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+vault_documents [icon: archive, color: green] {
+  id uuid pk
+  property_id uuid
+  name varchar
+  category vault_category
+  request_id uuid
+  url text
+  blob_path text
+  uploaded_by_id uuid
+  created_at timestamp
+}
+
+reminders [icon: calendar, color: green] {
+  id uuid pk
+  property_id uuid
+  title varchar
+  interval_days integer
+  last_completed_at timestamp
+  next_due_at timestamp
+  last_notified_at timestamp
+  notes text
+  created_at timestamp
+  updated_at timestamp
+}
+
+contacts [icon: book, color: blue] {
+  id uuid pk
+  owner_id uuid
+  name varchar
+  email varchar
+  phone varchar
+  property_address text
+  created_at timestamp
+}
+
+notification_log [icon: bell, color: blue] {
+  id uuid pk
+  owner_id uuid
+  request_id uuid
+  property_id uuid
+  type varchar
+  recipient_email varchar
+  subject varchar
+  status notification_status
+  error text
+  created_at timestamp
+}
+
+vendor_profiles [icon: user-check, color: blue] {
+  id uuid pk
+  user_id uuid
+  business_name varchar
+  trades jsonb
+  service_area text
+  availability text
+  notification_preference varchar
+  license_insurance_notes text
+  created_at timestamp
+  updated_at timestamp
+}
+
+auth_attempts [icon: shield, color: gray] {
+  id uuid pk
+  key varchar
+  created_at timestamp
+}
+
+users.id < workspaces.owner_id
+workspaces.id < workspace_memberships.workspace_id
+users.id < workspace_memberships.user_id
+users.id < workspace_memberships.invited_by_id
+workspaces.id - billing_accounts.workspace_id
+users.id < properties.owner_id
+workspaces.id < properties.workspace_id
+users.id < invites.owner_id
+workspaces.id < invites.workspace_id
+users.id < invites.accepted_by_id
+users.id < requests.owner_id
+workspaces.id < requests.workspace_id
+properties.id < requests.property_id
+users.id < requests.assigned_vendor_id
+users.id < requests.collaborator_id
+invites.id < requests.pending_vendor_invite_id
+invites.id < requests.pending_collaborator_invite_id
+requests.id < request_photos.request_id
+users.id < request_photos.uploaded_by_id
+requests.id < quotes.request_id
+users.id < quotes.submitted_by_vendor_id
+users.id < quotes.approved_by_id
+requests.id < decision_log.request_id
+users.id < decision_log.actor_id
+requests.id < comments.request_id
+users.id < comments.author_id
+requests.id < request_tasks.request_id
+users.id < request_tasks.accepted_by_id
+users.id < request_tasks.created_by_id
+requests.id < work_sessions.request_id
+users.id < work_sessions.vendor_id
+request_photos.id < work_sessions.proof_photo_id
+request_tasks.id < work_sessions.request_task_id
+requests.id < closeout_submissions.request_id
+users.id < closeout_submissions.vendor_id
+users.id < closeout_submissions.reviewed_by_id
+requests.id < billing_records.request_id
+users.id < billing_records.owner_id
+workspaces.id < billing_records.workspace_id
+users.id < billing_records.vendor_id
+closeout_submissions.id - billing_records.closeout_submission_id
+properties.id < vault_documents.property_id
+requests.id < vault_documents.request_id
+users.id < vault_documents.uploaded_by_id
+properties.id < reminders.property_id
+users.id < contacts.owner_id
+users.id < notification_log.owner_id
+requests.id < notification_log.request_id
+properties.id < notification_log.property_id
+users.id - vendor_profiles.user_id

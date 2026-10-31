@@ -1,0 +1,16 @@
+meta {
+  name: Files - signed out (401)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/files?path=turnflow/00000000-0000-0000-0000-000000000000/before/x/y.png
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+  res.body.error: eq Sign in to view this file.
+}

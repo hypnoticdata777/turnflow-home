@@ -1,0 +1,16 @@
+meta {
+  name: Files - unknown path shape (400)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/files?path=not-a-turnflow-path.png
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 400
+  res.body.error: eq Unknown file.
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Cron reminder digest - authorized (200)
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/cron/reminder-digest
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{cronSecret}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.ownersNotified: isNumber
+  res.body.remindersConsidered: isNumber
+}

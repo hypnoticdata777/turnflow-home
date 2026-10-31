@@ -1,0 +1,22 @@
+meta {
+  name: Session - signed in as owner
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/auth/session
+  body: none
+  auth: none
+}
+
+vars:post-response {
+  ownerId: res.body.user.id
+}
+
+assert {
+  res.status: eq 200
+  res.body.user.role: eq owner
+  res.body.user.email: eq {{ownerEmail}}
+  res.body.user.id: isString
+}

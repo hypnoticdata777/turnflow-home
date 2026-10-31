@@ -1,0 +1,21 @@
+meta {
+  name: Health deep - with HEALTHCHECK_SECRET (200 or 503)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/health/deep
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{healthcheckSecret}}
+}
+
+assert {
+  res.status: in [200, 503]
+  res.body.auth: eq ok
+  res.body.latencyMs: isNumber
+}
